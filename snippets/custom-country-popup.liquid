@@ -1,0 +1,486 @@
+{% comment %} <style>
+  .custom-popup-overlay {
+    display: flex; 
+    position: fixed;
+    z-index: 999999; /* Forces the popup to stay on top of everything */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Dark background effect */
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .custom-popup-box {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 4px;
+    text-align: center;
+    position: relative;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+  }
+
+  .custom-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+  }
+
+  .custom-popup-box h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+
+  .custom-popup-box p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+  }
+
+  .localization-form select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+  }
+
+  .update-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: #000;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+  
+  .update-btn:hover {
+    background-color: #333;
+  }
+</style>
+
+<div id="CountryPopupOverlay" class="custom-popup-overlay">
+  <div class="custom-popup-box">
+    <span class="custom-close-btn" id="ClosePopupBtn">&times;</span>
+    
+    {%- form 'localization', id: 'CountryCurrencySelector', class: 'localization-form' -%}
+      <h2>CHOOSE YOUR COUNTRY & CURRENCY</h2>
+      <p>Regional pricing taxation may change based on shipping options</p>
+      
+      <select name="country_code" id="CountrySelect">
+        {%- for country in localization.available_countries -%}
+          <option value="{{ country.iso_code }}" {%- if country.iso_code == localization.country.iso_code %} selected{% endif %}>
+            {{ country.name }} ({{ country.currency.iso_code }})
+          </option>
+        {%- endfor -%}
+      </select>
+
+      <button type="submit" class="update-btn">UPDATE SETTINGS</button>
+    {%- endform -%}
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    var overlay = document.getElementById("CountryPopupOverlay");
+    var closeBtn = document.getElementById("ClosePopupBtn");
+
+    // Close the popup when the "X" is clicked
+    // (Jokhon 'X' e click kora hobe tokhon popup bondho hobe)
+    closeBtn.onclick = function() {
+      overlay.style.display = "none";
+    }
+
+    // Close the popup if the user clicks anywhere outside the white box
+    // (User jodi shada box er baire kothao click kore taholeo popup bondho hobe)
+    window.onclick = function(event) {
+      if (event.target == overlay) {
+        overlay.style.display = "none";
+      }
+    }
+  });
+</script> {% endcomment %}
+
+
+
+
+
+
+
+
+<style>
+  /* 1. Overlay & Background */
+  .custom-popup-overlay {
+    display: none; 
+    position: fixed;
+    z-index: 9999999 !important; 
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.2); 
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px); 
+    justify-content: center;
+    align-items: center; 
+  }
+  
+  /* 2. Main White Box */
+  .custom-popup-box {
+    background: #ffffff;
+    padding: 50px 40px;
+    border-radius: 2px;
+    position: relative;
+    max-width: 40% !important; 
+    width: 90% !important;
+    box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* 3. Close Button ('X') */
+  .custom-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    cursor: pointer;
+    color: #ccc;
+    font-weight: 100;
+    line-height: 1;
+    transition: color 0.3s;
+  }
+  
+  .custom-close-btn:hover {
+    color: #333;
+  }
+
+  /* 4. Form Structure */
+  .localization-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100% !important; 
+  }
+
+  .form-header-section {
+    margin-bottom: 25px;
+    width: 100% !important;
+    text-align: center;
+  }
+
+  .form-input-section {
+    width: 100% !important; 
+    max-width: 100% !important; 
+    margin-bottom: 30px;
+    text-align: left; 
+  }
+
+  /* 5. Typography */
+  .custom-popup-box h2 {
+    font-size: 48px;
+    font-family: var(--font-heading-family, 'Libre Caslon Text', serif);
+    font-weight: normal;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    line-height: 1.2;
+    color: #222;
+  }
+
+  .custom-popup-box p {
+    font-size: 20px;
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    text-align:left;
+    color: #555;
+    margin: 0;
+  }
+
+  .localization-form label {
+    display: block;
+    font-size: 20px;
+        font-family: var(--font-body-family, 'Inter', sans-serif);
+
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    color: #666;
+  }
+
+  /* 6. Custom Dropdown Box */
+  .custom-dropdown-container {
+    position: relative;
+    width: 100% !important;
+  }
+
+  .custom-dropdown-selected {
+    width: 100% !important;
+    padding: 12px 15px !important;
+    border: 1px solid #e5e5e5 !important;
+    font-size: 18px !important;
+        font-family: var(--font-body-family, 'Inter', sans-serif);
+
+    background-color: #fcfcfc !important;
+    color: #333 !important;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: border-color 0.3s ease;
+  }
+
+  /* --- APNAR DIRECT SVG ARROW ICON --- */
+  .dropdown-arrow-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 16px;
+    /* Default state: Opacity 0.4 diye halka kora hoyeche */
+    opacity: 0.4; 
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  /* Hover State: Opacity 1 korle icon tar original color e fire asbe */
+  .custom-dropdown-selected:hover .dropdown-arrow-icon {
+    opacity: 1;
+  }
+
+  /* Open State: Original color + Rotate 180 degrees */
+  .custom-dropdown-container.open .dropdown-arrow-icon {
+    opacity: 1;
+    transform: rotate(180deg);
+  }
+
+  /* Dropdown List */
+  .custom-dropdown-options {
+    display: none;
+    position: absolute;
+    top: 100%; 
+    left: 0;
+    width: 100%;
+    max-height: 250px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-top: none;
+    z-index: 999;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+
+  .custom-dropdown-container.open .custom-dropdown-options {
+    display: block; 
+  }
+
+  .custom-dropdown-option {
+    padding: 10px 15px;
+    font-size: 20px;
+        font-family: var(--font-body-family, 'Inter', sans-serif);
+
+    cursor: pointer;
+    color: #333;
+    text-align: left;
+  }
+
+  .custom-dropdown-option:hover {
+    background-color: #f0f0f0;
+  }
+
+  .custom-dropdown-option.active {
+    background-color: #e5e5e5;
+    font-weight: bold;
+  }
+
+  /* 7. Button */
+  .update-btn {
+   width: 275px; /* Exact width from Figma */
+    height: 55px; /* Exact height */
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: 20px;
+    font-weight: 300;  
+      {% comment %} padding: 14px 20px; {% endcomment %}
+    background-color: transparent;
+    color: #333;
+    border: 1px solid #333;
+    cursor: pointer;
+    font-size: 20px;
+        font-family: var(--font-body-family, 'Inter', sans-serif);
+
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+  }
+  
+  .update-btn:hover {
+    background: linear-gradient(135deg, #947863, #E9DDD4,#947863);
+    color: #FFFFFF;
+    border: none ;
+  }
+
+   @media screen and (max-width: 1728px) {
+
+    .custom-popup-box {
+    max-width: 45% !important; 
+    width: 90% !important;
+  }
+}
+
+  /* 8. Responsive */
+  @media screen and (max-width: 768px) {
+    .custom-popup-box h2 { font-size: 28px; }
+    .custom-popup-box p { font-size: 14px; }
+    .custom-dropdown-selected, .custom-dropdown-option { font-size: 14px !important; }
+    .custom-popup-box { 
+    padding: 30px 20px; 
+    max-width: 100% !important;
+   
+}
+
+
+.localization-form label {
+    font-size: 14px;
+   
+}
+    .update-btn {
+    width: 100%;
+    font-size: 14px;
+    padding: 10px;
+}
+  }
+</style>
+
+<div id="CountryPopupOverlay" class="custom-popup-overlay">
+  <div class="custom-popup-box">
+    {% comment %} <span class="custom-close-btn" id="ClosePopupBtn">&times;</span> {% endcomment %}
+    <svg class="custom-close-btn" id="ClosePopupBtn" xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25" fill="none">
+<path d="M0.0442995 0.0442707C0.844312 -0.75544 9.5443 9.54427 12.0443 9.54427C14.5443 9.54427 23.2443 -0.75544 24.0443 0.0442707C24.8443 0.843945 14.5443 9.54427 14.5443 12.0443C14.5443 14.5443 24.8443 23.2439 24.0443 24.0443C23.2443 24.8439 14.5443 14.5443 12.0443 14.5443C9.5443 14.5443 0.842969 24.8439 0.0442995 24.0443C-0.755688 23.2439 9.5443 14.5443 9.5443 12.0443C9.5443 9.54427 -0.755688 0.84456 0.0442995 0.0442707Z" fill="#2C2C2C" fill-opacity="0.5"/>
+</svg>
+    
+    {%- form 'localization', id: 'CountryCurrencySelector', class: 'localization-form' -%}
+      
+      <input type="hidden" name="country_code" id="RealCountryInput" value="{{ localization.country.iso_code }}">
+      
+      <div class="form-header-section">
+        <h2>CHOOSE YOUR<br>COUNTRY & CURRENCY</h2>
+        <p>Regional pricing taxation may change based on shipping options</p>
+      </div>
+      
+      <div class="form-input-section">
+        <label>SELECT COUNTRY & CURRENCY</label>
+        
+        <div class="custom-dropdown-container" id="CustomDropdownContainer">
+          <div class="custom-dropdown-selected" id="CustomDropdownSelected">
+            <span id="SelectedCountryText">{{ localization.country.name }} ({{ localization.country.currency.iso_code }})</span>
+            
+            <span class="dropdown-arrow-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="16" viewBox="0 0 20 16" fill="none">
+                <rect x="20" width="16" height="20" transform="rotate(90 20 0)" fill="url(#pattern0_8402_32407)"/>
+                <defs>
+                  <pattern id="pattern0_8402_32407" patternContentUnits="objectBoundingBox" width="1" height="1">
+                    <use xlink:href="#image0_8402_32407" transform="matrix(0.00477099 0 0 0.00381679 -0.0271947 0)"/>
+                  </pattern>
+                  <image id="image0_8402_32407" width="221" height="262" preserveAspectRatio="none" xlink:href="data:image/png;base64,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"/>
+                </defs>
+              </svg>
+            </span>
+          </div>
+          
+          <div class="custom-dropdown-options" id="CustomDropdownOptions">
+            {%- for country in localization.available_countries -%}
+              <div class="custom-dropdown-option {% if country.iso_code == localization.country.iso_code %}active{% endif %}" data-value="{{ country.iso_code }}">
+                {{ country.name }} ({{ country.currency.iso_code }})
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+
+      </div>
+
+      <div class="form-button-section">
+        <button type="submit" class="update-btn">UPDATE SETTINGS</button>
+      </div>
+
+    {%- endform -%}
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    var overlay = document.getElementById("CountryPopupOverlay");
+    var closeBtn = document.getElementById("ClosePopupBtn");
+    var form = document.getElementById("CountryCurrencySelector");
+
+    // Check if user has already seen the popup
+    var hasSeenPopup = localStorage.getItem("countryPopupSaved");
+    if (!hasSeenPopup) {
+      overlay.style.display = "flex";
+    }
+
+    function closeAndSave() {
+      overlay.style.display = "none";
+      localStorage.setItem("countryPopupSaved", "true"); 
+    }
+
+    // Close on "X" click
+    if(closeBtn) {
+      closeBtn.onclick = function() { closeAndSave(); }
+    }
+
+    // Save on Form Submit
+    if(form) {
+      form.addEventListener("submit", function() {
+        localStorage.setItem("countryPopupSaved", "true");
+      });
+    }
+
+    // Custom Dropdown Interactive Logic
+    var dropdownContainer = document.getElementById('CustomDropdownContainer');
+    var selectedBox = document.getElementById('CustomDropdownSelected');
+    var realInput = document.getElementById('RealCountryInput');
+    var options = document.querySelectorAll('.custom-dropdown-option');
+    var selectedText = document.getElementById('SelectedCountryText');
+
+    // Toggle Dropdown List Open/Close
+    if(selectedBox) {
+      selectedBox.addEventListener('click', function(e) {
+        dropdownContainer.classList.toggle('open');
+        e.stopPropagation(); 
+      });
+    }
+
+    // Handle Option Selection
+    options.forEach(function(option) {
+      option.addEventListener('click', function(e) {
+        var value = this.getAttribute('data-value');
+        var text = this.textContent.trim();
+        
+        selectedText.textContent = text;
+        realInput.value = value;
+        
+        dropdownContainer.classList.remove('open');
+        
+        options.forEach(function(opt) { opt.classList.remove('active'); });
+        this.classList.add('active');
+        
+        e.stopPropagation();
+      });
+    });
+
+    // Close Dropdown if clicked outside
+    window.addEventListener('click', function(e) {
+      if (dropdownContainer && !dropdownContainer.contains(e.target)) {
+        dropdownContainer.classList.remove('open');
+      }
+    });
+  });
+</script>

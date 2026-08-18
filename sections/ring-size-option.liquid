@@ -1,0 +1,199 @@
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    background-color: {{ section.settings.bg_color }};
+  }
+
+  .sizer-container {
+    max-width: 1920px;
+    margin: 0 auto;
+    padding: 80px 120px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 60px;
+  }
+
+  .sizer-content {
+    flex: 1;
+    max-width: 900px;
+  }
+
+  .sizer-heading {
+    font-family: "Libre Caslon Text", serif;
+    font-size: 56px;
+    font-weight: 400;
+    color: #111;
+    margin: 0 0 20px 0;
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  .sizer-text-block {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    line-height: 1.6;
+    color: #333;
+  }
+
+  .sizer-steps {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0 0 0;
+  }
+
+  .sizer-steps li {
+    margin-bottom: 8px;
+  }
+
+  .sizer-image-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .sizer-image {
+    max-width: 810px;
+    max-height: 810px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+
+  /* Mac 15 inch (1728px and down) */
+  @media screen and (max-width: 1728px) {
+    .sizer-heading { font-size: 46px; }
+    .sizer-text-block { font-size: 18px; }
+  }
+
+  /* Mac 13 inch (1440px and down) */
+  @media screen and (max-width: 1440px) {
+    .sizer-heading { font-size: 46px; }
+    .sizer-text-block { font-size: 16px; }
+  }
+/* iPad (769px - 1024px) */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .sizer-container {
+    flex-direction: column;
+    padding: 60px 40px;
+    gap: 40px;
+        align-items: start;
+  }
+  .sizer-image-wrapper {
+    order: -1;
+    justify-content: center;
+    width: 100%;
+  }
+  .sizer-image {
+    max-width: 100%;
+    max-height: none;
+  }
+  .sizer-content {
+    max-width: 100%;
+  }
+  .sizer-heading {
+    font-size: 38px;
+  }
+  .sizer-text-block {
+    font-size: 16px;
+  }
+}
+  /* Mobile */
+  @media screen and (max-width: 768px) {
+    .sizer-container {
+      flex-direction: column;
+      padding: 40px 20px;
+      gap: 40px;
+    }
+    .sizer-heading { font-size: 28px; }
+    .sizer-text-block { font-size: 16px; }
+    .sizer-image-wrapper { justify-content: center; }
+  }
+{%- endstyle -%}
+
+<div class="section-{{ section.id }}-padding" id="mobile-ring-option">
+  <div class="sizer-container">
+    <div class="sizer-content">
+      <h2 class="sizer-heading">{{ section.settings.heading }}</h2>
+      <div class="sizer-text-block">
+        <p><strong>{{ section.settings.subheading }}</strong></p>
+        <p>{{ section.settings.description }}</p>
+        <ol class="sizer-steps">
+          <li>1. {{ section.settings.step1 }}</li>
+          <li>2. {{ section.settings.step2 }}</li>
+          <li>3. {{ section.settings.step3 }}</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="sizer-image-wrapper">
+      {%- if section.settings.image != blank -%}
+        <img src="{{ section.settings.image | image_url: width: 1600 }}" 
+             alt="{{ section.settings.image.alt | escape }}" 
+             class="sizer-image"
+             loading="lazy">
+      {%- else -%}
+        {{ 'image' | placeholder_svg_tag: 'sizer-image' }}
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Mobile Ring Sizer",
+  "settings": [
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "MOBILE RING SIZER"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Find Your Perfect Ring Size in 3 Easy Steps"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "With our simple ring sizer tool:"
+    },
+    {
+      "type": "text",
+      "id": "step1",
+      "label": "Step 1",
+      "default": "Go to sbrillet.ringsizer.com on your phone"
+    },
+    {
+      "type": "text",
+      "id": "step2",
+      "label": "Step 2",
+      "default": "Select \"I have a ring\" or \"I don't have a ring.\""
+    },
+    {
+      "type": "text",
+      "id": "step3",
+      "label": "Step 3",
+      "default": "Follow the quick steps to get your perfect size in seconds."
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Section Image"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Mobile Ring Sizer"
+    }
+  ]
+}
+{% endschema %}

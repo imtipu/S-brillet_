@@ -1,0 +1,334 @@
+{%- style -%}
+  /* =========================================================
+     Crystal Rolling Section - Pixel Perfect Auto Slide
+     ========================================================= */
+  .custom-crystal-{{ section.id }} {
+    --bg-color: {{ section.settings.bg_color }};
+    --padding-top: {{ section.settings.padding_top }}px;
+    --padding-bottom: {{ section.settings.padding_bottom }}px;
+    
+    --text-color: {{ section.settings.text_color }};
+    --text-size: {{ section.settings.text_size }}px;
+    --image-size: {{ section.settings.image_size }}px;
+    --gap: {{ section.settings.item_gap }}px;
+    --speed: {{ section.settings.scroll_speed }}s;
+
+    background-color: var(--bg-color);
+    padding-top: var(--padding-top);
+    padding-bottom: var(--padding-bottom);
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+    
+    {% if section.settings.show_inner_shadow %}
+      box-shadow: inset 0px 0px 8px 0px rgba(0, 0, 0, 0.06);
+    {% endif %}
+  }
+
+  /* Marquee Container Setup */
+  .custom-crystal-{{ section.id }} .marquee-wrapper {
+    display: flex;
+    overflow: hidden;
+    user-select: none;
+    gap: var(--gap);
+  }
+
+  .custom-crystal-{{ section.id }} .marquee-content {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-around;
+    gap: var(--gap);
+    min-width: 100%;
+    animation: scrollX var(--speed) linear infinite;
+  }
+
+  @keyframes scrollX {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+
+  /* Individual Crystal Item */
+  .custom-crystal-{{ section.id }} .crystal-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    gap: 15px; /* Gap between image and text */
+  }
+
+  .custom-crystal-{{ section.id }} .crystal-image-box {
+    width: var(--image-size);
+    height: var(--image-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .custom-crystal-{{ section.id }} .crystal-image-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Transparent background er crystal image er jonno */
+    display: block;
+  }
+
+  .custom-crystal-{{ section.id }} .crystal-title {
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: var(--text-size);
+    font-weight: 400;
+    color: var(--text-color);
+    text-transform: uppercase;
+    text-align: center;
+    margin: 0;
+    letter-spacing: 0.5px;
+  }
+
+
+/* MacBook 13" */
+@media  (max-width: 1440px) {
+  .custom-crystal-{{ section.id }} {
+    --image-size: 100px;
+    --text-size: 13px;
+    --gap: 35px;
+  }
+}
+
+/* MacBook Air 15" M2 */
+@media (min-width: 1441px) and (max-width: 1728px) {
+  .custom-crystal-{{ section.id }} {
+    --image-size: 110px;
+    --text-size: 13px;
+    --gap: 38px;
+  }
+}
+
+
+  /* --- RESPONSIVE DESIGN --- */
+  @media (max-width: 768px) {
+    .custom-crystal-{{ section.id }} {
+      --image-size: {{ section.settings.image_size_mobile }}px;
+      --gap: {{ section.settings.item_gap_mobile }}px;
+      --text-size: {{ section.settings.text_size_mobile }}px;
+      padding-top: 30px;
+      padding-bottom: 30px;
+    }
+  }
+{%- endstyle -%}
+
+<section class="custom-crystal-{{ section.id }}">
+  <div class="marquee-wrapper">
+    
+    <!-- First Content Block -->
+    <div class="marquee-content">
+      {%- for block in section.blocks -%}
+        <a href="{{ block.settings.link | default: '#' }}" class="crystal-item" {{ block.shopify_attributes }}>
+          <div class="crystal-image-box">
+            {%- if block.settings.image != blank -%}
+              <img src="{{ block.settings.image | image_url: width: 240 }}" alt="{{ block.settings.title }}" loading="lazy">
+            {%- else -%}
+              {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+            {%- endif -%}
+          </div>
+          {%- if block.settings.title != blank -%}
+            <h4 class="crystal-title">{{ block.settings.title }}</h4>
+          {%- endif -%}
+        </a>
+      {%- endfor -%}
+    </div>
+
+    <!-- Second Content Block (Duplicated for infinite seamless scroll) -->
+    <div class="marquee-content" aria-hidden="true">
+      {%- for block in section.blocks -%}
+        <a href="{{ block.settings.link | default: '#' }}" class="crystal-item">
+          <div class="crystal-image-box">
+            {%- if block.settings.image != blank -%}
+              <img src="{{ block.settings.image | image_url: width: 240 }}" alt="{{ block.settings.title }}" loading="lazy">
+            {%- else -%}
+              {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+            {%- endif -%}
+          </div>
+          {%- if block.settings.title != blank -%}
+            <h4 class="crystal-title">{{ block.settings.title }}</h4>
+          {%- endif -%}
+        </a>
+      {%- endfor -%}
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Crystal Rolling Section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Layout & Styling"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#FAFAFA"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_inner_shadow",
+      "label": "Show Inner Shadow",
+      "default": true,
+      "info": "Adds a faint inner shadow at the top and bottom just like Figma."
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Auto-Slide (Marquee) Settings"
+    },
+    {
+      "type": "range",
+      "id": "scroll_speed",
+      "label": "Scroll Speed",
+      "default": 20,
+      "min": 5,
+      "max": 60,
+      "step": 1,
+      "unit": "s",
+      "info": "Lower number means faster scroll. Higher number means slower."
+    },
+    {
+      "type": "header",
+      "content": "Crystal Item Settings"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Crystal Name Color",
+      "default": "#A08A7D"
+    },
+    {
+      "type": "range",
+      "id": "image_size",
+      "label": "Image Size (Desktop)",
+      "default": 120,
+      "min": 50,
+      "max": 200,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "image_size_mobile",
+      "label": "Image Size (Mobile)",
+      "default": 80,
+      "min": 50,
+      "max": 150,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text Size (Desktop)",
+      "default": 14,
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "text_size_mobile",
+      "label": "Text Size (Mobile)",
+      "default": 12,
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "item_gap",
+      "label": "Gap Between Crystals (Desktop)",
+      "default": 40,
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "item_gap_mobile",
+      "label": "Gap Between Crystals (Mobile)",
+      "default": 20,
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "crystal",
+      "name": "Crystal Item",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Crystal Image (Use transparent PNG)"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Crystal Name",
+          "default": "ROSE QUARTZ"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link (Optional)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Crystal Rolling Section",
+      "blocks": [
+        { "type": "crystal", "settings": { "title": "ROSE QUARTZ" } },
+        { "type": "crystal", "settings": { "title": "AQUAMARINE" } },
+        { "type": "crystal", "settings": { "title": "BLACK OBSIDIAN" } },
+        { "type": "crystal", "settings": { "title": "WHITE QUARTZ" } },
+        { "type": "crystal", "settings": { "title": "MOONSTONE" } },
+        { "type": "crystal", "settings": { "title": "GREEN PERIDOT" } },
+        { "type": "crystal", "settings": { "title": "CITRINE" } },
+        { "type": "crystal", "settings": { "title": "RUBY CORUNDUM" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

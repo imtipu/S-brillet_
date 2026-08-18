@@ -1,0 +1,1900 @@
+
+{% comment %} 
+{% liquid
+  assign has_qty_rules = false
+  if item.variant.quantity_rule.increment > 1 or item.variant.quantity_rule.min > 1 or item.variant.quantity_rule.max != null
+    assign has_qty_rules = true
+  endif
+
+  assign has_vol_pricing = false
+  if item.variant.quantity_price_breaks.size > 0
+    assign has_vol_pricing = true
+  endif
+%}
+{%- if has_qty_rules or has_vol_pricing -%}
+  {%- capture qty_rules_vol_pricing -%}
+      {%- if has_qty_rules -%}
+        <div class="quantity__rules m:text-sm m:flex-wrap">
+          {%- if item.variant.quantity_rule.increment > 1 -%}
+            <span class="divider">
+              {%- render 'new-locale',
+                key: 'products.product.quantity_multiples_of',
+                param: '{{ quantity }}',
+                value: item.variant.quantity_rule.increment
+              -%}
+            </span>
+          {%- endif -%}
+          {%- if item.variant.quantity_rule.min > 1 -%}
+            <span class="divider">
+              {%- render 'new-locale',
+                key: 'products.product.quantity_minimum_of',
+                param: '{{ quantity }}',
+                value: item.variant.quantity_rule.min
+              -%}
+            </span>
+          {%- endif -%}
+          {%- if item.variant.quantity_rule.max != null -%}
+            <span class="divider">
+              {%- render 'new-locale',
+                key: 'products.product.quantity_maximum_of',
+                param: '{{ quantity }}',
+                value: item.variant.quantity_rule.max
+              -%}
+            </span>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+      {%- if has_vol_pricing -%}
+        {{ 'component-volume-pricing.css' | asset_url | stylesheet_tag }}
+        <volume-pricing
+          class="volume-pricing m:block parent-display{% unless has_qty_rules %} volume-pricing--empty-header{% endunless %}"
+          id="Volume-{{ section.id }}"
+        >
+          <ul class="list-unstyled volume-pricing__list">
+            <li class="volume-pricing__item">
+              <span>{{ item.variant.quantity_rule.min }}+</span>
+              {%- liquid
+                if settings.currency_code_enabled
+                  assign price = item.variant.price | money_with_currency
+                else
+                  assign price = item.variant.price | money
+                endif
+              -%}
+              {%- capture price_at_each -%}
+                {%- render 'new-locale',
+                  key: 'products.product.volume_pricing.price_at_each',
+                  param: '{{ price }}',
+                  value: price
+                -%}
+              {%- endcapture -%}
+              <span data-text="{{ price_at_each | strip_html }}">
+                {%- render 'new-locale',
+                  key: 'products.product.volume_pricing.each_html',
+                  param: '{{ money }}',
+                  value: price
+                -%}
+              </span>
+            </li>
+            {%- for price_break in item.variant.quantity_price_breaks -%}
+              {%- liquid
+                if settings.currency_code_enabled
+                  assign price_break_price = price_break.price | money_with_currency
+                else
+                  assign price_break_price = price_break.price | money
+                endif
+              -%}
+              <li class="volume-pricing__item">
+                <span>
+                  {{- price_break.minimum_quantity -}}
+                  <span aria-hidden="true">+</span>
+                </span>
+                {%- capture price_at_each -%}
+                  {%- render 'new-locale',
+                    key: 'products.product.volume_pricing.price_at_each',
+                    param: '{{ price }}',
+                    value: price_break_price
+                  -%}
+                {%- endcapture -%}
+                <span data-text="{{ price_at_each | strip_html }}">
+                  {%- render 'new-locale',
+                    key: 'products.product.volume_pricing.each_html',
+                    param: '{{ money }}',
+                    value: price_break_price
+                  -%}
+                </span>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </volume-pricing>
+      {%- endif -%}
+  {%- endcapture -%}
+{%- endif -%}
+
+{%- liquid
+  assign has_message_props = false
+  assign msg_val = item.properties['Message'] | default: ''
+  assign from_val = item.properties['From'] | default: ''
+  if msg_val != blank or from_val != blank
+    assign has_message_props = true
+  endif
+  assign is_message_card = false
+  if item.product.title contains 'Message Card' or item.product.title contains 'message card'
+    assign is_message_card = true
+  endif
+-%}
+
+<style>
+/* =========================================
+   CART ITEM – RESPONSIVE OCTAGON IMAGE HOVER
+========================================= */
+.cs-cart-item-img-wrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cs-cart-item-img-box {
+  width: 112px;
+  height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  position: relative;
+  clip-path: polygon(1% 0%, 99% 0%, 100% 1%, 100% 99%, 99% 100%, 1% 100%, 0% 99%, 0% 1%);
+  transition: clip-path 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.m-cart-item:hover .cs-cart-item-img-box {
+  clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%);
+}
+
+.cs-cart-item-img-box a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.cs-cart-item-img-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.cs-cart-oct-border {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 120px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 3;
+  overflow: visible;
+  display: block;
+}
+
+.m-cart-item:hover .cs-cart-oct-border {
+  opacity: 1;
+}
+
+.cs-responsive-gap {
+  gap: 15px;
+}
+
+@media screen and (min-width: 1440px) and (max-width: 1710px) {
+  .cs-cart-item-img-wrap, .cs-cart-oct-border { width: 100px; height: 100px; }
+  .cs-cart-item-img-box { width: 92px; height: 92px; }
+}
+
+@media screen and (max-width: 767px) {
+  .cs-cart-item-img-wrap, .cs-cart-oct-border { width: 72px; height: 72px; }
+  .cs-cart-item-img-box { width: 64px; height: 64px; }
+  .cs-responsive-gap { gap: 10px !important; }
+  .m-cart-item__title { font-size: 14px !important; }
+}
+
+/* =========================================
+   INLINE REMOVE CONFIRMATION OVERLAY
+========================================= */
+.m-cart-item { position: relative; }
+
+.cs-remove-inline-overlay {
+  position: absolute; inset: -5px; background: #ffffff; z-index: 20; display: flex; flex-direction: column; justify-content: center; padding: 16px; border: 1.5px solid #e8e2dc; box-shadow: 0 4px 20px rgba(0,0,0,0.07); border-radius: 4px; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.cs-remove-inline-overlay.is-visible { opacity: 1; visibility: visible; }
+.cs-rm-close { position: absolute; top: 10px; right: 10px; background: none; border: none; cursor: pointer; color: #b3b3b3; padding: 2px; line-height: 1; display: flex; align-items: center; }
+.cs-rm-close:hover { color: #2c2c2c; }
+.cs-rm-content { display: flex; gap: 14px; align-items: center; margin-bottom: 14px; }
+.cs-rm-img-wrap { width: 68px; height: 68px; flex-shrink: 0; position: relative; }
+.cs-rm-img-wrap img { width: 100%; height: 100%; object-fit: contain; display: block; clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%); }
+.cs-rm-oct-border { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+.cs-rm-text h3 { margin: 0 0 4px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; color: #2c2c2c; line-height: 1.3; }
+.cs-rm-text p { margin: 0; font-family: 'Inter', sans-serif; font-size: 12px; color: #888; line-height: 1.4; }
+.cs-rm-actions { display: flex; gap: 8px; }
+.cs-rm-btn { flex: 1; padding: 9px 0; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; border: 1px solid #2c2c2c; text-align: center; transition: all 0.2s ease; border-radius: 2px; }
+.cs-rm-btn-primary { background: #2c2c2c; color: #fff; }
+.cs-rm-btn-primary:hover { background: #444; }
+.cs-rm-btn-secondary { background: #fff; color: #2c2c2c; }
+.cs-rm-btn-secondary:hover { background: #f5f5f5; }
+
+/* =========================================
+   MESSAGE SUMMARY IN CART ITEM
+========================================= */
+.cs-msg-summary {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 6px;
+  margin-bottom: 4px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  clear: both;
+}
+.cs-msg-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 6px;
+}
+.cs-msg-row:last-child {
+  margin-bottom: 0;
+}
+.cs-msg-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 400;
+  color: #b0b0b0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+.cs-msg-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: #2c2c2c;
+  line-height: 1.45;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+/* =========================================
+   CART ITEM SAVE PERCENTAGE
+========================================= */
+.cs-cart-save-percent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  color: #947863;
+  padding: 4px 7px;
+  border: 1px solid #E9DDD4;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+@media screen and (max-width: 767px) {
+  .cs-cart-save-percent {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+}
+</style>
+
+<div
+  id="MinimogCart-Item-{{ item.index | plus: 1 }}"
+  class="m-cart-item m-cart-drawer-item"
+  data-cart-item
+  data-id="{{ item.key }}"
+  data-product-id="{{- item.product_id -}}"
+  data-variant-id="{{- item.variant_id -}}"
+  data-index="{{- forloop.index -}}"
+  style="border-bottom: 1px solid #f5f5f5; padding-bottom: 20px; margin-bottom: 20px;"
+>
+  <div class="m-cart-item--drawer__wrapper m:flex m:items-start cs-responsive-gap" style="width: 100%;">
+
+    {%- comment -%} IMAGE with octagon hover {%- endcomment -%}
+    <div class="cs-cart-item-img-wrap m-cart-item__image">
+      <div class="cs-cart-item-img-box">
+        <a href="{{- item.url -}}">
+          {%- comment -%}
+            Alt-text combo match runs FIRST and wins if found. We can't trust
+            item.variant.image / item.image as the "is this variant-specific?"
+            signal — either can already point at a generic placeholder image
+            (e.g. a logo) that was assigned to every variant, so checking
+            "is it blank" never catches that case. The alt-text match is the
+            one thing we know is accurate, since this store's media alt text
+            is the option values joined by a comma, e.g.
+            "18K T Yellow Gold Vermeil Plated,Moissanite D-E / Amethystde5".
+
+            We require the alt to contain ALL of the current option values
+            together, not just one — matching one option at a time let a
+            later option (e.g. gemstone) silently overwrite an
+            already-correct match from an earlier option (e.g. material),
+            which is why the wrong combo image showed up originally.
+          {%- endcomment -%}
+          {%- assign matched_img = blank -%}
+          {%- for media in item.product.media -%}
+            {%- if media.alt != blank -%}
+              {%- assign m_alt = media.alt | downcase -%}
+              {%- assign all_options_match = true -%}
+              {%- for option in item.options_with_values -%}
+                {%- assign opt_val = option.value | downcase -%}
+                {%- unless m_alt contains opt_val -%}
+                  {%- assign all_options_match = false -%}
+                {%- endunless -%}
+              {%- endfor -%}
+              {%- if all_options_match and matched_img == blank -%}
+                {%- assign matched_img = media.preview_image -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- if matched_img != blank -%}
+            {%- assign cart_img = matched_img -%}
+          {%- else -%}
+            {%- assign cart_img = item.variant.image | default: item.image | default: item.product.featured_image -%}
+          {%- endif -%}
+
+          {%- if cart_img != blank -%}
+            <img
+              src="{{ cart_img | image_url: width: 200 }}"
+              alt="{{ cart_img.alt | escape }}"
+            >
+          {%- else -%}
+            {{ 'image' | placeholder_svg_tag: 'm-placeholder-svg' }}
+          {%- endif -%}
+        </a>
+      </div>
+
+      <svg
+        class="cs-cart-oct-border"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="cart-item-border-grad-{{ item.index }}" x1="0%" y1="50%" x2="100%" y2="50%">
+            <stop offset="0%"   stop-color="#947863"/>
+            <stop offset="50%"  stop-color="#E9DDD4"/>
+            <stop offset="100%" stop-color="#947863"/>
+          </linearGradient>
+        </defs>
+        <polygon
+          points="18,1 82,1 99,18 99,82 82,99 18,99 1,82 1,18"
+          fill="none"
+          stroke="url(#cart-item-border-grad-{{ item.index }})"
+          stroke-width="1"
+          vector-effect="non-scaling-stroke"
+          stroke-linejoin="miter"
+        />
+      </svg>
+    </div>
+
+    {%- comment -%} INFO BOX {%- endcomment -%}
+    <div class="m-cart-item__info m-cart-drawer-item__info" style="display: flex; flex-direction: column; width: 100%; flex: 1; min-width: 0;">
+
+      {%- comment -%} TOP ROW: EDIT PENCIL + TITLE + REMOVE (X) {%- endcomment -%}
+      <div class="m-cart-item__name-wrap" style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; gap: 10px;">
+
+        <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0;">
+
+          {%- comment -%} Edit pencil + Title {%- endcomment -%}
+          <div style="display: flex; align-items: flex-start; gap: 6px;">
+            {%- unless is_message_card -%}
+              <button
+                type="button"
+                class="m-cart-item__edit-btn"
+                onclick="openEditModal('{{ item.product.handle }}', '{{ item.key }}', {{ item.variant_id }}, {{ item.quantity }})"
+                style="background: none; border: none; padding: 0; cursor: pointer; color: #4a4a4a; display: flex; align-items: center; margin-top: 2px; flex-shrink: 0;"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+            {%- endunless -%}
+            <p class="m-cart-item__title" style="font-size: 16px; font-weight: 400; color: #2c2c2c; text-decoration: none; line-height: 1.2; word-break: break-word; margin: 0;">
+              {{- item.product.title -}}
+            </p>
+          </div>
+
+          {%- comment -%} Message/From block — only for Message Card {%- endcomment -%}
+          {%- if is_message_card and has_message_props -%}
+            <div class="cs-msg-summary">
+              {%- if msg_val != blank -%}
+                <div class="cs-msg-row">
+                  <span class="cs-msg-label">MESSAGE</span>
+                  <span class="cs-msg-value">{{ msg_val }}</span>
+                </div>
+              {%- endif -%}
+              {%- if from_val != blank -%}
+                <div class="cs-msg-row">
+                  <span class="cs-msg-label">FROM</span>
+                  <span class="cs-msg-value">{{ from_val }}</span>
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+        </div>
+
+        {%- if item.properties._parentKey == blank -%}
+          <m-cart-remove-button
+            id="MinimogCartDrawer-Remove-{{ item.index | plus: 1 }}"
+            data-index="{{ item.index | plus: 1 }}"
+          >
+            <button
+              type="button"
+              class="m-cart-item__remove"
+              data-id="{{ item.key }}"
+              aria-label="Remove"
+              style="background: none; border: none; padding: 0; cursor: pointer; color: #b3b3b3; flex-shrink: 0; margin-top: 2px;"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+                <g opacity="0.5">
+                  <path d="M0.0257463 0.0257297C0.490704 -0.439054 5.54703 5.54703 7 5.54703C8.45297 5.54703 13.5093 -0.439054 13.9743 0.0257297C14.4392 0.490492 8.45297 5.54703 8.45297 7C8.45297 8.45298 14.4392 13.5091 13.9743 13.9743C13.5093 14.439 8.45297 8.45298 7 8.45298C5.54703 8.45298 0.489923 14.439 0.0257463 13.9743C-0.439196 13.5091 5.54703 8.45298 5.54703 7C5.54703 5.54703 -0.439196 0.490849 0.0257463 0.0257297Z" fill="#2C2C2C" fill-opacity="0.5"/>
+                </g>
+              </svg>
+            </button>
+          </m-cart-remove-button>
+        {%- endif -%}
+
+      </div>
+
+      {%- comment -%} MIDDLE ROW: VARIANT INFO — hidden for Message Card {%- endcomment -%}
+      {%- unless is_message_card -%}
+        <div class="m-cart-drawer-item__variant m:text-color-subtext" style="font-size: 14px; color: #888; line-height: 1.6; margin-bottom: 12px; width: 100%;">
+          {%- if item.options_with_values.size > 0 -%}
+
+            {%- comment -%} Line 1: Size • Material {%- endcomment -%}
+            <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+              {%- if item.options_with_values[1] -%}
+                <span>Size {{ item.options_with_values[1].value }}</span>
+                <span style="color: #999; margin: 0 2px; font-size: 28px; line-height: 0; display: inline-flex; align-items: center;">•</span>
+              {%- endif -%}
+              <span>{{ item.options_with_values[0].value }}</span>
+              {%- assign opt_thumb = item.variant.image | default: item.image -%}
+              {%- if opt_thumb != nil -%}
+                <img
+                  src="{{ opt_thumb | image_url: width: 30 }}"
+                  alt="{{ item.options_with_values[0].value }}"
+                  style="width:14px; height:14px; margin-left: 2px;"
+                >
+              {%- endif -%}
+            </div>
+
+            {%- assign is_shape_product = false -%}
+            {%- for opt in item.options_with_values -%}
+              {%- assign check_name = opt.name | downcase -%}
+              {%- if check_name contains 'shape' -%}
+                {%- assign is_shape_product = true -%}
+              {%- endif -%}
+            {%- endfor -%}
+
+            {%- for option in item.options_with_values offset: 2 -%}
+              {%- liquid
+                if is_shape_product
+                  assign box_width = '14px'
+                  assign box_height = '14px'
+                  assign clip_path = 'none'
+                  assign img_padding = '0px'
+                  assign border_padding = '0px'
+                  assign border_margin = '2px'
+                else
+                  assign box_width = '56px'
+                  assign box_height = '32px'
+                  assign clip_path = 'polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px)'
+                  assign img_padding = '2px'
+                  assign border_padding = '1px'
+                  assign border_margin = '6px'
+                endif
+              -%}
+
+              <div style="display: flex; align-items: center; gap: 4px; margin-top: 3px; flex-wrap: wrap;">
+                <span>{{ option.value }}</span>
+                <div style="display: inline-flex; padding: {{ border_padding }}; margin-left: {{ border_margin }};">
+                  <div style="display: inline-flex; align-items: center; justify-content: center; width: {{ box_width }}; height: {{ box_height }}; background: #ffffff; clip-path: {{ clip_path }};">
+                    <img
+                      src="{{ option.value | handleize | append: '.png' | file_url }}"
+                      alt="{{ option.value | escape }}"
+                      style="width: 100%; height: 100%; object-fit: contain; padding: {{ img_padding }};"
+                      onerror="this.style.display='none'; this.parentElement.style.display='none'; this.parentElement.parentElement.style.display='none';"
+                    >
+                  </div>
+                </div>
+              </div>
+            {%- endfor -%}
+
+          {%- endif -%}
+        </div>
+      {%- endunless -%}
+
+      {%- comment -%} BOTTOM ROW: PRICE + QUANTITY {%- endcomment -%}
+      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: auto; flex-wrap: wrap; gap: 10px;">
+        {%- liquid
+          assign cs_regular_price = item.final_price
+
+          if item.original_price > item.final_price
+            assign cs_regular_price = item.original_price
+          elsif item.variant.compare_at_price != blank and item.variant.compare_at_price > item.final_price
+            assign cs_regular_price = item.variant.compare_at_price
+          endif
+
+          assign cs_save_percentage = 0
+
+          if cs_regular_price > item.final_price and cs_regular_price > 0
+            assign cs_save_amount = cs_regular_price | minus: item.final_price
+            assign cs_save_percentage = cs_save_amount | times: 100.0 | divided_by: cs_regular_price | round
+          endif
+        -%}
+
+        <div
+          class="m-cart-item__price"
+          style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;"
+        >
+          <span
+            class="m-cart-item__price--final"
+            style="font-size: 16px; font-weight: 400; color: #2c2c2c;"
+          >
+            {{- item.final_price | money -}}
+          </span>
+
+          {%- if cs_regular_price > item.final_price -%}
+            <del
+              class="m-cart-item__price--regular"
+              style="font-size: 13px; color: #999;"
+            >
+              {{- cs_regular_price | money -}}
+            </del>
+
+            {%- if cs_save_percentage > 0 -%}
+              <span class="cs-cart-save-percent">
+                SAVE {{ cs_save_percentage }}%
+              </span>
+            {%- endif -%}
+          {%- endif -%}
+        </div>
+
+        <div class="m-cart-drawer-item__quantity">
+          {%- if item.properties._parentKey == blank -%}
+            <m-quantity-input class="m-quantity" style="display:flex; align-items:center; justify-content:flex-end; gap: 2px; border:none;">
+              <button type="button" name="minus" style="background:none; border:none; color:#999; font-size:16px; cursor:pointer; padding: 0 4px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M7 7.4375H6.56326L0.0121207 7L6.56326 6.5625L7 6.5625L7.43674 6.5625L13.9879 7L7.43674 7.4375H7Z" fill="#2C2C2C"/>
+                </svg>
+              </button>
+              <input
+                type="number"
+                name="updates[]"
+                value="{{ item.quantity }}"
+                data-cart-quantity="{{ cart | item_count_for_variant: item.variant.id }}"
+                min="0"
+                data-index="{{ item.index | plus: 1 }}"
+                style="width:20px; text-align:center; border:none; background:transparent; font-size:14px; padding:0; color: #2c2c2c; font-weight: 500;"
+                readonly
+              >
+              <button type="button" name="plus" style="background:none; border:none; color:#999; font-size:16px; cursor:pointer; padding: 0 4px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M0.0117188 7L6.56285 6.56326L6.9996 0.0121214L7.43634 6.56326L13.9875 7L7.43634 7.43674L6.9996 13.9879L6.56285 7.43674L0.0117188 7Z" fill="#2C2C2C"/>
+                </svg>
+              </button>
+            </m-quantity-input>
+          {%- endif -%}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  {% liquid
+    assign collections = ''
+    for collection in item.product.collections
+      assign collections = collections | append: collection.id | append: ','
+    endfor
+  %}
+  <foxkit-incart-upsell
+    data-collections="{{ collections | remove_last: ',' }}"
+    data-product-title="{{ item.product.title }}"
+    data-product-id="{{ item.product_id }}"
+  ></foxkit-incart-upsell>
+</div> {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %} 
+{% liquid
+  assign has_qty_rules = false
+  if item.variant.quantity_rule.increment > 1 or item.variant.quantity_rule.min > 1 or item.variant.quantity_rule.max != null
+    assign has_qty_rules = true
+  endif
+
+  assign has_vol_pricing = false
+  if item.variant.quantity_price_breaks.size > 0
+    assign has_vol_pricing = true
+  endif
+%}
+{%- if has_qty_rules or has_vol_pricing -%}
+  {%- capture qty_rules_vol_pricing -%}
+      {%- if has_qty_rules -%}
+        <div class="quantity__rules m:text-sm m:flex-wrap">
+          {%- if item.variant.quantity_rule.increment > 1 -%}
+            <span class="divider">
+              {%- render 'new-locale',
+                key: 'products.product.quantity_multiples_of',
+                param: '{{ quantity }}',
+                value: item.variant.quantity_rule.increment
+              -%}
+            </span>
+          {%- endif -%}
+          {%- if item.variant.quantity_rule.min > 1 -%}
+            <span class="divider">
+              {%- render 'new-locale',
+                key: 'products.product.quantity_minimum_of',
+                param: '{{ quantity }}',
+                value: item.variant.quantity_rule.min
+              -%}
+            </span>
+          {%- endif -%}
+          {%- if item.variant.quantity_rule.max != null -%}
+            <span class="divider">
+              {%- render 'new-locale',
+                key: 'products.product.quantity_maximum_of',
+                param: '{{ quantity }}',
+                value: item.variant.quantity_rule.max
+              -%}
+            </span>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+      {%- if has_vol_pricing -%}
+        {{ 'component-volume-pricing.css' | asset_url | stylesheet_tag }}
+        <volume-pricing
+          class="volume-pricing m:block parent-display{% unless has_qty_rules %} volume-pricing--empty-header{% endunless %}"
+          id="Volume-{{ section.id }}"
+        >
+          <ul class="list-unstyled volume-pricing__list">
+            <li class="volume-pricing__item">
+              <span>{{ item.variant.quantity_rule.min }}+</span>
+              {%- liquid
+                if settings.currency_code_enabled
+                  assign price = item.variant.price | money_with_currency
+                else
+                  assign price = item.variant.price | money
+                endif
+              -%}
+              {%- capture price_at_each -%}
+                {%- render 'new-locale',
+                  key: 'products.product.volume_pricing.price_at_each',
+                  param: '{{ price }}',
+                  value: price
+                -%}
+              {%- endcapture -%}
+              <span data-text="{{ price_at_each | strip_html }}">
+                {%- render 'new-locale',
+                  key: 'products.product.volume_pricing.each_html',
+                  param: '{{ money }}',
+                  value: price
+                -%}
+              </span>
+            </li>
+            {%- for price_break in item.variant.quantity_price_breaks -%}
+              {%- liquid
+                if settings.currency_code_enabled
+                  assign price_break_price = price_break.price | money_with_currency
+                else
+                  assign price_break_price = price_break.price | money
+                endif
+              -%}
+              <li class="volume-pricing__item">
+                <span>
+                  {{- price_break.minimum_quantity -}}
+                  <span aria-hidden="true">+</span>
+                </span>
+                {%- capture price_at_each -%}
+                  {%- render 'new-locale',
+                    key: 'products.product.volume_pricing.price_at_each',
+                    param: '{{ price }}',
+                    value: price_break_price
+                  -%}
+                {%- endcapture -%}
+                <span data-text="{{ price_at_each | strip_html }}">
+                  {%- render 'new-locale',
+                    key: 'products.product.volume_pricing.each_html',
+                    param: '{{ money }}',
+                    value: price_break_price
+                  -%}
+                </span>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </volume-pricing>
+      {%- endif -%}
+  {%- endcapture -%}
+{%- endif -%}
+
+{%- liquid
+  assign has_message_props = false
+  assign msg_val = item.properties['Message'] | default: ''
+  assign from_val = item.properties['From'] | default: ''
+  if msg_val != blank or from_val != blank
+    assign has_message_props = true
+  endif
+  assign is_message_card = false
+  if item.product.title contains 'Message Card' or item.product.title contains 'message card'
+    assign is_message_card = true
+  endif
+-%}
+
+<style>
+/* =========================================
+   CART ITEM – RESPONSIVE OCTAGON IMAGE HOVER
+========================================= */
+.cs-cart-item-img-wrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cs-cart-item-img-box {
+  width: 112px;
+  height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  position: relative;
+  clip-path: polygon(1% 0%, 99% 0%, 100% 1%, 100% 99%, 99% 100%, 1% 100%, 0% 99%, 0% 1%);
+  transition: clip-path 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.m-cart-item:hover .cs-cart-item-img-box {
+  clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%);
+}
+
+.cs-cart-item-img-box a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.cs-cart-item-img-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.cs-cart-oct-border {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 120px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 3;
+  overflow: visible;
+  display: block;
+}
+
+.m-cart-item:hover .cs-cart-oct-border {
+  opacity: 1;
+}
+
+.cs-responsive-gap {
+  gap: 15px;
+}
+
+@media screen and (min-width: 1440px) and (max-width: 1710px) {
+  .cs-cart-item-img-wrap, .cs-cart-oct-border { width: 100px; height: 100px; }
+  .cs-cart-item-img-box { width: 92px; height: 92px; }
+}
+
+@media screen and (max-width: 767px) {
+  .cs-cart-item-img-wrap, .cs-cart-oct-border { width: 72px; height: 72px; }
+  .cs-cart-item-img-box { width: 64px; height: 64px; }
+  .cs-responsive-gap { gap: 10px !important; }
+  .m-cart-item__title { font-size: 14px !important; }
+}
+
+/* =========================================
+   INLINE REMOVE CONFIRMATION OVERLAY
+========================================= */
+.m-cart-item { position: relative; }
+
+.cs-remove-inline-overlay {
+  position: absolute; inset: -5px; background: #ffffff; z-index: 20; display: flex; flex-direction: column; justify-content: center; padding: 16px; border: 1.5px solid #e8e2dc; box-shadow: 0 4px 20px rgba(0,0,0,0.07); border-radius: 4px; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.cs-remove-inline-overlay.is-visible { opacity: 1; visibility: visible; }
+.cs-rm-close { position: absolute; top: 10px; right: 10px; background: none; border: none; cursor: pointer; color: #b3b3b3; padding: 2px; line-height: 1; display: flex; align-items: center; }
+.cs-rm-close:hover { color: #2c2c2c; }
+.cs-rm-content { display: flex; gap: 14px; align-items: center; margin-bottom: 14px; }
+.cs-rm-img-wrap { width: 68px; height: 68px; flex-shrink: 0; position: relative; }
+.cs-rm-img-wrap img { width: 100%; height: 100%; object-fit: contain; display: block; clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%); }
+.cs-rm-oct-border { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+.cs-rm-text h3 { margin: 0 0 4px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; color: #2c2c2c; line-height: 1.3; }
+.cs-rm-text p { margin: 0; font-family: 'Inter', sans-serif; font-size: 12px; color: #888; line-height: 1.4; }
+.cs-rm-actions { display: flex; gap: 8px; }
+.cs-rm-btn { flex: 1; padding: 9px 0; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; border: 1px solid #2c2c2c; text-align: center; transition: all 0.2s ease; border-radius: 2px; }
+.cs-rm-btn-primary { background: #2c2c2c; color: #fff; }
+.cs-rm-btn-primary:hover { background: #444; }
+.cs-rm-btn-secondary { background: #fff; color: #2c2c2c; }
+.cs-rm-btn-secondary:hover { background: #f5f5f5; }
+
+/* =========================================
+   MESSAGE SUMMARY IN CART ITEM
+========================================= */
+.cs-msg-summary {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 6px;
+  margin-bottom: 4px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  clear: both;
+}
+.cs-msg-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 6px;
+}
+.cs-msg-row:last-child {
+  margin-bottom: 0;
+}
+.cs-msg-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 400;
+  color: #b0b0b0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+.cs-msg-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: #2c2c2c;
+  line-height: 1.45;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+/* =========================================
+   CART ITEM SAVE PERCENTAGE
+========================================= */
+.cs-cart-save-percent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  color: #947863;
+  padding: 4px 7px;
+  border: 1px solid #E9DDD4;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+@media screen and (max-width: 767px) {
+  .cs-cart-save-percent {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+}
+</style>
+
+<div
+  id="MinimogCart-Item-{{ item.index | plus: 1 }}"
+  class="m-cart-item m-cart-drawer-item"
+  data-cart-item
+  data-id="{{ item.key }}"
+  data-product-id="{{- item.product_id -}}"
+  data-variant-id="{{- item.variant_id -}}"
+  data-index="{{- forloop.index -}}"
+  style="border-bottom: 1px solid #f5f5f5; padding-bottom: 20px; margin-bottom: 20px;"
+>
+  <div class="m-cart-item--drawer__wrapper m:flex m:items-start cs-responsive-gap" style="width: 100%;">
+
+    {%- comment -%} IMAGE with octagon hover {%- endcomment -%}
+    <div class="cs-cart-item-img-wrap m-cart-item__image">
+      <div class="cs-cart-item-img-box">
+        <a href="{{- item.url -}}">
+          {%- comment -%}
+            Keep the cart image in sync with the PRODUCT PAGE Material filter.
+
+            assets/product-info.js filters gallery media by an EXACT match:
+              media alt == selected Material value
+
+            So the cart must use the exact same rule and then take the FIRST
+            matching product media. This makes the cart image identical to the
+            first/main image shown after Material filtering on the product page.
+          {%- endcomment -%}
+
+          {%- assign selected_material_value = blank -%}
+          {%- for option in item.options_with_values -%}
+            {%- assign option_name_downcase = option.name | downcase | strip -%}
+            {%- if option_name_downcase == 'material' -%}
+              {%- assign selected_material_value = option.value | downcase | strip -%}
+              {%- break -%}
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- assign matched_img = blank -%}
+
+          {%- if selected_material_value != blank -%}
+            {%- for media in item.product.media -%}
+              {%- if media.media_type == 'image' and media.alt != blank -%}
+                {%- assign media_alt_downcase = media.alt | downcase | strip -%}
+
+                {%- if media_alt_downcase == selected_material_value and matched_img == blank -%}
+                  {%- assign matched_img = media.preview_image -%}
+                  {%- break -%}
+                {%- endif -%}
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endif -%}
+
+          {%- if matched_img != blank -%}
+            {%- assign cart_img = matched_img -%}
+          {%- else -%}
+            {%- assign cart_img = item.variant.image | default: item.image | default: item.product.featured_image -%}
+          {%- endif -%}
+
+          {%- if cart_img != blank -%}
+            <img
+              src="{{ cart_img | image_url: width: 200 }}"
+              alt="{{ cart_img.alt | escape }}"
+            >
+          {%- else -%}
+            {{ 'image' | placeholder_svg_tag: 'm-placeholder-svg' }}
+          {%- endif -%}
+        </a>
+      </div>
+
+      <svg
+        class="cs-cart-oct-border"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="cart-item-border-grad-{{ item.index }}" x1="0%" y1="50%" x2="100%" y2="50%">
+            <stop offset="0%"   stop-color="#947863"/>
+            <stop offset="50%"  stop-color="#E9DDD4"/>
+            <stop offset="100%" stop-color="#947863"/>
+          </linearGradient>
+        </defs>
+        <polygon
+          points="18,1 82,1 99,18 99,82 82,99 18,99 1,82 1,18"
+          fill="none"
+          stroke="url(#cart-item-border-grad-{{ item.index }})"
+          stroke-width="1"
+          vector-effect="non-scaling-stroke"
+          stroke-linejoin="miter"
+        />
+      </svg>
+    </div>
+
+    {%- comment -%} INFO BOX {%- endcomment -%}
+    <div class="m-cart-item__info m-cart-drawer-item__info" style="display: flex; flex-direction: column; width: 100%; flex: 1; min-width: 0;">
+
+      {%- comment -%} TOP ROW: EDIT PENCIL + TITLE + REMOVE (X) {%- endcomment -%}
+      <div class="m-cart-item__name-wrap" style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; gap: 10px;">
+
+        <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0;">
+
+          {%- comment -%} Edit pencil + Title {%- endcomment -%}
+          <div style="display: flex; align-items: flex-start; gap: 6px;">
+            {%- unless is_message_card -%}
+              <button
+                type="button"
+                class="m-cart-item__edit-btn"
+                onclick="openEditModal('{{ item.product.handle }}', '{{ item.key }}', {{ item.variant_id }}, {{ item.quantity }})"
+                style="background: none; border: none; padding: 0; cursor: pointer; color: #4a4a4a; display: flex; align-items: center; margin-top: 2px; flex-shrink: 0;"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+            {%- endunless -%}
+            <p class="m-cart-item__title" style="font-size: 16px; font-weight: 400; color: #2c2c2c; text-decoration: none; line-height: 1.2; word-break: break-word; margin: 0;">
+              {{- item.product.title -}}
+            </p>
+          </div>
+
+          {%- comment -%} Message/From block — only for Message Card {%- endcomment -%}
+          {%- if is_message_card and has_message_props -%}
+            <div class="cs-msg-summary">
+              {%- if msg_val != blank -%}
+                <div class="cs-msg-row">
+                  <span class="cs-msg-label">MESSAGE</span>
+                  <span class="cs-msg-value">{{ msg_val }}</span>
+                </div>
+              {%- endif -%}
+              {%- if from_val != blank -%}
+                <div class="cs-msg-row">
+                  <span class="cs-msg-label">FROM</span>
+                  <span class="cs-msg-value">{{ from_val }}</span>
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+        </div>
+
+        {%- if item.properties._parentKey == blank -%}
+          <m-cart-remove-button
+            id="MinimogCartDrawer-Remove-{{ item.index | plus: 1 }}"
+            data-index="{{ item.index | plus: 1 }}"
+          >
+            <button
+              type="button"
+              class="m-cart-item__remove"
+              data-id="{{ item.key }}"
+              aria-label="Remove"
+              style="background: none; border: none; padding: 0; cursor: pointer; color: #b3b3b3; flex-shrink: 0; margin-top: 2px;"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+                <g opacity="0.5">
+                  <path d="M0.0257463 0.0257297C0.490704 -0.439054 5.54703 5.54703 7 5.54703C8.45297 5.54703 13.5093 -0.439054 13.9743 0.0257297C14.4392 0.490492 8.45297 5.54703 8.45297 7C8.45297 8.45298 14.4392 13.5091 13.9743 13.9743C13.5093 14.439 8.45297 8.45298 7 8.45298C5.54703 8.45298 0.489923 14.439 0.0257463 13.9743C-0.439196 13.5091 5.54703 8.45298 5.54703 7C5.54703 5.54703 -0.439196 0.490849 0.0257463 0.0257297Z" fill="#2C2C2C" fill-opacity="0.5"/>
+                </g>
+              </svg>
+            </button>
+          </m-cart-remove-button>
+        {%- endif -%}
+
+      </div>
+
+      {%- comment -%} MIDDLE ROW: VARIANT INFO — hidden for Message Card {%- endcomment -%}
+      {%- unless is_message_card -%}
+        <div class="m-cart-drawer-item__variant m:text-color-subtext" style="font-size: 14px; color: #888; line-height: 1.6; margin-bottom: 12px; width: 100%;">
+          {%- if item.options_with_values.size > 0 -%}
+
+            {%- comment -%} Line 1: Size • Material {%- endcomment -%}
+            <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+              {%- if item.options_with_values[1] -%}
+                <span>Size {{ item.options_with_values[1].value }}</span>
+                <span style="color: #999; margin: 0 2px; font-size: 28px; line-height: 0; display: inline-flex; align-items: center;">•</span>
+              {%- endif -%}
+              <span>{{ item.options_with_values[0].value }}</span>
+              {%- assign opt_thumb = item.variant.image | default: item.image -%}
+              {%- if opt_thumb != nil -%}
+                <img
+                  src="{{ opt_thumb | image_url: width: 30 }}"
+                  alt="{{ item.options_with_values[0].value }}"
+                  style="width:14px; height:14px; margin-left: 2px;"
+                >
+              {%- endif -%}
+            </div>
+
+            {%- assign is_shape_product = false -%}
+            {%- for opt in item.options_with_values -%}
+              {%- assign check_name = opt.name | downcase -%}
+              {%- if check_name contains 'shape' -%}
+                {%- assign is_shape_product = true -%}
+              {%- endif -%}
+            {%- endfor -%}
+
+            {%- for option in item.options_with_values offset: 2 -%}
+              {%- liquid
+                if is_shape_product
+                  assign box_width = '14px'
+                  assign box_height = '14px'
+                  assign clip_path = 'none'
+                  assign img_padding = '0px'
+                  assign border_padding = '0px'
+                  assign border_margin = '2px'
+                else
+                  assign box_width = '56px'
+                  assign box_height = '32px'
+                  assign clip_path = 'polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px)'
+                  assign img_padding = '2px'
+                  assign border_padding = '1px'
+                  assign border_margin = '6px'
+                endif
+              -%}
+
+              <div style="display: flex; align-items: center; gap: 4px; margin-top: 3px; flex-wrap: wrap;">
+                <span>{{ option.value }}</span>
+                <div style="display: inline-flex; padding: {{ border_padding }}; margin-left: {{ border_margin }};">
+                  <div style="display: inline-flex; align-items: center; justify-content: center; width: {{ box_width }}; height: {{ box_height }}; background: #ffffff; clip-path: {{ clip_path }};">
+                    <img
+                      src="{{ option.value | handleize | append: '.png' | file_url }}"
+                      alt="{{ option.value | escape }}"
+                      style="width: 100%; height: 100%; object-fit: contain; padding: {{ img_padding }};"
+                      onerror="this.style.display='none'; this.parentElement.style.display='none'; this.parentElement.parentElement.style.display='none';"
+                    >
+                  </div>
+                </div>
+              </div>
+            {%- endfor -%}
+
+          {%- endif -%}
+        </div>
+      {%- endunless -%}
+
+      {%- comment -%} BOTTOM ROW: PRICE + QUANTITY {%- endcomment -%}
+      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: auto; flex-wrap: wrap; gap: 10px;">
+        {%- liquid
+          assign cs_regular_price = item.final_price
+
+          if item.original_price > item.final_price
+            assign cs_regular_price = item.original_price
+          elsif item.variant.compare_at_price != blank and item.variant.compare_at_price > item.final_price
+            assign cs_regular_price = item.variant.compare_at_price
+          endif
+
+          assign cs_save_percentage = 0
+
+          if cs_regular_price > item.final_price and cs_regular_price > 0
+            assign cs_save_amount = cs_regular_price | minus: item.final_price
+            assign cs_save_percentage = cs_save_amount | times: 100.0 | divided_by: cs_regular_price | round
+          endif
+        -%}
+
+        <div
+          class="m-cart-item__price"
+          style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;"
+        >
+          <span
+            class="m-cart-item__price--final"
+            style="font-size: 16px; font-weight: 400; color: #2c2c2c;"
+          >
+            {{- item.final_price | money -}}
+          </span>
+
+          {%- if cs_regular_price > item.final_price -%}
+            <del
+              class="m-cart-item__price--regular"
+              style="font-size: 13px; color: #999;"
+            >
+              {{- cs_regular_price | money -}}
+            </del>
+
+            {%- if cs_save_percentage > 0 -%}
+              <span class="cs-cart-save-percent">
+                SAVE {{ cs_save_percentage }}%
+              </span>
+            {%- endif -%}
+          {%- endif -%}
+        </div>
+
+        <div class="m-cart-drawer-item__quantity">
+          {%- if item.properties._parentKey == blank -%}
+            <m-quantity-input class="m-quantity" style="display:flex; align-items:center; justify-content:flex-end; gap: 2px; border:none;">
+              <button type="button" name="minus" style="background:none; border:none; color:#999; font-size:16px; cursor:pointer; padding: 0 4px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M7 7.4375H6.56326L0.0121207 7L6.56326 6.5625L7 6.5625L7.43674 6.5625L13.9879 7L7.43674 7.4375H7Z" fill="#2C2C2C"/>
+                </svg>
+              </button>
+              <input
+                type="number"
+                name="updates[]"
+                value="{{ item.quantity }}"
+                data-cart-quantity="{{ cart | item_count_for_variant: item.variant.id }}"
+                min="0"
+                data-index="{{ item.index | plus: 1 }}"
+                style="width:20px; text-align:center; border:none; background:transparent; font-size:14px; padding:0; color: #2c2c2c; font-weight: 500;"
+                readonly
+              >
+              <button type="button" name="plus" style="background:none; border:none; color:#999; font-size:16px; cursor:pointer; padding: 0 4px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M0.0117188 7L6.56285 6.56326L6.9996 0.0121214L7.43634 6.56326L13.9875 7L7.43634 7.43674L6.9996 13.9879L6.56285 7.43674L0.0117188 7Z" fill="#2C2C2C"/>
+                </svg>
+              </button>
+            </m-quantity-input>
+          {%- endif -%}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  {% liquid
+    assign collections = ''
+    for collection in item.product.collections
+      assign collections = collections | append: collection.id | append: ','
+    endfor
+  %}
+  <foxkit-incart-upsell
+    data-collections="{{ collections | remove_last: ',' }}"
+    data-product-title="{{ item.product.title }}"
+    data-product-id="{{ item.product_id }}"
+  ></foxkit-incart-upsell>
+</div> {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% liquid
+  assign has_qty_rules = false
+  if item.variant.quantity_rule.increment > 1 or item.variant.quantity_rule.min > 1 or item.variant.quantity_rule.max != null
+    assign has_qty_rules = true
+  endif
+
+  assign has_vol_pricing = false
+  if item.variant.quantity_price_breaks.size > 0
+    assign has_vol_pricing = true
+  endif
+%}
+{%- if has_qty_rules or has_vol_pricing -%}
+  {%- capture qty_rules_vol_pricing -%}
+      {%- if has_qty_rules -%}
+        <div class="quantity__rules m:text-sm m:flex-wrap">
+          {%- if item.variant.quantity_rule.increment > 1 -%}
+            <span class="divider">
+              {%- render 'new-locale',
+                key: 'products.product.quantity_multiples_of',
+                param: '{{ quantity }}',
+                value: item.variant.quantity_rule.increment
+              -%}
+            </span>
+          {%- endif -%}
+          {%- if item.variant.quantity_rule.min > 1 -%}
+            <span class="divider">
+              {%- render 'new-locale',
+                key: 'products.product.quantity_minimum_of',
+                param: '{{ quantity }}',
+                value: item.variant.quantity_rule.min
+              -%}
+            </span>
+          {%- endif -%}
+          {%- if item.variant.quantity_rule.max != null -%}
+            <span class="divider">
+              {%- render 'new-locale',
+                key: 'products.product.quantity_maximum_of',
+                param: '{{ quantity }}',
+                value: item.variant.quantity_rule.max
+              -%}
+            </span>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+      {%- if has_vol_pricing -%}
+        {{ 'component-volume-pricing.css' | asset_url | stylesheet_tag }}
+        <volume-pricing
+          class="volume-pricing m:block parent-display{% unless has_qty_rules %} volume-pricing--empty-header{% endunless %}"
+          id="Volume-{{ section.id }}"
+        >
+          <ul class="list-unstyled volume-pricing__list">
+            <li class="volume-pricing__item">
+              <span>{{ item.variant.quantity_rule.min }}+</span>
+              {%- liquid
+                if settings.currency_code_enabled
+                  assign price = item.variant.price | money_with_currency
+                else
+                  assign price = item.variant.price | money
+                endif
+              -%}
+              {%- capture price_at_each -%}
+                {%- render 'new-locale',
+                  key: 'products.product.volume_pricing.price_at_each',
+                  param: '{{ price }}',
+                  value: price
+                -%}
+              {%- endcapture -%}
+              <span data-text="{{ price_at_each | strip_html }}">
+                {%- render 'new-locale',
+                  key: 'products.product.volume_pricing.each_html',
+                  param: '{{ money }}',
+                  value: price
+                -%}
+              </span>
+            </li>
+            {%- for price_break in item.variant.quantity_price_breaks -%}
+              {%- liquid
+                if settings.currency_code_enabled
+                  assign price_break_price = price_break.price | money_with_currency
+                else
+                  assign price_break_price = price_break.price | money
+                endif
+              -%}
+              <li class="volume-pricing__item">
+                <span>
+                  {{- price_break.minimum_quantity -}}
+                  <span aria-hidden="true">+</span>
+                </span>
+                {%- capture price_at_each -%}
+                  {%- render 'new-locale',
+                    key: 'products.product.volume_pricing.price_at_each',
+                    param: '{{ price }}',
+                    value: price_break_price
+                  -%}
+                {%- endcapture -%}
+                <span data-text="{{ price_at_each | strip_html }}">
+                  {%- render 'new-locale',
+                    key: 'products.product.volume_pricing.each_html',
+                    param: '{{ money }}',
+                    value: price_break_price
+                  -%}
+                </span>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </volume-pricing>
+      {%- endif -%}
+  {%- endcapture -%}
+{%- endif -%}
+
+{%- liquid
+  assign has_message_props = false
+  assign msg_val = item.properties['Message'] | default: ''
+  assign from_val = item.properties['From'] | default: ''
+  if msg_val != blank or from_val != blank
+    assign has_message_props = true
+  endif
+  assign is_message_card = false
+  if item.product.title contains 'Message Card' or item.product.title contains 'message card'
+    assign is_message_card = true
+  endif
+-%}
+
+<style>
+/* =========================================
+   CART ITEM – RESPONSIVE OCTAGON IMAGE HOVER
+========================================= */
+.cs-cart-item-img-wrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cs-cart-item-img-box {
+  width: 112px;
+  height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  position: relative;
+  clip-path: polygon(1% 0%, 99% 0%, 100% 1%, 100% 99%, 99% 100%, 1% 100%, 0% 99%, 0% 1%);
+  transition: clip-path 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.m-cart-item:hover .cs-cart-item-img-box {
+  clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%);
+}
+
+.cs-cart-item-img-box a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.cs-cart-item-img-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.cs-cart-oct-border {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 120px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 3;
+  overflow: visible;
+  display: block;
+}
+
+.m-cart-item:hover .cs-cart-oct-border {
+  opacity: 1;
+}
+
+.cs-responsive-gap {
+  gap: 15px;
+}
+
+@media screen and (min-width: 1440px) and (max-width: 1710px) {
+  .cs-cart-item-img-wrap, .cs-cart-oct-border { width: 100px; height: 100px; }
+  .cs-cart-item-img-box { width: 92px; height: 92px; }
+}
+
+@media screen and (max-width: 767px) {
+  .cs-cart-item-img-wrap, .cs-cart-oct-border { width: 72px; height: 72px; }
+  .cs-cart-item-img-box { width: 64px; height: 64px; }
+  .cs-responsive-gap { gap: 10px !important; }
+  .m-cart-item__title { font-size: 14px !important; }
+}
+
+/* =========================================
+   INLINE REMOVE CONFIRMATION OVERLAY
+========================================= */
+.m-cart-item { position: relative; }
+
+.cs-remove-inline-overlay {
+  position: absolute; inset: -5px; background: #ffffff; z-index: 20; display: flex; flex-direction: column; justify-content: center; padding: 16px; border: 1.5px solid #e8e2dc; box-shadow: 0 4px 20px rgba(0,0,0,0.07); border-radius: 4px; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.cs-remove-inline-overlay.is-visible { opacity: 1; visibility: visible; }
+.cs-rm-close { position: absolute; top: 10px; right: 10px; background: none; border: none; cursor: pointer; color: #b3b3b3; padding: 2px; line-height: 1; display: flex; align-items: center; }
+.cs-rm-close:hover { color: #2c2c2c; }
+.cs-rm-content { display: flex; gap: 14px; align-items: center; margin-bottom: 14px; }
+.cs-rm-img-wrap { width: 68px; height: 68px; flex-shrink: 0; position: relative; }
+.cs-rm-img-wrap img { width: 100%; height: 100%; object-fit: contain; display: block; clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%); }
+.cs-rm-oct-border { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+.cs-rm-text h3 { margin: 0 0 4px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; color: #2c2c2c; line-height: 1.3; }
+.cs-rm-text p { margin: 0; font-family: 'Inter', sans-serif; font-size: 12px; color: #888; line-height: 1.4; }
+.cs-rm-actions { display: flex; gap: 8px; }
+.cs-rm-btn { flex: 1; padding: 9px 0; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; border: 1px solid #2c2c2c; text-align: center; transition: all 0.2s ease; border-radius: 2px; }
+.cs-rm-btn-primary { background: #2c2c2c; color: #fff; }
+.cs-rm-btn-primary:hover { background: #444; }
+.cs-rm-btn-secondary { background: #fff; color: #2c2c2c; }
+.cs-rm-btn-secondary:hover { background: #f5f5f5; }
+
+/* =========================================
+   MESSAGE SUMMARY IN CART ITEM
+========================================= */
+.cs-msg-summary {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 6px;
+  margin-bottom: 4px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  clear: both;
+}
+.cs-msg-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 6px;
+}
+.cs-msg-row:last-child {
+  margin-bottom: 0;
+}
+.cs-msg-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 400;
+  color: #b0b0b0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+.cs-msg-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: #2c2c2c;
+  line-height: 1.45;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+/* =========================================
+   CART ITEM SAVE PERCENTAGE
+========================================= */
+.cs-cart-save-percent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  color: #947863;
+  padding: 4px 7px;
+  border: 1px solid #E9DDD4;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+@media screen and (max-width: 767px) {
+  .cs-cart-save-percent {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+}
+</style>
+
+<div
+  id="MinimogCart-Item-{{ item.index | plus: 1 }}"
+  class="m-cart-item m-cart-drawer-item"
+  data-cart-item
+  data-id="{{ item.key }}"
+  data-product-id="{{- item.product_id -}}"
+  data-variant-id="{{- item.variant_id -}}"
+  data-index="{{- forloop.index -}}"
+  style="border-bottom: 1px solid #f5f5f5; padding-bottom: 20px; margin-bottom: 20px;"
+>
+  <div class="m-cart-item--drawer__wrapper m:flex m:items-start cs-responsive-gap" style="width: 100%;">
+
+    {%- comment -%} IMAGE with octagon hover {%- endcomment -%}
+    <div class="cs-cart-item-img-wrap m-cart-item__image">
+      <div class="cs-cart-item-img-box">
+        <a href="{{- item.url -}}">
+          {%- comment -%}
+            Keep the cart image in sync with the PRODUCT PAGE Material filter.
+
+            assets/product-info.js filters gallery media by an EXACT match:
+              media alt == selected Material value
+
+            So the cart must use the exact same rule and then take the FIRST
+            matching product media. This makes the cart image identical to the
+            first/main image shown after Material filtering on the product page.
+          {%- endcomment -%}
+
+          {%- assign selected_material_value = blank -%}
+          {%- for option in item.options_with_values -%}
+            {%- assign option_name_downcase = option.name | downcase | strip -%}
+            {%- if option_name_downcase == 'material' -%}
+              {%- assign selected_material_value = option.value | downcase | strip -%}
+              {%- break -%}
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- assign matched_img = blank -%}
+
+          {%- if selected_material_value != blank -%}
+            {%- for media in item.product.media -%}
+              {%- if media.media_type == 'image' and media.alt != blank -%}
+                {%- assign media_alt_downcase = media.alt | downcase | strip -%}
+
+                {%- if media_alt_downcase == selected_material_value and matched_img == blank -%}
+                  {%- assign matched_img = media.preview_image -%}
+                  {%- break -%}
+                {%- endif -%}
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endif -%}
+
+          {%- if matched_img != blank -%}
+            {%- assign cart_img = matched_img -%}
+          {%- else -%}
+            {%- assign cart_img = item.variant.image | default: item.image | default: item.product.featured_image -%}
+          {%- endif -%}
+
+          {%- if cart_img != blank -%}
+            <img
+              src="{{ cart_img | image_url: width: 200 }}"
+              alt="{{ cart_img.alt | escape }}"
+            >
+          {%- else -%}
+            {{ 'image' | placeholder_svg_tag: 'm-placeholder-svg' }}
+          {%- endif -%}
+        </a>
+      </div>
+
+      <svg
+        class="cs-cart-oct-border"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="cart-item-border-grad-{{ item.index }}" x1="0%" y1="50%" x2="100%" y2="50%">
+            <stop offset="0%"   stop-color="#947863"/>
+            <stop offset="50%"  stop-color="#E9DDD4"/>
+            <stop offset="100%" stop-color="#947863"/>
+          </linearGradient>
+        </defs>
+        <polygon
+          points="18,1 82,1 99,18 99,82 82,99 18,99 1,82 1,18"
+          fill="none"
+          stroke="url(#cart-item-border-grad-{{ item.index }})"
+          stroke-width="1"
+          vector-effect="non-scaling-stroke"
+          stroke-linejoin="miter"
+        />
+      </svg>
+    </div>
+
+    {%- comment -%} INFO BOX {%- endcomment -%}
+    <div class="m-cart-item__info m-cart-drawer-item__info" style="display: flex; flex-direction: column; width: 100%; flex: 1; min-width: 0;">
+
+      {%- comment -%} TOP ROW: EDIT PENCIL + TITLE + REMOVE (X) {%- endcomment -%}
+      <div class="m-cart-item__name-wrap" style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; gap: 10px;">
+
+        <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0;">
+
+          {%- comment -%} Edit pencil + Title {%- endcomment -%}
+          <div style="display: flex; align-items: flex-start; gap: 6px;">
+            {%- unless is_message_card -%}
+              <button
+                type="button"
+                class="m-cart-item__edit-btn"
+                onclick="openEditModal('{{ item.product.handle }}', '{{ item.key }}', {{ item.variant_id }}, {{ item.quantity }})"
+                style="background: none; border: none; padding: 0; cursor: pointer; color: #4a4a4a; display: flex; align-items: center; margin-top: 2px; flex-shrink: 0;"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+            {%- endunless -%}
+            <p class="m-cart-item__title" style="font-size: 16px; font-weight: 400; color: #2c2c2c; text-decoration: none; line-height: 1.2; word-break: break-word; margin: 0;">
+              {{- item.product.title -}}
+            </p>
+          </div>
+
+          {%- comment -%} Message/From block — only for Message Card {%- endcomment -%}
+          {%- if is_message_card and has_message_props -%}
+            <div class="cs-msg-summary">
+              {%- if msg_val != blank -%}
+                <div class="cs-msg-row">
+                  <span class="cs-msg-label">MESSAGE</span>
+                  <span class="cs-msg-value">{{ msg_val }}</span>
+                </div>
+              {%- endif -%}
+              {%- if from_val != blank -%}
+                <div class="cs-msg-row">
+                  <span class="cs-msg-label">FROM</span>
+                  <span class="cs-msg-value">{{ from_val }}</span>
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+        </div>
+
+        {%- if item.properties._parentKey == blank -%}
+          <m-cart-remove-button
+            id="MinimogCartDrawer-Remove-{{ item.index | plus: 1 }}"
+            data-index="{{ item.index | plus: 1 }}"
+          >
+            <button
+              type="button"
+              class="m-cart-item__remove"
+              data-id="{{ item.key }}"
+              aria-label="Remove"
+              style="background: none; border: none; padding: 0; cursor: pointer; color: #b3b3b3; flex-shrink: 0; margin-top: 2px;"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+                <g opacity="0.5">
+                  <path d="M0.0257463 0.0257297C0.490704 -0.439054 5.54703 5.54703 7 5.54703C8.45297 5.54703 13.5093 -0.439054 13.9743 0.0257297C14.4392 0.490492 8.45297 5.54703 8.45297 7C8.45297 8.45298 14.4392 13.5091 13.9743 13.9743C13.5093 14.439 8.45297 8.45298 7 8.45298C5.54703 8.45298 0.489923 14.439 0.0257463 13.9743C-0.439196 13.5091 5.54703 8.45298 5.54703 7C5.54703 5.54703 -0.439196 0.490849 0.0257463 0.0257297Z" fill="#2C2C2C" fill-opacity="0.5"/>
+                </g>
+              </svg>
+            </button>
+          </m-cart-remove-button>
+        {%- endif -%}
+
+      </div>
+
+      {%- comment -%} MIDDLE ROW: VARIANT INFO — hidden for Message Card {%- endcomment -%}
+      {%- unless is_message_card -%}
+        <div class="m-cart-drawer-item__variant m:text-color-subtext" style="font-size: 14px; color: #888; line-height: 1.6; margin-bottom: 12px; width: 100%;">
+          {%- if item.options_with_values.size > 0 -%}
+
+            {%- comment -%} Line 1: Size • Material {%- endcomment -%}
+            <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+              {%- if item.options_with_values[1] -%}
+                <span>Size {{ item.options_with_values[1].value }}</span>
+                <span style="color: #999; margin: 0 2px; font-size: 28px; line-height: 0; display: inline-flex; align-items: center;">•</span>
+              {%- endif -%}
+              <span>{{ item.options_with_values[0].value }}</span>
+              {%- assign opt_thumb = item.variant.metafields.custom.material_swatch.value -%}
+              {%- if opt_thumb == blank -%}
+                {%- assign opt_thumb = item.variant.image | default: item.image -%}
+              {%- endif -%}
+              {%- if opt_thumb != nil -%}
+                <img
+                  src="{{ opt_thumb | image_url: width: 30 }}"
+                  alt="{{ item.options_with_values[0].value }}"
+                  style="width:14px; height:14px; margin-left: 2px;"
+                >
+              {%- endif -%}
+            </div>
+
+            {%- assign is_shape_product = false -%}
+            {%- for opt in item.options_with_values -%}
+              {%- assign check_name = opt.name | downcase -%}
+              {%- if check_name contains 'shape' -%}
+                {%- assign is_shape_product = true -%}
+              {%- endif -%}
+            {%- endfor -%}
+
+            {%- for option in item.options_with_values offset: 2 -%}
+              {%- liquid
+                if is_shape_product
+                  assign box_width = '14px'
+                  assign box_height = '14px'
+                  assign clip_path = 'none'
+                  assign img_padding = '0px'
+                  assign border_padding = '0px'
+                  assign border_margin = '2px'
+                else
+                  assign box_width = '56px'
+                  assign box_height = '32px'
+                  assign clip_path = 'polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px)'
+                  assign img_padding = '2px'
+                  assign border_padding = '1px'
+                  assign border_margin = '6px'
+                endif
+              -%}
+
+              <div style="display: flex; align-items: center; gap: 4px; margin-top: 3px; flex-wrap: wrap;">
+                <span>{{ option.value }}</span>
+                <div style="display: inline-flex; padding: {{ border_padding }}; margin-left: {{ border_margin }};">
+                  <div style="display: inline-flex; align-items: center; justify-content: center; width: {{ box_width }}; height: {{ box_height }}; background: #ffffff; clip-path: {{ clip_path }};">
+                    <img
+                      src="{{ option.value | handleize | append: '.png' | file_url }}"
+                      alt="{{ option.value | escape }}"
+                      style="width: 100%; height: 100%; object-fit: contain; padding: {{ img_padding }};"
+                      onerror="this.style.display='none'; this.parentElement.style.display='none'; this.parentElement.parentElement.style.display='none';"
+                    >
+                  </div>
+                </div>
+              </div>
+            {%- endfor -%}
+
+          {%- endif -%}
+        </div>
+      {%- endunless -%}
+
+      {%- comment -%} BOTTOM ROW: PRICE + QUANTITY {%- endcomment -%}
+      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: auto; flex-wrap: wrap; gap: 10px;">
+        {%- liquid
+          assign cs_regular_price = item.final_price
+
+          if item.original_price > item.final_price
+            assign cs_regular_price = item.original_price
+          elsif item.variant.compare_at_price != blank and item.variant.compare_at_price > item.final_price
+            assign cs_regular_price = item.variant.compare_at_price
+          endif
+
+          assign cs_save_percentage = 0
+
+          if cs_regular_price > item.final_price and cs_regular_price > 0
+            assign cs_save_amount = cs_regular_price | minus: item.final_price
+            assign cs_save_percentage = cs_save_amount | times: 100.0 | divided_by: cs_regular_price | round
+          endif
+        -%}
+
+        <div
+          class="m-cart-item__price"
+          style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;"
+        >
+          <span
+            class="m-cart-item__price--final"
+            style="font-size: 16px; font-weight: 400; color: #2c2c2c;"
+          >
+            {{- item.final_price | money -}}
+          </span>
+
+          {%- if cs_regular_price > item.final_price -%}
+            <del
+              class="m-cart-item__price--regular"
+              style="font-size: 13px; color: #999;"
+            >
+              {{- cs_regular_price | money -}}
+            </del>
+
+            {%- if cs_save_percentage > 0 -%}
+              <span class="cs-cart-save-percent">
+                SAVE {{ cs_save_percentage }}%
+              </span>
+            {%- endif -%}
+          {%- endif -%}
+        </div>
+
+        <div class="m-cart-drawer-item__quantity">
+          {%- if item.properties._parentKey == blank -%}
+            <m-quantity-input class="m-quantity" style="display:flex; align-items:center; justify-content:flex-end; gap: 2px; border:none;">
+              <button type="button" name="minus" style="background:none; border:none; color:#999; font-size:16px; cursor:pointer; padding: 0 4px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M7 7.4375H6.56326L0.0121207 7L6.56326 6.5625L7 6.5625L7.43674 6.5625L13.9879 7L7.43674 7.4375H7Z" fill="#2C2C2C"/>
+                </svg>
+              </button>
+              <input
+                type="number"
+                name="updates[]"
+                value="{{ item.quantity }}"
+                data-cart-quantity="{{ cart | item_count_for_variant: item.variant.id }}"
+                min="0"
+                data-index="{{ item.index | plus: 1 }}"
+                style="width:20px; text-align:center; border:none; background:transparent; font-size:14px; padding:0; color: #2c2c2c; font-weight: 500;"
+                readonly
+              >
+              <button type="button" name="plus" style="background:none; border:none; color:#999; font-size:16px; cursor:pointer; padding: 0 4px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M0.0117188 7L6.56285 6.56326L6.9996 0.0121214L7.43634 6.56326L13.9875 7L7.43634 7.43674L6.9996 13.9879L6.56285 7.43674L0.0117188 7Z" fill="#2C2C2C"/>
+                </svg>
+              </button>
+            </m-quantity-input>
+          {%- endif -%}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  {% liquid
+    assign collections = ''
+    for collection in item.product.collections
+      assign collections = collections | append: collection.id | append: ','
+    endfor
+  %}
+  <foxkit-incart-upsell
+    data-collections="{{ collections | remove_last: ',' }}"
+    data-product-title="{{ item.product.title }}"
+    data-product-id="{{ item.product_id }}"
+  ></foxkit-incart-upsell>
+</div>

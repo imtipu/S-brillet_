@@ -1,0 +1,651 @@
+{%- style -%}
+  /* =========================================================
+     Self-Contained Pixel Perfect CSS (No Theme Dependencies)
+     ========================================================= */
+  .figma-custom-footer {
+    --bg-main: {{ section.settings.main_bg_color }};
+    --bg-payment: {{ section.settings.payment_bg_color }};
+    --bg-bottom: {{ section.settings.bottom_bg_color }};
+    --text-color: {{ section.settings.text_color }};
+    --heading-color: {{ section.settings.heading_color }};
+    --divider-color: {{ section.settings.divider_color }};
+    --font-family: 'Inter', sans-serif;
+
+    background-color: var(--bg-main);
+    color: var(--text-color);
+    font-family: var(--font-family);
+    width: 100%;
+    box-sizing: border-box;
+    display: block;
+  }
+
+  .fcf-container {
+    max-width: 1920px;
+    margin: 0 auto;
+    padding-left: {{ section.settings.padding_sides }}px;
+    padding-right: {{ section.settings.padding_sides }}px;
+  }
+
+  /* --- TOP SECTION (4 Columns Grid) --- */
+  .fcf-top {
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: {{ section.settings.column_gap }}px;
+  }
+
+  /* Menu Blocks */
+  .fcf-menu-block {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .fcf-dual-menu {
+    display: flex;
+    flex-direction: column;
+    gap: {{ section.settings.stacked_menu_gap }}px; /* Space between the two stacked menus */
+  }
+
+  .fcf-heading {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--heading-color);
+    margin: 0;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .fcf-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .fcf-link {
+    font-size: 20px;
+    font-weight: 400;
+    color: #2c2c2c;
+    text-decoration: none;
+    line-height: 1.2;
+    transition: opacity 0.2s;
+  }
+  .fcf-link:hover { opacity: 0.7; }
+
+  /* --- NEWSLETTER SECTION --- */
+  .fcf-nl-desc {
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 0 0 20px 0;
+  }
+
+  .fcf-nl-form {
+    display: flex;
+    border: 1px solid {{ section.settings.nl_border_color }};
+    background: {{ section.settings.nl_bg_color }};
+    height: 48px;
+    width: 100%;
+    max-width: 350px;
+    margin-bottom: 25px;
+  }
+
+  .fcf-nl-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0 15px;
+    font-size: 16px;
+    color: var(--text-color);
+    outline: none;
+  }
+
+  .fcf-nl-btn {
+    width: 50px;
+    border: none;
+    background-color: {{ section.settings.nl_btn_bg_color }};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .fcf-nl-btn:hover { opacity: 0.8; }
+  .fcf-nl-btn img, .fcf-nl-btn svg {
+    max-width: 20px;
+    max-height: 20px;
+    object-fit: contain;
+  }
+
+  /* Social Icons */
+  .fcf-socials {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+  }
+  .fcf-social-link {
+    display: inline-flex;
+  }
+  .fcf-social-link img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+  }
+  .fcf-social-link svg {
+    width: {{ section.settings.social_icon_width }}px;
+    height: {{ section.settings.social_icon_width }}px;
+    stroke: {{ section.settings.text_color }};
+    fill: none;
+    stroke-width: 1.5;
+  }
+
+  /* --- MIDDLE SECTION (Payments) --- */
+  .fcf-middle {
+    background-color: var(--bg-payment);
+    padding: 20px 0;
+    border-top: 1px solid var(--divider-color);
+  }
+  
+  .fcf-desktop-payment {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .fcf-mobile-payment-marquee {
+    display: none; /* Hidden on desktop by default */
+  }
+
+  /* --- BOTTOM SECTION (Copyright & Selectors) --- */
+  .fcf-bottom {
+    background-color: var(--bg-bottom);
+    border-top: 1px solid var(--divider-color);
+    padding: 20px 0;
+  }
+  .fcf-bottom-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .fcf-copyright {
+    font-size: 16px;
+    color: var(--text-color);
+  }
+
+  .fcf-selectors {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+  }
+  
+  .fcf-selector-item {
+    font-size: 16px;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .fcf-selector-item img {
+    object-fit: contain;
+  }
+
+
+  /* new */
+
+
+  /* --- LOCALIZATION DROPDOWN STYLES --- */
+  .fcf-localization-form {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+    margin: 0;
+  }
+  
+  .fcf-dropdown-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .fcf-select-reset {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: transparent;
+    border: none;
+    padding: 0 18px 0 0; /* Right padding to make room for your custom arrow */
+    margin: 0;
+    font-size: inherit; /* Automatically changes size on mobile based on your media queries */
+    color: var(--text-color);
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+  }
+
+  /* Hides default arrow in older browsers */
+  .fcf-select-reset::-ms-expand {
+    display: none;
+  }
+
+  .fcf-arrow-icon {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; /* Very important: Allows user to click the select box *through* the arrow image */
+  }
+
+  /* new  */
+
+
+
+  /* =========================================================
+     Responsive Rules (Mobile Optimizations)
+     ========================================================= */
+
+     /* ─── MacBook Air 15 inch M2 (1441px - 1728px) ───────────────── */
+@media (min-width: 1441px) and (max-width: 1728px) {
+  .figma-custom-footer .fcf-heading {
+    font-size: 18px;
+  }
+  .figma-custom-footer .fcf-link {
+    font-size: 18px;
+  }
+  .figma-custom-footer .fcf-nl-desc {
+    font-size: 15px;
+  }
+  .figma-custom-footer .fcf-copyright,
+  .figma-custom-footer .fcf-selector-item {
+    font-size: 15px;
+  }
+}
+
+
+
+/* ─── MacBook Air 13 inch (1025px - 1440px) ─────────────────── */
+@media (min-width: 1025px) and (max-width: 1440px) {
+  .figma-custom-footer .fcf-heading {
+    font-size: 16px;
+  }
+  .figma-custom-footer .fcf-link {
+    font-size: 16px;
+  }
+  .figma-custom-footer .fcf-nl-desc {
+    font-size: 14px;
+  }
+  .figma-custom-footer .fcf-copyright,
+  .figma-custom-footer .fcf-selector-item {
+    font-size: 14px;
+  }
+}
+
+  @media (max-width: 1024px) {
+    .fcf-top { grid-template-columns: repeat(2, 1fr); gap: 40px; }
+  }
+  @media screen and (min-width: 769px) and (max-width: 1024px) {
+  .fcf-container {
+    padding:0 40px;
+  }
+}
+
+  @media (max-width: 768px) {
+    .fcf-top { grid-template-columns: 1fr; }
+    .fcf-bottom-inner { flex-direction: column; gap: 15px; text-align: center; }
+
+    .fcf-container {
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+
+    /* Force all fonts to 16px on mobile as requested */
+    .fcf-heading, 
+    .fcf-link, 
+    .fcf-nl-desc, 
+    .fcf-nl-input, 
+    .fcf-copyright, 
+    .fcf-selector-item {
+      font-size: 16px !important;
+    }
+
+    /* Hide desktop payment image if mobile blocks exist */
+    .hide-on-mobile {
+      display: none !important;
+    }
+
+    /* Mobile Sliding Marquee Styles */
+    .fcf-mobile-payment-marquee {
+      display: flex;
+      overflow: hidden;
+      gap: 20px;
+      width: 100%;
+    }
+
+    .fcf-marquee-content {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: space-around;
+      gap: 30px; /* Space between sliding icons */
+      min-width: 100%;
+      animation: scrollMarquee {{ section.settings.mobile_marquee_speed }}s linear infinite;
+    }
+
+    .fcf-pay-icon {
+      height: {{ section.settings.mobile_payment_icon_height }}px;
+      width: auto;
+      object-fit: contain;
+    }
+  }
+
+  /* Keyframes for the auto-sliding effect */
+  @keyframes scrollMarquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(-100% - 20px)); }
+  }
+{%- endstyle -%}
+
+<footer class="figma-custom-footer" data-section-id="{{ section.id }}">
+  
+  <!-- TOP SECTION -->
+  <div class="fcf-container">
+    <div class="fcf-top">
+      {%- for block in section.blocks -%}
+        
+        {%- case block.type -%}
+          {%- when 'dual_menu' -%}
+            <!-- Column 1: Two Stacked Menus -->
+            <div class="fcf-dual-menu" {{ block.shopify_attributes }}>
+              <div class="fcf-menu-block">
+                <h2 class="fcf-heading">{{ block.settings.title_1 }}</h2>
+                <ul class="fcf-list">
+                  {%- for link in block.settings.menu_1.links -%}
+                    <li><a href="{{ link.url }}" class="fcf-link">{{ link.title }}</a></li>
+                  {%- endfor -%}
+                </ul>
+              </div>
+              <div class="fcf-menu-block">
+                <h2 class="fcf-heading">{{ block.settings.title_2 }}</h2>
+                <ul class="fcf-list">
+                  {%- for link in block.settings.menu_2.links -%}
+                    <li><a href="{{ link.url }}" class="fcf-link">{{ link.title }}</a></li>
+                  {%- endfor -%}
+                </ul>
+              </div>
+            </div>
+
+          {%- when 'menu' -%}
+            <!-- Single Menu Column -->
+            <div class="fcf-menu-block" {{ block.shopify_attributes }}>
+              <h2 class="fcf-heading">{{ block.settings.title }}</h2>
+              <ul class="fcf-list">
+                {%- for link in block.settings.menu.links -%}
+                  <li><a href="{{ link.url }}" class="fcf-link">{{ link.title }}</a></li>
+                {%- endfor -%}
+              </ul>
+            </div>
+
+          {%- when 'newsletter' -%}
+            <!-- Newsletter & Socials Column -->
+            <div class="fcf-menu-block" {{ block.shopify_attributes }}>
+              <h2 class="fcf-heading">{{ block.settings.title }}</h2>
+              <p class="fcf-nl-desc">{{ block.settings.description }}</p>
+              
+              <form class="fcf-nl-form" action="#">
+                <input type="email" class="fcf-nl-input" placeholder="{{ block.settings.placeholder }}" required>
+                <button type="submit" class="fcf-nl-btn">
+                  {%- if block.settings.submit_icon_image != blank -%}
+                    <img src="{{ block.settings.submit_icon_image | image_url: width: 30 }}" alt="Submit">
+                  {%- else -%}
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M9 5L16 12L9 19" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  {%- endif -%}
+                </button>
+              </form>
+
+              {%- if block.settings.show_social -%}
+                <div class="fcf-socials">
+                  <!-- Custom Social Image Uploads or Default SVGs -->
+                  <a href="#" class="fcf-social-link">
+                    {% if block.settings.img_social_1 != blank %}
+                      <img src="{{ block.settings.img_social_1 | image_url: width: 50 }}" alt="Social 1">
+                    {% else %}
+                      <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                    {% endif %}
+                  </a>
+                  <a href="#" class="fcf-social-link">
+                    {% if block.settings.img_social_2 != blank %}
+                      <img src="{{ block.settings.img_social_2 | image_url: width: 50 }}" alt="Social 2">
+                    {% else %}
+                      <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                    {% endif %}
+                  </a>
+                </div>
+              {%- endif -%}
+            </div>
+            
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+  </div>
+
+  <!-- MIDDLE SECTION (Payment Icons) -->
+  {%- assign payment_blocks = section.blocks | where: 'type', 'payment_icon' -%}
+  
+  {%- if section.settings.show_payment -%}
+    <div class="fcf-middle">
+      <div class="fcf-container">
+        
+        <!-- Desktop Static Image (Hides on mobile if mobile icons are added) -->
+        {%- if section.settings.payment_image != blank -%}
+          <img class="fcf-desktop-payment {% if payment_blocks.size > 0 %}hide-on-mobile{% endif %}" src="{{ section.settings.payment_image | image_url: width: 1920 }}" alt="Payment Methods">
+        {%- endif -%}
+
+        <!-- Mobile Auto-Sliding Marquee -->
+        {%- if payment_blocks.size > 0 -%}
+          <div class="fcf-mobile-payment-marquee">
+            <!-- Set 1 (Original) -->
+            <div class="fcf-marquee-content">
+              {%- for block in payment_blocks -%}
+                {%- if block.settings.icon != blank -%}
+                  <img src="{{ block.settings.icon | image_url: height: section.settings.mobile_payment_icon_height }}" alt="Payment Icon" class="fcf-pay-icon" {{ block.shopify_attributes }}>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+            <!-- Set 2 (Duplicate for infinite smooth scrolling loop) -->
+            <div class="fcf-marquee-content" aria-hidden="true">
+              {%- for block in payment_blocks -%}
+                {%- if block.settings.icon != blank -%}
+                  <img src="{{ block.settings.icon | image_url: height: section.settings.mobile_payment_icon_height }}" alt="Payment Icon" class="fcf-pay-icon">
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          </div>
+        {%- endif -%}
+
+      </div>
+    </div>
+  {%- endif -%}
+
+  <!-- BOTTOM SECTION (Copyright & Selectors) -->
+  <div class="fcf-bottom">
+    <div class="fcf-container">
+      <div class="fcf-bottom-inner">
+        <div class="fcf-copyright">
+          {{ section.settings.copyright }}
+        </div>
+        
+        {% comment %} <div class="fcf-selectors">
+          {%- if section.settings.show_currency -%}
+            <div class="fcf-selector-item">
+              Cyprus (EUR)
+              {%- if section.settings.icon_curr_arrow != blank -%}
+                <img src="{{ section.settings.icon_curr_arrow | image_url: width: section.settings.arrow_width }}" width="{{ section.settings.arrow_width }}" alt="Arrow">
+              {%- else -%}
+                <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="#2C2C2C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+          {%- if section.settings.show_language -%}
+            <div class="fcf-selector-item">
+              English
+              {%- if section.settings.icon_lang_arrow != blank -%}
+                <img src="{{ section.settings.icon_lang_arrow | image_url: width: section.settings.arrow_width }}" width="{{ section.settings.arrow_width }}" alt="Arrow">
+              {%- else -%}
+                <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="#2C2C2C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        </div> {% endcomment %}
+
+
+
+        <div class="fcf-selectors">
+          {% form 'localization', id: 'footer_localization_form', class: 'fcf-localization-form' %}
+            
+            {%- if section.settings.show_currency -%}
+              <div class="fcf-selector-item fcf-dropdown-wrapper" style="position: relative; display: flex; align-items: center; max-width: 140px;">
+                <select name="country_code" class="fcf-select-reset" onchange="this.form.submit()" 
+                        style="appearance: none; -webkit-appearance: none; -moz-appearance: none; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 18px 0 0 !important; margin: 0; font-size: inherit; color: var(--text-color); font-family: inherit; cursor: pointer; outline: none; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  {%- for country in localization.available_countries -%}
+                    <option value="{{ country.iso_code }}" {%- if country.iso_code == localization.country.iso_code %} selected{% endif %} style="background-color: #fff; color: #000;">
+                      {{ country.name }} ({{ country.currency.iso_code }})
+                    </option>
+                  {%- endfor -%}
+                </select>
+                {%- if section.settings.icon_curr_arrow != blank -%}
+                  <img src="{{ section.settings.icon_curr_arrow | image_url: width: section.settings.arrow_width }}" width="{{ section.settings.arrow_width }}" alt="Arrow" class="fcf-arrow-icon" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); pointer-events: none;">
+                {%- else -%}
+                  <svg class="fcf-arrow-icon" width="12" height="8" viewBox="0 0 12 8" fill="none" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); pointer-events: none;"><path d="M1 1.5L6 6.5L11 1.5" stroke="#2C2C2C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+
+            {%- if section.settings.show_language -%}
+              <div class="fcf-selector-item fcf-dropdown-wrapper" style="position: relative; display: flex; align-items: center; max-width: 90px;">
+                <select name="locale_code" class="fcf-select-reset" onchange="this.form.submit()" 
+                        style="appearance: none; -webkit-appearance: none; -moz-appearance: none; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 18px 0 0 !important; margin: 0; font-size: inherit; color: var(--text-color); font-family: inherit; cursor: pointer; outline: none; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  {%- for locale in shop.published_locales -%}
+                    <option value="{{ locale.iso_code }}" {%- if locale.iso_code == request.locale.iso_code %} selected{% endif %} style="background-color: #fff; color: #000;">
+                      {{ locale.endonym_name | capitalize }}
+                    </option>
+                  {%- endfor -%}
+                </select>
+                {%- if section.settings.icon_lang_arrow != blank -%}
+                  <img src="{{ section.settings.icon_lang_arrow | image_url: width: section.settings.arrow_width }}" width="{{ section.settings.arrow_width }}" alt="Arrow" class="fcf-arrow-icon" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); pointer-events: none;">
+                {%- else -%}
+                  <svg class="fcf-arrow-icon" width="12" height="8" viewBox="0 0 12 8" fill="none" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); pointer-events: none;"><path d="M1 1.5L6 6.5L11 1.5" stroke="#2C2C2C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+
+          {% endform %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</footer>
+
+{% schema %}
+{
+  "name": "Figma Perfect Footer",
+  "settings": [
+    { "type": "header", "content": "Layout Spacing" },
+    { "type": "range", "id": "padding_sides", "label": "Side Padding (Left/Right)", "default": 120, "min": 0,"step":2, "max": 200, "unit": "px" },
+    { "type": "range", "id": "padding_top", "label": "Top Padding", "default": 80, "min": 0,"step":2,  "max": 150, "unit": "px" },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom Padding (Top Section)", "default": 80, "min": 0,"step":2, "max": 150, "unit": "px" },
+    { "type": "range", "id": "column_gap", "label": "Gap Between Columns", "default": 40, "min": 0, "max": 100, "unit": "px" },
+    { "type": "range", "id": "stacked_menu_gap", "label": "Gap between Stacked Menus", "default": 80, "min": 0,"step":2,  "max": 150, "unit": "px" },
+    
+    { "type": "header", "content": "Colors (A to Z)" },
+    { "type": "color", "id": "main_bg_color", "label": "Main Background", "default": "#FFFFFF" },
+    { "type": "color", "id": "payment_bg_color", "label": "Payment Row Background", "default": "#f5f5f5" },
+    { "type": "color", "id": "bottom_bg_color", "label": "Bottom Bar Background", "default": "#FFFFFF" },
+    { "type": "color", "id": "heading_color", "label": "Heading Color", "default": "#000000" },
+    { "type": "color", "id": "text_color", "label": "Text Color", "default": "#2C2C2C" },
+    { "type": "color", "id": "divider_color", "label": "Divider Line Color", "default": "#E5E5E5" },
+
+    { "type": "header", "content": "Signup Box Styling" },
+    { "type": "color", "id": "nl_bg_color", "label": "Input Box Background", "default": "#FFFFFF" },
+    { "type": "color", "id": "nl_border_color", "label": "Input Box Border", "default": "#D9D9D9" },
+    { "type": "color", "id": "nl_btn_bg_color", "label": "Button Background", "default": "#E6D7C3" },
+
+    { "type": "header", "content": "Payment Section (Desktop)" },
+    { "type": "checkbox", "id": "show_payment", "label": "Show Payment Section", "default": true },
+    { "type": "image_picker", "id": "payment_image", "label": "Upload Desktop Payment Image" },
+
+    { "type": "header", "content": "Mobile Payment Slider Controls" },
+    { "type": "paragraph", "content": "Add 'Mobile Payment Icon' blocks below to enable the auto-slider on mobile devices." },
+    { "type": "range", "id": "mobile_payment_icon_height", "label": "Mobile Icon Size (Height)", "default": 24, "min": 10, "max": 60, "unit": "px" },
+    { "type": "range", "id": "mobile_marquee_speed", "label": "Auto-Slide Speed", "default": 10, "min": 5, "max": 40, "unit": "sec", "info": "Lower number means faster sliding." },
+
+    { "type": "header", "content": "Bottom Bar Elements" },
+    { "type": "text", "id": "copyright", "label": "Copyright Text", "default": "© 2025 S-Brillet Jewellery All Rights Reserved." },
+    { "type": "checkbox", "id": "show_currency", "label": "Show Currency Selector", "default": true },
+    { "type": "image_picker", "id": "icon_curr_arrow", "label": "Currency Arrow Image" },
+    { "type": "checkbox", "id": "show_language", "label": "Show Language Selector", "default": true },
+    { "type": "image_picker", "id": "icon_lang_arrow", "label": "Language Arrow Image" },
+    { "type": "range", "id": "arrow_width", "label": "Arrow Image Width", "default": 14, "min": 8, "max": 30, "unit": "px" },
+    { "type": "range", "id": "social_icon_width", "label": "Social Icon Width", "default": 24, "min": 10, "max": 50, "unit": "px" }
+  ],
+  "blocks": [
+    {
+      "type": "dual_menu",
+      "name": "Dual Stacked Menu",
+      "limit": 1,
+      "settings": [
+        { "type": "text", "id": "title_1", "label": "Top Heading", "default": "CUSTOMER SUPPORT" },
+        { "type": "link_list", "id": "menu_1", "label": "Top Menu" },
+        { "type": "text", "id": "title_2", "label": "Bottom Heading", "default": "ABOUT US" },
+        { "type": "link_list", "id": "menu_2", "label": "Bottom Menu" }
+      ]
+    },
+    {
+      "type": "menu",
+      "name": "Single Menu",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Heading", "default": "HELP" },
+        { "type": "link_list", "id": "menu", "label": "Menu" }
+      ]
+    },
+    {
+      "type": "newsletter",
+      "name": "Newsletter",
+      "limit": 1,
+      "settings": [
+        { "type": "text", "id": "title", "label": "Heading", "default": "Join Us" },
+        { "type": "text", "id": "description", "label": "Description", "default": "Get exclusive access to promotions & new releases." },
+        { "type": "text", "id": "placeholder", "label": "Input Placeholder", "default": "Email Address" },
+        { "type": "image_picker", "id": "submit_icon_image", "label": "Upload Submit Arrow Image" },
+        { "type": "checkbox", "id": "show_social", "label": "Show Social Icons", "default": true },
+        { "type": "image_picker", "id": "img_social_1", "label": "Upload Social Icon 1 (e.g. IG)" },
+        { "type": "image_picker", "id": "img_social_2", "label": "Upload Social Icon 2 (e.g. FB)" }
+      ]
+    },
+    {
+      "type": "payment_icon",
+      "name": "Mobile Payment Icon",
+      "settings": [
+        { "type": "image_picker", "id": "icon", "label": "Upload Payment Icon" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Figma Perfect Footer",
+      "blocks": [
+        { "type": "dual_menu" },
+        { "type": "menu" },
+        { "type": "menu" },
+        { "type": "newsletter" }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,500 @@
+{%- comment -%}
+  Size Guide Modal Snippet
+  Usage: {% render 'size-guide-modal' %}
+  Place a trigger anywhere: <button data-size-guide-trigger>Size Guide</button>
+{%- endcomment -%}
+
+{%- liquid
+  assign size_guide_id = 'size-guide-modal'
+-%}
+
+<button
+  type="button"
+  class="size-guide__trigger"
+  data-size-guide-trigger
+  aria-haspopup="dialog"
+  aria-controls="{{ size_guide_id }}"
+>
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+    <rect x="1" y="4" width="12" height="7" rx="1" stroke="currentColor" stroke-width="1.2"/>
+    <path d="M4 4V3M7 4V2.5M10 4V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+  </svg>
+  {{ 'products.size_guide.trigger' | t | default: 'Size Guide' }}
+</button>
+
+<div
+  id="{{ size_guide_id }}"
+  class="size-guide__overlay"
+  role="dialog"
+  aria-modal="true"
+  aria-label="{{ 'products.size_guide.title' | t | default: 'Size Guide' }}"
+  hidden
+>
+  <div class="size-guide__backdrop" data-size-guide-close></div>
+
+  <div class="size-guide__modal">
+
+    <div class="size-guide__header">
+      <div class="size-guide__header-left">
+        <span class="size-guide__eyebrow">{{ shop.name }}</span>
+        <h2 class="size-guide__title">{{ 'products.size_guide.title' | t | default: 'Size Guide' }}</h2>
+      </div>
+      <button
+        type="button"
+        class="size-guide__close"
+        data-size-guide-close
+        aria-label="{{ 'accessibility.close' | t | default: 'Close' }}"
+      >
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+          <path d="M4 4L14 14M14 4L4 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="size-guide__tabs" role="tablist" aria-label="Size categories">
+      <button role="tab" class="size-guide__tab is-active" aria-selected="true" data-tab="women">Women</button>
+      <button role="tab" class="size-guide__tab" aria-selected="false" data-tab="men">Men</button>
+      <button role="tab" class="size-guide__tab" aria-selected="false" data-tab="kids">Kids</button>
+    </div>
+
+    <div class="size-guide__body">
+
+      {%- comment -%} WOMEN PANEL {%- endcomment -%}
+      <div class="size-guide__panel is-active" data-panel="women">
+        <div class="size-guide__unit-toggle" role="group" aria-label="Unit toggle">
+          <button class="size-guide__unit is-active" data-unit="in">Inches</button>
+          <button class="size-guide__unit" data-unit="cm">CM</button>
+        </div>
+        <div class="size-guide__scroll-wrap">
+          <table class="size-guide__table" data-unit-table="women">
+            <thead>
+              <tr>
+                <th>Size</th>
+                <th>US</th>
+                <th>EU</th>
+                <th data-inches>Bust (in)</th>
+                <th data-cm>Bust (cm)</th>
+                <th data-inches>Waist (in)</th>
+                <th data-cm>Waist (cm)</th>
+                <th data-inches>Hips (in)</th>
+                <th data-cm>Hips (cm)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>XS</td><td>0–2</td><td>32–34</td><td data-inches>31–33"</td><td data-cm>79–84 cm</td><td data-inches>23–25"</td><td data-cm>58–63 cm</td><td data-inches>33–35"</td><td data-cm>84–89 cm</td></tr>
+              <tr><td>S</td><td>4–6</td><td>36–38</td><td data-inches>33–35"</td><td data-cm>84–89 cm</td><td data-inches>25–27"</td><td data-cm>63–68 cm</td><td data-inches>35–37"</td><td data-cm>89–94 cm</td></tr>
+              <tr><td>M</td><td>8–10</td><td>40–42</td><td data-inches>35–37"</td><td data-cm>89–94 cm</td><td data-inches>27–29"</td><td data-cm>68–74 cm</td><td data-inches>37–39"</td><td data-cm>94–99 cm</td></tr>
+              <tr><td>L</td><td>12–14</td><td>44–46</td><td data-inches>37–40"</td><td data-cm>94–101 cm</td><td data-inches>29–32"</td><td data-cm>74–81 cm</td><td data-inches>39–42"</td><td data-cm>99–107 cm</td></tr>
+              <tr><td>XL</td><td>16–18</td><td>48–50</td><td data-inches>40–43"</td><td data-cm>101–109 cm</td><td data-inches>32–35"</td><td data-cm>81–89 cm</td><td data-inches>42–45"</td><td data-cm>107–114 cm</td></tr>
+              <tr><td>XXL</td><td>20–22</td><td>52–54</td><td data-inches>43–46"</td><td data-cm>109–117 cm</td><td data-inches>35–38"</td><td data-cm>89–97 cm</td><td data-inches>45–48"</td><td data-cm>114–122 cm</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {%- comment -%} MEN PANEL {%- endcomment -%}
+      <div class="size-guide__panel" data-panel="men" hidden>
+        <div class="size-guide__unit-toggle" role="group" aria-label="Unit toggle">
+          <button class="size-guide__unit is-active" data-unit="in">Inches</button>
+          <button class="size-guide__unit" data-unit="cm">CM</button>
+        </div>
+        <div class="size-guide__scroll-wrap">
+          <table class="size-guide__table" data-unit-table="men">
+            <thead>
+              <tr>
+                <th>Size</th>
+                <th>US</th>
+                <th>EU</th>
+                <th data-inches>Chest (in)</th>
+                <th data-cm>Chest (cm)</th>
+                <th data-inches>Waist (in)</th>
+                <th data-cm>Waist (cm)</th>
+                <th data-inches>Hip (in)</th>
+                <th data-cm>Hip (cm)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>XS</td><td>XS</td><td>44–46</td><td data-inches>34–36"</td><td data-cm>86–91 cm</td><td data-inches>28–30"</td><td data-cm>71–76 cm</td><td data-inches>35–37"</td><td data-cm>89–94 cm</td></tr>
+              <tr><td>S</td><td>S</td><td>48–50</td><td data-inches>36–38"</td><td data-cm>91–97 cm</td><td data-inches>30–32"</td><td data-cm>76–81 cm</td><td data-inches>37–39"</td><td data-cm>94–99 cm</td></tr>
+              <tr><td>M</td><td>M</td><td>52–54</td><td data-inches>38–40"</td><td data-cm>97–102 cm</td><td data-inches>32–34"</td><td data-cm>81–86 cm</td><td data-inches>39–41"</td><td data-cm>99–104 cm</td></tr>
+              <tr><td>L</td><td>L</td><td>56–58</td><td data-inches>40–42"</td><td data-cm>102–107 cm</td><td data-inches>34–36"</td><td data-cm>86–91 cm</td><td data-inches>41–43"</td><td data-cm>104–109 cm</td></tr>
+              <tr><td>XL</td><td>XL</td><td>60–62</td><td data-inches>42–44"</td><td data-cm>107–112 cm</td><td data-inches>36–38"</td><td data-cm>91–97 cm</td><td data-inches>43–45"</td><td data-cm>109–114 cm</td></tr>
+              <tr><td>XXL</td><td>XXL</td><td>64–66</td><td data-inches>44–46"</td><td data-cm>112–117 cm</td><td data-inches>38–40"</td><td data-cm>97–102 cm</td><td data-inches>45–47"</td><td data-cm>114–119 cm</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {%- comment -%} KIDS PANEL {%- endcomment -%}
+      <div class="size-guide__panel" data-panel="kids" hidden>
+        <div class="size-guide__scroll-wrap">
+          <table class="size-guide__table">
+            <thead>
+              <tr>
+                <th>Size</th>
+                <th>Age</th>
+                <th>Height (cm)</th>
+                <th>Weight (kg)</th>
+                <th>Chest (cm)</th>
+                <th>Waist (cm)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>2T</td><td>2 yrs</td><td>86–92</td><td>12–14</td><td>52–54</td><td>50–52</td></tr>
+              <tr><td>3T</td><td>3 yrs</td><td>92–98</td><td>14–16</td><td>54–56</td><td>52–54</td></tr>
+              <tr><td>4T</td><td>4 yrs</td><td>98–104</td><td>16–18</td><td>56–58</td><td>54–56</td></tr>
+              <tr><td>5</td><td>5 yrs</td><td>104–110</td><td>18–20</td><td>58–60</td><td>56–58</td></tr>
+              <tr><td>6</td><td>6 yrs</td><td>110–116</td><td>20–23</td><td>60–62</td><td>57–59</td></tr>
+              <tr><td>7</td><td>7 yrs</td><td>116–122</td><td>23–26</td><td>62–64</td><td>58–60</td></tr>
+              <tr><td>8</td><td>8 yrs</td><td>122–128</td><td>26–30</td><td>64–67</td><td>59–61</td></tr>
+              <tr><td>10</td><td>10 yrs</td><td>128–134</td><td>30–35</td><td>67–71</td><td>61–63</td></tr>
+              <tr><td>12</td><td>12 yrs</td><td>134–146</td><td>35–42</td><td>71–76</td><td>63–66</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="size-guide__footer">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M7 6.5V10M7 4.5V5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      <span>{{ 'products.size_guide.tip' | t | default: "Between sizes? We recommend sizing up for a relaxed fit." }}</span>
+    </div>
+
+  </div>
+</div>
+
+
+<style>
+/* =====================================================
+   SIZE GUIDE MODAL — Drop into any Shopify theme
+   ===================================================== */
+
+.size-guide__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: currentColor;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: opacity 0.15s;
+}
+.size-guide__trigger:hover { opacity: 0.6; }
+
+/* Overlay */
+.size-guide__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+@media (min-width: 768px) {
+  .size-guide__overlay { align-items: center; }
+}
+.size-guide__overlay[hidden] { display: none; }
+
+.size-guide__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  animation: sgFadeIn 0.2s ease;
+}
+
+/* Modal */
+.size-guide__modal {
+  position: relative;
+  z-index: 1;
+  background: #fff;
+  width: 100%;
+  max-width: 780px;
+  max-height: 90svh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+  animation: sgSlideUp 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+}
+@media (min-width: 768px) {
+  .size-guide__modal {
+    border-radius: 12px;
+    max-height: 85svh;
+    animation-name: sgScaleIn;
+  }
+}
+
+/* Header */
+.size-guide__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+.size-guide__eyebrow {
+  display: block;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 3px;
+}
+.size-guide__title {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #111;
+  margin: 0;
+}
+.size-guide__close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #333;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.size-guide__close:hover { background: #ebebeb; }
+
+/* Tabs */
+.size-guide__tabs {
+  display: flex;
+  gap: 2px;
+  padding: 14px 24px 0;
+  flex-shrink: 0;
+}
+.size-guide__tab {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: #888;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0 4px 10px;
+  margin-right: 16px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.size-guide__tab:hover { color: #333; }
+.size-guide__tab.is-active { color: #111; border-bottom-color: #111; }
+
+/* Body */
+.size-guide__body {
+  overflow-y: auto;
+  flex: 1;
+  padding: 20px 24px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Unit toggle */
+.size-guide__unit-toggle {
+  display: inline-flex;
+  gap: 0;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.size-guide__unit {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: #555;
+  background: #fff;
+  border: none;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.size-guide__unit.is-active { background: #111; color: #fff; }
+
+/* Scroll wrap for horizontal table on mobile */
+.size-guide__scroll-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+}
+
+/* Table */
+.size-guide__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.size-guide__table thead tr {
+  background: #f9f9f9;
+}
+.size-guide__table th {
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #888;
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.size-guide__table td {
+  padding: 10px 14px;
+  color: #333;
+  border-bottom: 1px solid #f8f8f8;
+  transition: background 0.1s;
+}
+.size-guide__table tbody tr:last-child td { border-bottom: none; }
+.size-guide__table tbody tr:hover td { background: #fafafa; }
+.size-guide__table td:first-child { font-weight: 600; color: #111; }
+
+/* Unit visibility */
+[data-inches] { display: table-cell; }
+[data-cm]     { display: none; }
+.show-cm [data-inches] { display: none; }
+.show-cm [data-cm]     { display: table-cell; }
+
+/* Panel */
+.size-guide__panel { display: none; }
+.size-guide__panel.is-active { display: block; }
+
+/* Footer tip */
+.size-guide__footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border-top: 1px solid #f0f0f0;
+  font-size: 12px;
+  color: #888;
+  flex-shrink: 0;
+  background: #fafafa;
+}
+
+/* Animations */
+@keyframes sgFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes sgSlideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes sgScaleIn {
+  from { opacity: 0; transform: scale(0.97) translateY(6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Body lock when modal is open */
+body.size-guide-open { overflow: hidden; }
+</style>
+
+
+<script>
+(function () {
+  function SizeGuide(overlay) {
+    this.overlay   = overlay;
+    this.triggers  = document.querySelectorAll('[data-size-guide-trigger]');
+    this.closeBtns = overlay.querySelectorAll('[data-size-guide-close]');
+    this.tabs      = overlay.querySelectorAll('.size-guide__tab');
+    this.panels    = overlay.querySelectorAll('.size-guide__panel');
+
+    this.triggers.forEach(function (btn) {
+      btn.addEventListener('click', this.open.bind(this));
+    }, this);
+
+    this.closeBtns.forEach(function (btn) {
+      btn.addEventListener('click', this.close.bind(this));
+    }, this);
+
+    this.tabs.forEach(function (tab) {
+      tab.addEventListener('click', this.switchTab.bind(this, tab));
+    }, this);
+
+    overlay.querySelectorAll('.size-guide__unit-toggle').forEach(function (group) {
+      group.querySelectorAll('.size-guide__unit').forEach(function (btn) {
+        btn.addEventListener('click', this.toggleUnit.bind(this, btn, group));
+      }, this);
+    }, this);
+
+    overlay.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') this.close();
+    }.bind(this));
+  }
+
+  SizeGuide.prototype.open = function () {
+    this.overlay.hidden = false;
+    document.body.classList.add('size-guide-open');
+    var firstClose = this.overlay.querySelector('.size-guide__close');
+    if (firstClose) firstClose.focus();
+    this._prevFocus = document.activeElement;
+  };
+
+  SizeGuide.prototype.close = function () {
+    this.overlay.hidden = true;
+    document.body.classList.remove('size-guide-open');
+    if (this._prevFocus) this._prevFocus.focus();
+  };
+
+  SizeGuide.prototype.switchTab = function (tab) {
+    var target = tab.dataset.tab;
+
+    this.tabs.forEach(function (t) {
+      t.classList.remove('is-active');
+      t.setAttribute('aria-selected', 'false');
+    });
+    this.panels.forEach(function (p) {
+      p.classList.remove('is-active');
+      p.hidden = true;
+    });
+
+    tab.classList.add('is-active');
+    tab.setAttribute('aria-selected', 'true');
+
+    var panel = this.overlay.querySelector('[data-panel="' + target + '"]');
+    if (panel) {
+      panel.classList.add('is-active');
+      panel.hidden = false;
+    }
+  };
+
+  SizeGuide.prototype.toggleUnit = function (btn, group) {
+    group.querySelectorAll('.size-guide__unit').forEach(function (b) {
+      b.classList.remove('is-active');
+    });
+    btn.classList.add('is-active');
+
+    var panel = btn.closest('.size-guide__panel');
+    if (!panel) return;
+    if (btn.dataset.unit === 'cm') {
+      panel.classList.add('show-cm');
+    } else {
+      panel.classList.remove('show-cm');
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var overlay = document.getElementById('size-guide-modal');
+    if (overlay) new SizeGuide(overlay);
+  });
+})();
+</script>

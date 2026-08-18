@@ -1,0 +1,687 @@
+{% comment %}
+  Section: Best Selling Brilliant Designs
+  Style: Minimog Card Style 1
+  Features: Heading top-left, nav arrows top-right, product cards, CTA button bottom-left
+{% endcomment %}
+
+<section
+  class="bsd-section"
+  id="best-selling-{{ section.id }}"
+  style="padding: {{ section.settings.padding_top }}px {{ section.settings.padding_right }}px {{ section.settings.padding_bottom }}px {{ section.settings.padding_left }}px;"
+>
+  <div class="bsd-container">
+
+    {%- comment -%} Section Header {%- endcomment -%}
+    <div class="bsd-header">
+      <div class="bsd-header__left">
+        {% if section.settings.heading != blank %}
+          <h2 class="bsd-heading">{{ section.settings.heading }}</h2>
+        {% endif %}
+      </div>
+      <div class="bsd-header__right">
+        <button
+          class="bsd-nav-btn bsd-nav-btn--prev"
+          aria-label="Previous"
+          onclick="bsdSlide('{{ section.id }}', -1)"
+        >
+          {{ section.settings.nav_prev_icon }}
+        </button>
+        <button
+          class="bsd-nav-btn bsd-nav-btn--next"
+          aria-label="Next"
+          onclick="bsdSlide('{{ section.id }}', 1)"
+        >
+          {{ section.settings.nav_next_icon }}
+        </button>
+      </div>
+    </div>
+
+    {%- comment -%} Cards Grid / Slider {%- endcomment -%}
+    <div class="bsd-slider-wrapper">
+      <div class="bsd-cards-track" id="bsd-track-{{ section.id }}">
+        {%- assign collection = collections[section.settings.collection] -%}
+        {%- assign products_to_show = section.settings.products_to_show -%}
+
+        {%- if collection != blank and collection.products.size > 0 -%}
+          {%- for product in collection.products limit: products_to_show -%}
+            <div class="bsd-card-wrap">
+              <div class="bsd-card">
+
+                {%- comment -%} Wishlist Icon {%- endcomment -%}
+                <button class="bsd-card__wishlist" aria-label="Add to wishlist">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                </button>
+
+                {%- comment -%} Product Image {%- endcomment -%}
+                <a href="{{ product.url }}" class="bsd-card__image-link">
+                  <div class="bsd-card__image-wrap">
+                    {%- if product.featured_image != blank -%}
+                      <img
+                        src="{{ product.featured_image | image_url: width: 480 }}"
+                        alt="{{ product.featured_image.alt | escape }}"
+                        width="480"
+                        height="480"
+                        loading="lazy"
+                        class="bsd-card__img bsd-card__img--primary"
+                      >
+                      {%- if product.images[1] != blank -%}
+                        <img
+                          src="{{ product.images[1] | image_url: width: 480 }}"
+                          alt="{{ product.images[1].alt | escape }}"
+                          width="480"
+                          height="480"
+                          loading="lazy"
+                          class="bsd-card__img bsd-card__img--secondary"
+                        >
+                      {%- endif -%}
+                    {%- else -%}
+                      {{ 'product-1' | placeholder_svg_tag: 'bsd-card__img bsd-placeholder' }}
+                    {%- endif -%}
+                  </div>
+                </a>
+
+                {%- comment -%} Variant Swatches (color) {%- endcomment -%}
+                {%- assign color_option = nil -%}
+                {%- for option in product.options_with_values -%}
+                  {%- assign option_downcase = option.name | downcase -%}
+                  {%- if option_downcase == 'color' or option_downcase == 'colour' -%}
+                    {%- assign color_option = option -%}
+                  {%- endif -%}
+                {%- endfor -%}
+
+                {%- if color_option != nil -%}
+                  <div class="bsd-card__swatches">
+                    {%- for value in color_option.values -%}
+                      {%- assign swatch_color = value | downcase | replace: ' ', '-' -%}
+                      <button
+                        class="bsd-swatch"
+                        style="background-color: {{ value | downcase }};"
+                        title="{{ value }}"
+                        aria-label="{{ value }}"
+                      ></button>
+                    {%- endfor -%}
+                  </div>
+                {%- endif -%}
+
+                {%- comment -%} Card Info {%- endcomment -%}
+                <div class="bsd-card__info">
+                  {%- if product.metafields.custom.subtitle != blank -%}
+                    <p class="bsd-card__subtitle">{{ product.metafields.custom.subtitle }}</p>
+                  {%- else -%}
+                    {%- if product.type != blank -%}
+                      <p class="bsd-card__subtitle">{{ product.type }}</p>
+                    {%- endif -%}
+                  {%- endif -%}
+
+                  <a href="{{ product.url }}" class="bsd-card__title">
+                    {{ product.title }}
+                  </a>
+
+                  <div class="bsd-card__price">
+                    {%- if product.compare_at_price > product.price -%}
+                      <span class="bsd-price bsd-price--sale">
+                        {{ product.price | money }}
+                      </span>
+                      <span class="bsd-price bsd-price--compare">
+                        {{ product.compare_at_price | money }}
+                      </span>
+                    {%- else -%}
+                      <span class="bsd-price">
+                        {{ product.price | money }}
+                      </span>
+                    {%- endif -%}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          {%- endfor -%}
+
+        {%- else -%}
+          {%- comment -%} Placeholder cards when no collection is set {%- endcomment -%}
+          {%- for i in (1..4) -%}
+            <div class="bsd-card-wrap">
+              <div class="bsd-card">
+                <button class="bsd-card__wishlist" aria-label="Add to wishlist">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                </button>
+                <a href="#" class="bsd-card__image-link">
+                  <div class="bsd-card__image-wrap">
+                    {{ 'product-' | append: i | placeholder_svg_tag: 'bsd-card__img bsd-placeholder' }}
+                  </div>
+                </a>
+                <div class="bsd-card__swatches">
+                  <button class="bsd-swatch" style="background:#c0c0c0;" title="Silver" aria-label="Silver"></button>
+                  <button class="bsd-swatch" style="background:#d4af37;" title="Gold" aria-label="Gold"></button>
+                  <button class="bsd-swatch" style="background:#b76e79;" title="Rose Gold" aria-label="Rose Gold"></button>
+                </div>
+                <div class="bsd-card__info">
+                  <p class="bsd-card__subtitle">Moonstone · White 5A Cubic Zircon</p>
+                  <a href="#" class="bsd-card__title">Crystal Flow</a>
+                  <div class="bsd-card__price">
+                    <span class="bsd-price bsd-price--sale">€50,00</span>
+                    <span class="bsd-price bsd-price--compare">€60,00</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {%- endfor -%}
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- comment -%} Footer: CTA Button bottom-left {%- endcomment -%}
+    {% if section.settings.button_label != blank %}
+      <div class="bsd-footer">
+        <a
+          href="{{ section.settings.button_link }}"
+          class="bsd-btn"
+        >
+          {{ section.settings.button_label }}
+        </a>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+
+<style>
+  #best-selling-{{ section.id }} {
+    background-color: {{ section.settings.section_bg_color }};
+  }
+
+  .bsd-section {
+    width: 100%;
+  }
+
+  .bsd-container {
+    max-width: 1720px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* ── Header ── */
+  .bsd-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+
+  .bsd-heading {
+    font-family: {{ section.settings.heading_font }}, serif;
+    font-size: clamp(22px, 3vw, {{ section.settings.heading_size }}px);
+    font-weight: {{ section.settings.heading_weight }};
+    color: {{ section.settings.heading_color }};
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+
+  .bsd-header__right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .bsd-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+    transition: background 0.2s, border-color 0.2s;
+    line-height: 1;
+  }
+
+  .bsd-nav-btn:hover {
+    background: #f0f0f0;
+    border-color: #999;
+  }
+
+  /* ── Slider ── */
+  .bsd-slider-wrapper {
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .bsd-cards-track {
+    display: grid;
+    grid-template-columns: repeat({{ section.settings.cards_per_row }}, 1fr);
+    gap: {{ section.settings.card_gap }}px;
+    transition: transform 0.4s ease;
+  }
+
+  /* ── Card (Minimog Style 1) ── */
+  .bsd-card {
+    position: relative;
+    background: {{ section.settings.card_bg_color }};
+    border-radius: 0;
+    overflow: hidden;
+  }
+
+  .bsd-card__wishlist {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #999;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+  }
+
+  .bsd-card__wishlist:hover {
+    color: #e74c3c;
+  }
+
+  .bsd-card__image-link {
+    display: block;
+  }
+
+  .bsd-card__image-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+
+  .bsd-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: opacity 0.35s ease;
+  }
+
+  .bsd-card__img--primary {
+    position: relative;
+    z-index: 1;
+  }
+
+  .bsd-card__img--secondary {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    opacity: 0;
+  }
+
+  .bsd-card:hover .bsd-card__img--secondary {
+    opacity: 1;
+  }
+
+  .bsd-card:hover .bsd-card__img--primary {
+    opacity: 0;
+  }
+
+  .bsd-placeholder {
+    width: 100%;
+    height: 100%;
+    background: #eee;
+  }
+
+  /* ── Swatches ── */
+  .bsd-card__swatches {
+    display: flex;
+    gap: 6px;
+    padding: 10px 0 4px 0;
+  }
+
+  .bsd-swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0,0,0,0.12);
+    cursor: pointer;
+    padding: 0;
+    outline: none;
+    transition: transform 0.15s;
+  }
+
+  .bsd-swatch:hover {
+    transform: scale(1.2);
+  }
+
+  /* ── Card Info ── */
+  .bsd-card__info {
+    padding: 6px 0 14px 0;
+  }
+
+  .bsd-card__subtitle {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 3px;
+    letter-spacing: 0.01em;
+  }
+
+  .bsd-card__title {
+    display: block;
+    font-size: 15px;
+    font-weight: 500;
+    color: #111;
+    text-decoration: none;
+    margin-bottom: 6px;
+    letter-spacing: 0.01em;
+    transition: color 0.2s;
+  }
+
+  .bsd-card__title:hover {
+    color: #555;
+  }
+
+  .bsd-card__price {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .bsd-price {
+    font-size: 14px;
+    color: #111;
+  }
+
+  .bsd-price--sale {
+    color: #111;
+  }
+
+  .bsd-price--compare {
+    color: #aaa;
+    text-decoration: line-through;
+    font-size: 13px;
+  }
+
+  /* ── Footer ── */
+  .bsd-footer {
+    margin-top: 28px;
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .bsd-btn {
+    display: inline-block;
+    padding: 13px 28px;
+    background: {{ section.settings.button_bg_color }};
+    color: {{ section.settings.button_text_color }};
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .bsd-btn:hover {
+    opacity: 0.85;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 1024px) {
+    .bsd-cards-track {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .bsd-cards-track {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .bsd-heading {
+      font-size: 20px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .bsd-cards-track {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    var trackEl = document.getElementById('bsd-track-{{ section.id }}');
+    if (!trackEl) return;
+
+    var cards = trackEl.querySelectorAll('.bsd-card-wrap');
+    var total = cards.length;
+    var perRow = {{ section.settings.cards_per_row }};
+    var currentPage = 0;
+    var totalPages = Math.ceil(total / perRow);
+
+    window.bsdSlide = window.bsdSlide || function (sectionId, direction) {
+      var el = document.getElementById('bsd-track-' + sectionId);
+      if (!el) return;
+
+      var items = el.querySelectorAll('.bsd-card-wrap');
+      var count = items.length;
+      var cols = parseInt(window.getComputedStyle(el).gridTemplateColumns.split(' ').length) || perRow;
+      var pages = Math.ceil(count / cols);
+
+      var pageData = el._bsdPage || 0;
+      pageData = Math.max(0, Math.min(pages - 1, pageData + direction));
+      el._bsdPage = pageData;
+
+      var offset = pageData * (100 / cols) * cols;
+      el.style.transform = 'translateX(-' + offset + '%)';
+    };
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "CS PRODUCT CAROUSEL",
+  "tag": "section",
+  "class": "bsd-section-wrapper",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Layout"
+    },
+    {
+      "type": "color",
+      "id": "section_bg_color",
+      "label": "Section Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding Top (px)",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding Bottom (px)",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "padding_left",
+      "label": "Padding Left/Right (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_right",
+      "label": "Padding Right (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading Text",
+      "default": "Best Selling Brilliant Designs"
+    },
+    {
+      "type": "select",
+      "id": "heading_font",
+      "label": "Heading Font",
+      "options": [
+        { "value": "Georgia", "label": "Georgia (Serif)" },
+        { "value": "Playfair Display", "label": "Playfair Display" },
+        { "value": "Cormorant Garamond", "label": "Cormorant Garamond" },
+        { "value": "Times New Roman", "label": "Times New Roman" },
+        { "value": "Arial", "label": "Arial (Sans)" }
+      ],
+      "default": "Georgia"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading Size (px)",
+      "min": 20,
+      "max": 72,
+      "step": 2,
+      "default": 40
+    },
+    {
+      "type": "select",
+      "id": "heading_weight",
+      "label": "Heading Weight",
+      "options": [
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#111111"
+    },
+    {
+      "type": "header",
+      "content": "Navigation Icons"
+    },
+    {
+      "type": "text",
+      "id": "nav_prev_icon",
+      "label": "Prev Icon (HTML/text)",
+      "default": "&#8249;"
+    },
+    {
+      "type": "text",
+      "id": "nav_next_icon",
+      "label": "Next Icon (HTML/text)",
+      "default": "&#8250;"
+    },
+    {
+      "type": "header",
+      "content": "Products"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "label": "Products to Show",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Card Settings"
+    },
+    {
+      "type": "range",
+      "id": "cards_per_row",
+      "label": "Cards Per Row",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "card_gap",
+      "label": "Card Gap (px)",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Card Background",
+      "default": "#f8f8f5"
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button Label",
+      "default": "SHOP BESTSELLERS"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Button Background",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button Text Color",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "CS PRODUCT CAROUSEL",
+      "category": "Collection"
+    }
+  ]
+}
+{% endschema %}

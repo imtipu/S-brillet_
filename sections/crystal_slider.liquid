@@ -1,0 +1,781 @@
+{%- style -%}
+  .crystal-section-{{ section.id }} {
+    background-color: {{ section.settings.bg_color }};
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    text-align: center;
+    overflow: hidden;
+
+    /* Theme colors */
+    --btn-bg: {{ section.settings.btn_bg_color }};
+    --btn-text: {{ section.settings.btn_text_color }};
+    --btn-border: {{ section.settings.btn_border_color }};
+    --btn-hover-text: {{ section.settings.btn_hover_text_color }};
+    
+    --hover-grad-1: {{ section.settings.grad_color_1 }};
+    --hover-grad-2: {{ section.settings.grad_color_2 }};
+    --hover-grad-3: {{ section.settings.grad_color_3 }};
+    
+    --card-hover-bg: {{ section.settings.card_hover_bg }};
+
+    /* CSS Variables for Responsive Typography & Layout */
+    --heading-size: {{ section.settings.heading_size }}px;
+    --subtext-size: {{ section.settings.subtext_size }}px;
+    --card-width: {{ section.settings.card_width }}px;
+    --card-gap: {{ section.settings.card_gap }}px;
+    --img-size: {{ section.settings.image_size }}px;
+    --title-size: {{ section.settings.card_title_size }}px;
+  }
+
+  .crystal-heading-{{ section.id }} {
+    margin: 0 auto 40px auto;
+    font-family: var(--font-heading-family, serif);
+    font-weight: 400;
+    font-size: var(--heading-size);
+    line-height: 1.23;
+    text-transform: uppercase;
+    color: {{ section.settings.text_color }};
+    letter-spacing: 0px;
+    max-width: {{ section.settings.heading_max_width }}px;
+    width: 100%;
+  }
+
+  /* Slider Outer Wrapper (Includes Arrows) */
+  .crystal-slider-outer-wrapper-{{ section.id }} {
+    position: relative;
+    width: 100%; 
+    max-width: {{ section.settings.slider_max_width }}px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0px; 
+    box-sizing: border-box;
+  }
+
+  /* Viewport */
+  .crystal-slider-viewport-{{ section.id }} {
+    overflow: hidden;
+    width: 100%;
+    min-width: 0; 
+    
+    /* Exact fit calculation for exactly 5 cards + gaps + 40px left/right padding for hover shadow */
+    max-width: calc((var(--card-width) * 5) + (var(--card-gap) * 4) + 40px);
+    padding: 24px 20px; 
+    
+    box-sizing: border-box;
+    margin: 0 auto;
+  }
+
+  /* The Moving Track */
+  .crystal-track-{{ section.id }} {
+    display: flex;
+    gap: var(--card-gap);
+    width: max-content;
+    will-change: transform;
+  }
+
+  /* Individual Card */
+  .crystal-card-{{ section.id }} {
+    flex: 0 0 auto;
+    width: var(--card-width);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 24px;
+    text-decoration: none;
+    background-color: transparent;
+    
+    /* Transparent border to prevent layout jump on hover */
+    border: 1px solid transparent; 
+    border-radius: 5px; 
+    
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    cursor: pointer;
+    position: relative;
+  }
+
+  /* --- HOVER ANIMATION (Figma Match - Fixed shadow & no translate) --- */
+  .crystal-card-{{ section.id }}:hover {
+    /* Exact Gradient Border with Border-Radius */
+    background: linear-gradient(var(--card-hover-bg), var(--card-hover-bg)) padding-box,
+                linear-gradient(135deg, var(--hover-grad-1), var(--hover-grad-2), var(--hover-grad-3)) border-box;
+    box-shadow: 0px 0px 8px rgba(0,0,0,0.06); 
+    transform: none; 
+  }
+
+  /* Figma Match for the Underline on Hover */
+  .crystal-card-{{ section.id }}:hover .crystal-card-title-{{ section.id }} {
+    text-decoration: underline;
+    text-decoration-style: solid;
+    text-decoration-thickness: 1px; /* Matches 4% thickness */
+    text-underline-offset: 2px; /* Safest web equivalent to 0% offset for visual match */
+    text-decoration-skip-ink: auto; /* Skip ink: True */
+  }
+
+  .crystal-img-wrapper-{{ section.id }} {
+    width: var(--img-size);
+    height: var(--img-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .crystal-img-wrapper-{{ section.id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .crystal-card-title-{{ section.id }} {
+    margin: 0;
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-weight: 500;
+    font-size: var(--title-size);
+    line-height: 1.5;
+    text-transform: uppercase;
+    color: {{ section.settings.text_color }};
+    transition: all 0.3s ease;
+  }
+
+  /* Arrows */
+  .crystal-arrow-{{ section.id }} {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    z-index: 2;
+    color: {{ section.settings.arrow_color }};
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    flex-shrink: 0;
+  }
+  
+  .crystal-arrow-{{ section.id }}:hover {
+    transform: scale(1.1);
+    opacity: 0.7;
+  }
+  
+  .crystal-arrow-icon-{{ section.id }} {
+    width: {{ section.settings.arrow_size }}px;
+    height: {{ section.settings.arrow_size }}px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .crystal-arrow-icon-{{ section.id }} svg {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+  }
+  
+  .crystal-bottom-{{ section.id }} {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .crystal-subtext-{{ section.id }} {
+    margin: 0;
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-weight: 400;
+    font-size: var(--subtext-size);
+    line-height: 1.5;
+    color: {{ section.settings.text_color }};
+  }
+
+  /* --- Premium Button Design --- */
+  .crystal-section-{{ section.id }} .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: {{ section.settings.button_width }}px; 
+    height: 55px;
+    background-color: var(--btn-bg);
+    color: var(--btn-text);
+    border: 1px solid var(--btn-border);
+    font-family: inter, sans-serif;
+    font-size: {{ section.settings.button_font_size }}px;
+    font-weight: 300;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: 0px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    box-sizing: border-box;
+  }
+
+  .crystal-section-{{ section.id }} .btn-outline:hover {
+    background: linear-gradient(90deg, var(--hover-grad-1) 0%, var(--hover-grad-2) 50%, var(--hover-grad-3) 100%);
+    color: var(--btn-hover-text);
+    border-color: transparent;
+  }
+
+  /* --- RESPONSIVE DESIGN --- */
+
+
+  /* ─── MacBook Air 15 inch M2 (1441px - 1728px) ───────────────── */
+@media screen and (min-width: 1441px) and (max-width: 1728px) {
+  .crystal-section-{{ section.id }} {
+    --heading-size: 54px !important;
+  }
+  .crystal-card-title-{{ section.id }},
+  .crystal-section-{{ section.id }} .btn-outline,
+  .crystal-subtext-{{ section.id }} {
+    font-size: 18px;
+  }
+  .crystal-slider-outer-wrapper-{{ section.id }} {
+    padding: 0px 120px;
+  }
+}
+
+
+  /* Laptop & Macbook (up to 1440px) */
+  @media screen and (max-width: 1440px) {
+    .crystal-section-{{ section.id }} {
+      --heading-size: 46px !important; 
+    }
+      .crystal-card-title-{{ section.id }} ,
+      .crystal-section-{{ section.id }} .btn-outline ,
+      .crystal-subtext-{{ section.id }} {
+      font-size: 16px;
+    }
+    .crystal-slider-outer-wrapper-{{ section.id }} {
+      padding: 0px 120px; 
+    }
+  }
+
+  /* Tablets (up to 1024px) */
+  @media screen and (max-width: 1024px) {
+    .crystal-section-{{ section.id }} {
+      --heading-size: 38px !important;
+      --card-width: 180px;
+      --img-size: 100px;
+      --title-size: 16px;
+    }
+    .crystal-slider-outer-wrapper-{{ section.id }} {
+      padding: 0 20px; 
+    }
+    .crystal-slider-viewport-{{ section.id }} {
+      max-width: 100%; 
+      padding: 20px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .crystal-slider-viewport-{{ section.id }}::-webkit-scrollbar {
+      display: none;
+    }
+    .crystal-arrow-{{ section.id }} {
+      display: none; 
+    }
+    .crystal-card-{{ section.id }} {
+      scroll-snap-align: start;
+    }
+  }
+
+/* ─── iPad / Tablet (769px - 1024px) ─────────────────────────── */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .crystal-slider-outer-wrapper-{{ section.id }} {
+    padding: 0 40px;
+  }
+  .crystal-arrow-{{ section.id }} {
+    display: flex;
+  }
+  .crystal-heading-{{ section.id }} {
+      padding: 0 40px;
+      margin: 0px 0px 0px 0px;
+    }
+    .crystal-track-{{ section.id }} {
+    display: flex;
+    gap: 60px;
+   
+  }
+}
+  /* Mobile (up to 768px) */
+  @media screen and (max-width: 768px) {
+    .crystal-section-{{ section.id }} {
+      --heading-size: 28px !important; 
+      --subtext-size: 14px;
+      --card-width: 140px; 
+      --card-gap: 16px;
+      --img-size: 80px;
+      --title-size: 14px;
+    }
+    .crystal-card-title-{{ section.id }} {
+      font-size : 14px;
+    }
+    .crystal-slider-outer-wrapper-{{ section.id }} {
+      padding: 0 10px; 
+    }
+    .crystal-slider-viewport-{{ section.id }} {
+      max-width: 100%;
+      padding: 10px; 
+    }
+    .crystal-heading-{{ section.id }} {
+      padding: 0 15px;
+      margin-bottom: 20px;
+    }
+    .crystal-subtext-{{ section.id }} {
+      padding: 0 20px;
+    }
+    .crystal-card-{{ section.id }} {
+      padding: 15px 10px; 
+      gap: 15px;
+    }
+    .crystal-section-{{ section.id }} .btn-outline {
+      width: calc(100% - 40px); 
+      max-width: 350px;
+    }
+    .crystal-bottom-{{ section.id }} {
+      gap: 30px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="crystal-section-{{ section.id }}">
+  {%- if section.settings.heading != blank -%}
+    <h2 class="crystal-heading-{{ section.id }}">{{ section.settings.heading }}</h2>
+  {%- endif -%}
+
+  <div class="crystal-slider-outer-wrapper-{{ section.id }}">
+    <button class="crystal-arrow-{{ section.id }} arrow-left" aria-label="Previous">
+      <div class="crystal-arrow-icon-{{ section.id }}">
+        {%- if section.settings.left_arrow_icon != blank -%}
+          {{ section.settings.left_arrow_icon | image_url: width: 64 | image_tag: loading: 'lazy' }}
+        {%- else -%}
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="20" viewBox="0 0 24 20" fill="none">
+            <path d="M15 2L7 10L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        {%- endif -%}
+      </div>
+    </button>
+
+    <div class="crystal-slider-viewport-{{ section.id }}">
+      <div class="crystal-track-{{ section.id }}" id="track-{{ section.id }}">
+        
+        {%- for i in (1..3) -%}
+          {%- for block in section.blocks -%}
+            <a href="{{ block.settings.link | default: '#' }}" class="crystal-card-{{ section.id }}" {{ block.shopify_attributes }}>
+              <div class="crystal-img-wrapper-{{ section.id }}">
+                {%- if block.settings.image != blank -%}
+                  {{ block.settings.image | image_url: width: 300 | image_tag: loading: 'lazy', alt: block.settings.title }}
+                {%- else -%}
+                  {{ 'product-1' | placeholder_svg_tag }}
+                {%- endif -%}
+              </div>
+              {%- if block.settings.title != blank -%}
+                <h3 class="crystal-card-title-{{ section.id }}">{{ block.settings.title }}</h3>
+              {%- endif -%}
+            </a>
+          {%- endfor -%}
+        {%- endfor -%}
+
+      </div>
+    </div>
+
+    <button class="crystal-arrow-{{ section.id }} arrow-right" aria-label="Next">
+      <div class="crystal-arrow-icon-{{ section.id }}">
+        {%- if section.settings.right_arrow_icon != blank -%}
+          {{ section.settings.right_arrow_icon | image_url: width: 64 | image_tag: loading: 'lazy' }}
+        {%- else -%}
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="20" viewBox="0 0 24 20" fill="none">
+            <path d="M9 2L17 10L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        {%- endif -%}
+      </div>
+    </button>
+  </div>
+
+  <div class="crystal-bottom-{{ section.id }}">
+    {%- if section.settings.subtext != blank -%}
+      <p class="crystal-subtext-{{ section.id }}">{{ section.settings.subtext }}</p>
+    {%- endif -%}
+
+    {%- if section.settings.button_label != blank -%}
+      <a href="{{ section.settings.button_link }}" class="btn-outline">
+        {{ section.settings.button_label }}
+      </a>
+    {%- endif -%}
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const track = document.getElementById('track-{{ section.id }}');
+    const leftBtn = document.querySelector('.crystal-section-{{ section.id }} .arrow-left');
+    const rightBtn = document.querySelector('.crystal-section-{{ section.id }} .arrow-right');
+
+    if(leftBtn && rightBtn && track && track.children.length > 5) {
+      
+      let isMoving = false;
+      const animationSpeed = 500; 
+
+      const moveLeft = () => {
+        if(isMoving) return;
+        isMoving = true;
+        
+        const item = track.lastElementChild;
+        const gap = parseInt(window.getComputedStyle(track).gap) || 0;
+        const moveAmount = item.offsetWidth + gap;
+        
+        track.style.transition = 'none';
+        track.insertBefore(item, track.firstElementChild);
+        track.style.transform = `translateX(-${moveAmount}px)`;
+        
+        track.offsetHeight;
+        
+        track.style.transition = `transform ${animationSpeed}ms cubic-bezier(0.25, 1, 0.5, 1)`;
+        track.style.transform = `translateX(0)`;
+        
+        setTimeout(() => {
+          track.style.transition = 'none';
+          isMoving = false;
+        }, animationSpeed);
+      };
+
+      const moveRight = () => {
+        if(isMoving) return;
+        isMoving = true;
+        
+        const item = track.firstElementChild;
+        const gap = parseInt(window.getComputedStyle(track).gap) || 0;
+        const moveAmount = item.offsetWidth + gap;
+        
+        track.style.transition = `transform ${animationSpeed}ms cubic-bezier(0.25, 1, 0.5, 1)`;
+        track.style.transform = `translateX(-${moveAmount}px)`;
+        
+        setTimeout(() => {
+          track.style.transition = 'none';
+          track.appendChild(item);
+          track.style.transform = `translateX(0)`;
+          isMoving = false;
+        }, animationSpeed);
+      };
+
+      leftBtn.addEventListener('click', moveLeft);
+      rightBtn.addEventListener('click', moveRight);
+
+      let startX = 0;
+      let endX = 0;
+      const viewport = document.querySelector('.crystal-slider-viewport-{{ section.id }}');
+      
+      viewport.addEventListener('touchstart', (e) => {
+        if (window.innerWidth > 1024) startX = e.touches[0].clientX;
+      }, {passive: true});
+
+      viewport.addEventListener('touchend', (e) => {
+        if (window.innerWidth > 1024) {
+          endX = e.changedTouches[0].clientX;
+          if (startX - endX > 40) moveRight();
+          else if (endX - startX > 40) moveLeft();
+        }
+      }, {passive: true});
+    }
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Raw Crystal Slider",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Main Text Settings"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "MEANINGFUL AUTHENTIC RAW CRYSTALS"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 20,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading Font Size",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "heading_max_width",
+      "min": 500,
+      "max": 1600,
+      "step": 20,
+      "unit": "px",
+      "label": "Heading Max Width",
+      "default": 1440
+    },
+    {
+      "type": "textarea",
+      "id": "subtext",
+      "label": "Subtext (Bottom)",
+      "default": "Connect with crystal energy to nurture your spirit and soul."
+    },
+    {
+      "type": "range",
+      "id": "subtext_size",
+      "min": 14,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Subtext Font Size",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Main Text Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Section Background Color",
+      "default": "#FFF9F5"
+    },
+    {
+      "type": "header",
+      "content": "Slider Layout (Pixel Perfect)"
+    },
+    {
+      "type": "range",
+      "id": "slider_max_width",
+      "min": 1000,
+      "max": 1920,
+      "step": 10,
+      "unit": "px",
+      "label": "Slider Max Width",
+      "default": 1680
+    },
+    {
+      "type": "range",
+      "id": "card_width",
+      "min": 148,
+      "max": 400,
+      "step": 4,
+      "unit": "px",
+      "label": "Card Width",
+      "default": 224
+    },
+    {
+      "type": "range",
+      "id": "card_gap",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Gap Between Cards",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "image_size",
+      "min": 50,
+      "max": 300,
+      "step": 5,
+      "unit": "px",
+      "label": "Crystal Image Size",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "card_title_size",
+      "min": 12,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "label": "Crystal Title Size",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "card_hover_bg",
+      "label": "Card Hover Background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "header",
+      "content": "Slider Arrows"
+    },
+    {
+      "type": "range",
+      "id": "arrow_size",
+      "min": 16,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "label": "Arrow Icon Size",
+      "default": 24
+    },
+    {
+      "type": "color",
+      "id": "arrow_color",
+      "label": "Default SVG Arrow Color",
+      "default": "#8B8B8B"
+    },
+    {
+      "type": "image_picker",
+      "id": "left_arrow_icon",
+      "label": "Custom Left Arrow Icon"
+    },
+    {
+      "type": "image_picker",
+      "id": "right_arrow_icon",
+      "label": "Custom Right Arrow Icon"
+    },
+    {
+      "type": "header",
+      "content": "Button Settings"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button Label",
+      "default": "SHOP ENERGY"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "range",
+      "id": "button_width",
+      "min": 200,
+      "max": 500,
+      "step": 10,
+      "unit": "px",
+      "label": "Button Width",
+      "default": 350
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "min": 12,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Button Font Size",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "btn_bg_color",
+      "label": "Button Background",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "btn_text_color",
+      "label": "Button Text Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "btn_border_color",
+      "label": "Button Border Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "header",
+      "content": "Hover Effect (Gradient)"
+    },
+    {
+      "type": "color",
+      "id": "btn_hover_text_color",
+      "label": "Hover Text Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "grad_color_1",
+      "label": "Hover Gradient Color 1",
+      "default": "#947863"
+    },
+    {
+      "type": "color",
+      "id": "grad_color_2",
+      "label": "Hover Gradient Color 2",
+      "default": "#E9DDD4"
+    },
+    {
+      "type": "color",
+      "id": "grad_color_3",
+      "label": "Hover Gradient Color 3",
+      "default": "#947863"
+    },
+    {
+      "type": "header",
+      "content": "Section Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 80
+    }
+  ],
+  "blocks": [
+    {
+      "type": "crystal",
+      "name": "Crystal",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Crystal Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Crystal Name",
+          "default": "AQUAMARINE"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Raw Crystal Slider",
+      "blocks": [
+        { "type": "crystal" },
+        { "type": "crystal" },
+        { "type": "crystal" },
+        { "type": "crystal" },
+        { "type": "crystal" }
+      ]
+    }
+  ]
+}
+{% endschema %}

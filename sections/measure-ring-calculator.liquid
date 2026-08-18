@@ -1,0 +1,370 @@
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    background-color: {{ section.settings.background_color }};
+  }
+
+  .rc-container-{{ section.id }} {
+    max-width: 1920px;
+    margin: 0 auto;
+    padding: 80px 120px;
+    display: flex;
+    align-items: center;
+    gap: 60px;
+  }
+
+  .rc-image-wrapper-{{ section.id }} {
+    flex: 1;
+    width: 100%;
+    max-width: 810px;
+    max-height: 810px;
+    aspect-ratio: 1 / 1;
+    background-color: #dcdcdc; /* Gray placeholder matching image */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .rc-image-wrapper-{{ section.id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .rc-content-wrapper-{{ section.id }} {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .rc-heading-{{ section.id }} {
+    font-family: "Libre Caslon Text", serif;
+    font-size: 56px;
+    font-weight: 400;
+    color: #333333;
+    margin: 0 0 20px 0;
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  .rc-instructions-{{ section.id }} {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    color: #444444;
+    margin-bottom: 30px;
+    line-height: 1.5;
+  }
+
+  .rc-instructions-{{ section.id }} p {
+    margin: 0;
+  }
+
+  .rc-input-group-{{ section.id }} {
+    margin-bottom: 25px;
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+    max-width: 450px;
+  }
+
+  .rc-label-{{ section.id }} {
+    display: block;
+    font-size: 20px;
+    color: #333333;
+    margin-bottom: 10px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .rc-input-{{ section.id }} {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    color: #333333;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+
+  .rc-input-{{ section.id }}:focus {
+    border-color: #333333;
+  }
+
+  .rc-input-{{ section.id }}:read-only {
+    background-color: #fafafa;
+    color: #666666;
+  }
+
+  .rc-input-{{ section.id }}::placeholder {
+    color: #a0a0a0;
+  }
+
+  /* --- RESPONSIVE BREAKPOINTS --- */
+
+  /* Mac 15 inch */
+  @media screen and (max-width: 1728px) {
+    .rc-heading-{{ section.id }} {
+      font-size: 46px;
+    }
+    .rc-instructions-{{ section.id }} {
+      font-size: 18px;
+    }
+  }
+
+  /* Mac 13 inch */
+  @media screen and (max-width: 1440px) {
+    .rc-heading-{{ section.id }} {
+      font-size: 46px;
+    }
+    .rc-instructions-{{ section.id }} {
+      font-size: 16px;
+    }
+  }
+
+  /* Tablet */
+  @media screen and (max-width: 990px) {
+    .rc-container-{{ section.id }} {
+      flex-direction: column;
+      gap: 40px;
+    }
+  }
+/* iPad (769px - 1024px) */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .rc-container-{{ section.id }} {
+    flex-direction: column;
+    padding: 60px 40px;
+    gap: 40px;
+  }
+  .rc-image-wrapper-{{ section.id }} {
+    max-width: 100%;
+    max-height: none;
+    width: 100%;
+  }
+  .rc-content-wrapper-{{ section.id }} {
+    width: 100%;
+  }
+  .rc-heading-{{ section.id }} {
+    font-size: 38px;
+  }
+  .rc-instructions-{{ section.id }} {
+    font-size: 16px;
+  }
+  .rc-input-group-{{ section.id }} {
+    max-width: 100%;
+  }
+  .rc-label-{{ section.id }} {
+    font-size: 16px;
+  }
+}
+  /* Mobile */
+  @media screen and (max-width: 768px) {
+    .rc-container-{{ section.id }} {
+      padding: 40px 20px;
+    }
+    .rc-heading-{{ section.id }} {
+      font-size: 28px;
+    }
+    .rc-instructions-{{ section.id }} {
+      font-size: 16px;
+    }
+    .rc-input-{{ section.id }} {
+      max-width: 100%;
+    }
+    .rc-image-wrapper-{{ section.id }} {
+      max-width: 100%;
+      max-height: none;
+    }
+     .rc-label-{{ section.id }} {
+  
+    font-size: 16px;
+   
+  }
+  }
+{%- endstyle -%}
+
+<div class="section-{{ section.id }}-padding" id="measure-ring-calculator">
+  <div class="rc-container-{{ section.id }}">
+    
+    <div class="rc-image-wrapper-{{ section.id }}">
+      {%- if section.settings.image != blank -%}
+        <img src="{{ section.settings.image | img_url: 'master' }}" alt="{{ section.settings.heading | escape }}">
+      {%- endif -%}
+    </div>
+
+    <div class="rc-content-wrapper-{{ section.id }}">
+      
+      {%- if section.settings.heading != blank -%}
+        <h2 class="rc-heading-{{ section.id }}">{{ section.settings.heading | newline_to_br }}</h2>
+      {%- endif -%}
+      
+      {%- if section.settings.instructions != blank -%}
+        <div class="rc-instructions-{{ section.id }}">
+          {{ section.settings.instructions }}
+        </div>
+      {%- endif -%}
+
+      <div class="rc-form-{{ section.id }}">
+        
+        <div class="rc-input-group-{{ section.id }}">
+          <label class="rc-label-{{ section.id }}" for="ring-diameter-{{ section.id }}">
+            {{ section.settings.input_1_label }}
+          </label>
+          <input 
+            type="number" 
+            id="ring-diameter-{{ section.id }}" 
+            class="rc-input-{{ section.id }}" 
+            placeholder="{{ section.settings.input_1_placeholder }}"
+            step="0.1"
+          >
+        </div>
+
+        <div class="rc-input-group-{{ section.id }}">
+          <label class="rc-label-{{ section.id }}" for="ring-size-output-{{ section.id }}">
+            {{ section.settings.input_2_label }}
+          </label>
+          <input 
+            type="text" 
+            id="ring-size-output-{{ section.id }}" 
+            class="rc-input-{{ section.id }}" 
+            placeholder="{{ section.settings.input_2_placeholder }}"
+            readonly
+          >
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const inputField = document.getElementById('ring-diameter-{{ section.id }}');
+    const outputField = document.getElementById('ring-size-output-{{ section.id }}');
+
+    // Create mapping data array directly from Shopify Blocks
+    const sizeData = [
+      {% for block in section.blocks %}
+        { 
+          diameter: parseFloat("{{ block.settings.diameter }}"), 
+          sizeOutput: "{{ block.settings.size_output }}" 
+        }{% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    ];
+
+    inputField.addEventListener('input', function() {
+      const val = parseFloat(this.value);
+      
+      // Clear output if input is empty or invalid
+      if (isNaN(val) || val <= 0) {
+        outputField.value = "";
+        return;
+      }
+
+      // Find the closest match to the inputted diameter
+      let closestMatch = sizeData.reduce((prev, curr) => {
+        return (Math.abs(curr.diameter - val) < Math.abs(prev.diameter - val) ? curr : prev);
+      });
+
+      // Output the matching string
+      outputField.value = closestMatch.sizeOutput;
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Measure Ring Calculator",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Left Feature Image"
+    },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "Heading",
+      "default": "MEASURE YOUR\nRING SIZE"
+    },
+    {
+      "type": "richtext",
+      "id": "instructions",
+      "label": "Instructions",
+      "default": "<p>1. Choose a ring that fits the finger you want to wear it on.<br/>2. Measure the inner diameter of the ring in millimetres (mm).<br/>3. Enter the measurement into the box below to find your size.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Input Settings"
+    },
+    {
+      "type": "text",
+      "id": "input_1_label",
+      "label": "Measurement Input Label",
+      "default": "Internal diameter of the ring (in mm):"
+    },
+    {
+      "type": "text",
+      "id": "input_1_placeholder",
+      "label": "Measurement Input Placeholder",
+      "default": "e.g. 16.5mm"
+    },
+    {
+      "type": "text",
+      "id": "input_2_label",
+      "label": "Output Label",
+      "default": "S-Brillet ring size you need to order:"
+    },
+    {
+      "type": "text",
+      "id": "input_2_placeholder",
+      "label": "Output Placeholder",
+      "default": "Your size will appear here"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "size_logic",
+      "name": "Size Logic (Chart Data)",
+      "settings": [
+        {
+          "type": "text",
+          "id": "diameter",
+          "label": "Target Diameter (mm)",
+          "info": "e.g., 16.5"
+        },
+        {
+          "type": "text",
+          "id": "size_output",
+          "label": "Output Size Text",
+          "info": "What size should show when this diameter is calculated? E.g., Size 7"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Measure Ring Calculator",
+      "blocks": [
+        { "type": "size_logic", "settings": { "diameter": "14.9", "size_output": "Size 4" } },
+        { "type": "size_logic", "settings": { "diameter": "15.3", "size_output": "Size 5" } },
+        { "type": "size_logic", "settings": { "diameter": "15.7", "size_output": "Size 6" } },
+        { "type": "size_logic", "settings": { "diameter": "16.5", "size_output": "Size 7" } },
+        { "type": "size_logic", "settings": { "diameter": "17.3", "size_output": "Size 8" } },
+        { "type": "size_logic", "settings": { "diameter": "18.1", "size_output": "Size 9" } },
+        { "type": "size_logic", "settings": { "diameter": "18.9", "size_output": "Size 10" } },
+        { "type": "size_logic", "settings": { "diameter": "19.8", "size_output": "Size 11" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

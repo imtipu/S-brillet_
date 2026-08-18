@@ -1,0 +1,854 @@
+{% comment %} {%- style -%}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Libre+Caslon+Text:wght@400&family=Licorice&display=swap');
+
+  /* BASE DESKTOP VARIABLES (For screens larger than 1728px) */
+  .vip-banner-{{ section.id }} {
+    --title-size: {{ section.settings.title_size }}px;
+    --subtitle-size: {{ section.settings.subtitle_size }}px;
+    --desc-size: {{ section.settings.desc_size }}px;
+    --pad-tb: {{ section.settings.card_padding_top_bottom }}px;
+    --pad-lr: {{ section.settings.card_padding_left_right }}px;
+    --btn-width: 350px;
+    --btn-gap: 40px;
+
+    position: relative;
+    width: 100%;
+    /* Section Height */
+    min-height: {{ section.settings.section_min_height }}px; 
+    display: flex;
+    align-items: end;
+    justify-content: center;
+    background-size: cover;
+    /* Background Image Position */
+    background-position: {{ section.settings.bg_position }}; 
+    background-repeat: no-repeat;
+    padding: 80px 20px;
+    {% if section.settings.bg_image != blank %}
+      background-image: url('{{ section.settings.bg_image | img_url: 'master' }}');
+    {% else %}
+      background-color: #1a0b2e; 
+    {% endif %}
+  }
+
+  .vip-glass-card-{{ section.id }} {
+    width: 100%;
+    max-width: {{ section.settings.card_max_width }}px;
+    
+    /* Fixed Perfect Glass Effect (0.08 was your perfect previous value) */
+    background: rgba(255, 255, 255, 0.4); 
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    
+    border: 1.5px solid #FFFFFF;
+    border-radius: 50px;
+    /* Using Variables */
+    padding: var(--pad-tb) var(--pad-lr); 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-shadow: inset 0px 0px 40px 0px rgba(255, 255, 255, 0.8);
+    
+    /* CUSTOMIZE: Move card up or down */
+    margin-top: {{ section.settings.card_margin_top }}px; 
+  }
+
+  .vip-title-{{ section.id }} {
+   font-family: var(--font-heading-family, 'Libre Caslon Text', serif);
+    font-size: var(--title-size); 
+    font-weight: 400;
+    line-height: 1; 
+    color: {{ section.settings.text_color }};
+    text-transform: uppercase;
+    margin: 0 0 10px 0;
+    white-space: nowrap; 
+  }
+
+  .vip-subtitle-{{ section.id }} {
+    font-family: var(--font-heading-family, 'Libre Caslon Text', serif);
+    font-size: var(--subtitle-size); 
+    font-weight: 400;
+    line-height: 1.2;
+    color: {{ section.settings.text_color }};
+    margin: 0 0 40px 0;
+  }
+
+  .vip-buttons-{{ section.id }} {
+    display: flex;
+    flex-direction: row;
+    gap: var(--btn-gap);
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 40px;
+  }
+
+  .vip-btn-{{ section.id }} {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--btn-width);
+    height: 55px;
+    border-radius: 12px;
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: 14px;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-primary-{{ section.id }} {
+    background-color: {{ section.settings.btn1_bg_color }};
+    color: {{ section.settings.btn1_text_color }};
+    border: 1px solid {{ section.settings.btn1_bg_color }};
+  }
+
+  .btn-primary-{{ section.id }}:hover {
+    /* opacity: 0.8; */
+        background: linear-gradient(135deg, #947863, #E9DDD4, #947863);
+    color: #FFFFFF;
+    border:none;
+  }
+
+  .btn-secondary-{{ section.id }} {
+    background-color: transparent;
+    color: {{ section.settings.text_color }};
+    border: 1px solid {{ section.settings.text_color }};
+  }
+
+  .btn-secondary-{{ section.id }}:hover {
+       background: linear-gradient(135deg, #947863, #E9DDD4, #947863);
+    color: #FFFFFF;
+    border:none;
+  }
+
+  .vip-description-{{ section.id }} {
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: var(--desc-size);
+    line-height: 1.5;
+    color: {{ section.settings.text_color }};
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  /* =========================================
+     RESPONSIVE MEDIA QUERIES
+     ========================================= */
+
+  /* 1. MacBook M2 / Large Laptops (1441px to 1728px) */
+  @media (min-width: 1441px) and (max-width: 1728px) {
+    .vip-banner-{{ section.id }} {
+      --title-size: calc({{ section.settings.title_size }}px * 0.85); /* 85% of customizer size */
+      --subtitle-size: calc({{ section.settings.subtitle_size }}px * 0.85);
+      --desc-size: calc({{ section.settings.desc_size }}px * 0.90);
+      --pad-tb: calc({{ section.settings.card_padding_top_bottom }}px * 0.90);
+      --pad-lr: calc({{ section.settings.card_padding_left_right }}px * 0.90);
+          padding-left: 120px;
+    padding-right: 120px;
+ 
+    }
+  }
+
+  /* 2. MacBook Air / Standard Laptops (1025px to 1440px) */
+  @media (min-width: 1025px) and (max-width: 1440px) {
+    .vip-banner-{{ section.id }} {
+      --title-size: calc({{ section.settings.title_size }}px * 0.70); /* 70% of customizer size */
+      --subtitle-size: calc({{ section.settings.subtitle_size }}px * 0.75);
+      --desc-size: calc({{ section.settings.desc_size }}px * 0.85);
+      --pad-tb: calc({{ section.settings.card_padding_top_bottom }}px * 0.75);
+      --pad-lr: calc({{ section.settings.card_padding_left_right }}px * 0.75);
+      --btn-width: 300px; /* Buttons slightly smaller */
+    }
+  }
+
+  /* 3. iPad / Tablets (769px to 1024px) */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .vip-banner-{{ section.id }} {
+      --title-size: calc({{ section.settings.title_size }}px * 0.55); /* 55% of customizer size */
+      --subtitle-size: calc({{ section.settings.subtitle_size }}px * 0.65);
+      --desc-size: calc({{ section.settings.desc_size }}px * 0.80);
+      --pad-tb: 50px; /* Fixed padding for iPad */
+      --pad-lr: 30px;
+      --btn-width: 250px;
+      --btn-gap: 20px;
+    }
+    .vip-title-{{ section.id }} {
+      white-space: normal; /* Allows text to wrap on iPad if screen is too narrow */
+    }
+  }
+
+  /* 4. Mobile (up to 768px) */
+  @media (max-width: 768px) {
+    .vip-banner-{{ section.id }} {
+      min-height: 600px; 
+      padding: 60px 15px; 
+    }
+    .vip-glass-card-{{ section.id }} {
+      padding: 40px 20px;
+      border-radius: 30px;
+      margin-top: 20px; 
+    }
+    .vip-title-{{ section.id }} {
+      font-size: 32px; /* Fixed size for mobile */
+      white-space: normal; 
+    }
+    .vip-subtitle-{{ section.id }} {
+      font-size: 36px;
+    }
+    .vip-buttons-{{ section.id }} {
+      flex-direction: column;
+      gap: 20px;
+    }
+    .vip-btn-{{ section.id }} {
+      width: 100%;
+      max-width: 350px;
+    }
+    .vip-description-{{ section.id }} {
+      font-size: 14px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="vip-banner-{{ section.id }}">
+  <div class="vip-glass-card-{{ section.id }}">
+    
+    {% if section.settings.title != blank %}
+      <h2 class="vip-title-{{ section.id }}">{{ section.settings.title }}</h2>
+    {% endif %}
+
+    {% if section.settings.subtitle != blank %}
+      <h3 class="vip-subtitle-{{ section.id }}">{{ section.settings.subtitle }}</h3>
+    {% endif %}
+
+    <div class="vip-buttons-{{ section.id }}">
+      {% if section.settings.btn1_text != blank %}
+        <a href="{{ section.settings.btn1_link }}" class="vip-btn-{{ section.id }} btn-primary-{{ section.id }}">
+          {{ section.settings.btn1_text }}
+        </a>
+      {% endif %}
+
+      {% if section.settings.btn2_text != blank %}
+        <a href="{{ section.settings.btn2_link }}" class="vip-btn-{{ section.id }} btn-secondary-{{ section.id }}">
+          {{ section.settings.btn2_text }}
+        </a>
+      {% endif %}
+    </div>
+
+    {% if section.settings.description != blank %}
+      <p class="vip-description-{{ section.id }}">{{ section.settings.description }}</p>
+    {% endif %}
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Custom VIP Banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "1. Background & Section Settings"
+    },
+    {
+      "type": "image_picker",
+      "id": "bg_image",
+      "label": "Background Image"
+    },
+    {
+      "type": "select",
+      "id": "bg_position",
+      "label": "Image Position (To fix sunshine/planet)",
+      "options": [
+        { "value": "top center", "label": "Top Center" },
+        { "value": "center center", "label": "Center" },
+        { "value": "bottom center", "label": "Bottom Center" }
+      ],
+      "default": "top center"
+    },
+    {
+      "type": "range",
+      "id": "section_min_height",
+      "min": 500,
+      "max": 1200,
+      "step": 10,
+      "unit": "px",
+      "label": "Total Section Height",
+      "default": 1000
+    },
+    {
+      "type": "header",
+      "content": "2. Bar/Card Position & Layout"
+    },
+    {
+      "type": "range",
+      "id": "card_margin_top",
+      "min": -300,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Move Bar Up/Down (Position)",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "card_max_width",
+      "min": 800,
+      "max": 1800,
+      "step": 20,
+      "unit": "px",
+      "label": "Bar Maximum Width",
+      "default": 1680
+    },
+    {
+      "type": "range",
+      "id": "card_padding_top_bottom",
+      "min": 20,
+      "max": 150,
+      "step": 5,
+      "unit": "px",
+      "label": "Inside Spacing: Top & Bottom",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "card_padding_left_right",
+      "min": 20,
+      "max": 150,
+      "step": 5,
+      "unit": "px",
+      "label": "Inside Spacing: Left & Right",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "3. Text Settings"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Global Text Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Main Title",
+      "default": "BECOME UNIVERSAL VIP MEMBER"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 20,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop Title Size",
+      "default": 84
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Shine Brighter With Exclusive Offers & Free Rewards"
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "min": 20,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop Subtitle Size",
+      "default": 48
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Bottom Description Text",
+      "default": "Get rewarded every time you shop, earn sparkle points, access bundle deals, enjoy faster support, and unwrap special surprises as you rise through each tier."
+    },
+    {
+      "type": "range",
+      "id": "desc_size",
+      "min": 12,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop Description Size",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "4. Button 1 (Primary)"
+    },
+    {
+      "type": "text",
+      "id": "btn1_text",
+      "label": "Button 1 Text",
+      "default": "JOIN VIP UNIVERSE"
+    },
+    {
+      "type": "url",
+      "id": "btn1_link",
+      "label": "Button 1 Link"
+    },
+    {
+      "type": "color",
+      "id": "btn1_bg_color",
+      "label": "Button 1 Background Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "btn1_text_color",
+      "label": "Button 1 Text Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "header",
+      "content": "5. Button 2 (Secondary)"
+    },
+    {
+      "type": "text",
+      "id": "btn2_text",
+      "label": "Button 2 Text",
+      "default": "LOG IN"
+    },
+    {
+      "type": "url",
+      "id": "btn2_link",
+      "label": "Button 2 Link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom VIP Banner",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %} {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{%- style -%}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Libre+Caslon+Text:wght@400&family=Licorice&display=swap');
+
+  /* BASE VARIABLES */
+  .vip-banner-{{ section.id }} {
+    --title-size: {{ section.settings.title_size }}px;
+    --subtitle-size: {{ section.settings.subtitle_size }}px;
+    --desc-size: {{ section.settings.desc_size }}px;
+    --pad-tb: {{ section.settings.card_padding_top_bottom }}px;
+    --pad-lr: {{ section.settings.card_padding_left_right }}px;
+    
+    position: relative;
+    width: 100%;
+    /* Fluid height based on screen size, matching the minimum height */
+    min-height: clamp(500px, 60vw, {{ section.settings.section_min_height }}px); 
+    display: flex;
+    align-items: flex-end; /* Keeps the box positioned near the bottom over the planet */
+    justify-content: center;
+    background-size: cover;
+    background-position: {{ section.settings.bg_position }}; 
+    background-repeat: no-repeat;
+    padding: 5% 20px 8%; /* Percentage padding keeps position consistent */
+    
+    {% if section.settings.bg_image != blank %}
+      background-image: url('{{ section.settings.bg_image | img_url: 'master' }}');
+    {% else %}
+      background-color: #1a0b2e; 
+    {% endif %}
+  }
+
+  .vip-banner-{{ section.id }}::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    /* background-color: rgba(0, 0, 0, {{ section.settings.overlay_opacity | divided_by: 100.0 }}); */
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .vip-glass-card-{{ section.id }} {
+    width: 95%; /* Adapts to screen, but maxes out below */
+    max-width: {{ section.settings.card_max_width }}px;
+    position: relative;
+    z-index: 1;
+    
+    background: rgba(255, 255, 255, 0.4); 
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1.5px solid #FFFFFF;
+    
+    /* Fluid border radius and padding so it looks exactly the same, just smaller */
+    border-radius: clamp(20px, 3vw, 50px);
+    padding: clamp(30px, 6vw, var(--pad-tb)) clamp(15px, 4vw, var(--pad-lr)); 
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-shadow: inset 0px 0px 40px 0px rgba(255, 255, 255, 0.8);
+    
+    margin-top: clamp(0px, 4vw, {{ section.settings.card_margin_top }}px); 
+  }
+
+  .vip-title-{{ section.id }} {
+    font-family: var(--font-heading-family, 'Libre Caslon Text', serif);
+    /* Fluid typography ensures the text scales perfectly with the box */
+    font-size: clamp(24px, 4vw, var(--title-size)); 
+    font-weight: 400;
+    line-height: 1.1; 
+    color: {{ section.settings.text_color }};
+    text-transform: uppercase;
+    margin: 0 0 clamp(5px, 1.5vw, 10px) 0;
+    white-space: normal; /* Changed from nowrap so it stays perfectly centered and readable on mobile */
+  }
+
+  .vip-subtitle-{{ section.id }} {
+    
+    font-size: clamp(16px, 3vw, var(--subtitle-size)); 
+    font-weight: 400;
+    line-height: 1.2;
+    color: {{ section.settings.text_color }};
+    margin: 0 0 clamp(20px, 4vw, 20px) ;
+    font-family: "Licorice", cursive;
+    font-style: normal;
+    text-transform: capitalize;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .vip-buttons-{{ section.id }} {
+    display: flex;
+    flex-direction: row;
+    gap: clamp(15px, 3vw, 40px);
+    justify-content: center;
+    align-items: center;
+    margin-bottom: clamp(20px, 4vw, 40px);
+    width: 100%;
+  }
+
+  .vip-btn-{{ section.id }} {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Fluid button width so they stay side-by-side gracefully */
+    width: clamp(140px, 20vw, 350px);
+    height: clamp(45px, 5vw, 55px);
+    border-radius: 12px;
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: clamp(10px, 1.2vw, 14px);
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    text-align: center;
+    padding: 0 10px;
+  }
+
+  .btn-primary-{{ section.id }} {
+    background-color: {{ section.settings.btn1_bg_color }};
+    color: {{ section.settings.btn1_text_color }};
+    border: 1px solid {{ section.settings.btn1_bg_color }};
+  }
+
+  .btn-primary-{{ section.id }}:hover {
+    background: linear-gradient(135deg, #947863, #E9DDD4, #947863);
+    color: #FFFFFF;
+    border: 1px solid transparent;
+  }
+
+  .btn-secondary-{{ section.id }} {
+    background-color: transparent;
+    color: {{ section.settings.text_color }};
+    border: 1px solid {{ section.settings.text_color }};
+  }
+
+  .btn-secondary-{{ section.id }}:hover {
+    background: linear-gradient(135deg, #947863, #E9DDD4, #947863);
+    color: #FFFFFF;
+    border: 1px solid transparent;
+  }
+
+  .vip-description-{{ section.id }} {
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: clamp(12px, 1.5vw, var(--desc-size));
+    line-height: 1.5;
+    color: {{ section.settings.text_color }};
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  /* =========================================
+     RESPONSIVE MEDIA QUERIES (Fine-Tuning)
+     ========================================= */
+
+  /* Mobile specific overrides to ensure buttons fit if screen is extremely small */
+  @media (max-width: 480px) {
+    .vip-buttons-{{ section.id }} {
+      /* Forces buttons to stack only on very tiny phones to avoid breaking */
+      flex-direction: row; 
+      gap: 15px;
+    }
+    .vip-btn-{{ section.id }} {
+      width: 100%;
+      max-width: 280px;
+      height: 50px;
+      font-size: 12px;
+    }
+    .vip-title-{{ section.id }} {
+        font-size: 26px;
+    }
+    .vip-subtitle-{{ section.id }} {
+        font-size: 18px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="vip-banner-{{ section.id }}">
+  <div class="vip-glass-card-{{ section.id }}">
+    
+    {% if section.settings.title != blank %}
+      <h2 class="vip-title-{{ section.id }}">{{ section.settings.title }}</h2>
+    {% endif %}
+
+    {% if section.settings.subtitle != blank %}
+      <h3 class="vip-subtitle-{{ section.id }}">{{ section.settings.subtitle }}</h3>
+    {% endif %}
+
+    <div class="vip-buttons-{{ section.id }}">
+      {% if section.settings.btn1_text != blank %}
+        <a href="{{ section.settings.btn1_link }}" class="vip-btn-{{ section.id }} btn-primary-{{ section.id }}">
+          {{ section.settings.btn1_text }}
+        </a>
+      {% endif %}
+
+      {% if section.settings.btn2_text != blank %}
+        <a href="{{ section.settings.btn2_link }}" class="vip-btn-{{ section.id }} btn-secondary-{{ section.id }}">
+          {{ section.settings.btn2_text }}
+        </a>
+      {% endif %}
+    </div>
+
+    {% if section.settings.description != blank %}
+      <p class="vip-description-{{ section.id }}">{{ section.settings.description }}</p>
+    {% endif %}
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Custom VIP Banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "1. Background & Section Settings"
+    },
+    {
+      "type": "image_picker",
+      "id": "bg_image",
+      "label": "Background Image"
+    },
+    {
+      "type": "select",
+      "id": "bg_position",
+      "label": "Image Position (To fix sunshine/planet)",
+      "options": [
+        { "value": "top center", "label": "Top Center" },
+        { "value": "center center", "label": "Center" },
+        { "value": "bottom center", "label": "Bottom Center" }
+      ],
+      "default": "top center"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "label": "Background Darkness Overlay",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "section_min_height",
+      "min": 500,
+      "max": 1200,
+      "step": 10,
+      "unit": "px",
+      "label": "Total Section Height",
+      "default": 1000
+    },
+    {
+      "type": "header",
+      "content": "2. Bar/Card Position & Layout"
+    },
+    {
+      "type": "range",
+      "id": "card_margin_top",
+      "min": -300,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Move Bar Up/Down (Position)",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "card_max_width",
+      "min": 800,
+      "max": 1800,
+      "step": 20,
+      "unit": "px",
+      "label": "Bar Maximum Width",
+      "default": 1680
+    },
+    {
+      "type": "range",
+      "id": "card_padding_top_bottom",
+      "min": 20,
+      "max": 150,
+      "step": 5,
+      "unit": "px",
+      "label": "Inside Spacing: Top & Bottom",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "card_padding_left_right",
+      "min": 20,
+      "max": 150,
+      "step": 5,
+      "unit": "px",
+      "label": "Inside Spacing: Left & Right",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "3. Text Settings"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Global Text Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Main Title",
+      "default": "BECOME UNIVERSAL VIP MEMBER"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 20,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop Title Size",
+      "default": 84
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Shine Brighter With Exclusive Offers & Free Rewards"
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "min": 20,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop Subtitle Size",
+      "default": 48
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Bottom Description Text",
+      "default": "Get rewarded every time you shop, earn sparkle points, access bundle deals, enjoy faster support, and unwrap special surprises as you rise through each tier."
+    },
+    {
+      "type": "range",
+      "id": "desc_size",
+      "min": 12,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop Description Size",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "4. Button 1 (Primary)"
+    },
+    {
+      "type": "text",
+      "id": "btn1_text",
+      "label": "Button 1 Text",
+      "default": "JOIN VIP UNIVERSE"
+    },
+    {
+      "type": "url",
+      "id": "btn1_link",
+      "label": "Button 1 Link"
+    },
+    {
+      "type": "color",
+      "id": "btn1_bg_color",
+      "label": "Button 1 Background Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "btn1_text_color",
+      "label": "Button 1 Text Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "header",
+      "content": "5. Button 2 (Secondary)"
+    },
+    {
+      "type": "text",
+      "id": "btn2_text",
+      "label": "Button 2 Text",
+      "default": "LOG IN"
+    },
+    {
+      "type": "url",
+      "id": "btn2_link",
+      "label": "Button 2 Link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom VIP Banner",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,532 @@
+{% comment %} {%- style -%}
+  /* Section Padding & Background */
+  .section-{{ section.id }}-padding {
+    background-color: {{ section.settings.bg_color }};
+  }
+
+  /* Container Width Rules */
+  .ring-size-container {
+    max-width: 1920px;
+    margin: 0 auto;
+    padding: 80px 120px;
+  }
+
+  /* Header Alignment & Typography */
+  .ring-size-header {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+
+  /* Desktop Default */
+  .ring-size-heading {
+    font-size: 56px;
+    font-weight: 400;
+    color: #333333;
+    margin: 0 0 15px 0;
+    font-family: "Libre Caslon Text", serif;
+  }
+
+  .ring-size-subheading {
+    font-size: 20px;
+    color: #555555;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Grid Layout */
+  .ring-size-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+
+  /* Card Sizing & Styling */
+  .ring-size-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    border-radius: 8px;
+    text-decoration: none;
+    width: 100%;
+    max-width: 522px;
+    height: 215px;
+    transition: border-color 0.35s ease, 
+              transform 0.35s ease, 
+              box-shadow 0.35s ease;
+  }
+
+  .ring-size-card:hover {
+    border: 2px solid #000000;
+  }
+
+  /* Image Boundaries */
+  .ring-size-card-img {
+    max-width: 83px;
+    max-height: 100px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    margin-bottom: 15px;
+  }
+
+  /* Card Text */
+  .ring-size-card-title {
+    font-size: 20px;
+    font-weight: 400;
+    color: #333333;
+    margin: 0;
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Mac 15 inch (max-width: 1728px) */
+  @media screen and (max-width: 1728px) {
+    .ring-size-heading {
+      font-size: 46px;
+    }
+    .ring-size-subheading {
+      font-size: 18px;
+    }
+    .ring-size-card {
+      /* Force 3 columns by subtracting the 60px total gap and dividing by 3 */
+      max-width: calc((100% - 60px) / 3);
+    }
+  }
+
+  /* Mac 13 inch (max-width: 1440px) */
+  @media screen and (max-width: 1440px) {
+    .ring-size-heading {
+      font-size: 46px;
+    }
+    .ring-size-subheading {
+      font-size: 16px;
+    }
+    .ring-size-card {
+      max-width: calc((100% - 60px) / 3);
+    }
+  }
+
+  /* Mobile Responsive Fixes */
+  @media screen and (max-width: 768px) {
+    .ring-size-container {
+      padding: 60px 20px;
+    }
+
+    .ring-size-heading {
+      font-size: 28px;
+    }
+
+    .ring-size-subheading {
+      font-size: 16px;
+    }
+
+    .ring-size-card {
+      max-width: 100%;
+      height: 180px; /* Slightly shorter on mobile for a tighter layout */
+    }
+
+    .ring-size-card-title {
+      font-size: 16px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="section-{{ section.id }}-padding">
+  <div class="ring-size-container">
+    
+    <div class="ring-size-header">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="ring-size-heading">{{ section.settings.heading }}</h2>
+      {%- endif -%}
+      
+      {%- if section.settings.subheading != blank -%}
+        <p class="ring-size-subheading">{{ section.settings.subheading }}</p>
+      {%- endif -%}
+    </div>
+
+    <div class="ring-size-grid">
+      {%- for block in section.blocks -%}
+        <a href="{{ block.settings.link | default: '#' }}" class="ring-size-card" {{ block.shopify_attributes }}>
+          {%- if block.settings.icon != blank -%}
+            <img class="ring-size-card-img" 
+                 src="{{ block.settings.icon | image_url: width: 200 }}" 
+                 alt="{{ block.settings.title | escape }}" 
+                 loading="lazy" 
+                 width="{{ block.settings.icon.width }}" 
+                 height="{{ block.settings.icon.height }}">
+          {%- else -%}
+             {{ 'image' | placeholder_svg_tag: 'ring-size-card-img' | replace: '<svg', '<svg style="width:83px;height:100px;fill:#ccc;"' }}
+          {%- endif -%}
+          
+          {%- if block.settings.title != blank -%}
+            <h3 class="ring-size-card-title">{{ block.settings.title }}</h3>
+          {%- endif -%}
+        </a>
+      {%- endfor -%}
+    </div>
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Ring Size Methods",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "CHOOSE THE PERFECT SIZE RING METHOD"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Pick your easiest way to find your exact ring size"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Section Background Color",
+      "default": "#F6F6F6"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Method Card",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Icon/Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Card Title",
+          "default": "RING SIZE CHART"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Card Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Ring Size Methods",
+      "blocks": [
+        {
+          "type": "card",
+          "settings": {
+            "title": "RING SIZE CHART"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "title": "MEASURE AN EXISTING RING"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "title": "MOBILE RING SIZER"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %} {% endcomment %}
+
+
+
+
+
+{%- style -%}
+  /* Smooth Scrolling for anchor links */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Section Padding & Background */
+  .section-{{ section.id }}-padding {
+    background-color: {{ section.settings.bg_color }};
+  }
+
+  /* Container Width Rules */
+  .ring-size-container {
+    max-width: 1920px;
+    margin: 0 auto;
+    padding: 80px 120px;
+  }
+
+  /* Header Alignment & Typography */
+  .ring-size-header {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+
+  /* Desktop Default */
+  .ring-size-heading {
+    font-size: 56px;
+    font-weight: 400;
+    color: #333333;
+    margin: 0 0 15px 0;
+    font-family: "Libre Caslon Text", serif;
+  }
+
+  .ring-size-subheading {
+    font-size: 20px;
+    color: #555555;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Grid Layout */
+  .ring-size-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+
+  /* Card Sizing & Styling */
+  .ring-size-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    border-radius: 8px;
+    text-decoration: none;
+    width: 100%;
+    max-width: 522px;
+    height: 215px;
+    transition: border-color 0.35s ease, 
+                transform 0.35s ease, 
+                box-shadow 0.35s ease;
+  }
+
+  .ring-size-card:hover {
+    border: 2px solid #000000;
+  }
+
+  /* Image Boundaries */
+  .ring-size-card-img {
+    max-width: 83px;
+    max-height: 100px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    margin-bottom: 15px;
+  }
+
+  /* Card Text */
+  .ring-size-card-title {
+    font-size: 20px;
+    font-weight: 400;
+    color: #333333;
+    margin: 0;
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Mac 15 inch (max-width: 1728px) */
+  @media screen and (max-width: 1728px) {
+    .ring-size-heading {
+      font-size: 46px;
+    }
+    .ring-size-subheading {
+      font-size: 18px;
+    }
+    .ring-size-card {
+      /* Force 3 columns by subtracting the 60px total gap and dividing by 3 */
+      max-width: calc((100% - 60px) / 3);
+    }
+  }
+
+  /* Mac 13 inch (max-width: 1440px) */
+  @media screen and (max-width: 1440px) {
+    .ring-size-heading {
+      font-size: 46px;
+    }
+    .ring-size-subheading {
+      font-size: 16px;
+    }
+    .ring-size-card {
+      max-width: calc((100% - 60px) / 3);
+    }
+  }
+/* iPad (769px - 1024px) */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .ring-size-container {
+    padding: 60px 40px;
+  }
+  .ring-size-heading {
+    font-size: 38px;
+  }
+  .ring-size-subheading {
+    font-size: 16px;
+  }
+  .ring-size-grid {
+    flex-wrap: nowrap;
+  }
+  .ring-size-card {
+    max-width: calc((100% - 60px) / 3);
+    height: 180px;
+  }
+  .ring-size-card-title {
+    font-size: 16px;
+    text-align:center;
+  }
+}
+  /* Mobile Responsive Fixes */
+  @media screen and (max-width: 768px) {
+    .ring-size-container {
+      padding: 60px 20px;
+    }
+
+    .ring-size-heading {
+      font-size: 28px;
+    }
+
+    .ring-size-subheading {
+      font-size: 16px;
+    }
+
+    .ring-size-card {
+      max-width: 100%;
+      height: 180px; /* Slightly shorter on mobile for a tighter layout */
+    }
+
+    .ring-size-card-title {
+      font-size: 16px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="section-{{ section.id }}-padding">
+  <div class="ring-size-container">
+    
+    <div class="ring-size-header">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="ring-size-heading">{{ section.settings.heading }}</h2>
+      {%- endif -%}
+      
+      {%- if section.settings.subheading != blank -%}
+        <p class="ring-size-subheading">{{ section.settings.subheading }}</p>
+      {%- endif -%}
+    </div>
+
+    <div class="ring-size-grid">
+      {%- for block in section.blocks -%}
+        {%- comment -%} Dynamically grabs the Section ID inputted in the block and creates an anchor link {%- endcomment -%}
+        <a href="{% if block.settings.section_id != blank %}#{{ block.settings.section_id | remove: '#' }}{% else %}#{% endif %}" class="ring-size-card" {{ block.shopify_attributes }}>
+          {%- if block.settings.icon != blank -%}
+            <img class="ring-size-card-img" 
+                 src="{{ block.settings.icon | image_url: width: 200 }}" 
+                 alt="{{ block.settings.title | escape }}" 
+                 loading="lazy" 
+                 width="{{ block.settings.icon.width }}" 
+                 height="{{ block.settings.icon.height }}">
+          {%- else -%}
+             {{ 'image' | placeholder_svg_tag: 'ring-size-card-img' | replace: '<svg', '<svg style="width:83px;height:100px;fill:#ccc;"' }}
+          {%- endif -%}
+          
+          {%- if block.settings.title != blank -%}
+            <h3 class="ring-size-card-title">{{ block.settings.title }}</h3>
+          {%- endif -%}
+        </a>
+      {%- endfor -%}
+    </div>
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Ring Size Methods",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "CHOOSE THE PERFECT SIZE RING METHOD"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Pick your easiest way to find your exact ring size"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Section Background Color",
+      "default": "#F6F6F6"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Method Card",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Icon/Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Card Title",
+          "default": "RING SIZE CHART"
+        },
+        {
+          "type": "text",
+          "id": "section_id",
+          "label": "Target Section ID",
+          "info": "Enter the exact ID of the section to jump to (e.g., shopify-section-123). Do not include the '#'."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Ring Size Methods",
+      "blocks": [
+        {
+          "type": "card",
+          "settings": {
+            "title": "RING SIZE CHART"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "title": "MEASURE AN EXISTING RING"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "title": "MOBILE RING SIZER"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

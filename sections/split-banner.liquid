@@ -1,0 +1,254 @@
+{%- style -%}
+  /* =========================================================
+     Split Banner (Jewelry & Crystals) - Pixel Perfect CSS
+     ========================================================= */
+  .custom-split-banner-{{ section.id }} {
+    --bg-color: {{ section.settings.bg_color }};
+    background-color: var(--bg-color);
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+  }
+
+  .custom-split-banner-{{ section.id }} .banner-container {
+    max-width: 1920px;
+    margin: 0 auto;
+    padding-left: {{ section.settings.padding_sides }}px;
+    padding-right: {{ section.settings.padding_sides }}px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0px; /* Figma shows 840 + 840 = 1680 exactly, no gap */
+  }
+
+  .custom-split-banner-{{ section.id }} .banner-item {
+    flex: 1;
+    position: relative;
+    aspect-ratio: 1 / 1; /* Exactly 840x840 = 1:1 */
+    overflow: hidden;
+    display: block;
+    text-decoration: none;
+  }
+
+  .custom-split-banner-{{ section.id }} .banner-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .custom-split-banner-{{ section.id }} .banner-item:hover .banner-image {
+    transform: scale(1.05); /* Premium slight zoom on hover */
+  }
+
+  /* Optional dark gradient at bottom so white text is always readable */
+  .custom-split-banner-{{ section.id }} .banner-overlay-shadow {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 35%;
+    background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .custom-split-banner-{{ section.id }} .banner-text {
+    position: absolute;
+    bottom: 48px; /* Positioned bottom-left based on Figma */
+    left: 48px;
+    font-family: var(--font-heading-family, serif);
+    font-family: var(--font-heading-family, 'Libre Caslon Text', serif);
+
+    font-size: {{ section.settings.title_size }}px; /* Figma: 64px */
+    font-weight: 400;
+    line-height: 1.23; /* Figma: 123% */
+    color: var(--text-color, #FFF9F5);
+    margin: 0;
+    text-transform: uppercase;
+    z-index: 2;
+    transition: transform 0.3s ease;
+  }
+
+
+  
+
+  /* ─── MacBook Air 15 inch M2 ─────────────────────────────────── */
+@media (min-width: 1441px) and (max-width: 1728px) {
+  .custom-split-banner-{{ section.id }} .banner-text {
+    font-size: 54px;
+  }
+}
+
+    @media (max-width: 1440px) {
+        .custom-split-banner-{{ section.id }} .banner-text {
+          font-size : 46px;
+        }
+    }
+
+
+  /* --- RESPONSIVE DESIGN --- */
+  @media (max-width: 1200px) {
+    .custom-split-banner-{{ section.id }} .banner-container {
+      padding-left: 40px;
+      padding-right: 40px;
+    }
+    .custom-split-banner-{{ section.id }} .banner-text {
+      font-size: 48px;
+      bottom: 30px;
+      left: 30px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .custom-split-banner-{{ section.id }} .banner-container {
+      flex-direction: column; /* Stacks the two banners on mobile */
+      padding-left: 20px;
+      padding-right: 20px;
+      gap: 20px; /* Adds gap between stacked banners */
+    }
+    .custom-split-banner-{{ section.id }} .banner-item {
+      width: 100%;
+    }
+    .custom-split-banner-{{ section.id }} .banner-text {
+      font-size: 36px;
+      bottom: 20px;
+      left: 20px;
+    }
+  }
+{%- endstyle -%}
+
+<section class="custom-split-banner-{{ section.id }}" data-section-id="{{ section.id }}">
+  <div class="banner-container">
+    
+    {%- for block in section.blocks -%}
+      <a href="{{ block.settings.link | default: '#' }}" class="banner-item" {{ block.shopify_attributes }}>
+        
+        {%- if block.settings.image != blank -%}
+          <img src="{{ block.settings.image | image_url: width: 1000 }}" alt="{{ block.settings.title | escape }}" class="banner-image" loading="lazy">
+        {%- else -%}
+          {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg banner-image' }}
+        {%- endif -%}
+        
+        <div class="banner-overlay-shadow"></div>
+        
+        {%- if block.settings.title != blank -%}
+          <h3 class="banner-text" style="--text-color: {{ block.settings.text_color }};">{{ block.settings.title }}</h3>
+        {%- endif -%}
+        
+      </a>
+    {%- endfor -%}
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Split Image Banner",
+  "max_blocks": 2,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Layout & Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_sides",
+      "label": "Side Padding (Left/Right)",
+      "default": 120,
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding",
+      "default": 80,
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding",
+      "default": 80,
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Section Background Color",
+      "default": "#FFF9F5"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Overlay Title Size (Desktop)",
+      "default": 64,
+      "min": 30,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image_block",
+      "name": "Image Block",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Background Image",
+          "info": "Recommended size: 840x840px (1:1 ratio)"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Overlay Title",
+          "default": "JEWELRY"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Title Color",
+          "default": "#FFF9F5"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Block Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Split Image Banner",
+      "blocks": [
+        {
+          "type": "image_block",
+          "settings": {
+            "title": "JEWELRY"
+          }
+        },
+        {
+          "type": "image_block",
+          "settings": {
+            "title": "CRYSTALS"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

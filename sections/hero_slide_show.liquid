@@ -1,0 +1,409 @@
+{%- style -%}
+  /* =========================================================
+     Text with Dual Buttons Section - Pixel Perfect
+     ========================================================= */
+  .custom-text-banner-{{ section.id }} {
+    --bg-color: {{ section.settings.bg_color }};
+    --padding-top: {{ section.settings.padding_top }}px;
+    --padding-bottom: {{ section.settings.padding_bottom }}px;
+    
+    --title-color: {{ section.settings.title_color }};
+    --title-size: {{ section.settings.title_size }}px;
+    
+    --subtitle-color: {{ section.settings.subtitle_color }};
+    --subtitle-size: {{ section.settings.subtitle_size }}px;
+
+    /* Primary Button (Left) */
+    --btn1-bg: {{ section.settings.btn1_bg_color }};
+    --btn1-text: {{ section.settings.btn1_text_color }};
+    --btn1-grad-1: {{ section.settings.btn1_grad_1 }};
+    --btn1-grad-2: {{ section.settings.btn1_grad_2 }};
+    --btn1-grad-3: {{ section.settings.btn1_grad_3 }};
+
+    /* Secondary Button (Right) */
+    --btn2-bg: {{ section.settings.btn2_bg_color }};
+    --btn2-text: {{ section.settings.btn2_text_color }};
+    --btn2-border: {{ section.settings.btn2_border_color }};
+    --btn2-hover-bg: {{ section.settings.btn2_hover_bg }};
+    --btn2-grad-1: {{ section.settings.btn2_grad_1 }};
+    --btn2-grad-2: {{ section.settings.btn2_grad_2 }};
+    --btn2-grad-3: {{ section.settings.btn2_grad_3 }};
+
+    background-color: var(--bg-color);
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Content Area */
+  .custom-text-banner-{{ section.id }} .banner-content {
+    width: 100%;
+    max-width: 1534px; /* From Figma layout */
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-top: var(--padding-top);
+    padding-bottom: var(--padding-bottom);
+    padding-left: 20px;
+    padding-right: 20px;
+    box-sizing: border-box;
+  }
+
+  /* Title (SHINE BRIGHT...) */
+  .custom-text-banner-{{ section.id }} .banner-title {
+    font-family: var(--font-heading-family, 'Libre Caslon Text', serif);
+    font-size: var(--title-size);
+    font-weight: 400;
+    line-height: 1.23; /* 123% from Figma */
+    color: var(--title-color);
+    text-transform: uppercase;
+    margin: 0 0 15px 0;
+    letter-spacing: 0px;
+  }
+
+  /* Subtitle (Discover our collection...) */
+  .custom-text-banner-{{ section.id }} .banner-subtitle {
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: var(--subtitle-size);
+    font-weight: 400;
+    line-height: 38px; /* 38px from Figma */
+    color: var(--subtitle-color);
+    margin: 0 0 40px 0;
+    max-width: 838px; /* From Figma */
+  }
+
+  /* Buttons Container */
+  .custom-text-banner-{{ section.id }} .banner-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px; /* 40px gap from Figma */
+    width: 100%;
+  }
+
+  /* Base Button Styles */
+  .custom-text-banner-{{ section.id }} .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 275px; /* Exact width from Figma */
+    height: 55px; /* Exact height */
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: 20px;
+    font-weight: 300;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    cursor: pointer;
+  }
+
+  /* Primary Button (READY TO SHIP) */
+  .custom-text-banner-{{ section.id }} .btn-primary {
+    background-color: var(--btn1-bg);
+    color: var(--btn1-text);
+    border: none;
+  }
+
+  /* Hover effect with Gradient */
+  .custom-text-banner-{{ section.id }} .btn-primary:hover {
+    background: linear-gradient(135deg, var(--btn1-grad-1), var(--btn1-grad-2), var(--btn1-grad-3));
+    color: #FFFFFF;
+  }
+
+  /* Secondary Button (SHOP ALL) */
+  .custom-text-banner-{{ section.id }} .btn-secondary {
+    background-color: transparent;
+    color: var(--btn2-text);
+    border: 1px solid var(--btn2-border);
+  }
+
+  .custom-text-banner-{{ section.id }} .btn-secondary .btn-text {
+    display: inline-block;
+    color: inherit;
+  }
+
+  .custom-text-banner-{{ section.id }} .btn-secondary:hover {
+    background-color: var(--btn2-hover-bg);
+    border: 1px solid transparent;
+    border-image: linear-gradient(135deg, var(--btn2-grad-1), var(--btn2-grad-2), var(--btn2-grad-3)) 1;
+  }
+
+  .custom-text-banner-{{ section.id }} .btn-secondary:hover .btn-text {
+    background: linear-gradient(135deg, var(--btn2-grad-1), var(--btn2-grad-2), var(--btn2-grad-3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+
+  
+  /* MacBook Air 15" M2 */
+@media (min-width: 1441px) and (max-width: 1728px) {
+  .custom-text-banner-{{ section.id }} .banner-title {
+    font-size: 54px;
+  }
+
+  .custom-text-banner-{{ section.id }} .banner-subtitle,
+  .custom-text-banner-{{ section.id }} .btn {
+    font-size: 18px;
+  }
+}
+
+
+    @media (max-width: 1440px) {
+        .custom-text-banner-{{ section.id }} .banner-title {
+          font-size : 46px;
+        }
+
+          .custom-text-banner-{{ section.id }} .banner-subtitle,  .custom-text-banner-{{ section.id }} .btn{
+            font-size : 16px;
+          }
+
+    }
+
+
+
+
+    /* --- RESPONSIVE DESIGN --- */
+  @media (max-width: 768px) {
+    .custom-text-banner-{{ section.id }} .banner-content {
+      padding-top: 40px;
+      padding-bottom: 40px;
+    }
+    .custom-text-banner-{{ section.id }} .banner-title {
+      font-size: 28px;
+    }
+    .custom-text-banner-{{ section.id }} .banner-subtitle {
+      font-size: 16px;
+      line-height: 28px;
+      margin-bottom: 30px;
+    }
+    .custom-text-banner-{{ section.id }} .banner-buttons {
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+    }
+    .custom-text-banner-{{ section.id }} .btn {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+
+{%- endstyle -%}
+
+<section class="custom-text-banner-{{ section.id }}">
+  <!-- Text & Buttons Container -->
+  <div class="banner-content">
+    {%- if section.settings.title != blank -%}
+      <h2 class="banner-title">{{ section.settings.title | newline_to_br }}</h2>
+    {%- endif -%}
+
+    {%- if section.settings.subtitle != blank -%}
+      <p class="banner-subtitle">{{ section.settings.subtitle }}</p>
+    {%- endif -%}
+
+    <div class="banner-buttons">
+      {%- if section.settings.btn1_text != blank -%}
+        <a href="{{ section.settings.btn1_link | default: '#' }}" class="btn btn-primary">{{ section.settings.btn1_text }}</a>
+      {%- endif -%}
+
+      {%- if section.settings.btn2_text != blank -%}
+        <a href="{{ section.settings.btn2_link | default: '#' }}" class="btn btn-secondary"><span class="btn-text">{{ section.settings.btn2_text }}</span></a>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Text with Buttons Banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Spacing & Sizing"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding",
+      "default": 80,
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding",
+      "default": 80,
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Text Content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "SHINE BRIGHT WITH ELEGANT STYLE"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Title Size (Desktop)",
+      "default": 64,
+      "min": 30,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Discover our collection of magical jewellery crafted to make every moment unforgettable"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Subtitle Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "label": "Subtitle Size (Desktop)",
+      "default": 20,
+      "min": 14,
+      "max": 40,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Primary Button Settings (Left)"
+    },
+    {
+      "type": "text",
+      "id": "btn1_text",
+      "label": "Button Text",
+      "default": "READY TO SHIP"
+    },
+    {
+      "type": "url",
+      "id": "btn1_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "color",
+      "id": "btn1_bg_color",
+      "label": "Button Background Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "btn1_text_color",
+      "label": "Button Text Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "btn1_grad_1",
+      "label": "Hover Gradient Color 1",
+      "default": "#947863"
+    },
+    {
+      "type": "color",
+      "id": "btn1_grad_2",
+      "label": "Hover Gradient Color 2",
+      "default": "#E9DDD4"
+    },
+    {
+      "type": "color",
+      "id": "btn1_grad_3",
+      "label": "Hover Gradient Color 3",
+      "default": "#947863"
+    },
+    {
+      "type": "header",
+      "content": "Secondary Button Settings (Right)"
+    },
+    {
+      "type": "text",
+      "id": "btn2_text",
+      "label": "Button Text",
+      "default": "SHOP ALL"
+    },
+    {
+      "type": "url",
+      "id": "btn2_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "color",
+      "id": "btn2_bg_color",
+      "label": "Button Background",
+      "default": "transparent"
+    },
+    {
+      "type": "color",
+      "id": "btn2_text_color",
+      "label": "Button Text Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "btn2_border_color",
+      "label": "Button Border Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "btn2_hover_bg",
+      "label": "Hover Background",
+      "default": "transparent"
+    },
+    {
+      "type": "color",
+      "id": "btn2_grad_1",
+      "label": "Hover Gradient Color 1",
+      "default": "#947863"
+    },
+    {
+      "type": "color",
+      "id": "btn2_grad_2",
+      "label": "Hover Gradient Color 2",
+      "default": "#E9DDD4"
+    },
+    {
+      "type": "color",
+      "id": "btn2_grad_3",
+      "label": "Hover Gradient Color 3",
+      "default": "#947863"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Text with Buttons Banner"
+    }
+  ]
+}
+{% endschema %}

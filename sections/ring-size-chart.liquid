@@ -1,0 +1,243 @@
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    background-color: {{ section.settings.background_color }};
+  }
+
+  .ring-size-container-{{ section.id }} {
+    max-width: 1570px;
+    margin: 0 auto;
+    padding: 80px 120px;
+  }
+
+  .ring-size-header-{{ section.id }} {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .ring-size-heading-{{ section.id }} {
+    font-family: "Libre Caslon Text", serif;
+    font-size: 56px;
+    font-weight: 400;
+    color: #333333;
+    margin: 0 0 15px 0;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .ring-size-subheading-{{ section.id }} {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    color: #555555;
+    margin: 0 auto;
+    max-width: 600px;
+    line-height: 1.5;
+  }
+
+  .ring-size-table-wrapper-{{ section.id }} {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ring-size-table-{{ section.id }} {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px; 
+  }
+
+  .ring-size-table-{{ section.id }} th,
+  .ring-size-table-{{ section.id }} td {
+    padding: 20px 15px;
+    text-align: center;
+    font-size: 20px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .ring-size-table-{{ section.id }} th {
+    background-color: {{ section.settings.table_header_bg }};
+    color: #444444;
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  .ring-size-table-{{ section.id }} td {
+    color: #333333;
+    border-bottom: 1px solid #f2f2f2;
+  }
+
+  .ring-size-table-{{ section.id }} tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* --- RESPONSIVE BREAKPOINTS --- */
+
+  /* Mac 15 inch */
+  @media screen and (max-width: 1728px) {
+    .ring-size-heading-{{ section.id }} {
+      font-size: 46px;
+    }
+    .ring-size-subheading-{{ section.id }} {
+      font-size: 18px;
+    }
+  }
+
+  /* Mac 13 inch */
+  @media screen and (max-width: 1440px) {
+    .ring-size-heading-{{ section.id }} {
+      font-size: 46px;
+    }
+    .ring-size-subheading-{{ section.id }} {
+      font-size: 16px;
+    }
+  }
+/* iPad (769px - 1024px) */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .ring-size-container-{{ section.id }} {
+    padding: 60px 40px;
+  }
+  .ring-size-heading-{{ section.id }} {
+    font-size: 38px;
+  }
+  .ring-size-subheading-{{ section.id }} {
+    font-size: 16px;
+  }
+  .ring-size-table-{{ section.id }} th,
+  .ring-size-table-{{ section.id }} td {
+    font-size: 16px;
+    padding: 15px 10px;
+  }
+}
+  /* Mobile */
+  @media screen and (max-width: 768px) {
+    .ring-size-container-{{ section.id }} {
+      padding: 40px 20px;
+    }
+    .ring-size-heading-{{ section.id }} {
+      font-size: 28px;
+    }
+    .ring-size-subheading-{{ section.id }} {
+      font-size: 16px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="section-{{ section.id }}-padding" id="ring-size-charts">
+  <div class="ring-size-container-{{ section.id }}">
+    
+    <div class="ring-size-header-{{ section.id }}">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="ring-size-heading-{{ section.id }}">{{ section.settings.heading }}</h2>
+      {%- endif -%}
+      {%- if section.settings.subheading != blank -%}
+        <p class="ring-size-subheading-{{ section.id }}">{{ section.settings.subheading }}</p>
+      {%- endif -%}
+    </div>
+
+    <div class="ring-size-table-wrapper-{{ section.id }}">
+      <table class="ring-size-table-{{ section.id }}">
+        <thead>
+          <tr>
+            <th>USA & Canada</th>
+            <th>Europe</th>
+            <th>UK & Australia</th>
+            <th>Circumference(mm)</th>
+            <th>Diameter(mm)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%- for block in section.blocks -%}
+            <tr {{ block.shopify_attributes }}>
+              <td>{{ block.settings.usa }}</td>
+              <td>{{ block.settings.europe }}</td>
+              <td>{{ block.settings.uk }}</td>
+              <td>{{ block.settings.circum }}</td>
+              <td>{{ block.settings.diameter }}</td>
+            </tr>
+          {%- endfor -%}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Ring Size Chart",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "RING SIZE CHART"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Use our easy conversion chart to find the right ring size. Our website follows US & Canada sizing for accuracy."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "table_header_bg",
+      "label": "Table Header Background",
+      "default": "#f8f7f5"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "size_row",
+      "name": "Size Row",
+      "settings": [
+        {
+          "type": "text",
+          "id": "usa",
+          "label": "USA & Canada"
+        },
+        {
+          "type": "text",
+          "id": "europe",
+          "label": "Europe"
+        },
+        {
+          "type": "text",
+          "id": "uk",
+          "label": "UK & Australia"
+        },
+        {
+          "type": "text",
+          "id": "circum",
+          "label": "Circumference(mm)"
+        },
+        {
+          "type": "text",
+          "id": "diameter",
+          "label": "Diameter(mm)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Ring Size Chart",
+      "blocks": [
+        { "type": "size_row", "settings": { "usa": "4", "europe": "47", "uk": "H", "circum": "46.8", "diameter": "14.9" } },
+        { "type": "size_row", "settings": { "usa": "5", "europe": "49", "uk": "J", "circum": "48.0", "diameter": "15.3" } },
+        { "type": "size_row", "settings": { "usa": "6", "europe": "51", "uk": "L", "circum": "49.3", "diameter": "15.7" } },
+        { "type": "size_row", "settings": { "usa": "7", "europe": "53", "uk": "N", "circum": "51.8", "diameter": "16.5" } },
+        { "type": "size_row", "settings": { "usa": "8", "europe": "56", "uk": "P", "circum": "54.4", "diameter": "17.3" } },
+        { "type": "size_row", "settings": { "usa": "9", "europe": "59", "uk": "R", "circum": "57.0", "diameter": "18.1" } },
+        { "type": "size_row", "settings": { "usa": "10", "europe": "62", "uk": "T", "circum": "59.5", "diameter": "18.9" } },
+        { "type": "size_row", "settings": { "usa": "11", "europe": "64", "uk": "V", "circum": "62.1", "diameter": "19.8" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

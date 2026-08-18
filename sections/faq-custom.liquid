@@ -1,0 +1,407 @@
+
+
+
+
+{{ 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Libre+Caslon+Text&display=swap' | stylesheet_tag }}
+
+<style>
+  :root {
+    --text-color: #2C2C2C;
+    --border-color: #EAEAEA;
+    --btn-border: #F4F3F1;
+  }
+
+  .custom-faq-wrapper {
+    max-width: 1920px;
+    margin: 0 auto;
+    padding: 40px 120px;
+    color: var(--text-color);
+  }
+
+  .custom-faq-header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+
+  .custom-faq-title {
+    font-family: 'Libre Caslon Text', serif;
+    font-size: clamp(40px, 4vw, 64px);
+    font-weight: 400;
+    margin-bottom: 15px;
+    line-height: 1.23;
+  }
+
+  .custom-faq-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(16px, 1.5vw, 20px);
+    max-width: 1517px;
+    margin: 0 auto;
+    line-height: 1.21;
+  }
+
+  .custom-faq-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 80px;
+  }
+
+  .custom-faq-nav a {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(14px, 1vw, 20px);
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--text-color);
+    border: 1px solid var(--btn-border);
+    padding: 12px 20px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    background: transparent;
+  }
+
+  .custom-faq-nav a:hover {
+    background: #fcfcfc;
+    border-color: #dcdcdc;
+  }
+
+  /* ── CSS columns: categories flow into 2 columns naturally,
+     no dead space from mismatched row heights ── */
+  .custom-faq-grid {
+    columns: 2;
+    column-gap: 60px;
+  }
+
+  .custom-faq-category {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    display: inline-block; /* needed for break-inside to work reliably */
+    width: 100%;
+    margin-bottom: 40px;
+  }
+
+  .custom-faq-category-title {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(18px, 1.5vw, 20px);
+    font-weight: 400;
+    text-transform: uppercase;
+    margin: 0;
+    padding-bottom: 20px;
+  }
+
+  .custom-faq-item {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    width: 100%;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+  }
+
+  .custom-faq-question {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(14px, 1.2vw, 16px);
+    font-weight: 500;
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .custom-faq-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    min-width: 14px;
+    margin-left: 15px;
+    flex-shrink: 0;
+    position: relative;
+    pointer-events: none;
+  }
+
+  .faq-icon-close,
+  .faq-icon-open {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease;
+  }
+
+  .faq-icon-close { opacity: 1; }
+  .faq-icon-open  { opacity: 0; }
+
+  .custom-faq-item.active .faq-icon-close { opacity: 0; }
+  .custom-faq-item.active .faq-icon-open  { opacity: 1; }
+
+  .faq-icon-close svg,
+  .faq-icon-close img,
+  .faq-icon-open svg,
+  .faq-icon-open img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+  }
+
+  .custom-faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, margin-top 0.3s ease;
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(14px, 1vw, 16px);
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-color);
+  }
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+   .custom-faq-nav {
+     
+      Padding:0 40px;
+    }
+    .custom-faq-grid{
+    padding:0 40px;
+  }
+}
+  @media screen and (max-width: 990px) {
+    .custom-faq-grid {
+      columns: 1;
+    }
+    .custom-faq-wrapper {
+      padding: 20px 20px;
+    }
+    .custom-faq-nav {
+      gap: 8px;
+      display:flex;
+      justify-content:start;
+    }
+    .custom-faq-nav a {
+      font-size: 14px;
+      padding: 8px 10px;
+    }
+  }
+</style>
+
+<div class="custom-faq-wrapper">
+
+  <div class="custom-faq-header">
+    <h2 class="custom-faq-title">{{ section.settings.heading }}</h2>
+    {% if section.settings.subheading != blank %}
+      <p class="custom-faq-desc">{{ section.settings.subheading }}</p>
+    {% endif %}
+  </div>
+
+  <div class="custom-faq-nav">
+    {% for block in section.blocks %}
+      {% if block.type == 'category' %}
+        <a href="#faq-category-{{ forloop.index }}">{{ block.settings.title }}</a>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="custom-faq-grid">
+    {% assign is_first_category = true %}
+
+    {% for block in section.blocks %}
+      {% if block.type == 'category' %}
+
+        {% if is_first_category == false %}
+          </div>
+        {% endif %}
+
+        <div class="custom-faq-category" id="faq-category-{{ forloop.index }}">
+          <h3 class="custom-faq-category-title">{{ block.settings.title }}</h3>
+          {% assign is_first_category = false %}
+
+      {% elsif block.type == 'question' %}
+
+        <div class="custom-faq-item">
+          <button class="custom-faq-question" type="button">
+            {{ block.settings.question }}
+            <span class="custom-faq-icon-wrapper" aria-hidden="true">
+
+              <span class="faq-icon-close">
+                {% if section.settings.close_icon_svg != blank %}
+                  {{ section.settings.close_icon_svg }}
+                {% elsif section.settings.close_icon_img != blank %}
+                  <img src="{{ section.settings.close_icon_img | image_url: width: 50 }}" alt="Expand" loading="lazy">
+                {% else %}
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 14" fill="none">
+                    <path d="M1 5L6 10L11 5" stroke="#2C2C2C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                {% endif %}
+              </span>
+
+              <span class="faq-icon-open">
+                {% if section.settings.open_icon_svg != blank %}
+                  {{ section.settings.open_icon_svg }}
+                {% elsif section.settings.open_icon_img != blank %}
+                  <img src="{{ section.settings.open_icon_img | image_url: width: 50 }}" alt="Collapse" loading="lazy">
+                {% else %}
+                  <svg viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11 9L6 4L1 9" stroke="#2C2C2C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                {% endif %}
+              </span>
+
+            </span>
+          </button>
+          <div class="custom-faq-answer">
+            {{ block.settings.answer }}
+          </div>
+        </div>
+
+      {% endif %}
+
+      {% if forloop.last %}
+        </div>
+      {% endif %}
+
+    {% endfor %}
+  </div>
+
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+
+    var allItems = document.querySelectorAll(".custom-faq-item");
+
+    allItems.forEach(function (item) {
+      var btn    = item.querySelector(".custom-faq-question");
+      var answer = item.querySelector(".custom-faq-answer");
+
+      btn.addEventListener("click", function () {
+        var isOpen = item.classList.contains("active");
+
+        // Close every open item first (one-open-at-a-time)
+        allItems.forEach(function (other) {
+          if (other.classList.contains("active")) {
+            other.classList.remove("active");
+            other.querySelector(".custom-faq-answer").style.maxHeight = "0";
+            other.querySelector(".custom-faq-answer").style.marginTop  = "0";
+          }
+        });
+
+        // If this item was closed, open it now
+        if (!isOpen) {
+          item.classList.add("active");
+          answer.style.maxHeight = answer.scrollHeight + "px";
+          answer.style.marginTop = "16px";
+        }
+      });
+    });
+
+    // Smooth scroll for nav anchors
+    document.querySelectorAll('.custom-faq-nav a').forEach(function (anchor) {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        var target = document.getElementById(this.getAttribute('href').substring(1));
+        if (target) {
+          window.scrollTo({ top: target.offsetTop - 50, behavior: 'smooth' });
+        }
+      });
+    });
+
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Custom FAQ Block",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Frequently Asked Questions"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "At S-Brillet, we believe clarity builds trust. Explore the most common questions below."
+    },
+    {
+      "type": "header",
+      "content": "Closed State Icon (Expand)"
+    },
+    {
+      "type": "image_picker",
+      "id": "close_icon_img",
+      "label": "Closed Icon Image (Optional)"
+    },
+    {
+      "type": "html",
+      "id": "close_icon_svg",
+      "label": "Closed Icon SVG Code"
+    },
+    {
+      "type": "header",
+      "content": "Open State Icon (Collapse)"
+    },
+    {
+      "type": "image_picker",
+      "id": "open_icon_img",
+      "label": "Open Icon Image (Optional)"
+    },
+    {
+      "type": "html",
+      "id": "open_icon_svg",
+      "label": "Open Icon SVG Code"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "category",
+      "name": "Category Title",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Category Name",
+          "default": "Orders & Shipping"
+        }
+      ]
+    },
+    {
+      "type": "question",
+      "name": "FAQ Question",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "How long will it take to receive my order?"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer",
+          "default": "<p>Please allow 3-5 business days for processing.</p>"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom FAQ Block",
+      "category": "Text"
+    }
+  ]
+}
+{% endschema %}

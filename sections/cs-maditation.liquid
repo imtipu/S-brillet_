@@ -1,0 +1,3160 @@
+{% comment %} {%- style -%}
+  .mmspx-{{ section.id }} {
+    --mmspx-bg:            {{ section.settings.section_bg }};
+    --mmspx-card-bg:       {{ section.settings.card_bg }};
+    --mmspx-title-color:   {{ section.settings.title_color }};
+    --mmspx-text-color:    {{ section.settings.text_color }};
+    --mmspx-label-color:   {{ section.settings.label_color }};
+    --mmspx-divider-color: {{ section.settings.divider_color }};
+    --mmspx-btn-text:      {{ section.settings.btn_text_color }};
+    --mmspx-btn-border:    {{ section.settings.btn_border_color }};
+    --mmspx-dot-inactive:  {{ section.settings.dot_inactive_color }};
+    --mmspx-dot-active:    {{ section.settings.dot_active_color }};
+    --mmspx-arrow-color:   {{ section.settings.arrow_color }};
+
+    background-color: var(--mmspx-bg);
+    padding: {{ section.settings.section_padding_v }}px {{ section.settings.section_padding_h }}px;
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-card {
+    max-width: 1680px;
+    margin: 0 auto;
+    background-color: var(--mmspx-card-bg);
+    box-shadow: inset 0 0 30px 8px rgba(0, 0, 0, 0.06);
+    padding: {{ section.settings.card_padding_top }}px {{ section.settings.card_padding_h }}px;
+    box-sizing: border-box;
+    position: relative;
+  }
+
+  /* ── OUTER GRID: text col | image+controls col ── */
+  .mmspx-{{ section.id }} .mmspx-layout {
+    display: grid;
+    grid-template-columns: 5fr 4fr;
+    grid-template-rows: auto auto;
+    gap: 0 80px;
+  }
+
+  /* text column spans both rows on the left */
+  .mmspx-{{ section.id }} .mmspx-text-panel {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-sizing: border-box;
+  }
+
+  /* image area: top-right cell */
+  .mmspx-{{ section.id }} .mmspx-img-panel {
+    grid-column: 2;
+    grid-row: 1;
+    padding-right: {{ section.settings.right_padding_r }}px;
+    box-sizing: border-box;
+  }
+
+  /* controls area: bottom-right cell */
+  .mmspx-{{ section.id }} .mmspx-controls-panel {
+    grid-column: 2;
+    grid-row: 2;
+    padding-right: {{ section.settings.right_padding_r }}px;
+    padding-bottom: {{ section.settings.right_padding_b }}px;
+    box-sizing: border-box;
+  }
+
+  /* img-left variant: flip columns */
+  .mmspx-{{ section.id }} .mmspx-layout.img-left {
+    grid-template-columns: 1fr {{ section.settings.text_col_width }}px;
+  }
+  .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-text-panel {
+    grid-column: 2;
+  }
+  .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-img-panel {
+    grid-column: 1;
+    padding-right: 0;
+    padding-left: {{ section.settings.right_padding_r }}px;
+  }
+  .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-controls-panel {
+    grid-column: 1;
+    padding-right: 0;
+    padding-left: {{ section.settings.right_padding_r }}px;
+  }
+
+
+
+
+
+  .mmspx-template--28063329124734__cs_maditation_HUDMNn .mmspx-slide-img {
+    position: absolute !important;
+    height: 512px;
+}
+.mmspx-template--28063329124734__cs_maditation_HUDMNn .mmspx-img-stack {
+    position: relative;
+    width: 100%;
+    height: 512px;
+    aspect-ratio: 720 / 535;
+    overflow: hidden;
+}
+.mmspx-template--28063329124734__cs_maditation_HUDMNn .mmspx-slide-text.is-active {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+    position: relative;
+    max-width: 720px;
+}
+.mmspx-template--28063329124734__cs_maditation_HUDMNn .mmspx-image-wrapper img, .mmspx-template--28063329124734__cs_maditation_HUDMNn .mmspx-image-wrapper .placeholder-svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+  /* ══════════════════════════════════════════════
+     STACKING SYSTEM
+     Text stack: relative container, active child is relative (sizes parent),
+                 others are absolute — text height changes are fine/expected.
+     Image stack: FIXED by aspect-ratio on the container itself.
+                  ALL slide-imgs are ALWAYS absolute. Container never resizes.
+  ══════════════════════════════════════════════ */
+
+  /* TEXT stack — normal flow stacking */
+  .mmspx-{{ section.id }} .mmspx-text-stack {
+    position: relative;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-slide-text {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-sizing: border-box;
+    /* hidden by default */
+    position: absolute;
+    top: 0; left: 0; width: 100%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.55s ease;
+    visibility: hidden;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-slide-text.is-active {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+    position: relative; /* sizes the text-stack container */
+  }
+
+  .mmspx-{{ section.id }} .mmspx-slide-text.is-leaving {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    visibility: visible;
+  }
+
+  /* IMAGE stack — container is sized by aspect-ratio, NEVER by children */
+  .mmspx-{{ section.id }} .mmspx-img-stack {
+    position: relative;
+    width: 100%;
+    /* Lock the height via aspect-ratio — children are all absolute, never affect size */
+    aspect-ratio: 720 / 535;
+    overflow: hidden;
+  }
+
+  /* Every slide-img: always absolutely fills the container — position NEVER changes */
+  .mmspx-{{ section.id }} .mmspx-slide-img {
+    position: absolute !important;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.55s ease;
+    visibility: hidden;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-slide-img.is-active {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-slide-img.is-leaving {
+    opacity: 0;
+    pointer-events: none;
+    visibility: visible;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  .mmspx-{{ section.id }} .mmspx-title {
+    font-family: var(--font-heading-family, 'Georgia', serif);
+    font-size: {{ section.settings.title_size }}px;
+    font-weight: 400;
+    line-height: 1.05;
+    color: var(--mmspx-title-color);
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-desc {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: {{ section.settings.desc_size }}px;
+    font-weight: 400;
+    line-height: 1.65;
+    color: var(--mmspx-text-color);
+    margin: 0;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-divider {
+    border: none;
+    border-top: 1.5px solid var(--mmspx-divider-color);
+    margin: 0;
+    width: 100%;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-text-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-text-block-row {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: {{ section.settings.block_text_size }}px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--mmspx-text-color);
+    margin: 0;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-text-block-label {
+    font-weight: 700;
+    color: var(--mmspx-label-color);
+  }
+
+  /* ── BUTTON ── */
+  .mmspx-{{ section.id }} .mmspx-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 350px;
+    max-width: 100%;
+    height: 55px;
+    padding: 0 32px;
+    background-color: transparent;
+    color: var(--mmspx-btn-text);
+    border: 1px solid var(--mmspx-btn-border);
+    font-family: var(--font-heading-family, 'Georgia', serif);
+    font-size: 20px;
+    font-weight: 300;
+    line-height: 20px;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.25s ease, color 0.25s ease;
+    box-sizing: border-box;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-btn:hover {
+    background: linear-gradient(90deg, #947863 0%, #E9DDD4 50%, #947863 100%);
+    color: #FFF;
+  }
+
+  /* ── IMAGE WRAPPER — fills the absolute slide-img, no own aspect-ratio ── */
+  .mmspx-{{ section.id }} .mmspx-image-wrapper {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-image-wrapper img,
+  .mmspx-{{ section.id }} .mmspx-image-wrapper .placeholder-svg {
+    width: 100%;
+    height: 100%;
+    object-fit: ;
+    display: block;
+  }
+
+  /* ── CONTROLS ── */
+  .mmspx-{{ section.id }} .mmspx-controls {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 28px;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-arrow-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--mmspx-arrow-color);
+    opacity: 0.55;
+    transition: opacity 0.2s;
+    line-height: 0;
+    flex-shrink: 0;
+  }
+  .mmspx-{{ section.id }} .mmspx-arrow-btn:hover { opacity: 1; }
+  .mmspx-{{ section.id }} .mmspx-arrow-btn .mmspx-arrow-img {
+    width: {{ section.settings.arrow_icon_size }}px;
+    height: {{ section.settings.arrow_icon_size }}px;
+    object-fit: contain;
+    display: block;
+  }
+  .mmspx-{{ section.id }} .mmspx-arrow-btn .mmspx-arrow-svg {
+    width: 22px;
+    height: 16px;
+    display: block;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-dot-strip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .mmspx-{{ section.id }} .mmspx-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--mmspx-dot-inactive);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  .mmspx-{{ section.id }} .mmspx-dot.is-active {
+    background-color: var(--mmspx-dot-active);
+    transform: scale(1.3);
+  }
+
+
+  /* ══════════════════════════════════════════════
+     RESPONSIVE BREAKPOINTS
+  ══════════════════════════════════════════════ */
+
+  /* ── MAC / LARGE LAPTOP: 1280px–1400px ── */
+  @media (max-width: 1470px) {
+
+    .mmspx-title {
+      font-size:36px !important;
+    }
+    .mmspx-{{ section.id }} .mmspx-layout {
+      grid-template-columns: 440px 1fr;
+    }
+    .mmspx-{{ section.id }} .mmspx-layout.img-left {
+      grid-template-columns: 1fr 440px;
+    }
+    .mmspx-{{ section.id }} .mmspx-title {
+      font-size: clamp(38px, 3.2vw, {{ section.settings.title_size }}px);
+    }
+    .mmspx-{{ section.id }} .mmspx-desc,
+    .mmspx-{{ section.id }} .mmspx-text-block-row {
+      font-size: clamp(13px, 1.1vw, {{ section.settings.desc_size }}px);
+    }
+    .mmspx-{{ section.id }} .mmspx-img-stack {
+      aspect-ratio: 680 / 520;
+    }
+  }
+
+  /* ── TABLET / SMALL LAPTOP: 1100px–1279px ── */
+  @media (max-width: 1100px) {
+    .mmspx-{{ section.id }} {
+      padding: 60px 40px;
+    }
+    .mmspx-{{ section.id }} .mmspx-card {
+      padding: 50px 40px;
+    }
+    .mmspx-{{ section.id }} .mmspx-layout,
+    .mmspx-{{ section.id }} .mmspx-layout.img-left {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
+      gap: 40px 0;
+    }
+    .mmspx-{{ section.id }} .mmspx-text-panel,
+    .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-text-panel {
+      grid-column: 1;
+      grid-row: 2;
+    }
+    .mmspx-{{ section.id }} .mmspx-img-panel,
+    .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-img-panel {
+      grid-column: 1;
+      grid-row: 1;
+      padding: 0;
+    }
+    .mmspx-{{ section.id }} .mmspx-controls-panel,
+    .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-controls-panel {
+      grid-column: 1;
+      grid-row: 3;
+      padding: 0;
+    }
+    .mmspx-{{ section.id }} .mmspx-img-stack {
+      aspect-ratio: 16 / 10;
+    }
+    .mmspx-{{ section.id }} .mmspx-title {
+      font-size: clamp(34px, 4vw, 50px);
+    }
+    .mmspx-{{ section.id }} .mmspx-desc,
+    .mmspx-{{ section.id }} .mmspx-text-block-row {
+      font-size: 14px;
+    }
+  }
+
+  /* ── TABLET PORTRAIT: ≤900px ── */
+  @media (max-width: 900px) {
+    .mmspx-{{ section.id }} {
+      padding: 48px 28px;
+    }
+    .mmspx-{{ section.id }} .mmspx-card {
+      padding: 40px 28px;
+    }
+    .mmspx-{{ section.id }} .mmspx-title {
+      font-size: clamp(32px, 4.5vw, 46px);
+    }
+    .mmspx-{{ section.id }} .mmspx-img-stack {
+      aspect-ratio: 16 / 10;
+    }
+    .mmspx-{{ section.id }} .mmspx-btn {
+      width: 100%;
+    }
+  }
+
+  /* ── MOBILE: ≤768px ── */
+  @media (max-width: 768px) {
+    .mmspx-{{ section.id }} {
+      padding: 32px 16px;
+    }
+    .mmspx-{{ section.id }} .mmspx-card {
+      padding: 28px 18px;
+    }
+    .mmspx-{{ section.id }} .mmspx-layout,
+    .mmspx-{{ section.id }} .mmspx-layout.img-left {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
+      gap: 24px 0;
+    }
+    .mmspx-{{ section.id }} .mmspx-img-panel,
+    .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-img-panel {
+      grid-column: 1;
+      grid-row: 1;
+      padding: 0;
+    }
+    .mmspx-{{ section.id }} .mmspx-text-panel,
+    .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-text-panel {
+      grid-column: 1;
+      grid-row: 2;
+    }
+    .mmspx-{{ section.id }} .mmspx-controls-panel,
+    .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-controls-panel {
+      grid-column: 1;
+      grid-row: 3;
+      padding: 0;
+    }
+    .mmspx-{{ section.id }} .mmspx-title {
+      font-size: 28px;
+      line-height: 1.1;
+    }
+    .mmspx-{{ section.id }} .mmspx-desc,
+    .mmspx-{{ section.id }} .mmspx-text-block-row {
+      font-size: 16px;
+      line-height: 1.7;
+    }
+    .mmspx-{{ section.id }} .mmspx-img-stack {
+      aspect-ratio: 4 / 3;
+    }
+    .mmspx-{{ section.id }} .mmspx-btn {
+      width: 100%;
+      height: 50px;
+      font-size: 16px;
+    }
+    .mmspx-{{ section.id }} .mmspx-controls {
+      gap: 14px;
+      margin-top: 16px;
+    }
+    .mmspx-{{ section.id }} .mmspx-text-blocks {
+      gap: 12px;
+    }
+  }
+
+  /* ── SMALL MOBILE: ≤480px ── */
+  @media (max-width: 480px) {
+    .mmspx-{{ section.id }} {
+      padding: 24px 12px;
+    }
+    .mmspx-{{ section.id }} .mmspx-card {
+      padding: 22px 14px;
+    }
+    .mmspx-{{ section.id }} .mmspx-title {
+      font-size: 28px;
+    }
+    .mmspx-{{ section.id }} .mmspx-desc,
+    .mmspx-{{ section.id }} .mmspx-text-block-row {
+      font-size: 16px;
+    }
+    .mmspx-{{ section.id }} .mmspx-img-stack {
+      aspect-ratio: 1 / 1;
+    }
+    .mmspx-{{ section.id }} .mmspx-controls {
+      gap: 10px;
+      margin-top: 12px;
+    }
+  }
+
+{%- endstyle -%}
+
+{%- assign slide_blocks = section.blocks | where: "type", "slide" -%}
+{%- assign first_slide  = slide_blocks | first -%}
+{%- assign img_pos_first = first_slide.settings.image_position | default: 'right' -%}
+
+<section class="mmspx-{{ section.id }}" data-section-id="{{ section.id }}">
+  <div class="mmspx-card">
+
+    <div class="mmspx-layout{% if img_pos_first == 'left' %} img-left{% endif %}" id="mmspx-layout-{{ section.id }}">
+
+      <!-- TEXT STACK -->
+      <div class="mmspx-text-panel mmspx-text-stack" id="mmspx-texts-{{ section.id }}">
+        {%- for block in slide_blocks -%}
+          {%- assign slide_title = block.settings.title       | default: section.settings.title -%}
+          {%- assign slide_desc  = block.settings.description | default: section.settings.description -%}
+          {%- assign slide_btn   = block.settings.btn_text    | default: section.settings.btn_text -%}
+          {%- assign slide_link  = block.settings.btn_link    | default: section.settings.btn_link -%}
+
+          {%- assign has_rows = false -%}
+          {%- if block.settings.row1_text != blank -%}{%- assign has_rows = true -%}{%- endif -%}
+          {%- if block.settings.row2_text != blank -%}{%- assign has_rows = true -%}{%- endif -%}
+          {%- if block.settings.row3_text != blank -%}{%- assign has_rows = true -%}{%- endif -%}
+          {%- if block.settings.row4_text != blank -%}{%- assign has_rows = true -%}{%- endif -%}
+          {%- if block.settings.row5_text != blank -%}{%- assign has_rows = true -%}{%- endif -%}
+
+          <div class="mmspx-slide-text {% if forloop.first %}is-active{% endif %}"
+               data-slide-index="{{ forloop.index0 }}"
+               {{ block.shopify_attributes }}>
+
+            {%- if slide_title != blank -%}
+              <h2 class="mmspx-title">{{ slide_title }}</h2>
+            {%- endif -%}
+
+            {%- if slide_desc != blank -%}
+              <p class="mmspx-desc">{{ slide_desc }}</p>
+            {%- endif -%}
+
+            {%- if has_rows -%}
+              <hr class="mmspx-divider">
+              <div class="mmspx-text-blocks">
+                {%- if block.settings.row1_text != blank -%}
+                  <p class="mmspx-text-block-row">
+                    {%- if block.settings.row1_label != blank -%}<span class="mmspx-text-block-label">{{ block.settings.row1_label }}: </span>{%- endif -%}
+                    {{- block.settings.row1_text -}}
+                  </p>
+                {%- endif -%}
+                {%- if block.settings.row2_text != blank -%}
+                  <p class="mmspx-text-block-row">
+                    {%- if block.settings.row2_label != blank -%}<span class="mmspx-text-block-label">{{ block.settings.row2_label }}: </span>{%- endif -%}
+                    {{- block.settings.row2_text -}}
+                  </p>
+                {%- endif -%}
+                {%- if block.settings.row3_text != blank -%}
+                  <p class="mmspx-text-block-row">
+                    {%- if block.settings.row3_label != blank -%}<span class="mmspx-text-block-label">{{ block.settings.row3_label }}: </span>{%- endif -%}
+                    {{- block.settings.row3_text -}}
+                  </p>
+                {%- endif -%}
+                {%- if block.settings.row4_text != blank -%}
+                  <p class="mmspx-text-block-row">
+                    {%- if block.settings.row4_label != blank -%}<span class="mmspx-text-block-label">{{ block.settings.row4_label }}: </span>{%- endif -%}
+                    {{- block.settings.row4_text -}}
+                  </p>
+                {%- endif -%}
+                {%- if block.settings.row5_text != blank -%}
+                  <p class="mmspx-text-block-row">
+                    {%- if block.settings.row5_label != blank -%}<span class="mmspx-text-block-label">{{ block.settings.row5_label }}: </span>{%- endif -%}
+                    {{- block.settings.row5_text -}}
+                  </p>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+
+            {%- if slide_btn != blank -%}
+              <div>
+                <a href="{{ slide_link | default: '#' }}" class="mmspx-btn">{{ slide_btn }}</a>
+              </div>
+            {%- endif -%}
+
+          </div><!-- /.mmspx-slide-text -->
+        {%- endfor -%}
+      </div><!-- /.mmspx-text-panel -->
+
+      <!-- IMAGE STACK -->
+      <div class="mmspx-img-panel mmspx-img-stack" id="mmspx-imgs-{{ section.id }}">
+        {%- for block in slide_blocks -%}
+          {%- assign slide_title = block.settings.title | default: section.settings.title -%}
+          <div class="mmspx-slide-img {% if forloop.first %}is-active{% endif %}"
+               data-slide-index="{{ forloop.index0 }}">
+            <div class="mmspx-image-wrapper">
+              {%- if block.settings.image != blank -%}
+                <img
+                  src="{{ block.settings.image | image_url: width: 1440 }}"
+                  alt="{{ block.settings.image.alt | default: slide_title | escape }}"
+                  loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                  width="720" height="535">
+              {%- else -%}
+                {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+              {%- endif -%}
+            </div>
+          </div><!-- /.mmspx-slide-img -->
+        {%- endfor -%}
+      </div><!-- /.mmspx-img-panel -->
+
+      <!-- CONTROLS — outside slides, always interactive -->
+      {%- if slide_blocks.size > 1 -%}
+        <div class="mmspx-controls-panel">
+          <div class="mmspx-controls">
+
+            <button class="mmspx-arrow-btn" id="mmspx-prev-{{ section.id }}" aria-label="Previous slide">
+              {%- if section.settings.arrow_prev_image != blank -%}
+                <img class="mmspx-arrow-img" src="{{ section.settings.arrow_prev_image | image_url: width: 80 }}" alt="Previous" width="{{ section.settings.arrow_icon_size }}" height="{{ section.settings.arrow_icon_size }}" loading="lazy">
+              {%- else -%}
+                <svg class="mmspx-arrow-svg" viewBox="0 0 22 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 2L3 8L10 14"/><path d="M19 2L12 8L19 14"/>
+                </svg>
+              {%- endif -%}
+            </button>
+
+            <div class="mmspx-dot-strip" id="mmspx-dots-{{ section.id }}">
+              {%- for block in slide_blocks -%}
+                <button class="mmspx-dot {% if forloop.first %}is-active{% endif %}" data-dot-index="{{ forloop.index0 }}" aria-label="Slide {{ forloop.index }}"></button>
+              {%- endfor -%}
+            </div>
+
+            <button class="mmspx-arrow-btn" id="mmspx-next-{{ section.id }}" aria-label="Next slide">
+              {%- if section.settings.arrow_next_image != blank -%}
+                <img class="mmspx-arrow-img" src="{{ section.settings.arrow_next_image | image_url: width: 80 }}" alt="Next" width="{{ section.settings.arrow_icon_size }}" height="{{ section.settings.arrow_icon_size }}" loading="lazy">
+              {%- else -%}
+                <svg class="mmspx-arrow-svg" viewBox="0 0 22 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2L19 8L12 14"/><path d="M3 2L10 8L3 14"/>
+                </svg>
+              {%- endif -%}
+            </button>
+
+
+
+          </div>
+        </div>
+      {%- endif -%}
+
+    </div><!-- /.mmspx-layout -->
+  </div><!-- /.mmspx-card -->
+</section>
+
+<script>
+(function () {
+  'use strict';
+
+  function initMmspx(sid) {
+    var textEls = Array.prototype.slice.call(document.querySelectorAll('#mmspx-texts-' + sid + ' .mmspx-slide-text'));
+    var imgEls  = Array.prototype.slice.call(document.querySelectorAll('#mmspx-imgs-'  + sid + ' .mmspx-slide-img'));
+    var total   = textEls.length;
+    if (total < 2) return;
+
+    var dotsEl = document.getElementById('mmspx-dots-' + sid);
+    var dots   = dotsEl ? Array.prototype.slice.call(dotsEl.querySelectorAll('.mmspx-dot')) : [];
+    var cur    = 0;
+    var locked = false;
+    var FADE_MS = 550; /* must match CSS transition: opacity 0.55s */
+
+    /* ── Clean crossfade — zero transform, zero bounce ── */
+    function goTo(i) {
+      if (locked) return;
+      var next = (i % total + total) % total;
+      if (next === cur) return;
+      locked = true;
+
+      var prevIdx = cur;
+
+      /* 1. Mark outgoing as "leaving": stays visible (absolute) and fades out */
+      textEls[prevIdx].classList.add('is-leaving');
+      imgEls[prevIdx].classList.add('is-leaving');
+      textEls[prevIdx].classList.remove('is-active');
+      imgEls[prevIdx].classList.remove('is-active');
+      if (dots[prevIdx]) dots[prevIdx].classList.remove('is-active');
+
+      /* 2. On next paint, activate incoming — it fades in cleanly */
+      requestAnimationFrame(function () {
+        textEls[next].classList.add('is-active');
+        imgEls[next].classList.add('is-active');
+        if (dots[next]) dots[next].classList.add('is-active');
+        cur = next;
+      });
+
+      /* 3. After fade completes, fully hide outgoing */
+      setTimeout(function () {
+        textEls[prevIdx].classList.remove('is-leaving');
+        imgEls[prevIdx].classList.remove('is-leaving');
+        locked = false;
+      }, FADE_MS);
+    }
+
+    /* ── Arrow / dot controls ── */
+    var prevBtn = document.getElementById('mmspx-prev-' + sid);
+    var nextBtn = document.getElementById('mmspx-next-' + sid);
+    if (prevBtn) prevBtn.addEventListener('click', function () { goTo(cur - 1); resetTimer(); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { goTo(cur + 1); resetTimer(); });
+    dots.forEach(function (d) {
+      d.addEventListener('click', function () { goTo(+d.getAttribute('data-dot-index')); resetTimer(); });
+    });
+
+    /* ── Touch / swipe ── */
+    var imgPanel = document.getElementById('mmspx-imgs-' + sid);
+    var tx = 0;
+    if (imgPanel) {
+      imgPanel.addEventListener('touchstart', function (e) { tx = e.changedTouches[0].clientX; }, { passive: true });
+      imgPanel.addEventListener('touchend', function (e) {
+        var dx = e.changedTouches[0].clientX - tx;
+        if (Math.abs(dx) > 40) { goTo(dx < 0 ? cur + 1 : cur - 1); resetTimer(); }
+      }, { passive: true });
+    }
+
+    /* ── Keyboard ── */
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft')  { goTo(cur - 1); resetTimer(); }
+      if (e.key === 'ArrowRight') { goTo(cur + 1); resetTimer(); }
+    });
+
+    /* ── Autoplay (no pause button — just pauses on hover) ── */
+    var autoplayEnabled = {{ section.settings.autoplay_enabled | json }};
+    var autoplayDelay   = {{ section.settings.autoplay_delay | times: 1000 }};
+    var timer = null;
+
+    function startTimer() {
+      if (!autoplayEnabled) return;
+      stopTimer();
+      timer = setInterval(function () { goTo(cur + 1); }, autoplayDelay);
+    }
+    function stopTimer() {
+      if (timer) { clearInterval(timer); timer = null; }
+    }
+    function resetTimer() {
+      if (autoplayEnabled) startTimer();
+    }
+
+    /* Pause on hover */
+    var card = document.querySelector('[data-section-id="{{ section.id }}"] .mmspx-card');
+    if (card && autoplayEnabled) {
+      card.addEventListener('mouseenter', stopTimer);
+      card.addEventListener('mouseleave', startTimer);
+    }
+
+    /* Pause when tab hidden */
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stopTimer(); else if (autoplayEnabled) startTimer();
+    });
+
+    if (autoplayEnabled) startTimer();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { initMmspx('{{ section.id }}'); });
+  } else {
+    initMmspx('{{ section.id }}');
+  }
+})();
+</script>
+
+{% schema %}
+{
+  "name": "CS MEDITATION",
+  "tag": "section",
+  "class": "mmspx-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Outer Section Spacing"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_v",
+      "label": "Vertical Padding",
+      "default": 80, "min": 0, "max": 160, "step": 5, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_h",
+      "label": "Horizontal Padding",
+      "default": 120, "min": 0, "max": 200, "step": 5, "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Inner Card Spacing"
+    },
+    {
+      "type": "range",
+      "id": "card_padding_top",
+      "label": "Card Top & Bottom Padding",
+      "default": 80, "min": 0, "max": 160, "step": 5, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_padding_h",
+      "label": "Card Left & Right Padding",
+      "default": 60, "min": 0, "max": 160, "step": 5, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_gap",
+      "label": "Column Gap",
+      "default": 60, "min": 0, "max": 160, "step": 5, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "text_col_width",
+      "label": "Text Column Width",
+      "default": 640, "min": 320, "max": 900, "step": 10, "unit": "px",
+      "info": "Fixed width of the text column. Image column fills remaining space."
+    },
+    {
+      "type": "range",
+      "id": "right_padding_r",
+      "label": "Image Column — Outer Padding",
+      "default": 60, "min": 0, "max": 120, "step": 5, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "right_padding_b",
+      "label": "Image Column — Bottom Padding",
+      "default": 35, "min": 0, "max": 120, "step": 5, "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Autoplay"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay_enabled",
+      "label": "Enable Autoplay",
+      "default": false,
+      "info": "Automatically advance slides. Shows a pause/play button in the controls bar."
+    },
+    {
+      "type": "range",
+      "id": "autoplay_delay",
+      "label": "Autoplay Delay",
+      "default": 5,
+      "min": 2,
+      "max": 15,
+      "step": 1,
+      "unit": "s",
+      "info": "Seconds between slide advances. Only used when Autoplay is enabled."
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "section_bg",
+      "label": "Section Background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "card_bg",
+      "label": "Card Background",
+      "default": "#FFF9F5"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Body Text Color",
+      "default": "#3D3D3D"
+    },
+    {
+      "type": "color",
+      "id": "label_color",
+      "label": "Bold Label Color",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "color",
+      "id": "divider_color",
+      "label": "Divider Color",
+      "default": "#C8C0B8"
+    },
+    {
+      "type": "color",
+      "id": "btn_text_color",
+      "label": "Button Text Color",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "color",
+      "id": "btn_border_color",
+      "label": "Button Border / Hover Fill",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "color",
+      "id": "dot_inactive_color",
+      "label": "Dot — Inactive",
+      "default": "#B0A89E"
+    },
+    {
+      "type": "color",
+      "id": "dot_active_color",
+      "label": "Dot — Active",
+      "default": "#3D3D3D"
+    },
+    {
+      "type": "color",
+      "id": "arrow_color",
+      "label": "Arrow Color (SVG fallback)",
+      "default": "#3D3D3D"
+    },
+    {
+      "type": "header",
+      "content": "Navigation Arrows"
+    },
+    {
+      "type": "image_picker",
+      "id": "arrow_prev_image",
+      "label": "Prev Arrow Image",
+      "info": "Leave blank for default SVG arrow."
+    },
+    {
+      "type": "image_picker",
+      "id": "arrow_next_image",
+      "label": "Next Arrow Image",
+      "info": "Leave blank for default SVG arrow."
+    },
+    {
+      "type": "range",
+      "id": "arrow_icon_size",
+      "label": "Arrow Image Size",
+      "default": 32, "min": 16, "max": 80, "step": 2, "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Title Font Size",
+      "default": 52, "min": 28, "max": 90, "step": 1, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "desc_size",
+      "label": "Description Font Size",
+      "default": 14, "min": 12, "max": 22, "step": 1, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "block_text_size",
+      "label": "Row Text Font Size",
+      "default": 14, "min": 12, "max": 22, "step": 1, "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Section-Level Fallbacks"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Fallback Title",
+      "default": "MEDITATION & MINDFULNESS",
+      "info": "Shown on slides that have no title set."
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Fallback Description",
+      "default": "Hold a crystal in your hand or place it on your body during meditation to enhance relaxation, sharpen focus, and amplify your inner peace. The crystal's natural energy helps balance your mind, body, and spirit.",
+      "info": "Shown on slides that have no description set."
+    },
+    {
+      "type": "text",
+      "id": "btn_text",
+      "label": "Fallback Button Text",
+      "default": "LEARN MORE"
+    },
+    {
+      "type": "url",
+      "id": "btn_link",
+      "label": "Fallback Button Link"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "select",
+          "id": "image_position",
+          "label": "Image Position",
+          "options": [
+            { "value": "right", "label": "Image Right  (text on left)" },
+            { "value": "left",  "label": "Image Left   (text on right)" }
+          ],
+          "default": "right"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Slide Image",
+          "info": "Recommended: 720 x 535 px"
+        },
+        {
+          "type": "header",
+          "content": "Text Content"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "info": "Leave blank to use the section fallback title."
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description",
+          "info": "Leave blank to use the section fallback description."
+        },
+        {
+          "type": "header",
+          "content": "Text Rows  (e.g. Supported / Unsupported)"
+        },
+        {
+          "type": "text",
+          "id": "row1_label",
+          "label": "Row 1 — Bold Label",
+          "default": "Supported"
+        },
+        {
+          "type": "textarea",
+          "id": "row1_text",
+          "label": "Row 1 — Text",
+          "default": "Amethyst, Aquamarine, White Quartz, Moonstone, Citrine, Rose Quartz, Green Fluorite, Red Garnet, Emerald, Red Ruby, Green Peridot, Lapis Lazuli, Pink Tourmaline, Turquoise, Black Obsidian, Labradorite"
+        },
+        {
+          "type": "text",
+          "id": "row2_label",
+          "label": "Row 2 — Bold Label",
+          "default": "Unsupported"
+        },
+        {
+          "type": "textarea",
+          "id": "row2_text",
+          "label": "Row 2 — Text",
+          "default": "None"
+        },
+        {
+          "type": "text",
+          "id": "row3_label",
+          "label": "Row 3 — Bold Label"
+        },
+        {
+          "type": "textarea",
+          "id": "row3_text",
+          "label": "Row 3 — Text"
+        },
+        {
+          "type": "text",
+          "id": "row4_label",
+          "label": "Row 4 — Bold Label"
+        },
+        {
+          "type": "textarea",
+          "id": "row4_text",
+          "label": "Row 4 — Text"
+        },
+        {
+          "type": "text",
+          "id": "row5_label",
+          "label": "Row 5 — Bold Label"
+        },
+        {
+          "type": "textarea",
+          "id": "row5_text",
+          "label": "Row 5 — Text"
+        },
+        {
+          "type": "header",
+          "content": "Button"
+        },
+        {
+          "type": "text",
+          "id": "btn_text",
+          "label": "Button Text",
+          "info": "Leave blank to use the section fallback."
+        },
+        {
+          "type": "url",
+          "id": "btn_link",
+          "label": "Button Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "CS MEDITATION",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "image_position": "right",
+            "title": "MEDITATION & MINDFULNESS",
+            "description": "Hold a crystal in your hand or place it on your body during meditation to enhance relaxation, sharpen focus, and amplify your inner peace. The crystal's natural energy helps balance your mind, body, and spirit.",
+            "row1_label": "Supported",
+            "row1_text": "Amethyst, Aquamarine, White Quartz, Moonstone, Citrine, Rose Quartz, Green Fluorite, Red Garnet, Emerald, Red Ruby, Green Peridot, Lapis Lazuli, Pink Tourmaline, Turquoise, Black Obsidian, Labradorite",
+            "row2_label": "Unsupported",
+            "row2_text": "None",
+            "btn_text": "LEARN MORE"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "image_position": "left",
+            "title": "HEALING & ENERGY",
+            "description": "Channel the natural vibrations of crystals to restore your body's energy flow, release tension, and invite deep, restorative healing.",
+            "row1_label": "Supported",
+            "row1_text": "Rose Quartz, Amethyst, Selenite, Black Tourmaline, Carnelian",
+            "row2_label": "Unsupported",
+            "row2_text": "None",
+            "btn_text": "EXPLORE"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "image_position": "right",
+            "title": "CRYSTAL CLEANSING",
+            "description": "Regular cleansing keeps your crystals vibrating at their highest frequency, ready to support your intentions and daily rituals.",
+            "row1_label": "Method",
+            "row1_text": "Moonlight, Sound Bath, Selenite Plate, Running Water",
+            "row2_label": "Frequency",
+            "row2_text": "Weekly recommended",
+            "btn_text": "DISCOVER"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %} {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %} 
+
+
+{%- style -%}
+  .mmspx-{{ section.id }} {
+    --mmspx-bg:            {{ section.settings.section_bg }};
+    --mmspx-card-bg:       {{ section.settings.card_bg }};
+    --mmspx-title-color:   {{ section.settings.title_color }};
+    --mmspx-text-color:    {{ section.settings.text_color }};
+    --mmspx-label-color:   {{ section.settings.label_color }};
+    --mmspx-divider-color: {{ section.settings.divider_color }};
+    --mmspx-btn-text:      {{ section.settings.btn_text_color }};
+    --mmspx-btn-border:    {{ section.settings.btn_border_color }};
+    --mmspx-dot-inactive:  {{ section.settings.dot_inactive_color }};
+    --mmspx-arrow-color:   {{ section.settings.arrow_color }};
+
+    background-color: var(--mmspx-bg);
+    padding: {{ section.settings.section_padding_v }}px {{ section.settings.section_padding_h }}px;
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-card {
+    max-width: 1680px;
+    margin: 0 auto;
+    background-color: var(--mmspx-card-bg);
+    box-shadow: inset 0 0 30px 8px rgba(0, 0, 0, 0.06);
+    padding: {{ section.settings.card_padding_top }}px {{ section.settings.card_padding_h }}px;
+    box-sizing: border-box;
+    position: relative;
+  }
+
+  /* ── OUTER LAYOUT: CSS GRID FOR PERFECT ALIGNMENT ── */
+  .mmspx-{{ section.id }} .mmspx-layout {
+    display: grid;
+    grid-template-columns: {{ section.settings.text_col_width }}px 1fr;
+    grid-template-rows: auto auto; /* Row 1 for Text & Image, Row 2 for Controls */
+    column-gap: {{ section.settings.card_gap }}px;
+  }
+
+  /* img-left variant: flip columns */
+  .mmspx-{{ section.id }} .mmspx-layout.img-left {
+    grid-template-columns: 1fr {{ section.settings.text_col_width }}px;
+  }
+
+  /* ── TEXT COLUMN ── */
+  .mmspx-{{ section.id }} .mmspx-text-panel {
+    grid-column: 1;
+    grid-row: 1; /* Sits on Row 1 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 400px; /* Safe fallback */
+  }
+  .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-text-panel {
+    grid-column: 2;
+  }
+
+  /* ── IMAGE COLUMN ── */
+  .mmspx-{{ section.id }} .mmspx-img-panel {
+    grid-column: 2;
+    grid-row: 1; /* Exactly parallel to text, takes identical height */
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-img-panel {
+    grid-column: 1;
+  }
+
+  /* ── CONTROLS COLUMN ── */
+  .mmspx-{{ section.id }} .mmspx-controls-panel {
+    grid-column: 2;
+    grid-row: 2; /* Sits exactly below the image */
+    padding-top: 25px;
+  }
+  .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-controls-panel {
+    grid-column: 1;
+  }
+
+  /* ── INNER IMAGE STACK (Children are absolute) ── */
+  .mmspx-{{ section.id }} .mmspx-slide-img {
+    position: absolute !important;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.55s ease;
+    visibility: hidden;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-slide-img.is-active {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-slide-img.is-leaving {
+    opacity: 0;
+    pointer-events: none;
+    visibility: visible;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-image-wrapper {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-image-wrapper img,
+  .mmspx-{{ section.id }} .mmspx-image-wrapper .placeholder-svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* ── INNER TEXT STACK (Active child gives height) ── */
+  .mmspx-{{ section.id }} .mmspx-text-stack {
+    position: relative;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-slide-text {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-sizing: border-box;
+    position: absolute;
+    top: 0; left: 0; width: 100%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.55s ease;
+    visibility: hidden;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-slide-text.is-active {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+    position: relative;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-slide-text.is-leaving {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    visibility: visible;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  .mmspx-{{ section.id }} .mmspx-title {
+    font-family: var(--font-heading-family, 'Libre Caslon Text', serif);
+    font-size: {{ section.settings.title_size }}px;
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--mmspx-title-color);
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-desc {
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: {{ section.settings.desc_size }}px;
+    font-weight: 400;
+    line-height: 1.65;
+    color: var(--mmspx-text-color);
+    margin: 0;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-divider {
+    border: none;
+    border-top: 1.5px solid var(--mmspx-divider-color);
+    margin: 0;
+    width: 100%;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-text-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-text-block-row {
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: {{ section.settings.block_text_size }}px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--mmspx-text-color);
+    margin: 0;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-text-block-label {
+    font-weight: 700;
+    color: var(--mmspx-label-color);
+  }
+
+  /* ── BUTTON ── */
+  .mmspx-{{ section.id }} .mmspx-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 350px;
+    max-width: 100%;
+    height: 55px;
+    background-color: transparent;
+    color: var(--mmspx-btn-text);
+    border: 1px solid var(--mmspx-btn-border);
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: 16px;
+    font-weight: 400;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-btn:hover {
+    background: var(--mmspx-btn-border);
+    color: #FFF;
+  }
+
+  /* ── CONTROLS STYLING ── */
+  .mmspx-{{ section.id }} .mmspx-controls {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-arrow-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--mmspx-arrow-color);
+    opacity: 0.55;
+    transition: opacity 0.2s;
+    line-height: 0;
+    flex-shrink: 0;
+  }
+  .mmspx-{{ section.id }} .mmspx-arrow-btn:hover { opacity: 1; }
+  .mmspx-{{ section.id }} .mmspx-arrow-btn .mmspx-arrow-svg {
+    width: 22px;
+    height: 16px;
+    display: block;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-dot-strip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+  }
+  .mmspx-{{ section.id }} .mmspx-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--mmspx-dot-inactive);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-dot.is-active {
+    background: linear-gradient(180deg, #947863 0%, #E9DDD4 50%, #947863 100%) !important;
+    transform: scale(1.3);
+  }
+
+  /* ══════════════════════════════════════════════
+     RESPONSIVE BREAKPOINTS
+  ══════════════════════════════════════════════ */
+
+  @media (max-width: 1440px) {
+    .mmspx-{{ section.id }} .mmspx-title {
+      font-size: 46px; 
+    }
+    .mmspx-{{ section.id }} .mmspx-desc,
+    .mmspx-{{ section.id }} .mmspx-text-block-row {
+      font-size: 16px; 
+    }
+    .mmspx-{{ section.id }} .mmspx-layout {
+      grid-template-columns: 500px 1fr;
+    }
+    .mmspx-{{ section.id }} .mmspx-layout.img-left {
+      grid-template-columns: 1fr 500px;
+    }
+    .mmspx-{{ section.id }} .mmspx-btn {
+      width: 280px;
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .mmspx-{{ section.id }} {
+      padding: 60px 40px;
+    }
+    .mmspx-{{ section.id }} .mmspx-card {
+      padding: 50px 40px;
+    }
+    .mmspx-{{ section.id }} .mmspx-layout,
+    .mmspx-{{ section.id }} .mmspx-layout.img-left {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
+    }
+    .mmspx-{{ section.id }} .mmspx-img-panel,
+    .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-img-panel {
+      grid-column: 1 !important;
+      grid-row: 1 !important; /* Image on top */
+      aspect-ratio: 16 / 10;
+    }
+    .mmspx-{{ section.id }} .mmspx-controls-panel,
+    .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-controls-panel {
+      grid-column: 1 !important;
+      grid-row: 2 !important; /* Controls under image */
+      padding-top: 20px;
+      padding-bottom: 40px;
+    }
+    .mmspx-{{ section.id }} .mmspx-text-panel,
+    .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-text-panel {
+      grid-column: 1 !important;
+      grid-row: 3 !important; /* Text at bottom */
+      min-height: auto;
+    }
+    .mmspx-{{ section.id }} .mmspx-title {
+      font-size: 36px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .mmspx-{{ section.id }} {
+      padding: 32px 16px;
+    }
+    .mmspx-{{ section.id }} .mmspx-card {
+      padding: 28px 18px;
+    }
+    .mmspx-{{ section.id }} .mmspx-title {
+      font-size: 28px; 
+      line-height: 1.2;
+    }
+    .mmspx-{{ section.id }} .mmspx-desc,
+    .mmspx-{{ section.id }} .mmspx-text-block-row {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .mmspx-{{ section.id }} .mmspx-img-panel {
+      aspect-ratio: 4 / 3;
+    }
+    .mmspx-{{ section.id }} .mmspx-btn {
+      width: 100%;
+      height: 50px;
+    }
+  }
+
+{%- endstyle -%}
+
+{%- assign slide_blocks = section.blocks | where: "type", "slide" -%}
+{%- assign first_slide  = slide_blocks | first -%}
+{%- assign img_pos_first = first_slide.settings.image_position | default: 'right' -%}
+
+<section class="mmspx-{{ section.id }}" data-section-id="{{ section.id }}">
+  <div class="mmspx-card">
+
+    <div class="mmspx-layout{% if img_pos_first == 'left' %} img-left{% endif %}" id="mmspx-layout-{{ section.id }}">
+
+      <div class="mmspx-text-panel mmspx-text-stack" id="mmspx-texts-{{ section.id }}">
+        {%- for block in slide_blocks -%}
+          {%- assign slide_title = block.settings.title      | default: section.settings.title -%}
+          {%- assign slide_desc  = block.settings.description | default: section.settings.description -%}
+          {%- assign slide_btn   = block.settings.btn_text    | default: section.settings.btn_text -%}
+          {%- assign slide_link  = block.settings.btn_link    | default: section.settings.btn_link -%}
+
+          {%- assign has_rows = false -%}
+          {%- if block.settings.row1_text != blank -%}{%- assign has_rows = true -%}{%- endif -%}
+          {%- if block.settings.row2_text != blank -%}{%- assign has_rows = true -%}{%- endif -%}
+          {%- if block.settings.row3_text != blank -%}{%- assign has_rows = true -%}{%- endif -%}
+          {%- if block.settings.row4_text != blank -%}{%- assign has_rows = true -%}{%- endif -%}
+          {%- if block.settings.row5_text != blank -%}{%- assign has_rows = true -%}{%- endif -%}
+
+          <div class="mmspx-slide-text {% if forloop.first %}is-active{% endif %}"
+               data-slide-index="{{ forloop.index0 }}"
+               {{ block.shopify_attributes }}>
+
+            {%- if slide_title != blank -%}
+              <h2 class="mmspx-title">{{ slide_title }}</h2>
+            {%- endif -%}
+
+            {%- if slide_desc != blank -%}
+              <p class="mmspx-desc">{{ slide_desc }}</p>
+            {%- endif -%}
+
+            {%- if has_rows -%}
+              <hr class="mmspx-divider">
+              <div class="mmspx-text-blocks">
+                {%- if block.settings.row1_text != blank -%}
+                  <p class="mmspx-text-block-row">
+                    {%- if block.settings.row1_label != blank -%}<span class="mmspx-text-block-label">{{ block.settings.row1_label }}: </span>{%- endif -%}
+                    {{- block.settings.row1_text -}}
+                  </p>
+                {%- endif -%}
+                {%- if block.settings.row2_text != blank -%}
+                  <p class="mmspx-text-block-row">
+                    {%- if block.settings.row2_label != blank -%}<span class="mmspx-text-block-label">{{ block.settings.row2_label }}: </span>{%- endif -%}
+                    {{- block.settings.row2_text -}}
+                  </p>
+                {%- endif -%}
+                {%- if block.settings.row3_text != blank -%}
+                  <p class="mmspx-text-block-row">
+                    {%- if block.settings.row3_label != blank -%}<span class="mmspx-text-block-label">{{ block.settings.row3_label }}: </span>{%- endif -%}
+                    {{- block.settings.row3_text -}}
+                  </p>
+                {%- endif -%}
+                {%- if block.settings.row4_text != blank -%}
+                  <p class="mmspx-text-block-row">
+                    {%- if block.settings.row4_label != blank -%}<span class="mmspx-text-block-label">{{ block.settings.row4_label }}: </span>{%- endif -%}
+                    {{- block.settings.row4_text -}}
+                  </p>
+                {%- endif -%}
+                {%- if block.settings.row5_text != blank -%}
+                  <p class="mmspx-text-block-row">
+                    {%- if block.settings.row5_label != blank -%}<span class="mmspx-text-block-label">{{ block.settings.row5_label }}: </span>{%- endif -%}
+                    {{- block.settings.row5_text -}}
+                  </p>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+
+            {%- if slide_btn != blank -%}
+              <div>
+                <a href="{{ slide_link | default: '#' }}" class="mmspx-btn">{{ slide_btn }}</a>
+              </div>
+            {%- endif -%}
+
+          </div>
+        {%- endfor -%}
+      </div>
+
+      <div class="mmspx-img-panel mmspx-img-stack" id="mmspx-imgs-{{ section.id }}">
+        {%- for block in slide_blocks -%}
+          {%- assign slide_title = block.settings.title | default: section.settings.title -%}
+          <div class="mmspx-slide-img {% if forloop.first %}is-active{% endif %}"
+               data-slide-index="{{ forloop.index0 }}">
+            <div class="mmspx-image-wrapper">
+              {%- if block.settings.image != blank -%}
+                <img
+                  src="{{ block.settings.image | image_url: width: 1440 }}"
+                  alt="{{ block.settings.image.alt | default: slide_title | escape }}"
+                  loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                  width="720" height="535">
+              {%- else -%}
+                {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+
+      {%- if slide_blocks.size > 1 -%}
+        <div class="mmspx-controls-panel">
+          <div class="mmspx-controls">
+
+            <button class="mmspx-arrow-btn" id="mmspx-prev-{{ section.id }}" aria-label="Previous slide">
+              {%- if section.settings.arrow_prev_image != blank -%}
+                <img class="mmspx-arrow-img" src="{{ section.settings.arrow_prev_image | image_url: width: 80 }}" alt="Previous" width="{{ section.settings.arrow_icon_size }}" height="{{ section.settings.arrow_icon_size }}" loading="lazy">
+              {%- else -%}
+                <svg class="mmspx-arrow-svg" viewBox="0 0 22 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 2L3 8L10 14"/><path d="M19 2L12 8L19 14"/>
+                </svg>
+              {%- endif -%}
+            </button>
+
+            <div class="mmspx-dot-strip" id="mmspx-dots-{{ section.id }}">
+              {%- for block in slide_blocks -%}
+                <button class="mmspx-dot {% if forloop.first %}is-active{% endif %}" data-dot-index="{{ forloop.index0 }}" aria-label="Slide {{ forloop.index }}"></button>
+              {%- endfor -%}
+            </div>
+
+            <button class="mmspx-arrow-btn" id="mmspx-next-{{ section.id }}" aria-label="Next slide">
+              {%- if section.settings.arrow_next_image != blank -%}
+                <img class="mmspx-arrow-img" src="{{ section.settings.arrow_next_image | image_url: width: 80 }}" alt="Next" width="{{ section.settings.arrow_icon_size }}" height="{{ section.settings.arrow_icon_size }}" loading="lazy">
+              {%- else -%}
+                <svg class="mmspx-arrow-svg" viewBox="0 0 22 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2L19 8L12 14"/><path d="M3 2L10 8L3 14"/>
+                </svg>
+              {%- endif -%}
+            </button>
+
+          </div>
+        </div>
+      {%- endif -%}
+
+    </div></div></section>
+
+<script>
+(function () {
+  'use strict';
+
+  function initMmspx(sid) {
+    var textEls = Array.prototype.slice.call(document.querySelectorAll('#mmspx-texts-' + sid + ' .mmspx-slide-text'));
+    var imgEls  = Array.prototype.slice.call(document.querySelectorAll('#mmspx-imgs-'  + sid + ' .mmspx-slide-img'));
+    var total   = textEls.length;
+    if (total < 2) return;
+
+    var dotsEl = document.getElementById('mmspx-dots-' + sid);
+    var dots   = dotsEl ? Array.prototype.slice.call(dotsEl.querySelectorAll('.mmspx-dot')) : [];
+    var cur    = 0;
+    var locked = false;
+    var FADE_MS = 550;
+
+    function goTo(i) {
+      if (locked) return;
+      var next = (i % total + total) % total;
+      if (next === cur) return;
+      locked = true;
+
+      var prevIdx = cur;
+
+      textEls[prevIdx].classList.add('is-leaving');
+      imgEls[prevIdx].classList.add('is-leaving');
+      textEls[prevIdx].classList.remove('is-active');
+      imgEls[prevIdx].classList.remove('is-active');
+      if (dots[prevIdx]) dots[prevIdx].classList.remove('is-active');
+
+      requestAnimationFrame(function () {
+        textEls[next].classList.add('is-active');
+        imgEls[next].classList.add('is-active');
+        if (dots[next]) dots[next].classList.add('is-active');
+        cur = next;
+      });
+
+      setTimeout(function () {
+        textEls[prevIdx].classList.remove('is-leaving');
+        imgEls[prevIdx].classList.remove('is-leaving');
+        locked = false;
+      }, FADE_MS);
+    }
+
+    var prevBtn = document.getElementById('mmspx-prev-' + sid);
+    var nextBtn = document.getElementById('mmspx-next-' + sid);
+    if (prevBtn) prevBtn.addEventListener('click', function () { goTo(cur - 1); resetTimer(); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { goTo(cur + 1); resetTimer(); });
+    dots.forEach(function (d) {
+      d.addEventListener('click', function () { goTo(+d.getAttribute('data-dot-index')); resetTimer(); });
+    });
+
+    var imgPanel = document.getElementById('mmspx-imgs-' + sid);
+    var tx = 0;
+    if (imgPanel) {
+      imgPanel.addEventListener('touchstart', function (e) { tx = e.changedTouches[0].clientX; }, { passive: true });
+      imgPanel.addEventListener('touchend', function (e) {
+        var dx = e.changedTouches[0].clientX - tx;
+        if (Math.abs(dx) > 40) { goTo(dx < 0 ? cur + 1 : cur - 1); resetTimer(); }
+      }, { passive: true });
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft')  { goTo(cur - 1); resetTimer(); }
+      if (e.key === 'ArrowRight') { goTo(cur + 1); resetTimer(); }
+    });
+
+    var autoplayEnabled = {{ section.settings.autoplay_enabled | json }};
+    var autoplayDelay   = {{ section.settings.autoplay_delay | times: 1000 }};
+    var timer = null;
+
+    function startTimer() {
+      if (!autoplayEnabled) return;
+      stopTimer();
+      timer = setInterval(function () { goTo(cur + 1); }, autoplayDelay);
+    }
+    function stopTimer() {
+      if (timer) { clearInterval(timer); timer = null; }
+    }
+    function resetTimer() {
+      if (autoplayEnabled) startTimer();
+    }
+
+    var card = document.querySelector('[data-section-id="{{ section.id }}"] .mmspx-card');
+    if (card && autoplayEnabled) {
+      card.addEventListener('mouseenter', stopTimer);
+      card.addEventListener('mouseleave', startTimer);
+    }
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stopTimer(); else if (autoplayEnabled) startTimer();
+    });
+
+    if (autoplayEnabled) startTimer();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { initMmspx('{{ section.id }}'); });
+  } else {
+    initMmspx('{{ section.id }}');
+  }
+})();
+</script>
+
+{% schema %}
+{
+  "name": "CS MEDITATION",
+  "tag": "section",
+  "class": "mmspx-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Outer Section Spacing"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_v",
+      "label": "Vertical Padding",
+      "default": 80, "min": 0, "max": 160, "step": 5, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_h",
+      "label": "Horizontal Padding",
+      "default": 120, "min": 0, "max": 200, "step": 5, "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Inner Card Spacing"
+    },
+    {
+      "type": "range",
+      "id": "card_padding_top",
+      "label": "Card Top & Bottom Padding",
+      "default": 80, "min": 0, "max": 160, "step": 5, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_padding_h",
+      "label": "Card Left & Right Padding",
+      "default": 60, "min": 0, "max": 160, "step": 5, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_gap",
+      "label": "Column Gap",
+      "default": 60, "min": 0, "max": 160, "step": 5, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "text_col_width",
+      "label": "Text Column Width",
+      "default": 640, "min": 320, "max": 900, "step": 10, "unit": "px",
+      "info": "Fixed width of the text column. Image column fills remaining space."
+    },
+    {
+      "type": "header",
+      "content": "Autoplay"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay_enabled",
+      "label": "Enable Autoplay",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autoplay_delay",
+      "label": "Autoplay Delay",
+      "default": 5,
+      "min": 2,
+      "max": 15,
+      "step": 1,
+      "unit": "s"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "section_bg",
+      "label": "Section Background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "card_bg",
+      "label": "Card Background",
+      "default": "#FFF9F5"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Body Text Color",
+      "default": "#3D3D3D"
+    },
+    {
+      "type": "color",
+      "id": "label_color",
+      "label": "Bold Label Color",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "color",
+      "id": "divider_color",
+      "label": "Divider Color",
+      "default": "#C8C0B8"
+    },
+    {
+      "type": "color",
+      "id": "btn_text_color",
+      "label": "Button Text Color",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "color",
+      "id": "btn_border_color",
+      "label": "Button Border / Hover Fill",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "color",
+      "id": "dot_inactive_color",
+      "label": "Dot — Inactive",
+      "default": "#B0A89E"
+    },
+    {
+      "type": "color",
+      "id": "arrow_color",
+      "label": "Arrow Color (SVG fallback)",
+      "default": "#3D3D3D"
+    },
+    {
+      "type": "header",
+      "content": "Navigation Arrows"
+    },
+    {
+      "type": "image_picker",
+      "id": "arrow_prev_image",
+      "label": "Prev Arrow Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "arrow_next_image",
+      "label": "Next Arrow Image"
+    },
+    {
+      "type": "range",
+      "id": "arrow_icon_size",
+      "label": "Arrow Image Size",
+      "default": 32, "min": 16, "max": 80, "step": 2, "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Desktop Title Size",
+      "default": 64, "min": 28, "max": 90, "step": 1, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "desc_size",
+      "label": "Desktop Body Size",
+      "default": 20, "min": 12, "max": 26, "step": 1, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "block_text_size",
+      "label": "Desktop List Size",
+      "default": 20, "min": 12, "max": 26, "step": 1, "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Section-Level Fallbacks"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Fallback Title",
+      "default": "MEDITATION & MINDFULNESS"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Fallback Description",
+      "default": "Hold a crystal in your hand or place it on your body during meditation to enhance relaxation, sharpen focus, and amplify your inner peace."
+    },
+    {
+      "type": "text",
+      "id": "btn_text",
+      "label": "Fallback Button Text",
+      "default": "LEARN MORE"
+    },
+    {
+      "type": "url",
+      "id": "btn_link",
+      "label": "Fallback Button Link"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "select",
+          "id": "image_position",
+          "label": "Image Position",
+          "options": [
+            { "value": "right", "label": "Image Right  (text on left)" },
+            { "value": "left",  "label": "Image Left   (text on right)" }
+          ],
+          "default": "right"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Slide Image"
+        },
+        {
+          "type": "header",
+          "content": "Text Content"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description"
+        },
+        {
+          "type": "header",
+          "content": "Text Rows"
+        },
+        {
+          "type": "text",
+          "id": "row1_label",
+          "label": "Row 1 — Bold Label",
+          "default": "Supported"
+        },
+        {
+          "type": "textarea",
+          "id": "row1_text",
+          "label": "Row 1 — Text",
+          "default": "Amethyst, Aquamarine, White Quartz, Moonstone"
+        },
+        {
+          "type": "text",
+          "id": "row2_label",
+          "label": "Row 2 — Bold Label",
+          "default": "Unsupported"
+        },
+        {
+          "type": "textarea",
+          "id": "row2_text",
+          "label": "Row 2 — Text",
+          "default": "None"
+        },
+        {
+          "type": "text",
+          "id": "row3_label",
+          "label": "Row 3 — Bold Label"
+        },
+        {
+          "type": "textarea",
+          "id": "row3_text",
+          "label": "Row 3 — Text"
+        },
+        {
+          "type": "text",
+          "id": "row4_label",
+          "label": "Row 4 — Bold Label"
+        },
+        {
+          "type": "textarea",
+          "id": "row4_text",
+          "label": "Row 4 — Text"
+        },
+        {
+          "type": "text",
+          "id": "row5_label",
+          "label": "Row 5 — Bold Label"
+        },
+        {
+          "type": "textarea",
+          "id": "row5_text",
+          "label": "Row 5 — Text"
+        },
+        {
+          "type": "header",
+          "content": "Button"
+        },
+        {
+          "type": "text",
+          "id": "btn_text",
+          "label": "Button Text"
+        },
+        {
+          "type": "url",
+          "id": "btn_link",
+          "label": "Button Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "CS MEDITATION",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "image_position": "right",
+            "title": "MEDITATION & MINDFULNESS",
+            "description": "Hold a crystal in your hand or place it on your body during meditation to enhance relaxation, sharpen focus, and amplify your inner peace.",
+            "row1_label": "Supported",
+            "row1_text": "Amethyst, Aquamarine, White Quartz",
+            "row2_label": "Unsupported",
+            "row2_text": "None",
+            "btn_text": "LEARN MORE"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "image_position": "left",
+            "title": "HEALING & ENERGY",
+            "description": "Channel the natural vibrations of crystals to restore your body's energy flow.",
+            "row1_label": "Supported",
+            "row1_text": "Rose Quartz, Amethyst, Selenite",
+            "row2_label": "Unsupported",
+            "row2_text": "None",
+            "btn_text": "EXPLORE"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %} {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{%- style -%}
+  .mmspx-{{ section.id }} {
+    --mmspx-bg:            {{ section.settings.section_bg }};
+    --mmspx-card-bg:       {{ section.settings.card_bg }};
+    --mmspx-title-color:   {{ section.settings.title_color }};
+    --mmspx-text-color:    {{ section.settings.text_color }};
+    --mmspx-label-color:   {{ section.settings.label_color }};
+    --mmspx-divider-color: {{ section.settings.divider_color }};
+    --mmspx-btn-text:      {{ section.settings.btn_text_color }};
+    --mmspx-btn-border:    {{ section.settings.btn_border_color }};
+    --mmspx-dot-inactive:  {{ section.settings.dot_inactive_color }};
+    --mmspx-arrow-color:   {{ section.settings.arrow_color }};
+
+    background-color: var(--mmspx-bg);
+    padding: {{ section.settings.section_padding_v }}px {{ section.settings.section_padding_h }}px;
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-card {
+    max-width: 1680px;
+    margin: 0 auto;
+    background-color: var(--mmspx-card-bg);
+    box-shadow: inset 0 0 30px 8px rgba(0, 0, 0, 0.06);
+    padding: {{ section.settings.card_padding_top }}px {{ section.settings.card_padding_h }}px;
+    box-sizing: border-box;
+    position: relative;
+  }
+
+  /* ── OUTER LAYOUT: CSS GRID FOR PERFECT ALIGNMENT ── */
+  .mmspx-{{ section.id }} .mmspx-layout {
+    display: grid;
+    grid-template-columns: {{ section.settings.text_col_width }}px 1fr;
+    grid-template-rows: auto auto; /* Row 1 for Text & Image, Row 2 for Controls */
+    column-gap: {{ section.settings.card_gap }}px;
+  }
+
+  /* img-left variant: flip columns */
+  .mmspx-{{ section.id }} .mmspx-layout.img-left {
+    grid-template-columns: 1fr {{ section.settings.text_col_width }}px;
+  }
+
+  /* ── TEXT COLUMN ── */
+  .mmspx-{{ section.id }} .mmspx-text-panel {
+    grid-column: 1;
+    grid-row: 1; /* Sits on Row 1 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 400px; /* Safe fallback */
+  }
+  .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-text-panel {
+    grid-column: 2;
+  }
+
+  /* ── IMAGE COLUMN ── */
+  .mmspx-{{ section.id }} .mmspx-img-panel {
+    grid-column: 2;
+    grid-row: 1; /* Exactly parallel to text, takes identical height */
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-img-panel {
+    grid-column: 1;
+  }
+
+  /* ── CONTROLS COLUMN ── */
+  .mmspx-{{ section.id }} .mmspx-controls-panel {
+    grid-column: 2;
+    grid-row: 2; /* Sits exactly below the image */
+    padding-top: 25px;
+  }
+  .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-controls-panel {
+    grid-column: 1;
+  }
+
+  /* ── INNER IMAGE STACK (Children are absolute) ── */
+  .mmspx-{{ section.id }} .mmspx-slide-img {
+    position: absolute !important;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease-in-out;
+    visibility: hidden;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-slide-img.is-active {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-slide-img.is-leaving {
+    opacity: 0;
+    pointer-events: none;
+    visibility: visible;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-image-wrapper {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-image-wrapper img,
+  .mmspx-{{ section.id }} .mmspx-image-wrapper .placeholder-svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* ── INNER TEXT STACK (Grid stacking prevents layout jumps) ── */
+  .mmspx-{{ section.id }} .mmspx-text-stack {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    align-items: center;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-slide-text {
+    grid-area: 1 / 1 / 2 / 2; /* Forces all slides to overlap perfectly */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-sizing: border-box;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease-in-out;
+    visibility: hidden;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-slide-text.is-active {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-slide-text.is-leaving {
+    opacity: 0;
+    pointer-events: none;
+    visibility: visible;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  .mmspx-{{ section.id }} .mmspx-title {
+    font-family: var(--font-heading-family, 'Libre Caslon Text', serif);
+    font-size: {{ section.settings.title_size }}px;
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--mmspx-title-color);
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-desc {
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: {{ section.settings.desc_size }}px;
+    font-weight: 400;
+    line-height: 1.65;
+    color: var(--mmspx-text-color);
+    margin: 0;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-divider {
+    border: none;
+    border-top: 1.5px solid var(--mmspx-divider-color);
+    margin: 0;
+    width: 100%;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-text-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-text-block-row {
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: {{ section.settings.block_text_size }}px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--mmspx-text-color);
+    margin: 0;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-text-block-label {
+    font-weight: 700;
+    color: var(--mmspx-label-color);
+  }
+
+  /* ── BUTTON ── */
+  .mmspx-{{ section.id }} .mmspx-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 350px;
+    max-width: 100%;
+    height: 55px;
+    background-color: transparent;
+    color: var(--mmspx-btn-text);
+    border: 1px solid var(--mmspx-btn-border);
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: 16px;
+    font-weight: 400;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-btn:hover {
+   background: linear-gradient(135deg, #947863, #E9DDD4, #947863) !important;
+    color: #FFF;
+  }
+
+  /* ── CONTROLS STYLING ── */
+  .mmspx-{{ section.id }} .mmspx-controls {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-arrow-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--mmspx-arrow-color);
+    opacity: 0.55;
+    transition: opacity 0.2s;
+    line-height: 0;
+    flex-shrink: 0;
+  }
+  .mmspx-{{ section.id }} .mmspx-arrow-btn:hover { opacity: 1; }
+  .mmspx-{{ section.id }} .mmspx-arrow-btn .mmspx-arrow-svg {
+    width: 22px;
+    height: 16px;
+    display: block;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-dot-strip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+  }
+  .mmspx-{{ section.id }} .mmspx-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--mmspx-dot-inactive);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .mmspx-{{ section.id }} .mmspx-dot.is-active {
+    background: linear-gradient(180deg, #947863 0%, #E9DDD4 50%, #947863 100%) !important;
+    transform: scale(1.3);
+  }
+
+
+  
+
+  /* ══════════════════════════════════════════════
+     RESPONSIVE BREAKPOINTS
+  ══════════════════════════════════════════════ */
+
+
+  /* ─── MacBook Air 15 inch M2 (1441px - 1728px) ───────────────── */
+@media (min-width: 1441px) and (max-width: 1728px) {
+  .mmspx-{{ section.id }} .mmspx-title {
+    font-size: 54px;
+  }
+  .mmspx-{{ section.id }} .mmspx-desc,
+  .mmspx-{{ section.id }} .mmspx-text-block-row {
+    font-size: 18px;
+  }
+  .mmspx-{{ section.id }} .mmspx-layout {
+    grid-template-columns: 560px 1fr;
+  }
+  .mmspx-{{ section.id }} .mmspx-layout.img-left {
+    grid-template-columns: 1fr 560px;
+  }
+  .mmspx-{{ section.id }} .mmspx-btn {
+    width: 320px;
+  }
+}
+
+
+  @media (max-width: 1440px) {
+    .mmspx-{{ section.id }} .mmspx-title {
+      font-size: 46px; 
+    }
+    .mmspx-{{ section.id }} .mmspx-desc,
+    .mmspx-{{ section.id }} .mmspx-text-block-row {
+      font-size: 16px; 
+    }
+    .mmspx-{{ section.id }} .mmspx-layout {
+      grid-template-columns: 500px 1fr;
+    }
+    .mmspx-{{ section.id }} .mmspx-layout.img-left {
+      grid-template-columns: 1fr 500px;
+    }
+    .mmspx-{{ section.id }} .mmspx-btn {
+      width: 280px;
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .mmspx-{{ section.id }} {
+      padding: 60px 40px;
+    }
+    .mmspx-{{ section.id }} .mmspx-card {
+      padding: 50px 40px;
+    }
+    .mmspx-{{ section.id }} .mmspx-layout,
+    .mmspx-{{ section.id }} .mmspx-layout.img-left {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
+    }
+    .mmspx-{{ section.id }} .mmspx-img-panel,
+    .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-img-panel {
+      grid-column: 1 !important;
+      grid-row: 1 !important; /* Image on top */
+      aspect-ratio: 16 / 10;
+    }
+    .mmspx-{{ section.id }} .mmspx-controls-panel,
+    .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-controls-panel {
+      grid-column: 1 !important;
+      grid-row: 2 !important; /* Controls under image */
+      padding-top: 20px;
+      padding-bottom: 40px;
+    }
+    .mmspx-{{ section.id }} .mmspx-text-panel,
+    .mmspx-{{ section.id }} .mmspx-layout.img-left .mmspx-text-panel {
+      grid-column: 1 !important;
+      grid-row: 3 !important; /* Text at bottom */
+      min-height: auto;
+    }
+    .mmspx-{{ section.id }} .mmspx-title {
+      font-size: 36px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .mmspx-{{ section.id }} {
+      padding: 32px 16px;
+    }
+    .mmspx-{{ section.id }} .mmspx-card {
+      padding: 28px 18px;
+    }
+    .mmspx-{{ section.id }} .mmspx-title {
+      font-size: 28px; 
+      line-height: 1.2;
+    }
+    .mmspx-{{ section.id }} .mmspx-desc,
+    .mmspx-{{ section.id }} .mmspx-text-block-row {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .mmspx-{{ section.id }} .mmspx-img-panel {
+      aspect-ratio: 4 / 3;
+    }
+    .mmspx-{{ section.id }} .mmspx-btn {
+      width: 100%;
+      height: 50px;
+    }
+  }
+
+{%- endstyle -%}
+
+{%- assign slide_blocks = section.blocks | where: "type", "slide" -%}
+{%- assign first_slide  = slide_blocks | first -%}
+{%- assign img_pos_first = first_slide.settings.image_position | default: 'right' -%}
+
+<section class="mmspx-{{ section.id }}" data-section-id="{{ section.id }}">
+  <div class="mmspx-card">
+
+    <div class="mmspx-layout{% if img_pos_first == 'left' %} img-left{% endif %}" id="mmspx-layout-{{ section.id }}">
+
+      <div class="mmspx-text-panel mmspx-text-stack" id="mmspx-texts-{{ section.id }}">
+        {%- for block in slide_blocks -%}
+          {%- assign slide_title = block.settings.title      | default: section.settings.title -%}
+          {%- assign slide_desc  = block.settings.description | default: section.settings.description -%}
+          {%- assign slide_btn   = block.settings.btn_text    | default: section.settings.btn_text -%}
+          {%- assign slide_link  = block.settings.btn_link    | default: section.settings.btn_link -%}
+
+          {%- assign has_rows = false -%}
+          {%- if block.settings.row1_text != blank -%}{%- assign has_rows = true -%}{%- endif -%}
+          {%- if block.settings.row2_text != blank -%}{%- assign has_rows = true -%}{%- endif -%}
+          {%- if block.settings.row3_text != blank -%}{%- assign has_rows = true -%}{%- endif -%}
+          {%- if block.settings.row4_text != blank -%}{%- assign has_rows = true -%}{%- endif -%}
+          {%- if block.settings.row5_text != blank -%}{%- assign has_rows = true -%}{%- endif -%}
+
+          <div class="mmspx-slide-text {% if forloop.first %}is-active{% endif %}"
+               data-slide-index="{{ forloop.index0 }}"
+               {{ block.shopify_attributes }}>
+
+            {%- if slide_title != blank -%}
+              <h2 class="mmspx-title">{{ slide_title }}</h2>
+            {%- endif -%}
+
+            {%- if slide_desc != blank -%}
+              <p class="mmspx-desc">{{ slide_desc }}</p>
+            {%- endif -%}
+
+            {%- if has_rows -%}
+              <hr class="mmspx-divider">
+              <div class="mmspx-text-blocks">
+                {%- if block.settings.row1_text != blank -%}
+                  <p class="mmspx-text-block-row">
+                    {%- if block.settings.row1_label != blank -%}<span class="mmspx-text-block-label">{{ block.settings.row1_label }}: </span>{%- endif -%}
+                    {{- block.settings.row1_text -}}
+                  </p>
+                {%- endif -%}
+                {%- if block.settings.row2_text != blank -%}
+                  <p class="mmspx-text-block-row">
+                    {%- if block.settings.row2_label != blank -%}<span class="mmspx-text-block-label">{{ block.settings.row2_label }}: </span>{%- endif -%}
+                    {{- block.settings.row2_text -}}
+                  </p>
+                {%- endif -%}
+                {%- if block.settings.row3_text != blank -%}
+                  <p class="mmspx-text-block-row">
+                    {%- if block.settings.row3_label != blank -%}<span class="mmspx-text-block-label">{{ block.settings.row3_label }}: </span>{%- endif -%}
+                    {{- block.settings.row3_text -}}
+                  </p>
+                {%- endif -%}
+                {%- if block.settings.row4_text != blank -%}
+                  <p class="mmspx-text-block-row">
+                    {%- if block.settings.row4_label != blank -%}<span class="mmspx-text-block-label">{{ block.settings.row4_label }}: </span>{%- endif -%}
+                    {{- block.settings.row4_text -}}
+                  </p>
+                {%- endif -%}
+                {%- if block.settings.row5_text != blank -%}
+                  <p class="mmspx-text-block-row">
+                    {%- if block.settings.row5_label != blank -%}<span class="mmspx-text-block-label">{{ block.settings.row5_label }}: </span>{%- endif -%}
+                    {{- block.settings.row5_text -}}
+                  </p>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+
+            {%- if slide_btn != blank -%}
+              <div>
+                <a href="{{ slide_link | default: '#' }}" class="mmspx-btn">{{ slide_btn }}</a>
+              </div>
+            {%- endif -%}
+
+          </div>
+        {%- endfor -%}
+      </div>
+
+      <div class="mmspx-img-panel mmspx-img-stack" id="mmspx-imgs-{{ section.id }}">
+        {%- for block in slide_blocks -%}
+          {%- assign slide_title = block.settings.title | default: section.settings.title -%}
+          <div class="mmspx-slide-img {% if forloop.first %}is-active{% endif %}"
+               data-slide-index="{{ forloop.index0 }}">
+            <div class="mmspx-image-wrapper">
+              {%- if block.settings.image != blank -%}
+                <img
+                  src="{{ block.settings.image | image_url: width: 1440 }}"
+                  alt="{{ block.settings.image.alt | default: slide_title | escape }}"
+                  loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                  width="720" height="535">
+              {%- else -%}
+                {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+
+      {%- if slide_blocks.size > 1 -%}
+        <div class="mmspx-controls-panel">
+          <div class="mmspx-controls">
+
+            <button class="mmspx-arrow-btn" id="mmspx-prev-{{ section.id }}" aria-label="Previous slide">
+              {% comment %} {%- if section.settings.arrow_prev_image != blank -%}
+                <img class="mmspx-arrow-img" src="{{ section.settings.arrow_prev_image | image_url: width: 80 }}" alt="Previous" width="{{ section.settings.arrow_icon_size }}" height="{{ section.settings.arrow_icon_size }}" loading="lazy">
+              {%- else -%}
+                <svg class="mmspx-arrow-svg" viewBox="0 0 22 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 2L3 8L10 14"/><path d="M19 2L12 8L19 14"/>
+                </svg>
+              {%- endif -%} {% endcomment %}
+
+              <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="20" viewBox="0 0 24 20" fill="none">
+<rect width="17" height="20" transform="matrix(-1 0 0 1 24 0)" fill="url(#pattern0_7751_6052)" fill-opacity="0.5"/>
+<rect width="17" height="20" transform="matrix(-1 0 0 1 17 0)" fill="url(#pattern1_7751_6052)" fill-opacity="0.5"/>
+<defs>
+<pattern id="pattern0_7751_6052" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image0_7751_6052" transform="matrix(0.00452489 0 0 0.00384615 0 -0.00384615)"/>
+</pattern>
+<pattern id="pattern1_7751_6052" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image0_7751_6052" transform="matrix(0.00452489 0 0 0.00384615 0 -0.00384615)"/>
+</pattern>
+<image id="image0_7751_6052" width="221" height="262" preserveAspectRatio="none" xlink:href="data:image/png;base64,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"/>
+</defs>
+</svg>
+            </button>
+
+            <div class="mmspx-dot-strip" id="mmspx-dots-{{ section.id }}">
+              {%- for block in slide_blocks -%}
+                <button class="mmspx-dot {% if forloop.first %}is-active{% endif %}" data-dot-index="{{ forloop.index0 }}" aria-label="Slide {{ forloop.index }}"></button>
+              {%- endfor -%}
+            </div>
+
+            <button class="mmspx-arrow-btn" id="mmspx-next-{{ section.id }}" aria-label="Next slide">
+              {% comment %} {%- if section.settings.arrow_next_image != blank -%}
+                <img class="mmspx-arrow-img" src="{{ section.settings.arrow_next_image | image_url: width: 80 }}" alt="Next" width="{{ section.settings.arrow_icon_size }}" height="{{ section.settings.arrow_icon_size }}" loading="lazy">
+              {%- else -%}
+                <svg class="mmspx-arrow-svg" viewBox="0 0 22 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2L19 8L12 14"/><path d="M3 2L10 8L3 14"/>
+                </svg>
+              {%- endif -%} {% endcomment %}
+               <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="20" viewBox="0 0 24 20" fill="none">
+<rect width="17" height="20" fill="url(#pattern0_7751_6057)" fill-opacity="0.5"/>
+<rect x="7" width="17" height="20" fill="url(#pattern1_7751_6057)" fill-opacity="0.5"/>
+<defs>
+<pattern id="pattern0_7751_6057" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image0_7751_6057" transform="matrix(0.00452489 0 0 0.00384615 0 -0.00384615)"/>
+</pattern>
+<pattern id="pattern1_7751_6057" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image0_7751_6057" transform="matrix(0.00452489 0 0 0.00384615 0 -0.00384615)"/>
+</pattern>
+<image id="image0_7751_6057" width="221" height="262" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN0AAAEGCAYAAADhSpBCAAAABGdBTUEAALGPC/xhBQAACklpQ0NQc1JHQiBJRUM2MTk2Ni0yLjEAAEiJnVN3WJP3Fj7f92UPVkLY8LGXbIEAIiOsCMgQWaIQkgBhhBASQMWFiApWFBURnEhVxILVCkidiOKgKLhnQYqIWotVXDjuH9yntX167+3t+9f7vOec5/zOec8PgBESJpHmomoAOVKFPDrYH49PSMTJvYACFUjgBCAQ5svCZwXFAADwA3l4fnSwP/wBr28AAgBw1S4kEsfh/4O6UCZXACCRAOAiEucLAZBSAMguVMgUAMgYALBTs2QKAJQAAGx5fEIiAKoNAOz0ST4FANipk9wXANiiHKkIAI0BAJkoRyQCQLsAYFWBUiwCwMIAoKxAIi4EwK4BgFm2MkcCgL0FAHaOWJAPQGAAgJlCLMwAIDgCAEMeE80DIEwDoDDSv+CpX3CFuEgBAMDLlc2XS9IzFLiV0Bp38vDg4iHiwmyxQmEXKRBmCeQinJebIxNI5wNMzgwAABr50cH+OD+Q5+bk4eZm52zv9MWi/mvwbyI+IfHf/ryMAgQAEE7P79pf5eXWA3DHAbB1v2upWwDaVgBo3/ldM9sJoFoK0Hr5i3k4/EAenqFQyDwdHAoLC+0lYqG9MOOLPv8z4W/gi372/EAe/tt68ABxmkCZrcCjg/1xYW52rlKO58sEQjFu9+cj/seFf/2OKdHiNLFcLBWK8ViJuFAiTcd5uVKRRCHJleIS6X8y8R+W/QmTdw0ArIZPwE62B7XLbMB+7gECiw5Y0nYAQH7zLYwaC5EAEGc0Mnn3AACTv/mPQCsBAM2XpOMAALzoGFyolBdMxggAAESggSqwQQcMwRSswA6cwR28wBcCYQZEQAwkwDwQQgbkgBwKoRiWQRlUwDrYBLWwAxqgEZrhELTBMTgN5+ASXIHrcBcGYBiewhi8hgkEQcgIE2EhOogRYo7YIs4IF5mOBCJhSDSSgKQg6YgUUSLFyHKkAqlCapFdSCPyLXIUOY1cQPqQ28ggMor8irxHMZSBslED1AJ1QLmoHxqKxqBz0XQ0D12AlqJr0Rq0Hj2AtqKn0UvodXQAfYqOY4DRMQ5mjNlhXIyHRWCJWBomxxZj5Vg1Vo81Yx1YN3YVG8CeYe8IJAKLgBPsCF6EEMJsgpCQR1hMWEOoJewjtBK6CFcJg4Qxwicik6hPtCV6EvnEeGI6sZBYRqwm7iEeIZ4lXicOE1+TSCQOyZLkTgohJZAySQtJa0jbSC2kU6Q+0hBpnEwm65Btyd7kCLKArCCXkbeQD5BPkvvJw+S3FDrFiOJMCaIkUqSUEko1ZT/lBKWfMkKZoKpRzame1AiqiDqfWkltoHZQL1OHqRM0dZolzZsWQ8ukLaPV0JppZ2n3aC/pdLoJ3YMeRZfQl9Jr6Afp5+mD9HcMDYYNg8dIYigZaxl7GacYtxkvmUymBdOXmchUMNcyG5lnmA+Yb1VYKvYqfBWRyhKVOpVWlX6V56pUVXNVP9V5qgtUq1UPq15WfaZGVbNQ46kJ1Bar1akdVbupNq7OUndSj1DPUV+jvl/9gvpjDbKGhUaghkijVGO3xhmNIRbGMmXxWELWclYD6yxrmE1iW7L57Ex2Bfsbdi97TFNDc6pmrGaRZp3mcc0BDsax4PA52ZxKziHODc57LQMtPy2x1mqtZq1+rTfaetq+2mLtcu0W7eva73VwnUCdLJ31Om0693UJuja6UbqFutt1z+o+02PreekJ9cr1Dund0Uf1bfSj9Rfq79bv0R83MDQINpAZbDE4Y/DMkGPoa5hpuNHwhOGoEctoupHEaKPRSaMnuCbuh2fjNXgXPmasbxxirDTeZdxrPGFiaTLbpMSkxeS+Kc2Ua5pmutG003TMzMgs3KzYrMnsjjnVnGueYb7ZvNv8jYWlRZzFSos2i8eW2pZ8ywWWTZb3rJhWPlZ5VvVW16xJ1lzrLOtt1ldsUBtXmwybOpvLtqitm63Edptt3xTiFI8p0in1U27aMez87ArsmuwG7Tn2YfYl9m32zx3MHBId1jt0O3xydHXMdmxwvOuk4TTDqcSpw+lXZxtnoXOd8zUXpkuQyxKXdpcXU22niqdun3rLleUa7rrStdP1o5u7m9yt2W3U3cw9xX2r+00umxvJXcM970H08PdY4nHM452nm6fC85DnL152Xlle+70eT7OcJp7WMG3I28Rb4L3Le2A6Pj1l+s7pAz7GPgKfep+Hvqa+It89viN+1n6Zfgf8nvs7+sv9j/i/4XnyFvFOBWABwQHlAb2BGoGzA2sDHwSZBKUHNQWNBbsGLww+FUIMCQ1ZH3KTb8AX8hv5YzPcZyya0RXKCJ0VWhv6MMwmTB7WEY6GzwjfEH5vpvlM6cy2CIjgR2yIuB9pGZkX+X0UKSoyqi7qUbRTdHF09yzWrORZ+2e9jvGPqYy5O9tqtnJ2Z6xqbFJsY+ybuIC4qriBeIf4RfGXEnQTJAntieTE2MQ9ieNzAudsmjOc5JpUlnRjruXcorkX5unOy553PFk1WZB8OIWYEpeyP+WDIEJQLxhP5aduTR0T8oSbhU9FvqKNolGxt7hKPJLmnVaV9jjdO31D+miGT0Z1xjMJT1IreZEZkrkj801WRNberM/ZcdktOZSclJyjUg1plrQr1zC3KLdPZisrkw3keeZtyhuTh8r35CP5c/PbFWyFTNGjtFKuUA4WTC+oK3hbGFt4uEi9SFrUM99m/ur5IwuCFny9kLBQuLCz2Lh4WfHgIr9FuxYji1MXdy4xXVK6ZHhp8NJ9y2jLspb9UOJYUlXyannc8o5Sg9KlpUMrglc0lamUycturvRauWMVYZVkVe9ql9VbVn8qF5VfrHCsqK74sEa45uJXTl/VfPV5bdra3kq3yu3rSOuk626s91m/r0q9akHV0IbwDa0b8Y3lG19tSt50oXpq9Y7NtM3KzQM1YTXtW8y2rNvyoTaj9nqdf13LVv2tq7e+2Sba1r/dd3vzDoMdFTve75TsvLUreFdrvUV99W7S7oLdjxpiG7q/5n7duEd3T8Wej3ulewf2Re/ranRvbNyvv7+yCW1SNo0eSDpw5ZuAb9qb7Zp3tXBaKg7CQeXBJ9+mfHvjUOihzsPcw83fmX+39QjrSHkr0jq/dawto22gPaG97+iMo50dXh1Hvrf/fu8x42N1xzWPV56gnSg98fnkgpPjp2Snnp1OPz3Umdx590z8mWtdUV29Z0PPnj8XdO5Mt1/3yfPe549d8Lxw9CL3Ytslt0utPa49R35w/eFIr1tv62X3y+1XPK509E3rO9Hv03/6asDVc9f41y5dn3m978bsG7duJt0cuCW69fh29u0XdwruTNxdeo94r/y+2v3qB/oP6n+0/rFlwG3g+GDAYM/DWQ/vDgmHnv6U/9OH4dJHzEfVI0YjjY+dHx8bDRq98mTOk+GnsqcTz8p+Vv9563Or59/94vtLz1j82PAL+YvPv655qfNy76uprzrHI8cfvM55PfGm/K3O233vuO+638e9H5ko/ED+UPPR+mPHp9BP9z7nfP78L/eE8/stRzjPAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAJcEhZcwAACxMAAAsTAQCanBgAABBFSURBVHic7d1vzF9lfQbwq1Sg3UALtCgpA7Yap2WXiqExwWSMifqCscH+sOEgW6JNJAuZIyabvNreDF6MMRZjssCrYba4ZLOySczq0LDoXCAKXALT+CfVYk3b2VK68lDa/vbiOb/6WJ4/5899zve+z7k+L+Hh97t4+rt6n9997nPf62azGaKRvBXAwwA2SToancesT6+LfHOSmwAcWvKPjgA4KyaN2TDCPuAkj+CnCwcA60hujshjNpTBRzqSfwrg3lV+5EcIHoHN+jTYh3uZS8mVrO85ilmoQS4vV7iUXO3nP9NjHLNQvY50JL8NYFuL//SmxFHMstHLSEfyr0jO0K5w89e4LWEks2ysS3mfjuRWAHtTvZ6kdaleyywXSUpHcgOAYwBSl+R9kr6Q+DXNQnW+vCT5PQAvI33hAGB3D69pFqp16UjeWn1vuyJdnGXf5w/6fH2zoTW+vKwuJV/uJ87y/N3OxqTRSEfyRQxcuOp9fd/ORqPWfTqS1yP2+9VNge9tltSal5ckTyCPpVmHJF0YHcKsqxVHOpJXA3hiwCxruSA6gFkKy450JA8CuGj4OGuaSfLzdla0lT7ADw6aor51JK+JDmHWxYrf6ap7cFnyLQQr2WqXak8OlqIhkruiM5i1tWLpJO0YMkhDvxEdwKyttSYlvjREiDZIvhKdwayNOvfpsv1uB+AqSU9FhzBros70+z29p2jv69EBzJqqteA589HO9+6sKHU/rFf2mqKbdSRvjA5hVlet0kl6ru8gHT0SHcCsriaXZWf3liIBkgvRGczqqF06SScAPNNjlq7OJfnO6BBma2k0ASHpHX0FScSzmZa9NrN+rfeyHALJU9EZzFbTuHSSvgsg5+9P67y9g+Ws9b6Xmd+7A4CNknL+y8EmqstN5UuTpejH4BsomdXRunSSXgBwPGGW5Eh+PzqD2Zk6b6tewGXm5ZJcPstGijWL5yd4jT7tiQ5gtlTn0kk6CuD5BFl6U8BobBOS7KisAj7YJyX5LHMLl/KRmI0JX6sP60n+c3QIs2Slq+6JZb1aBcBvkvzz6BA2bUlPYgU6nTM+pEurWx5mg0v+xLWkNwPI/ftdsiOazZrqZZuDErZP8MJoi9JnObJ+6BWLC6NPRIew6emtdNVDr7f39fqJrCf5zegQNi3JJ1LORPIY8r+dcJ+kj0WHsGnovXRAETfOAeAGSY9Gh7DxG6R0QDHFu7KAnc+scIOVDiimeNuqp+PNejH01P4vDvx+bXyH5JuiQ9h4DVo6Sd8CcPeQ79nSPpIbokPYOA16eTlH8gCAzYO/cXNnV7c+zJIJWTkiaQsy3+qh8mp0ABufkJFurpCJFZ9xbkmFlg4op3jwln6WSPjC5IJGkZc9uWIphJeukvvi6DkXzzrLonTVDGFJxTsvOoSVK4vSAaeLl/t2fnMvkdwUHcLKlE3pgNPb+V0QnaOmQyQviw5h5cmqdAAg6TCALdE5atpD8uroEFaW7EoHAJIOopwR7wmS10WHsHKE36dbTTVh8VJ0jpoek/Te6BCWv6xLN1fQDfRTktZHh7C8ZXl5eaaCbqCfVdBfEBakiNIBRRWvpJHZAhRxeblUYR/oLdWkkNlpxYx0c9WIdzI6R00HSH44OoTlpbiRbo7k0wDeHp2jpv2S3hgdwvJQ3Eg3J+kdAO6PzlHTxYVdFluPih3p5qqlWCUdcezdxiau+NLNFTaS7JT0UHQIizGa0gGnT+Ip5daCj2OeqFGVDgBIfhnANdE5GvABlRNT7ETKSiS9B8DO6BwN7CX5b9EhbDijG+nmSG4GcCA6RwOzEg7TtO5GW7q5wr7nAQAlfSM6hPVn9H+zVqPHF6NzNCCS/xsdwvoz+pFujuR2AM9G52jIe22O0GRKN1fg5eYeSVdEh7B0Jlc6ACD5HIC3Redo6BJJP4oOYd2N/jvdciRtB3B5dI6G9pH8enQI626SI91SJBcAnBudoyHfUC/YJEe6pSRtQFk304HFG+r/Fx3C2pn8SDdH8nUo8zw6j3qFcenOQPIRADdG52jouKTSLpEny6VbBsmtAPZG52jhfkl3RYew1bl0qyD5NQBXRedoaAbg9dW5EJYhl24NBS6cnjsg6eLoEPZaLl1NJI+jnDP0lvqEpDujQ9hPuHQNkHwTgH3ROVryHpyZcOlaIPk8gLdG52jBs5wZcOlaqu7rHUdZi6fnnpJU2gTRaLh0HZH8AIDPR+doabek90eHmBqXLhGSrwIodXeveyTdHR1iKly6hEhuAnAoOkcHPthyAC5dD0g+BOBD0Tk6+KikB6JDjJVL1yOShwG8ITpHBzdIejQ6xNi4dD2rZjkXAJR8LPLNknZFhxgLl24gJM8DcARl3mKY8/aACbh0AyP5SwCeQdnl+4ikv4sOUSqXLgjJ6wHsjs7R0S5JN0eHKI1LF4zkHQA+GZ2jox9Luig6RClcukxUZ5M/GJ0jgR2SnowOkTOXLjMkPw3glugcCTwu6droEDly6TJF8jYAD0fnSOAUgK3eKPcnXLrMkXw3gK9G50jED9TCpStGtW3EfpR9q2HuEIDLprqPi0tXGJIbALwI4JzoLIlMbp2nS1eoannZDwFsic6SyFEsHpIy+tHPpRsBkrcC+IfoHAndLulT0SH64tKNSLW+8wCADdFZEjkB4OfGNvPp0o3UCJ7pO9PfA/iQpBPRQbpy6UauGv32A9gYnSWRGYA7Sl5w7dJNyAi/+50CcJ2kx6ODNOHSTVB12+G/ALwzOEpK+wFsK2H206WbuOry8wcANgVHSel/sPjAbZbf/1w6O616wPa/AfxMdJZEZgB+Lbd9Xlw6WxbJuwDcF50jsd+V9E/RIVw6W1W18uVeAHdhHOs+5/4di7udDX4J6tJZIyTvBPA3AM4KjpLSZwH8nqSFId7MpbPWSN4C4B8xrgJ+CcCNfc6CunSWBMntAJ5Guec5LOcYgGtTbz/h0lly1eGZ/wFge3SWhE4C+GVJX+n6Qi6d9aqaiPl9AA9hXKPg30r64zb/oUtngyL5FiyuhrkwOktCnwPw23UnYlw6C1OthrkXwB9FZ0loH4B3rfY4kktnWaguQ38HwAMYz9PwR7A4E/pTC7JdOstStSj7XQD+E+O4JXEQiw/kLozhf8asKGOaTbKCTeny0qWzMFOdSHHpbFC+ZeDSWc98c/y1xvRLsEx4GdjqXDpLwgue6xvTL8gG5kd72nHprBE/xNqdS2er8nYN6bl0tixvTNQfl85O8xZ8w3DpJs6bzQ7PpZsgb6sey6WbEB8gkgeXbuR8VFZ+XLqR8qGQ+XLpRsTHH5fBpRuBEX5Xu13Sp6JD9MWlK1S1UuSHGM9T1kcBXFLC7GNXLl1hqun+FwGcE50lkY9KeiA6xJBcukKQ3IzFWcgxrH88BOCyKYxqy3HpMkfy3QC+Gp0jkU9IujM6RDSXLlMkbwPwcHSOBE4B2Dq2GcguXLrMkPw0gFuicyTwuKRro0PkyKXLBMkPA3gwOkcCO1JvbzA2Ll0wkncA+GR0jo5+LOmi6BClcOmCkLwewO7oHB3tknRzdIjSuHQDqx4UfQZlT/1/pOQFx9FcuoFU6yKPoOyyUdI3okOUzqXrWbVcawHA+ugsHdwsaVd0iLFw6XpE8jCAN0Tn6OCG3PYXGQOXrgcjeJZtcushh+TSJURyExbXFZbqMUnvjQ4xdi5dIiRfRbm/z3sk3R0dYipK/ZBkg+QHAHw+OkdLuyW9PzrE1Lh0LVWzksdR5i2ApyRdFR1iqly6Fkg+D+Ct0TlaOC7p3OgQU+fSNVAddrgvOkdLWyQdjA5hLl1tJI8DODs6Rwt+cDQzLt0aqm0SDkTnaOGApIujQ9hrjelgv+RIfg3lFW4G4HwXLl8e6ZZBciuAvdE5Wrhf0l3RIWx1Lt0ZSD4C4MboHA15VrIgLl2luu/2anSOFi6V9EJ0CKvPpUOx+5Mck/Sz0SGsucmXjuQCgNIuzTy6FWyypSN5GYA90Tka8vKtEZhk6Ug+B+Bt0TkausQbto7D5EpH8hTKWqS8R9IV0SEsncmUjuR2AM9G52hoo6SF6BCW1iRKR/IxANdF52jAm7eO2OhLV+DlpLe5G7nRlq7AhcozSV4LOwGj/EOubnaXVLjPuXDTMbqRjuSXAVwTnaMB3+iemFGVrrDvbycljer3b/WM5pKG5AzlFG6nCzddxf/BF7ica5uk70aHsDhFl47kXwP4k+gcdUkqZSS2HhVbOpJPA3h7dI6a9kt6Y3QIy0OR3+lInkA5hdvpwtlSxY101YRJKbzXpL1GUaUrqXD+/mYrKeby0oWzsSiidAUV7pQLZ2vJ+vKS5HkAXorOUZMPVLRash3pqlNNSyncr7pwVleWI11hj+XskPRkdAgrx7rZLK+vS4Wd2325pO9Hh7CyZFW6wr7DXSDpcHQIK082pStsW/PzJR2NDmFlyuI7XWGF8w5d1kkus5cunE1GeOkKuvHtwlkSoZeXpRTOq0wspbCRjuQrUe/dhAtnqYWUjuQBAOdEvHdDZ0cHsPEZvHQkPw5g89Dv28JGSSeiQ9j4DHqfjuRbAHxzsDdsz8dSWW+GHulKKNw2F876NFjpCpmpvNLb41nfBildIYW7QdJz0SFs/HovHcljfb9HAvdJejQ6hE1Dr6UjeRuAjX2+RwLfkvSx6BA2Hb3NXhayiNmHeNjg+hzpci/czIWzCL2UrjqyKms+hNGiJP/gkfw28j+y6tLoADZdSUtH8hcAbEv5mj34C598apGSTaSQ3ADg5SQv1p9/kfRb0SFs2lKOdLkX7qQLZzlIUjqS2a/k8Eyl5aLz5WUJ2+b5QVTLSYqRLuvCAbg8OoDZUp1KV8CWCz/wDsyWm9aXlyS3AtibNk5avqy0HHUZ6bIuHPJfaG0T1ap0JHO/PbDLe1RarhpfXlarTr7TT5wkZl5XaTlr8+HMuXBeyGzZa/QBJfl0X0ESuSo6gNlaal9eFvBQ6iuSNkSHMFtLk5Eu58LBhbNS1Codye19B+no16MDmNVVd6R7ttcU3cwk/Wt0CLO61iwdyb8cIkhbnq200tT5wH689xTtebbSirNq6Uh+caggLRyX9FR0CLOm1hrpfmWIEG1IOjc6g1kbK5aO5BNDBmnos9EBzNpabaS7erAUDUm6KTqDWVvLlo7kPUMHaeA90QHMulhppNs5aIr6ZpK+Eh3CrItlSydpM4AdA2dZk+/J2RisueCZ5AkA64eJs6pDki6MDmHW1ZojR7Vf5PsGyLJWDhfORqHW5ZqkL1Sb/BzpOc9KdgW9r1lybbZrGPzMAu/qZWPSeGJC0kJVgg/2kGc5fzjQ+5gNIsW26t8DcEWSNMvwKGdj03kKXtLPY3GPyT4OLw+fwDFLLdn5dED6XZ89ytkYJb3ZLOmFqij3JXi52xO8hll2ko50Z6rOH291HLJHORurXpdVSXpzVZ6mx2nt6iGOWRZ6HemWIrkJwKE6P+tRzsZssAXEkg5XZfqzNX705BB5zKIMNtKdieQRAOcv86+2SDo4dB6zoYSVDlj2ktMn7tjohX7Al1xyfhCLl5Wvj8xjNoT/Byez4TYlE21MAAAAAElFTkSuQmCC"/>
+</defs>
+</svg>
+            </button>
+
+          </div>
+        </div>
+      {%- endif -%}
+
+    </div></div></section>
+
+<script>
+(function () {
+  'use strict';
+
+  function initMmspx(sid) {
+    var textEls = Array.prototype.slice.call(document.querySelectorAll('#mmspx-texts-' + sid + ' .mmspx-slide-text'));
+    var imgEls  = Array.prototype.slice.call(document.querySelectorAll('#mmspx-imgs-'  + sid + ' .mmspx-slide-img'));
+    var total   = textEls.length;
+    if (total < 2) return;
+
+    var dotsEl = document.getElementById('mmspx-dots-' + sid);
+    var dots   = dotsEl ? Array.prototype.slice.call(dotsEl.querySelectorAll('.mmspx-dot')) : [];
+    var cur    = 0;
+    var locked = false;
+    var FADE_MS = 600;
+    var lockTimeout;
+
+    function goTo(i) {
+      if (locked) return;
+      var next = (i % total + total) % total;
+      if (next === cur) return;
+      
+      locked = true;
+      var prevIdx = cur;
+
+      textEls[prevIdx].classList.add('is-leaving');
+      imgEls[prevIdx].classList.add('is-leaving');
+      textEls[prevIdx].classList.remove('is-active');
+      imgEls[prevIdx].classList.remove('is-active');
+      if (dots[prevIdx]) dots[prevIdx].classList.remove('is-active');
+
+      requestAnimationFrame(function () {
+        textEls[next].classList.add('is-active');
+        imgEls[next].classList.add('is-active');
+        if (dots[next]) dots[next].classList.add('is-active');
+        cur = next;
+      });
+
+      clearTimeout(lockTimeout);
+      lockTimeout = setTimeout(function () {
+        textEls[prevIdx].classList.remove('is-leaving');
+        imgEls[prevIdx].classList.remove('is-leaving');
+        locked = false;
+      }, FADE_MS);
+    }
+
+    var prevBtn = document.getElementById('mmspx-prev-' + sid);
+    var nextBtn = document.getElementById('mmspx-next-' + sid);
+    if (prevBtn) prevBtn.addEventListener('click', function () { goTo(cur - 1); resetTimer(); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { goTo(cur + 1); resetTimer(); });
+    dots.forEach(function (d) {
+      d.addEventListener('click', function () { goTo(+d.getAttribute('data-dot-index')); resetTimer(); });
+    });
+
+    var imgPanel = document.getElementById('mmspx-imgs-' + sid);
+    var tx = 0;
+    if (imgPanel) {
+      imgPanel.addEventListener('touchstart', function (e) { tx = e.changedTouches[0].clientX; }, { passive: true });
+      imgPanel.addEventListener('touchend', function (e) {
+        var dx = e.changedTouches[0].clientX - tx;
+        if (Math.abs(dx) > 40) { goTo(dx < 0 ? cur + 1 : cur - 1); resetTimer(); }
+      }, { passive: true });
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft')  { goTo(cur - 1); resetTimer(); }
+      if (e.key === 'ArrowRight') { goTo(cur + 1); resetTimer(); }
+    });
+
+    var autoplayEnabled = {{ section.settings.autoplay_enabled | json }};
+    var autoplayDelay   = {{ section.settings.autoplay_delay | times: 1000 }};
+    var timer = null;
+
+    function startTimer() {
+      if (!autoplayEnabled || autoplayDelay < 1000) return;
+      stopTimer();
+      timer = setInterval(function () { goTo(cur + 1); }, autoplayDelay);
+    }
+    
+    function stopTimer() {
+      if (timer) { clearInterval(timer); timer = null; }
+    }
+    
+    function resetTimer() {
+      stopTimer();
+      if (autoplayEnabled) startTimer();
+    }
+
+    var card = document.querySelector('[data-section-id="' + sid + '"] .mmspx-card');
+    if (card && autoplayEnabled) {
+      card.addEventListener('mouseenter', stopTimer);
+      card.addEventListener('mouseleave', startTimer);
+    }
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stopTimer(); else if (autoplayEnabled) startTimer();
+    });
+
+    // Handle Shopify Theme Editor events to prevent double timers
+    document.addEventListener('shopify:section:unload', function(e) {
+      if (e.detail.sectionId === sid) {
+        stopTimer();
+        clearTimeout(lockTimeout);
+      }
+    });
+
+    if (autoplayEnabled) startTimer();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { initMmspx('{{ section.id }}'); });
+  } else {
+    initMmspx('{{ section.id }}');
+  }
+})();
+</script>
+
+{% schema %}
+{
+  "name": "CS MEDITATION",
+  "tag": "section",
+  "class": "mmspx-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Outer Section Spacing"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_v",
+      "label": "Vertical Padding",
+      "default": 80, "min": 0, "max": 160, "step": 5, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_h",
+      "label": "Horizontal Padding",
+      "default": 120, "min": 0, "max": 200, "step": 5, "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Inner Card Spacing"
+    },
+    {
+      "type": "range",
+      "id": "card_padding_top",
+      "label": "Card Top & Bottom Padding",
+      "default": 80, "min": 0, "max": 160, "step": 5, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_padding_h",
+      "label": "Card Left & Right Padding",
+      "default": 60, "min": 0, "max": 160, "step": 5, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_gap",
+      "label": "Column Gap",
+      "default": 60, "min": 0, "max": 160, "step": 5, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "text_col_width",
+      "label": "Text Column Width",
+      "default": 640, "min": 320, "max": 900, "step": 10, "unit": "px",
+      "info": "Fixed width of the text column. Image column fills remaining space."
+    },
+    {
+      "type": "header",
+      "content": "Autoplay"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay_enabled",
+      "label": "Enable Autoplay",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autoplay_delay",
+      "label": "Autoplay Delay",
+      "default": 5,
+      "min": 2,
+      "max": 15,
+      "step": 1,
+      "unit": "s"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "section_bg",
+      "label": "Section Background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "card_bg",
+      "label": "Card Background",
+      "default": "#FFF9F5"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Body Text Color",
+      "default": "#3D3D3D"
+    },
+    {
+      "type": "color",
+      "id": "label_color",
+      "label": "Bold Label Color",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "color",
+      "id": "divider_color",
+      "label": "Divider Color",
+      "default": "#C8C0B8"
+    },
+    {
+      "type": "color",
+      "id": "btn_text_color",
+      "label": "Button Text Color",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "color",
+      "id": "btn_border_color",
+      "label": "Button Border / Hover Fill",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "color",
+      "id": "dot_inactive_color",
+      "label": "Dot — Inactive",
+      "default": "#B0A89E"
+    },
+    {
+      "type": "color",
+      "id": "arrow_color",
+      "label": "Arrow Color (SVG fallback)",
+      "default": "#3D3D3D"
+    },
+    {
+      "type": "header",
+      "content": "Navigation Arrows"
+    },
+    {
+      "type": "image_picker",
+      "id": "arrow_prev_image",
+      "label": "Prev Arrow Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "arrow_next_image",
+      "label": "Next Arrow Image"
+    },
+    {
+      "type": "range",
+      "id": "arrow_icon_size",
+      "label": "Arrow Image Size",
+      "default": 32, "min": 16, "max": 80, "step": 2, "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Desktop Title Size",
+      "default": 64, "min": 28, "max": 90, "step": 1, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "desc_size",
+      "label": "Desktop Body Size",
+      "default": 20, "min": 12, "max": 26, "step": 1, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "block_text_size",
+      "label": "Desktop List Size",
+      "default": 20, "min": 12, "max": 26, "step": 1, "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Section-Level Fallbacks"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Fallback Title",
+      "default": "MEDITATION & MINDFULNESS"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Fallback Description",
+      "default": "Hold a crystal in your hand or place it on your body during meditation to enhance relaxation, sharpen focus, and amplify your inner peace."
+    },
+    {
+      "type": "text",
+      "id": "btn_text",
+      "label": "Fallback Button Text",
+      "default": "LEARN MORE"
+    },
+    {
+      "type": "url",
+      "id": "btn_link",
+      "label": "Fallback Button Link"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "select",
+          "id": "image_position",
+          "label": "Image Position",
+          "options": [
+            { "value": "right", "label": "Image Right  (text on left)" },
+            { "value": "left",  "label": "Image Left   (text on right)" }
+          ],
+          "default": "right"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Slide Image"
+        },
+        {
+          "type": "header",
+          "content": "Text Content"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description"
+        },
+        {
+          "type": "header",
+          "content": "Text Rows"
+        },
+        {
+          "type": "text",
+          "id": "row1_label",
+          "label": "Row 1 — Bold Label",
+          "default": "Supported"
+        },
+        {
+          "type": "textarea",
+          "id": "row1_text",
+          "label": "Row 1 — Text",
+          "default": "Amethyst, Aquamarine, White Quartz, Moonstone"
+        },
+        {
+          "type": "text",
+          "id": "row2_label",
+          "label": "Row 2 — Bold Label",
+          "default": "Unsupported"
+        },
+        {
+          "type": "textarea",
+          "id": "row2_text",
+          "label": "Row 2 — Text",
+          "default": "None"
+        },
+        {
+          "type": "text",
+          "id": "row3_label",
+          "label": "Row 3 — Bold Label"
+        },
+        {
+          "type": "textarea",
+          "id": "row3_text",
+          "label": "Row 3 — Text"
+        },
+        {
+          "type": "text",
+          "id": "row4_label",
+          "label": "Row 4 — Bold Label"
+        },
+        {
+          "type": "textarea",
+          "id": "row4_text",
+          "label": "Row 4 — Text"
+        },
+        {
+          "type": "text",
+          "id": "row5_label",
+          "label": "Row 5 — Bold Label"
+        },
+        {
+          "type": "textarea",
+          "id": "row5_text",
+          "label": "Row 5 — Text"
+        },
+        {
+          "type": "header",
+          "content": "Button"
+        },
+        {
+          "type": "text",
+          "id": "btn_text",
+          "label": "Button Text"
+        },
+        {
+          "type": "url",
+          "id": "btn_link",
+          "label": "Button Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "CS MEDITATION",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "image_position": "right",
+            "title": "MEDITATION & MINDFULNESS",
+            "description": "Hold a crystal in your hand or place it on your body during meditation to enhance relaxation, sharpen focus, and amplify your inner peace.",
+            "row1_label": "Supported",
+            "row1_text": "Amethyst, Aquamarine, White Quartz",
+            "row2_label": "Unsupported",
+            "row2_text": "None",
+            "btn_text": "LEARN MORE"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "image_position": "left",
+            "title": "HEALING & ENERGY",
+            "description": "Channel the natural vibrations of crystals to restore your body's energy flow.",
+            "row1_label": "Supported",
+            "row1_text": "Rose Quartz, Amethyst, Selenite",
+            "row2_label": "Unsupported",
+            "row2_text": "None",
+            "btn_text": "EXPLORE"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

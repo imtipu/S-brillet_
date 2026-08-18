@@ -1,0 +1,818 @@
+{% comment %} {% comment %}
+  Certified Quality Section - Pixel Perfect Match
+  Figma Specs: 
+  Heading: 64px, 123% Line-height, Uppercase
+  Body: 20px, 30px Line-height
+  Button: 350px x 55px
+  Padding: 80px Top/Bottom, 120px Left/Right
+{% endcomment %}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top_mb }}px;
+    padding-bottom: {{ section.settings.padding_bottom_mb }}px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background-color: {{ section.settings.bg_color }};
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+      padding-left: {{ section.settings.padding_left }}px;
+      padding-right: {{ section.settings.padding_right }}px;
+    }
+  }
+
+  .certified-wrapper-{{ section.id }} {
+    max-width: {{ section.settings.container_max_width }}px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    /* Figma Gap: 40px between image and text block */
+    gap: {{ section.settings.gap_mobile }}px; 
+    align-items: center;
+  }
+
+  @media screen and (min-width: 990px) {
+    .certified-wrapper-{{ section.id }} {
+      flex-direction: row;
+      gap: {{ section.settings.gap_desktop }}px;
+    }
+  }
+
+  /* Image Column logic */
+  .certified-image-box-{{ section.id }} {
+    flex: 1;
+    width: 100%;
+    line-height: 0;
+  }
+
+  .certified-image-box-{{ section.id }} img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* Content Column logic */
+  .certified-content-box-{{ section.id }} {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 40px; /* Gap from Frame 155 layout */
+    max-width: {{ section.settings.content_max_width }}px;
+  }
+
+  /* Typography - Heading (Figma: 64px) */
+  .certified-title-{{ section.id }} {
+    font-family: var(--font-heading-family, serif);
+    font-size: {{ section.settings.title_size_mb }}px;
+    font-weight: 400;
+    line-height: 1.23; /* Figma: 123% */
+    color: {{ section.settings.title_color }};
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  /* Typography - Body (Figma: 20px) */
+  .certified-text-{{ section.id }} {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: {{ section.settings.text_size_mb }}px;
+    font-weight: 400;
+    line-height: 1.5; /* Figma: 30px/20px */
+    color: {{ section.settings.text_color }};
+    margin: 0;
+  }
+
+  @media screen and (min-width: 750px) {
+    .certified-title-{{ section.id }} {
+      font-size: {{ section.settings.title_size }}px;
+    }
+    .certified-text-{{ section.id }} {
+      font-size: {{ section.settings.text_size }}px;
+    }
+  }
+
+  /* Button Styling - Figma: 350px x 55px */
+  .certified-btn-{{ section.id }} {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 350px;
+    height: 55px;
+    border: 1px solid {{ section.settings.btn_border_color }};
+    background-color: transparent;
+    color: {{ section.settings.btn_text_color }};
+    text-decoration: none;
+    font-family: var(--font-body-family);
+    font-size: 20px; /* Figma: 20px */
+    font-weight: 300;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+  }
+
+  .certified-btn-{{ section.id }}:hover {
+    background-color: {{ section.settings.btn_border_color }};
+    color: #fff;
+  }
+{%- endstyle -%}
+
+<section class="section-{{ section.id }}-padding">
+  <div class="certified-wrapper-{{ section.id }}">
+    
+    <!-- Left Column: Certificate Image -->
+    <div class="certified-image-box-{{ section.id }}">
+      {% if section.settings.image != blank %}
+        {{ section.settings.image | image_url: width: 1200 | image_tag: loading: 'lazy', class: 'gia-cert' }}
+      {% else %}
+        {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+      {% endif %}
+    </div>
+
+    <!-- Right Column: Text & CTA -->
+    <div class="certified-content-box-{{ section.id }}">
+      <h2 class="certified-title-{{ section.id }}">
+        {{ section.settings.heading | escape }}
+      </h2>
+      <div class="certified-text-{{ section.id }}">
+        {{ section.settings.description }}
+      </div>
+      {% if section.settings.btn_label != blank %}
+        <a href="{{ section.settings.btn_link }}" class="certified-btn-{{ section.id }}">
+          {{ section.settings.btn_label }}
+        </a>
+      {% endif %}
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Certified Quality",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Image Settings"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "GIA Certificate Image"
+    },
+    {
+      "type": "header",
+      "content": "Typography Settings"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "CERTIFIED QUALITY YOU CAN TRUST"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 40,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading Font Size (Desktop)",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "title_size_mb",
+      "min": 24,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading Font Size (Mobile)",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Heading Color",
+      "default": "#000000"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description",
+      "default": "<p>Every crystal and gemstone is carefully inspected and certified by the Gemological Institute of America (GIA), ensuring you receive only the highest quality.</p>"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 14,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Body Font Size (Desktop)",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "text_size_mb",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Body Font Size (Mobile)",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Body Text Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "header",
+      "content": "Button Settings"
+    },
+    {
+      "type": "text",
+      "id": "btn_label",
+      "label": "Button Label",
+      "default": "LEARN MORE"
+    },
+    {
+      "type": "url",
+      "id": "btn_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "color",
+      "id": "btn_border_color",
+      "label": "Button Border Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "btn_text_color",
+      "label": "Button Text Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "number",
+      "id": "container_max_width",
+      "label": "Container Max Width (px)",
+      "default": 1680
+    },
+    {
+      "type": "number",
+      "id": "content_max_width",
+      "label": "Content Box Max Width (px)",
+      "default": 720
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "range",
+      "id": "gap_desktop",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap between columns (Desktop)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap between columns (Mobile)",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Section Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Top (Desktop)",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Bottom (Desktop)",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_left",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Left (Desktop)",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_right",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Right (Desktop)",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mb",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Top (Mobile)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mb",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Bottom (Mobile)",
+      "default": 40
+    }
+  ],
+  "presets": [
+    {
+      "name": "Certified Quality"
+    }
+  ]
+}
+{% endschema %} {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %}
+  Certified Quality Section - Pixel Perfect Match
+  Figma Specs: 
+  Heading: 64px, 123% Line-height, Uppercase
+  Body: 20px, 30px Line-height
+  Button: 350px x 55px
+  Padding: 80px Top/Bottom, 120px Left/Right
+{% endcomment %}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top_mb }}px;
+    padding-bottom: {{ section.settings.padding_bottom_mb }}px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background-color: {{ section.settings.bg_color }};
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+      padding-left: {{ section.settings.padding_left }}px;
+      padding-right: {{ section.settings.padding_right }}px;
+    }
+  }
+
+  .certified-wrapper-{{ section.id }} {
+    max-width: {{ section.settings.container_max_width }}px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    /* Figma Gap: 40px between image and text block */
+    gap: {{ section.settings.gap_mobile }}px; 
+    align-items: center;
+  }
+
+  @media screen and (min-width: 990px) {
+    .certified-wrapper-{{ section.id }} {
+      flex-direction: row;
+      gap: {{ section.settings.gap_desktop }}px;
+    }
+  }
+
+  /* Image Column logic */
+  .certified-image-box-{{ section.id }} {
+    flex: 1;
+    width: 100%;
+    line-height: 0;
+  }
+
+  .certified-image-box-{{ section.id }} img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* Content Column logic */
+  .certified-content-box-{{ section.id }} {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 40px; /* Gap from Frame 155 layout */
+    max-width: {{ section.settings.content_max_width }}px;
+  }
+
+  /* Typography - Heading (Figma: 64px) */
+  .certified-title-{{ section.id }} {
+    font-family: var(--font-heading-family, serif);
+    font-size: {{ section.settings.title_size_mb }}px;
+    font-weight: 400;
+    line-height: 1.23; /* Figma: 123% */
+    color: {{ section.settings.title_color }};
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  /* Typography - Body (Figma: 20px) */
+  .certified-text-{{ section.id }} {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: {{ section.settings.text_size_mb }}px;
+    font-weight: 400;
+    line-height: 1.5; /* Figma: 30px/20px */
+    color: {{ section.settings.text_color }};
+    margin: 0;
+  }
+
+  @media screen and (min-width: 750px) {
+    .certified-title-{{ section.id }} {
+      font-size: {{ section.settings.title_size }}px;
+    }
+    .certified-text-{{ section.id }} {
+      font-size: {{ section.settings.text_size }}px;
+    }
+  }
+
+  /* Button Styling - Figma: 350px x 55px */
+  .certified-btn-{{ section.id }} {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 350px;
+    height: 55px;
+    border: 1px solid {{ section.settings.btn_border_color }};
+    background-color: transparent;
+    color: {{ section.settings.btn_text_color }};
+    text-decoration: none;
+    font-family: var(--font-body-family);
+    font-size: 20px; /* Figma: 20px */
+    font-weight: 300;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+  }
+
+  .certified-btn-{{ section.id }}:hover {
+    /* background-color: {{ section.settings.btn_border_color }}; */
+        background: linear-gradient(
+          135deg, 
+      #947863 0%, 
+      #e9ddd4 50%, 
+      #947863 100%
+    );
+
+    border:none;
+
+    color: #fff;
+  }
+
+  /* ==================================================================
+     RESPONSIVE ADJUSTMENTS (Macbook & Mobile Overrides)
+     ================================================================== */
+     
+     /* ─── MacBook Air 15 inch M2 (1441px - 1728px) ───────────────── */
+@media screen and (min-width: 1441px) and (max-width: 1728px) {
+  .certified-title-{{ section.id }} {
+    font-size: 54px !important;
+  }
+  .certified-text-{{ section.id }},
+  .certified-text-{{ section.id }} p {
+    font-size: 18px !important;
+  }
+}
+  /* Laptop & Macbook (up to 1440px) */
+  @media screen and (max-width: 1440px) {
+    .certified-title-{{ section.id }} {
+      font-size: 46px !important; /* Forced 46px for Macbook */
+    }
+    .certified-text-{{ section.id }},
+    .certified-text-{{ section.id }} p {
+      font-size: 16px !important; /* Forced 16px for Macbook */
+    }
+  }
+
+  /* Mobile (up to 768px) */
+  @media screen and (max-width: 768px) {
+    .certified-title-{{ section.id }} {
+      font-size: 28px !important; /* Forced 28px for Mobile */
+    }
+    .certified-text-{{ section.id }},
+    .certified-text-{{ section.id }} p {
+      font-size: 14px !important; /* Proportionately smaller for mobile */
+    }
+  }
+  /* ─── iPad / Tablet (769px - 1024px) ─────────────────────────── */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .section-{{ section.id }}-padding {
+    
+    padding-left: 40px;
+    padding-right: 40px;
+   
+  } 
+  }
+
+{%- endstyle -%}
+
+<section class="section-{{ section.id }}-padding">
+  <div class="certified-wrapper-{{ section.id }}">
+    
+    <!-- Left Column: Certificate Image -->
+    <div class="certified-image-box-{{ section.id }}">
+      {% if section.settings.image != blank %}
+        {{ section.settings.image | image_url: width: 1200 | image_tag: loading: 'lazy', class: 'gia-cert' }}
+      {% else %}
+        {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+      {% endif %}
+    </div>
+
+    <!-- Right Column: Text & CTA -->
+    <div class="certified-content-box-{{ section.id }}">
+      <h2 class="certified-title-{{ section.id }}">
+        {{ section.settings.heading | escape }}
+      </h2>
+      <div class="certified-text-{{ section.id }}">
+        {{ section.settings.description }}
+      </div>
+      {% if section.settings.btn_label != blank %}
+        <a href="{{ section.settings.btn_link }}" class="certified-btn-{{ section.id }}">
+          {{ section.settings.btn_label }}
+        </a>
+      {% endif %}
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Certified Quality",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Image Settings"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "GIA Certificate Image"
+    },
+    {
+      "type": "header",
+      "content": "Typography Settings"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "CERTIFIED QUALITY YOU CAN TRUST"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 40,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading Font Size (Desktop)",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "title_size_mb",
+      "min": 24,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading Font Size (Mobile)",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Heading Color",
+      "default": "#000000"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description",
+      "default": "<p>Every crystal and gemstone is carefully inspected and certified by the Gemological Institute of America (GIA), ensuring you receive only the highest quality.</p>"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 14,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Body Font Size (Desktop)",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "text_size_mb",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Body Font Size (Mobile)",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Body Text Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "header",
+      "content": "Button Settings"
+    },
+    {
+      "type": "text",
+      "id": "btn_label",
+      "label": "Button Label",
+      "default": "LEARN MORE"
+    },
+    {
+      "type": "url",
+      "id": "btn_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "color",
+      "id": "btn_border_color",
+      "label": "Button Border Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "btn_text_color",
+      "label": "Button Text Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "number",
+      "id": "container_max_width",
+      "label": "Container Max Width (px)",
+      "default": 1680
+    },
+    {
+      "type": "number",
+      "id": "content_max_width",
+      "label": "Content Box Max Width (px)",
+      "default": 720
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "range",
+      "id": "gap_desktop",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap between columns (Desktop)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap between columns (Mobile)",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Section Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Top (Desktop)",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Bottom (Desktop)",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_left",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Left (Desktop)",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_right",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Right (Desktop)",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mb",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Top (Mobile)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mb",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Bottom (Mobile)",
+      "default": 40
+    }
+  ],
+  "presets": [
+    {
+      "name": "Certified Quality"
+    }
+  ]
+}
+{% endschema %}

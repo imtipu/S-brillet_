@@ -1,0 +1,894 @@
+{% comment %} {%- style -%}
+  /* =========================================================
+     Shining Sustainably - Pixel Perfect Custom CSS
+     ========================================================= */
+  .custom-shining-{{ section.id }} {
+    --bg-color: {{ section.settings.bg_color }};
+    --title-color: {{ section.settings.title_color }};
+    --text-color: {{ section.settings.text_color }};
+    --btn-bg: {{ section.settings.btn_bg_color }};
+    --btn-text: {{ section.settings.btn_text_color }};
+    --btn-hover-bg: {{ section.settings.btn_hover_bg }};
+    --btn-hover-text: {{ section.settings.btn_hover_text }};
+    
+    background-color: var(--bg-color);
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+  }
+
+  .custom-shining-{{ section.id }} .shining-container {
+    max-width: 1920px;
+    margin: 0 auto;
+    padding-left: {{ section.settings.padding_sides }}px;
+    padding-right: {{ section.settings.padding_sides }}px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  /* --- HEADER TEXT --- */
+  .custom-shining-{{ section.id }} .shining-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px; /* Figma: 15px Hug between Title and Subtitle */
+    margin-bottom: 40px; /* Space before image */
+  }
+
+  /* Section Title - 64px, 123% LH, Uppercase */
+  .custom-shining-{{ section.id }} .shining-title {
+        font-family: var(--font-heading-family, 'Libre Caslon Text', serif);
+
+    font-size: {{ section.settings.title_size }}px; /* Figma: 64px */
+    font-weight: 400;
+    line-height: 1.23; /* Figma: 123% */
+    color: var(--title-color);
+    margin: 0;
+    text-transform: uppercase;
+    max-width: 782px; /* Figma: 782px width */
+  }
+
+  /* Subtitle - 20px, 37.5px LH */
+  .custom-shining-{{ section.id }} .shining-subtitle {
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: {{ section.settings.subtitle_size }}px; /* Figma: 20px */
+    font-weight: 400;
+    line-height: 37.5px; /* Figma: 37.5px */
+    color: var(--text-color);
+    margin: 0;
+    max-width: 1348px; /* Figma: 867px width */
+  }
+
+  /* --- IMAGE CONTAINER --- */
+  .custom-shining-{{ section.id }} .shining-image-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 1680px; /* Figma: 1680px width */
+    height: 560px; /* Figma: 560px height */
+    display: flex;
+    justify-content: center;
+  }
+
+  .custom-shining-{{ section.id }} .shining-main-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .custom-shining-{{ section.id }} .shining-main-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* --- MOBILE / DESKTOP MEDIA VISIBILITY HELPERS --- */
+  .custom-shining-{{ section.id }} .shining-desktop-media {
+    display: block;
+  }
+  .custom-shining-{{ section.id }} .shining-mobile-media {
+    display: none;
+  }
+
+  /* --- BUTTON --- */
+  .custom-shining-{{ section.id }} .shining-btn-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px; /* Gap between image and button */
+    width: 100%;
+  }
+
+  /* Figma Specs: 350x55, Font 20px Light, Theme Heading Font */
+  .custom-shining-{{ section.id }} .shining-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 350px; /* Updated exactly to 350px as per Figma */
+    height: 55px; /* Figma: 55px Height */
+    background-color: var(--btn-bg);
+    color: var(--btn-text);
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: 20px;
+    font-weight: 300; /* Light */
+    line-height: 20px;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: 0px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    box-sizing: border-box;
+  }
+
+  .custom-shining-{{ section.id }} .shining-btn:hover {
+    {% if section.settings.use_gradient_hover %}
+      background: linear-gradient(90deg, #947863 0%, #E9DDD4 50%, #947863 100%);
+    {% else %}
+      background-color: var(--btn-hover-bg);
+    {% endif %}
+    color: var(--btn-hover-text);
+  }
+
+  /* --- RESPONSIVE DESIGN --- */
+  @media (max-width: 1680px) {
+    .custom-shining-{{ section.id }} .shining-image-wrapper {
+      height: 33vw; /* Maintain aspect ratio roughly 1680:560 (3:1) */
+      min-height: 400px;
+    }
+  }
+
+
+  /* ─── MacBook Air 15 inch M2 (1441px - 1728px) ───────────────── */
+@media (min-width: 1441px) and (max-width: 1728px) {
+  .custom-shining-{{ section.id }} .shining-title {
+    font-size: 54px !important;
+  }
+  .custom-shining-{{ section.id }} .shining-subtitle,
+  .custom-shining-{{ section.id }} .shining-btn {
+    font-size: 18px;
+  }
+  .custom-shining-{{ section.id }} .shining-btn {
+    width: 320px;
+  }
+}
+
+
+  @media screen and (max-width: 1440px){
+
+      .custom-shining-{{ section.id }} .shining-title {
+        font-size : 46px !important;
+      }
+
+
+           .custom-shining-{{ section.id }} .shining-subtitle ,
+           .custom-shining-{{ section.id }} .shining-btn ,
+         .custom-shining-{{ section.id }} .shining-title {
+          font-size : 16px;
+        }
+
+  }
+
+  @media (max-width: 1024px) {
+    .custom-shining-{{ section.id }} .shining-container {
+      padding-left: 40px;
+      padding-right: 40px;
+    }
+    .custom-shining-{{ section.id }} .shining-title {
+      font-size: 48px;
+    }
+    .custom-shining-{{ section.id }} .shining-subtitle {
+      line-height: 1.5; /* More natural line height for tablet */
+    }
+  }
+
+  @media (max-width: 768px) {
+    .custom-shining-{{ section.id }} .shining-container {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+    .custom-shining-{{ section.id }} .shining-title {
+      font-size: 28px !important;
+    }
+    .custom-shining-{{ section.id }} .shining-subtitle {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .custom-shining-{{ section.id }} .shining-image-wrapper {
+      height: auto;
+      aspect-ratio: 16 / 9;
+      min-height: unset;
+    }
+    .custom-shining-{{ section.id }} .shining-btn-container {
+      margin-top: 30px;
+    }
+    .custom-shining-{{ section.id }} .shining-btn {
+      width: 100%;
+      max-width: 100%;
+      height: 50px;
+      font-size: 16px;
+    }
+
+    /* Swap visible media on mobile: show mobile media, hide desktop media */
+    .custom-shining-{{ section.id }} .shining-desktop-media {
+      display: none;
+    }
+    .custom-shining-{{ section.id }} .shining-mobile-media {
+      display: block;
+    }
+  }
+{%- endstyle -%}
+
+<section class="custom-shining-{{ section.id }}" data-section-id="{{ section.id }}">
+  <div class="shining-container">
+    
+    <div class="shining-header">
+      {%- if section.settings.title != blank -%}
+        <h2 class="shining-title">{{ section.settings.title }}</h2>
+      {%- endif -%}
+
+      {%- if section.settings.subtitle != blank -%}
+        <p class="shining-subtitle">{{ section.settings.subtitle }}</p>
+      {%- endif -%}
+    </div>
+
+    <div class="shining-image-wrapper">
+
+      <!-- DESKTOP / DEFAULT MEDIA (untouched original behavior: autoplay + loop) -->
+      <div class="shining-desktop-media">
+        {%- if section.settings.main_video != blank -%}
+          {{ section.settings.main_video | video_tag: image_size: '1680x', autoplay: true, loop: false, muted: true, controls: false, class: 'shining-main-image shining-main-video' }}
+        {%- elsif section.settings.main_image != blank -%}
+          <img src="{{ section.settings.main_image | image_url: width: 1680 }}" alt="{{ section.settings.title | escape }}" class="shining-main-image" loading="lazy">
+        {%- else -%}
+          {{ 'hero-apparel-1' | placeholder_svg_tag: 'placeholder-svg shining-main-image' }}
+        {%- endif -%}
+      </div>
+
+      <!-- MOBILE MEDIA: dedicated mobile video upload, autoplays ONCE (no loop) -->
+      {%- if section.settings.main_video_mobile != blank or section.settings.main_video != blank or section.settings.main_image != blank -%}
+        <div class="shining-mobile-media">
+          {%- if section.settings.main_video_mobile != blank -%}
+            {{ section.settings.main_video_mobile | video_tag: image_size: '1680x', autoplay: true, loop: false, muted: true, controls: false, class: 'shining-main-image shining-main-video' }}
+          {%- elsif section.settings.main_video != blank -%}
+            {{ section.settings.main_video | video_tag: image_size: '1680x', autoplay: true, loop: false, muted: true, controls: false, class: 'shining-main-image shining-main-video' }}
+          {%- elsif section.settings.main_image != blank -%}
+            <img src="{{ section.settings.main_image | image_url: width: 1680 }}" alt="{{ section.settings.title | escape }}" class="shining-main-image" loading="lazy">
+          {%- else -%}
+            {{ 'hero-apparel-1' | placeholder_svg_tag: 'placeholder-svg shining-main-image' }}
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+    </div>
+
+    {%- if section.settings.btn_text != blank -%}
+      <div class="shining-btn-container">
+        <a href="{{ section.settings.btn_link | default: '#' }}" class="shining-btn">{{ section.settings.btn_text }}</a>
+      </div>
+    {%- endif -%}
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Shining Sustainably",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Layout & Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_sides",
+      "label": "Side Padding (Left/Right)",
+      "default": 120,
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding",
+      "default": 80,
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding",
+      "default": 120,
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Section Background Color",
+      "default": "#FDFBF8"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Main Title Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Subtitle Text Color",
+      "default": "#555555"
+    },
+    {
+      "type": "color",
+      "id": "btn_bg_color",
+      "label": "Button Background Color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "btn_text_color",
+      "label": "Button Text Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "btn_hover_bg",
+      "label": "Button Hover Background (Solid)",
+      "default": "#B09783"
+    },
+    {
+      "type": "color",
+      "id": "btn_hover_text",
+      "label": "Button Hover Text Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_gradient_hover",
+      "label": "Use Gradient Hover (Like Foundation section)",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Main Title",
+      "default": "SHINING SUSTAINABLY"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Title Font Size (Desktop)",
+      "default": 64,
+      "min": 30,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Our commitment from ethical sourcing to ensures that your jewellery sparkles with purpose."
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "label": "Subtitle Font Size",
+      "default": 20,
+      "min": 14,
+      "max": 30,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "image_picker",
+      "id": "main_image",
+      "label": "Main Large Image",
+      "info": "Recommended size: 1680x560px. Used as fallback for both desktop and mobile if no video is uploaded."
+    },
+    {
+      "type": "video",
+      "id": "main_video",
+      "label": "Main Large Video - Desktop",
+      "info": "Plays on desktop/tablet. Autoplays muted and loops continuously. Also used as mobile fallback if no mobile video is set below."
+    },
+    {
+      "type": "video",
+      "id": "main_video_mobile",
+      "label": "Main Large Video - Mobile (optional)",
+      "info": "Dedicated video for mobile devices (screens 768px and below). Autoplays muted and plays ONCE only (no loop). If left empty, the desktop video above will be used on mobile instead, also playing once."
+    },
+    {
+      "type": "text",
+      "id": "btn_text",
+      "label": "Button Text",
+      "default": "LEARN MORE"
+    },
+    {
+      "type": "url",
+      "id": "btn_link",
+      "label": "Button Link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shining Sustainably"
+    }
+  ]
+}
+{% endschema %} {% endcomment %}
+
+
+
+
+
+{%- style -%}
+  /* =========================================================
+     Shining Sustainably - Pixel Perfect Custom CSS
+     ========================================================= */
+  .custom-shining-{{ section.id }} {
+    --bg-color: {{ section.settings.bg_color }};
+    --title-color: {{ section.settings.title_color }};
+    --text-color: {{ section.settings.text_color }};
+    --btn-bg: {{ section.settings.btn_bg_color }};
+    --btn-text: {{ section.settings.btn_text_color }};
+    --btn-hover-bg: {{ section.settings.btn_hover_bg }};
+    --btn-hover-text: {{ section.settings.btn_hover_text }};
+    
+    background-color: var(--bg-color);
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+  }
+
+  .custom-shining-{{ section.id }} .shining-container {
+    max-width: 1920px;
+    margin: 0 auto;
+    padding-left: {{ section.settings.padding_sides }}px;
+    padding-right: {{ section.settings.padding_sides }}px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  /* --- HEADER TEXT --- */
+  .custom-shining-{{ section.id }} .shining-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px; /* Figma: 15px Hug between Title and Subtitle */
+    margin-bottom: 40px; /* Space before image */
+  }
+
+  /* Section Title - 64px, 123% LH, Uppercase */
+  .custom-shining-{{ section.id }} .shining-title {
+        font-family: var(--font-heading-family, 'Libre Caslon Text', serif);
+
+    font-size: {{ section.settings.title_size }}px; /* Figma: 64px */
+    font-weight: 400;
+    line-height: 1.23; /* Figma: 123% */
+    color: var(--title-color);
+    margin: 0;
+    text-transform: uppercase;
+    max-width: 782px; /* Figma: 782px width */
+  }
+
+  /* Subtitle - 20px, 37.5px LH */
+  .custom-shining-{{ section.id }} .shining-subtitle {
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: {{ section.settings.subtitle_size }}px; /* Figma: 20px */
+    font-weight: 400;
+    line-height: 37.5px; /* Figma: 37.5px */
+    color: var(--text-color);
+    margin: 0;
+    max-width: 1348px; /* Figma: 867px width */
+  }
+
+  /* --- IMAGE CONTAINER --- */
+  .custom-shining-{{ section.id }} .shining-image-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 1680px; /* Figma: 1680px width */
+    height: 560px; /* Figma: 560px height */
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .custom-shining-{{ section.id }} .shining-main-image {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    min-width: 100% !important;
+    object-fit: cover !important;
+    object-position: center center;
+    display: block;
+  }
+
+  .custom-shining-{{ section.id }} .shining-main-video {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    min-width: 100% !important;
+    object-fit: cover !important;
+    object-position: center center;
+    display: block;
+  }
+
+  /* --- MOBILE / DESKTOP MEDIA VISIBILITY HELPERS --- */
+  .custom-shining-{{ section.id }} .shining-desktop-media {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .custom-shining-{{ section.id }} .shining-mobile-media {
+    display: none;
+  }
+
+  /* --- BUTTON --- */
+  .custom-shining-{{ section.id }} .shining-btn-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px; /* Gap between image and button */
+    width: 100%;
+  }
+
+  /* Figma Specs: 350x55, Font 20px Light, Theme Heading Font */
+  .custom-shining-{{ section.id }} .shining-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 350px; /* Updated exactly to 350px as per Figma */
+    height: 55px; /* Figma: 55px Height */
+    background-color: var(--btn-bg);
+    color: var(--btn-text);
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: 20px;
+    font-weight: 300; /* Light */
+    line-height: 20px;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: 0px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    box-sizing: border-box;
+  }
+
+  .custom-shining-{{ section.id }} .shining-btn:hover {
+    {% if section.settings.use_gradient_hover %}
+      background: linear-gradient(90deg, #947863 0%, #E9DDD4 50%, #947863 100%);
+    {% else %}
+      background-color: var(--btn-hover-bg);
+    {% endif %}
+    color: var(--btn-hover-text);
+  }
+
+  /* --- RESPONSIVE DESIGN --- */
+  @media (max-width: 1680px) {
+    .custom-shining-{{ section.id }} .shining-image-wrapper {
+      height: 33vw; /* Maintain aspect ratio roughly 1680:560 (3:1) */
+      min-height: 400px;
+    }
+  }
+
+
+  /* ─── MacBook Air 15 inch M2 (1441px - 1728px) ───────────────── */
+@media (min-width: 1441px) and (max-width: 1728px) {
+  .custom-shining-{{ section.id }} .shining-title {
+    font-size: 54px !important;
+  }
+  .custom-shining-{{ section.id }} .shining-subtitle,
+  .custom-shining-{{ section.id }} .shining-btn {
+    font-size: 18px;
+  }
+  .custom-shining-{{ section.id }} .shining-btn {
+    width: 320px;
+  }
+}
+
+
+  @media screen and (max-width: 1440px){
+
+      .custom-shining-{{ section.id }} .shining-title {
+        font-size : 46px !important;
+      }
+
+
+           .custom-shining-{{ section.id }} .shining-subtitle ,
+           .custom-shining-{{ section.id }} .shining-btn ,
+         .custom-shining-{{ section.id }} .shining-title {
+          font-size : 16px;
+        }
+
+  }
+
+  @media (max-width: 1024px) {
+    .custom-shining-{{ section.id }} .shining-container {
+      padding-left: 40px;
+      padding-right: 40px;
+    }
+    .custom-shining-{{ section.id }} .shining-title {
+      font-size: 48px;
+    }
+    .custom-shining-{{ section.id }} .shining-subtitle {
+      line-height: 1.5; /* More natural line height for tablet */
+    }
+  }
+
+  @media (max-width: 768px) {
+    .custom-shining-{{ section.id }} .shining-container {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+    .custom-shining-{{ section.id }} .shining-title {
+      font-size: 28px !important;
+    }
+    .custom-shining-{{ section.id }} .shining-subtitle {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .custom-shining-{{ section.id }} .shining-image-wrapper {
+      height: auto;
+      aspect-ratio: 16 / 9;
+      min-height: unset;
+    }
+    .custom-shining-{{ section.id }} .shining-btn-container {
+      margin-top: 30px;
+    }
+    .custom-shining-{{ section.id }} .shining-btn {
+      width: 100%;
+      max-width: 100%;
+      height: 50px;
+      font-size: 16px;
+    }
+
+    /* Swap visible media on mobile: show mobile media, hide desktop media */
+    .custom-shining-{{ section.id }} .shining-desktop-media {
+      display: none;
+    }
+    .custom-shining-{{ section.id }} .shining-mobile-media {
+      display: block;
+    }
+  }
+{%- endstyle -%}
+
+<section class="custom-shining-{{ section.id }}" data-section-id="{{ section.id }}">
+  <div class="shining-container">
+    
+    <div class="shining-header">
+      {%- if section.settings.title != blank -%}
+        <h2 class="shining-title">{{ section.settings.title }}</h2>
+      {%- endif -%}
+
+      {%- if section.settings.subtitle != blank -%}
+        <p class="shining-subtitle">{{ section.settings.subtitle }}</p>
+      {%- endif -%}
+    </div>
+
+    <div class="shining-image-wrapper">
+
+      <!-- DESKTOP / DEFAULT MEDIA (untouched original behavior: autoplay + loop) -->
+      <div class="shining-desktop-media">
+        {%- if section.settings.main_video != blank -%}
+          {{ section.settings.main_video | video_tag: image_size: '1680x', autoplay: true, loop: false, muted: true, controls: false, class: 'shining-main-image shining-main-video' }}
+        {%- elsif section.settings.main_image != blank -%}
+          <img src="{{ section.settings.main_image | image_url: width: 2400 }}" alt="{{ section.settings.title | escape }}" class="shining-main-image" loading="lazy">
+        {%- else -%}
+          {{ 'hero-apparel-1' | placeholder_svg_tag: 'placeholder-svg shining-main-image' }}
+        {%- endif -%}
+      </div>
+
+      <!-- MOBILE MEDIA: dedicated mobile video upload, autoplays ONCE (no loop) -->
+      {%- if section.settings.main_video_mobile != blank or section.settings.main_video != blank or section.settings.main_image != blank -%}
+        <div class="shining-mobile-media">
+          {%- if section.settings.main_video_mobile != blank -%}
+            {{ section.settings.main_video_mobile | video_tag: image_size: '1680x', autoplay: true, loop: false, muted: true, controls: false, class: 'shining-main-image shining-main-video' }}
+          {%- elsif section.settings.main_video != blank -%}
+            {{ section.settings.main_video | video_tag: image_size: '1680x', autoplay: true, loop: false, muted: true, controls: false, class: 'shining-main-image shining-main-video' }}
+          {%- elsif section.settings.main_image != blank -%}
+            <img src="{{ section.settings.main_image | image_url: width: 1680 }}" alt="{{ section.settings.title | escape }}" class="shining-main-image" loading="lazy">
+          {%- else -%}
+            {{ 'hero-apparel-1' | placeholder_svg_tag: 'placeholder-svg shining-main-image' }}
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+    </div>
+
+    {%- if section.settings.btn_text != blank -%}
+      <div class="shining-btn-container">
+        <a href="{{ section.settings.btn_link | default: '#' }}" class="shining-btn">{{ section.settings.btn_text }}</a>
+      </div>
+    {%- endif -%}
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Shining Sustainably",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Layout & Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_sides",
+      "label": "Side Padding (Left/Right)",
+      "default": 120,
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding",
+      "default": 80,
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding",
+      "default": 120,
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Section Background Color",
+      "default": "#FDFBF8"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Main Title Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Subtitle Text Color",
+      "default": "#555555"
+    },
+    {
+      "type": "color",
+      "id": "btn_bg_color",
+      "label": "Button Background Color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "btn_text_color",
+      "label": "Button Text Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "btn_hover_bg",
+      "label": "Button Hover Background (Solid)",
+      "default": "#B09783"
+    },
+    {
+      "type": "color",
+      "id": "btn_hover_text",
+      "label": "Button Hover Text Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_gradient_hover",
+      "label": "Use Gradient Hover (Like Foundation section)",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Main Title",
+      "default": "SHINING SUSTAINABLY"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Title Font Size (Desktop)",
+      "default": 64,
+      "min": 30,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Our commitment from ethical sourcing to ensures that your jewellery sparkles with purpose."
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "label": "Subtitle Font Size",
+      "default": 20,
+      "min": 14,
+      "max": 30,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "image_picker",
+      "id": "main_image",
+      "label": "Main Large Image",
+      "info": "Recommended size: 1680x560px. Used as fallback for both desktop and mobile if no video is uploaded."
+    },
+    {
+      "type": "video",
+      "id": "main_video",
+      "label": "Main Large Video - Desktop",
+      "info": "Plays on desktop/tablet. Autoplays muted and loops continuously. Also used as mobile fallback if no mobile video is set below."
+    },
+    {
+      "type": "video",
+      "id": "main_video_mobile",
+      "label": "Main Large Video - Mobile (optional)",
+      "info": "Dedicated video for mobile devices (screens 768px and below). Autoplays muted and plays ONCE only (no loop). If left empty, the desktop video above will be used on mobile instead, also playing once."
+    },
+    {
+      "type": "text",
+      "id": "btn_text",
+      "label": "Button Text",
+      "default": "LEARN MORE"
+    },
+    {
+      "type": "url",
+      "id": "btn_link",
+      "label": "Button Link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shining Sustainably"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,2566 @@
+{% comment %} {% schema %}
+{
+  "name": "CS Collection Filter",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Filter Visibility"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show Vendor Filter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tags",
+      "label": "Show Tags Filter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_gem",
+      "label": "Show Gem Filter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_material",
+      "label": "Show Material Filter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shape",
+      "label": "Show Shape Filter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_category",
+      "label": "Show Category Filter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_size",
+      "label": "Show Size Filter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_price",
+      "label": "Show Price Filter",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Filter Group Icon"
+    },
+    {
+      "type": "select",
+      "id": "toggle_icon",
+      "label": "Icon Style (used when no custom image set)",
+      "default": "arrow",
+      "options": [
+        { "value": "arrow",   "label": "Arrow ▾" },
+        { "value": "chevron", "label": "Chevron ›" },
+        { "value": "plus",    "label": "Plus +" },
+        { "value": "dash",    "label": "Dash −" }
+      ]
+    },
+    {
+      "type": "image_picker",
+      "id": "icon_open_img",
+      "label": "Custom Icon — Group Open (expanded state)"
+    },
+    {
+      "type": "image_picker",
+      "id": "icon_closed_img",
+      "label": "Custom Icon — Group Closed (collapsed state)"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Custom Icon Size (px)",
+      "min": 10,
+      "max": 40,
+      "step": 1,
+      "default": 18
+    },
+    {
+      "type": "header",
+      "content": "Pagination Icons"
+    },
+    {
+      "type": "image_picker",
+      "id": "prev_icon_img",
+      "label": "Previous Page Icon"
+    },
+    {
+      "type": "image_picker",
+      "id": "next_icon_img",
+      "label": "Next Page Icon"
+    },
+    {
+      "type": "range",
+      "id": "pagination_icon_size",
+      "label": "Pagination Icon Size (px)",
+      "min": 10,
+      "max": 40,
+      "step": 1,
+      "default": 18
+    },
+    {
+      "type": "header",
+      "content": "Filter Close Icon"
+    },
+    {
+      "type": "image_picker",
+      "id": "close_icon_img",
+      "label": "Custom Close Icon (replaces ✕)"
+    },
+    {
+      "type": "range",
+      "id": "close_icon_size",
+      "label": "Close Icon Size (px)",
+      "min": 10,
+      "max": 40,
+      "step": 1,
+      "default": 20
+    }
+  ],
+  "presets": [
+    {
+      "name": "CS Collection Filter"
+    }
+  ]
+}
+{% endschema %}
+
+{% comment %} collection, title and description come from the page context automatically {% endcomment %}
+{% assign toggle_icon = section.settings.toggle_icon %}
+{% case toggle_icon %}
+  {% when 'chevron' %}{% assign icon_open_char = '›' %}{% assign icon_closed_char = '›' %}
+  {% when 'plus' %}{% assign icon_open_char = '−' %}{% assign icon_closed_char = '+' %}
+  {% when 'dash' %}{% assign icon_open_char = '−' %}{% assign icon_closed_char = '−' %}
+  {% else %}{% assign icon_open_char = '▾' %}{% assign icon_closed_char = '▾' %}
+{% endcase %}
+{% assign icon_open_img = section.settings.icon_open_img %}
+{% assign icon_closed_img = section.settings.icon_closed_img %}
+{% assign icon_size = section.settings.icon_size %}
+{% assign prev_icon_img = section.settings.prev_icon_img %}
+{% assign next_icon_img = section.settings.next_icon_img %}
+{% assign pagination_icon_size = section.settings.pagination_icon_size %}
+{% assign close_icon_img = section.settings.close_icon_img %}
+{% assign close_icon_size = section.settings.close_icon_size %}
+
+{% comment %}
+  ============================================================
+  PRE-BUILD: Collect unique Material & Shape values with images.
+
+  Duplicate-safe sentinel pattern:
+    used_materials stores values as ~VALUE~ so that `contains`
+    does exact boundary matching, not substring matching.
+    e.g. "~Gold~" will NOT match inside "~Rose Gold~".
+
+  Material is capped at 3 unique values.
+  Shape has no cap.
+
+  Image source = variant.image (the image assigned to that
+  specific variant in Shopify admin). Falls back to
+  product.featured_image if the variant has no image.
+  ============================================================
+{% endcomment %}
+
+{% assign used_materials  = '' %}
+{% assign material_labels = '' %}
+{% assign material_imgs   = '' %}
+{% assign material_count  = 0 %}
+
+{% assign used_shapes  = '' %}
+{% assign shape_labels = '' %}
+{% assign shape_imgs   = '' %}
+
+{% for product in collection.products %}
+
+  {% comment %} ---- Locate the option index for "material" and "shape" ---- {% endcomment %}
+  {% assign mat_opt_index = nil %}
+  {% assign shp_opt_index = nil %}
+
+  {% for opt in product.options %}
+    {% assign opt_lower = opt | downcase %}
+    {% if opt_lower == 'material' %}{% assign mat_opt_index = forloop.index %}{% endif %}
+    {% if opt_lower == 'shape'    %}{% assign shp_opt_index = forloop.index %}{% endif %}
+  {% endfor %}
+
+  {% comment %} ---- MATERIAL: collect up to 3 unique values ---- {% endcomment %}
+  {% if mat_opt_index and material_count < 3 %}
+    {% assign mat_key = 'option' | append: mat_opt_index %}
+    {% for variant in product.variants %}
+      {% if material_count >= 3 %}{% break %}{% endif %}
+      {% assign mat_val = variant[mat_key] %}
+      {% assign mat_sentinel = '~' | append: mat_val | append: '~' %}
+      {% unless mat_val == blank or used_materials contains mat_sentinel %}
+        {% assign used_materials = used_materials | append: mat_sentinel %}
+        {% assign material_count = material_count | plus: 1 %}
+
+        {% if variant.image %}
+          {% assign mat_img_url = variant.image | image_url: width: 80 %}
+        {% else %}
+          {% assign mat_img_url = product.featured_image | image_url: width: 80 %}
+        {% endif %}
+
+        {% assign material_labels = material_labels | append: mat_val | append: '||' %}
+        {% assign material_imgs   = material_imgs   | append: mat_img_url | append: '||' %}
+      {% endunless %}
+    {% endfor %}
+  {% endif %}
+
+  {% comment %} ---- SHAPE: collect all unique values ---- {% endcomment %}
+  {% if shp_opt_index %}
+    {% assign shp_key = 'option' | append: shp_opt_index %}
+    {% for variant in product.variants %}
+      {% assign shp_val = variant[shp_key] %}
+      {% assign shp_sentinel = '~' | append: shp_val | append: '~' %}
+      {% unless shp_val == blank or used_shapes contains shp_sentinel %}
+        {% assign used_shapes = used_shapes | append: shp_sentinel %}
+
+        {% if variant.image %}
+          {% assign shp_img_url = variant.image | image_url: width: 80 %}
+        {% else %}
+          {% assign shp_img_url = product.featured_image | image_url: width: 80 %}
+        {% endif %}
+
+        {% assign shape_labels = shape_labels | append: shp_val | append: '||' %}
+        {% assign shape_imgs   = shape_imgs   | append: shp_img_url | append: '||' %}
+      {% endunless %}
+    {% endfor %}
+  {% endif %}
+
+{% endfor %}
+
+{% comment %} Split parallel strings into arrays for sidebar rendering {% endcomment %}
+{% assign material_label_arr = material_labels | split: '||' %}
+{% assign material_img_arr   = material_imgs   | split: '||' %}
+{% assign shape_label_arr    = shape_labels    | split: '||' %}
+{% assign shape_img_arr      = shape_imgs      | split: '||' %}
+
+{% comment %} ---- GEMSTONE: collect unique gems from metafields across all products ---- {% endcomment %}
+{% assign used_gems_sentinel = '' %}
+{% assign gem_labels = '' %}
+{% assign gem_imgs   = '' %}
+
+{% for product in collection.products %}
+  {% assign gem_val = product.metafields.custom.filter_gem_title %}
+  {% assign gem_sentinel = '~' | append: gem_val | append: '~' %}
+  {% unless gem_val == blank or used_gems_sentinel contains gem_sentinel %}
+    {% assign used_gems_sentinel = used_gems_sentinel | append: gem_sentinel %}
+    {% assign gem_img_src = product.metafields.custom.filter_gem_image | image_url: width: 80 %}
+    {% assign gem_labels = gem_labels | append: gem_val | append: '||' %}
+    {% assign gem_imgs   = gem_imgs   | append: gem_img_src | append: '||' %}
+  {% endunless %}
+{% endfor %}
+
+{% assign gem_label_arr = gem_labels | split: '||' %}
+{% assign gem_img_arr   = gem_imgs   | split: '||' %}
+
+<!-- OVERLAY: placed OUTSIDE .layout so clicking it never collapses the grid -->
+<div class="filter-overlay" id="filterOverlay"></div>
+
+<section class="custom-collection cs-icon-{{ section.settings.toggle_icon }}">
+  <div class="page-width">
+
+    <!-- SECTION HEADING & DESCRIPTION — dynamic from collection page context -->
+    {% if collection.title != blank or collection.description != blank %}
+    <div class="section-intro">
+      {% if collection.title != blank %}
+        <h1 class="section-heading">{{ collection.title }}</h1>
+      {% endif %}
+      {% if collection.description != blank %}
+        <p class="section-description">{{ collection.description }}</p>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- TOOLBAR -->
+    <div class="cs-sticky-toolbar">
+    <div class="toolbar" style="max-width: 1500px; margin: 0 auto">
+      <button id="toggleFilter" aria-label="Toggle Filters">&#9776; FILTERS</button>
+      <select id="sortProducts">
+        <option value="">SORT</option>
+        <option value="title-asc">A TO Z</option>
+        <option value="title-desc">Z TO A</option>
+        <option value="price-asc">PRICE LOW TO HIGH</option>
+        <option value="price-desc">PRICE HIGH TO LOW</option>
+        <option value="date-desc">NEWEST</option>
+      </select>
+    </div>
+    </div>
+    <div class="layout" id="mainLayout">
+
+      <!-- FILTER SIDEBAR -->
+      <div class="filters" id="filterSidebar">
+
+        <div class="filter-header">
+          <h4>Filter</h4>
+          <button class="filter-close" id="closeFilter" aria-label="Close Filters">
+            {%- if close_icon_img -%}
+              <img src="{{ close_icon_img | image_url: width: 40 }}" alt="Close" style="width:{{ close_icon_size }}px;height:{{ close_icon_size }}px;object-fit:contain;display:block;">
+            {%- else -%}
+              &#10005;
+            {%- endif -%}
+          </button>
+        </div>
+
+        <!-- VENDOR -->
+        {% if section.settings.show_vendor %}
+        <div class="filter-group">
+          <div class="filter-group-header" data-target="body-vendor">
+            <h5>Vendor</h5>
+            <span class="toggle-icon cs-toggle-icon"
+              data-open-char="{{ icon_open_char }}"
+              data-closed-char="{{ icon_closed_char }}"
+              {% if icon_open_img %}data-open-img="{{ icon_open_img | image_url: width: 40 }}"{% endif %}
+              {% if icon_closed_img %}data-closed-img="{{ icon_closed_img | image_url: width: 40 }}"{% endif %}>
+              {%- if icon_open_img -%}
+                <img src="{{ icon_open_img | image_url: width: 40 }}" alt="" class="cs-icon-img" style="width:{{ icon_size }}px;height:{{ icon_size }}px;object-fit:contain;display:block;">
+              {%- else -%}
+                {{- icon_open_char -}}
+              {%- endif -%}
+            </span>
+          </div>
+          <div class="filter-group-body" id="body-vendor">
+            {% assign vendors = collection.products | map: 'vendor' | uniq %}
+            {% for vendor in vendors %}
+              <label class="filter-right">
+                <span>{{ vendor }}</span>
+                <input type="checkbox" class="filter-vendor" value="{{ vendor }}">
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- TAGS -->
+        {% if section.settings.show_tags %}
+        <div class="filter-group">
+          <div class="filter-group-header" data-target="body-tags">
+            <h5>Tags</h5>
+            <span class="toggle-icon cs-toggle-icon"
+              data-open-char="{{ icon_open_char }}"
+              data-closed-char="{{ icon_closed_char }}"
+              {% if icon_open_img %}data-open-img="{{ icon_open_img | image_url: width: 40 }}"{% endif %}
+              {% if icon_closed_img %}data-closed-img="{{ icon_closed_img | image_url: width: 40 }}"{% endif %}>
+              {%- if icon_open_img -%}
+                <img src="{{ icon_open_img | image_url: width: 40 }}" alt="" class="cs-icon-img" style="width:{{ icon_size }}px;height:{{ icon_size }}px;object-fit:contain;display:block;">
+              {%- else -%}
+                {{- icon_open_char -}}
+              {%- endif -%}
+            </span>
+          </div>
+          <div class="filter-group-body" id="body-tags">
+            {% assign used_tags = '' %}
+            {% for product in collection.products %}
+              {% for tag in product.tags %}
+                {% unless used_tags contains tag %}
+                  {% assign used_tags = used_tags | append: tag | append: '||' %}
+                  <label class="filter-right">
+                    <span>{{ tag }}</span>
+                    <input type="checkbox" class="filter-tag" value="{{ tag }}">
+                  </label>
+                {% endunless %}
+              {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- GEMSTONES (MEANINGS) — from product metafields, sentinel-dedup -->
+        {% if section.settings.show_gem %}
+        {% if gem_label_arr.size > 0 %}
+        <div class="filter-group">
+          <div class="filter-group-header" data-target="body-gem">
+            <h5>GEMSTONES (MEANINGS)</h5>
+            <span class="toggle-icon cs-toggle-icon"
+              data-open-char="{{ icon_open_char }}"
+              data-closed-char="{{ icon_closed_char }}"
+              {% if icon_open_img %}data-open-img="{{ icon_open_img | image_url: width: 40 }}"{% endif %}
+              {% if icon_closed_img %}data-closed-img="{{ icon_closed_img | image_url: width: 40 }}"{% endif %}>
+              {%- if icon_open_img -%}
+                <img src="{{ icon_open_img | image_url: width: 40 }}" alt="" class="cs-icon-img" style="width:{{ icon_size }}px;height:{{ icon_size }}px;object-fit:contain;display:block;">
+              {%- else -%}
+                {{- icon_open_char -}}
+              {%- endif -%}
+            </span>
+          </div>
+          <div class="filter-group-body" id="body-gem">
+            {% for gem_label in gem_label_arr %}
+              {% unless gem_label == blank %}
+              <label class="filter-right">
+                <span class="filter-item">
+                  <img src="{{ gem_img_arr[forloop.index0] }}" alt="{{ gem_label }}">
+                  <span>{{ gem_label }}</span>
+                </span>
+                <input type="checkbox" class="filter-gem" value="{{ gem_label }}">
+              </label>
+              {% endunless %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <!-- ============================================================
+             MATERIAL — built from VARIANT OPTION named "Material"
+             Image shown = featured_image of first variant with that value
+        ============================================================ -->
+        {% if section.settings.show_material %}
+        {% if material_label_arr.size > 0 %}
+        <div class="filter-group">
+          <div class="filter-group-header" data-target="body-material">
+            <h5>MATERIAL</h5>
+            <span class="toggle-icon cs-toggle-icon"
+              data-open-char="{{ icon_open_char }}"
+              data-closed-char="{{ icon_closed_char }}"
+              {% if icon_open_img %}data-open-img="{{ icon_open_img | image_url: width: 40 }}"{% endif %}
+              {% if icon_closed_img %}data-closed-img="{{ icon_closed_img | image_url: width: 40 }}"{% endif %}>
+              {%- if icon_open_img -%}
+                <img src="{{ icon_open_img | image_url: width: 40 }}" alt="" class="cs-icon-img" style="width:{{ icon_size }}px;height:{{ icon_size }}px;object-fit:contain;display:block;">
+              {%- else -%}
+                {{- icon_open_char -}}
+              {%- endif -%}
+            </span>
+          </div>
+          <div class="filter-group-body" id="body-material">
+            {% for mat_label in material_label_arr %}
+              {% unless mat_label == blank %}
+              <label class="filter-right">
+                <span class="filter-item">
+                  <img src="{{ material_img_arr[forloop.index0] }}" alt="{{ mat_label }}">
+                  <span>{{ mat_label }}</span>
+                </span>
+                <input type="checkbox" class="filter-material" value="{{ mat_label }}">
+              </label>
+              {% endunless %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <!-- ============================================================
+             SHAPE — built from VARIANT OPTION named "Shape"
+             Image shown = featured_image of first variant with that value
+        ============================================================ -->
+        {% if section.settings.show_shape %}
+        {% if shape_label_arr.size > 0 %}
+        <div class="filter-group">
+          <div class="filter-group-header" data-target="body-shape">
+            <h5>SHAPE</h5>
+            <span class="toggle-icon cs-toggle-icon"
+              data-open-char="{{ icon_open_char }}"
+              data-closed-char="{{ icon_closed_char }}"
+              {% if icon_open_img %}data-open-img="{{ icon_open_img | image_url: width: 40 }}"{% endif %}
+              {% if icon_closed_img %}data-closed-img="{{ icon_closed_img | image_url: width: 40 }}"{% endif %}>
+              {%- if icon_open_img -%}
+                <img src="{{ icon_open_img | image_url: width: 40 }}" alt="" class="cs-icon-img" style="width:{{ icon_size }}px;height:{{ icon_size }}px;object-fit:contain;display:block;">
+              {%- else -%}
+                {{- icon_open_char -}}
+              {%- endif -%}
+            </span>
+          </div>
+          <div class="filter-group-body" id="body-shape">
+            {% for shp_label in shape_label_arr %}
+              {% unless shp_label == blank %}
+              <label class="filter-right">
+                <span class="filter-item">
+                  <img src="{{ shape_img_arr[forloop.index0] }}" alt="{{ shp_label }}">
+                  <span>{{ shp_label }}</span>
+                </span>
+                <input type="checkbox" class="filter-shape" value="{{ shp_label }}">
+              </label>
+              {% endunless %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <!-- CATEGORY — only shown when collection has at least one product with a category -->
+        {% if section.settings.show_category %}
+          {% assign has_category = false %}
+          {% for product in collection.products %}
+            {% unless product.metafields.custom.filter_category_title == blank %}
+              {% assign has_category = true %}
+              {% break %}
+            {% endunless %}
+          {% endfor %}
+          {% if has_category %}
+        <div class="filter-group">
+          <div class="filter-group-header" data-target="body-category">
+            <h5>CATEGORY</h5>
+            <span class="toggle-icon cs-toggle-icon"
+              data-open-char="{{ icon_open_char }}"
+              data-closed-char="{{ icon_closed_char }}"
+              {% if icon_open_img %}data-open-img="{{ icon_open_img | image_url: width: 40 }}"{% endif %}
+              {% if icon_closed_img %}data-closed-img="{{ icon_closed_img | image_url: width: 40 }}"{% endif %}>
+              {%- if icon_open_img -%}
+                <img src="{{ icon_open_img | image_url: width: 40 }}" alt="" class="cs-icon-img" style="width:{{ icon_size }}px;height:{{ icon_size }}px;object-fit:contain;display:block;">
+              {%- else -%}
+                {{- icon_open_char -}}
+              {%- endif -%}
+            </span>
+          </div>
+          <div class="filter-group-body" id="body-category">
+            {% assign used_categories = '' %}
+            {% for product in collection.products %}
+              {% assign category = product.metafields.custom.filter_category_title %}
+              {% unless category == blank or used_categories contains category %}
+                {% assign used_categories = used_categories | append: category | append: '||' %}
+                <label class="filter-right">
+                  <span class="filter-item">
+                    <img src="{{ product.metafields.custom.filter_category_img | image_url: width: 40 }}" alt="{{ category }}">
+                    <span>{{ category }}</span>
+                  </span>
+                  <input type="checkbox" class="filter-category" value="{{ category }}">
+                </label>
+              {% endunless %}
+            {% endfor %}
+          </div>
+        </div>
+          {% endif %}
+        {% endif %}
+
+        <!-- SIZE — from variant option named "Size" -->
+        {% if section.settings.show_size %}
+        <div class="filter-group">
+          <div class="filter-group-header" data-target="body-size">
+            <h5>SIZE</h5>
+            <span class="toggle-icon cs-toggle-icon"
+              data-open-char="{{ icon_open_char }}"
+              data-closed-char="{{ icon_closed_char }}"
+              {% if icon_open_img %}data-open-img="{{ icon_open_img | image_url: width: 40 }}"{% endif %}
+              {% if icon_closed_img %}data-closed-img="{{ icon_closed_img | image_url: width: 40 }}"{% endif %}>
+              {%- if icon_open_img -%}
+                <img src="{{ icon_open_img | image_url: width: 40 }}" alt="" class="cs-icon-img" style="width:{{ icon_size }}px;height:{{ icon_size }}px;object-fit:contain;display:block;">
+              {%- else -%}
+                {{- icon_open_char -}}
+              {%- endif -%}
+            </span>
+          </div>
+          <div class="filter-group-body" id="body-size">
+            {% assign used_sizes = '' %}
+            {% for product in collection.products %}
+              {% for opt_i in (1..3) %}
+                {% assign opt_index = opt_i | minus: 1 %}
+                {% assign opt_name = product.options[opt_index] | downcase %}
+                {% if opt_name contains 'size' %}
+                  {% for variant in product.variants %}
+                    {% assign opt_key = 'option' | append: opt_i %}
+                    {% assign size_opt = variant[opt_key] %}
+                    {% unless size_opt == blank or used_sizes contains size_opt %}
+                      {% assign used_sizes = used_sizes | append: size_opt | append: '||' %}
+                      <label class="filter-right">
+                        <span>{{ size_opt }}</span>
+                        <input type="checkbox" class="filter-size" value="{{ size_opt }}">
+                      </label>
+                    {% endunless %}
+                  {% endfor %}
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- PRICE -->
+        {% if section.settings.show_price %}
+        <div class="filter-group">
+          <div class="filter-group-header" data-target="body-price">
+            <h5>PRICE</h5>
+            <span class="toggle-icon cs-toggle-icon"
+              data-open-char="{{ icon_open_char }}"
+              data-closed-char="{{ icon_closed_char }}"
+              {% if icon_open_img %}data-open-img="{{ icon_open_img | image_url: width: 40 }}"{% endif %}
+              {% if icon_closed_img %}data-closed-img="{{ icon_closed_img | image_url: width: 40 }}"{% endif %}>
+              {%- if icon_open_img -%}
+                <img src="{{ icon_open_img | image_url: width: 40 }}" alt="" class="cs-icon-img" style="width:{{ icon_size }}px;height:{{ icon_size }}px;object-fit:contain;display:block;">
+              {%- else -%}
+                {{- icon_open_char -}}
+              {%- endif -%}
+            </span>
+          </div>
+          <div class="filter-group-body" id="body-price">
+            <div class="price-range-widget">
+              <div class="price-range-track-wrap">
+                <div class="price-range-track" id="priceTrack">
+                  <div class="price-range-fill" id="priceFill"></div>
+                  <input type="range" id="priceMin" min="0" max="1000" value="0" class="price-thumb price-thumb-min" aria-label="Minimum price">
+                  <input type="range" id="priceMax" min="0" max="1000" value="1000" class="price-thumb price-thumb-max" aria-label="Maximum price">
+                </div>
+              </div>
+              <div class="price-inputs-row">
+                <div class="price-input-box">
+                  <span class="price-input-prefix">$</span>
+                  <input type="number" id="priceMinInput" min="0" max="1000" value="0" class="price-num-input" aria-label="Min price input">
+                </div>
+                <div class="price-input-box">
+                  <span class="price-input-prefix">$</span>
+                  <input type="number" id="priceMaxInput" min="0" max="1000" value="1000" class="price-num-input" aria-label="Max price input">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+      <!-- END FILTERS -->
+
+      <!-- PRODUCTS -->
+      <div class="products-area" style="max-width: 1500px; margin: 0 auto">
+
+        <div class="grid" id="productGrid">
+          {% paginate collection.products by 250 %}
+            {% for product in collection.products %}
+
+              {% comment %}
+                ============================================================
+                Build data-material and data-shape from VARIANT OPTIONS.
+
+                For each product we walk its options to find "Material" and
+                "Shape" (case-insensitive), then collect every unique value
+                across all variants, joined with || so the JS splitVals()
+                helper can compare them to the checked filter values.
+                ============================================================
+              {% endcomment %}
+
+              {% assign p_mat_opt_idx = nil %}
+              {% assign p_shp_opt_idx = nil %}
+              {% for opt in product.options %}
+                {% assign opt_lower = opt | downcase %}
+                {% if opt_lower == 'material' %}{% assign p_mat_opt_idx = forloop.index %}{% endif %}
+                {% if opt_lower == 'shape'    %}{% assign p_shp_opt_idx = forloop.index %}{% endif %}
+              {% endfor %}
+
+              {% assign p_mat_vals = '' %}
+              {% if p_mat_opt_idx %}
+                {% assign p_mat_key = 'option' | append: p_mat_opt_idx %}
+                {% for variant in product.variants %}
+                  {% assign v_mat = variant[p_mat_key] %}
+                  {% unless v_mat == blank or p_mat_vals contains v_mat %}
+                    {% assign p_mat_vals = p_mat_vals | append: v_mat | append: '||' %}
+                  {% endunless %}
+                {% endfor %}
+              {% endif %}
+
+              {% assign p_shp_vals = '' %}
+              {% if p_shp_opt_idx %}
+                {% assign p_shp_key = 'option' | append: p_shp_opt_idx %}
+                {% for variant in product.variants %}
+                  {% assign v_shp = variant[p_shp_key] %}
+                  {% unless v_shp == blank or p_shp_vals contains v_shp %}
+                    {% assign p_shp_vals = p_shp_vals | append: v_shp | append: '||' %}
+                  {% endunless %}
+                {% endfor %}
+              {% endif %}
+
+              {% comment %} Size values (unchanged) {% endcomment %}
+              {% assign size_vals = '' %}
+              {% for opt_i in (1..3) %}
+                {% assign opt_index = opt_i | minus: 1 %}
+                {% assign opt_name = product.options[opt_index] | downcase %}
+                {% assign opt_key = 'option' | append: opt_i %}
+                {% for variant in product.variants %}
+                  {% assign opt_val = variant[opt_key] %}
+                  {% if opt_name contains 'size' %}
+                    {% unless size_vals contains opt_val %}
+                      {% assign size_vals = size_vals | append: opt_val | append: '||' %}
+                    {% endunless %}
+                  {% endif %}
+                {% endfor %}
+              {% endfor %}
+
+              <div class="product-item"
+                data-vendor="{{ product.vendor }}"
+                data-price="{{ product.price | divided_by: 100 }}"
+                data-title="{{ product.title | downcase }}"
+                data-date="{{ product.created_at }}"
+                data-tags="{{ product.tags | join: '||' }}"
+                data-gem="{{ product.metafields.custom.filter_gem_title }}"
+                data-material="{{ p_mat_vals }}"
+                data-shape="{{ p_shp_vals }}"
+                data-size="{{ size_vals }}"
+                data-category="{{ product.metafields.custom.filter_category_title }}">
+                {%- render 'product-card-2',
+                  product: product,
+                  section_id: section.id,
+                  product_card_style: 'style-1'
+                -%}
+              </div>
+            {% endfor %}
+          {% endpaginate %}
+        </div>
+
+        <!-- PAGINATION -->
+        <div class="pagination-wrapper" id="paginationWrapper" style="display:none;">
+          {%- if prev_icon_img -%}
+          <button class="page-btn cs-page-btn-img" id="prevPage" aria-label="Previous">
+            <img src="{{ prev_icon_img | image_url: width: 40 }}" alt="Previous" style="width:{{ pagination_icon_size }}px;height:{{ pagination_icon_size }}px;object-fit:contain;display:block;">
+          </button>
+          {%- else -%}
+          <button class="page-btn" id="prevPage" aria-label="Previous">&#8249;</button>
+          {%- endif -%}
+          <div class="page-numbers" id="pageNumbers"></div>
+          {%- if next_icon_img -%}
+          <button class="page-btn cs-page-btn-img" id="nextPage" aria-label="Next">
+            <img src="{{ next_icon_img | image_url: width: 40 }}" alt="Next" style="width:{{ pagination_icon_size }}px;height:{{ pagination_icon_size }}px;object-fit:contain;display:block;">
+          </button>
+          {%- else -%}
+          <button class="page-btn" id="nextPage" aria-label="Next">&#8250;</button>
+          {%- endif -%}
+        </div>
+
+      </div>
+      <!-- END PRODUCTS -->
+
+    </div>
+  </div>
+</section>
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400&family=Inter:wght@400;500&display=swap');
+
+/* ===== BASE ===== */
+.custom-collection { max-width: 1920px;  margin: auto; }
+.page-width { padding: 70px 20px; margin: auto; box-sizing: border-box; }
+
+/* ===== SECTION INTRO ===== */
+.section-intro {
+    margin-bottom: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.section-heading {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  text-align:center;
+  font-size: 64px;
+  font-weight: 400;
+  line-height: 1.1;
+  margin: 0 0 16px 0;
+  color: #2C2C2C;
+  letter-spacing: -0.5px;
+}
+.section-description {
+  font-family: 'Inter', sans-serif;
+  font-size: 20px !important;
+  font-weight: 400 !important;
+  line-height: 1.6;
+  color: #2C2C2C;
+  margin: 0;
+}
+
+/* ===== TOOLBAR ===== */
+.toolbar {
+      display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 12px;
+    padding: 20px 0px;
+}
+
+.cs-sticky-toolbar{
+background: #fff;
+ position: sticky;
+ top: 61px;
+ z-index: 10; 
+ padding: 20px 0px;
+}
+.toolbar button {
+    padding: 12px;
+    border: 1px solid #F4F3F1;
+    background: #fff;
+    color: #2C2C2C;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 400;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+
+/* ===== LAYOUT ===== */
+.layout {
+  display: block;
+  position: relative;
+}
+
+/* Products always full width — sidebar overlays on top */
+.products-area {
+  width: 100%;
+  overflow: hidden;
+}
+
+/* ===== FILTER SIDEBAR — DESKTOP OVERLAY DRAWER ===== */
+.filters {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 360px;
+  max-width: 88vw;
+  height: 100dvh;
+  background: #fff;
+  z-index: 999;
+  padding: 24px 32px;
+  box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+  overflow-y: auto;
+  overflow-x: hidden;
+  pointer-events: none;
+  transform: translateX(-105%);
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  box-sizing: border-box;
+}
+.layout.active-filter .filters {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* ===== FILTER HEADER ===== */
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 0 4px;
+  border-bottom:2px solid #F4F3F1;
+  padding-bottom:20px;
+}
+
+.filter-header h4 {
+    font-family: 'Inter';
+    margin: 0;
+    font-size: 22px;
+    font-weight: 400;
+}
+
+.filter-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 6px;
+  line-height: 1;
+  transition: background 0.2s;
+}
+.filter-close:hover { background: #f0f0f0; }
+
+/* ===== COLLAPSIBLE GROUPS ===== */
+.filter-group {
+  border-bottom: 1px solid #eee;
+  padding: 8px 0;
+}
+.filter-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 6px 4px;
+  border-radius: 6px;
+  user-select: none;
+  transition: background 0.15s;
+}
+.filter-group-header:hover { background: #f5f5f5; }
+.filter-group-header h5 { margin: 0; font-size: 18px; font-weight: 400; }
+.toggle-icon {
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: #666;
+  transition: transform 0.25s ease;
+}
+.cs-icon-arrow .filter-group-header.is-collapsed .toggle-icon {
+  transform: rotate(-90deg);
+}
+.cs-icon-chevron .filter-group-header:not(.is-collapsed) .toggle-icon {
+  transform: rotate(90deg);
+}
+.cs-icon-chevron .filter-group-header.is-collapsed .toggle-icon {
+  transform: rotate(0deg);
+}
+.filter-group-body {
+  overflow: hidden;
+  max-height: 600px;
+  opacity: 1;
+  padding: 24px 0px;
+  transition: max-height 0.35s ease, opacity 0.25s ease, padding-top 0.25s ease;
+}
+.filter-group-body.is-collapsed {
+  max-height: 0 !important;
+  opacity: 0;
+  padding-top: 0;
+}
+
+/* ===== FILTER LABELS ===== */
+.filter-right {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+  gap: 8px;
+}
+.filter-right:hover { background: #f5f5f5; }
+.filter-right > span:first-child { font-size: 16px; flex: 1; min-width: 0; }
+
+.filter-right input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #bbb;
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.2s, background 0.2s;
+  margin: 0;
+}
+.filter-right input[type="checkbox"]:checked {
+  background: #222;
+  border-color: #222;
+}
+.filter-right input[type="checkbox"]:checked::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.filter-item { display: flex; align-items: center; gap: 8px; }
+.filter-item img {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  
+}
+
+/* Toggle icon: image mode */
+.cs-toggle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.cs-toggle-icon .cs-icon-img {
+  display: block;
+  transition: transform 0.25s ease;
+}
+.cs-icon-arrow .filter-group-header:not(.is-collapsed) .cs-toggle-icon .cs-icon-img {
+  transform: rotate(0deg);
+}
+.cs-icon-arrow .filter-group-header.is-collapsed .cs-toggle-icon .cs-icon-img {
+  transform: rotate(-90deg);
+}
+
+/* Pagination image buttons */
+.cs-page-btn-img {
+  background: transparent;
+  border-color: transparent;
+  padding: 4px;
+}
+.cs-page-btn-img:hover:not(:disabled) {
+  background: #f5f5f5;
+  border-color: #ddd;
+}
+.cs-page-btn-img img {
+  display: block;
+  object-fit: contain;
+}
+
+/* ===== PRICE RANGE WIDGET ===== */
+.price-range-widget {
+  padding: 8px 4px 12px;
+}
+.price-range-track-wrap {
+  position: relative;
+  margin-bottom: 16px;
+}
+.price-range-track {
+  position: relative;
+  height: 4px;
+  background: #e0e0e0;
+  border-radius: 2px;
+  margin: 18px 0 6px;
+}
+.price-range-fill {
+  position: absolute;
+  height: 100%;
+  background: #111;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* Shared thumb styles */
+.price-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  height: 20px;
+  background: transparent;
+  pointer-events: none;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  cursor: pointer;
+}
+.price-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #111;
+  border: none;
+  pointer-events: all;
+  cursor: grab;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  transition: transform 0.15s;
+}
+.price-thumb::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.15);
+}
+.price-thumb::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #111;
+  border: none;
+  pointer-events: all;
+  cursor: grab;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+}
+.price-thumb-min { z-index: 3; }
+.price-thumb-max { z-index: 4; }
+
+.price-inputs-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.price-input-box {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid #d0d0d0;
+    border-radius: 6px;
+    padding: 5px 8px;
+    background: #fff;
+    gap: 2px;
+    width: 60px !important;
+    transition: border-color 0.2s;
+}
+
+.price-input-box:focus-within {
+  border-color: #111;
+}
+.price-input-prefix {
+  font-size: 13px;
+  color: #777;
+  user-select: none;
+}
+.price-num-input {
+  border: none;
+  outline: none;
+  font-size: 13px;
+  width: 100%;
+  color: #111;
+  background: transparent;
+  -moz-appearance: textfield;
+}
+.price-num-input::-webkit-outer-spin-button,
+.price-num-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ===== PRODUCT GRID ===== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+/* ===== PRODUCT ITEM ===== */
+.product-item {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+}
+.product-item.cs-hidden { display: none !important; }
+
+/* ===== PAGINATION — always one line ===== */
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 40px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+  flex-shrink: 1;
+  min-width: 0;
+}
+.page-btn {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+.page-btn:hover:not(:disabled) { border-color: #222; background: #222; color: #fff; }
+.page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.page-number {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+.page-number:hover { border-color: #222; }
+.page-number.active { background: #222; color: #fff; border-color: #222; }
+.page-dots {
+  width: 20px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #aaa;
+  flex-shrink: 0;
+}
+
+/* ===== OVERLAY ===== */
+.filter-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+  pointer-events: none;
+}
+.filter-overlay.is-active {
+  display: block;
+  pointer-events: auto;
+}
+
+@media (max-width: 1280px) {
+  .custom-collection {  padding:0 120px; }
+}
+/* ===== TABLET ===== */
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {
+  .custom-collection {  padding:0 20px; }
+  .section-heading { font-size: 40px; }
+  .section-description { font-size: 16px !important; }
+  .custom-collection {  padding:0  }
+  .page-width { padding: 24px 12px; }
+  .grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  .product-item { width: 100%; min-width: 0; overflow: hidden; }
+  .toolbar { flex-wrap: wrap; gap: 8px; }
+  .toolbar button,
+  .toolbar select { font-size: 13px; padding: 8px 12px; }
+  .cs-sticky-toolbar { position: sticky; top: 48px; z-index: 10; padding: 20px 0px; }
+  .page-btn,
+  .page-number { width: 32px; height: 32px; min-width: 32px; font-size: 13px; }
+  .page-btn { font-size: 18px; }
+  .pagination-wrapper { gap: 4px; }
+  .page-numbers { gap: 4px; }
+}
+
+/* ===== SMALL MOBILE ===== */
+@media (max-width: 480px) {
+  .page-width { padding: 16px 10px; }
+  .grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+  .section-heading { font-size: 30px; }
+}
+
+/* Scrollbar for filter sidebar */
+.filters::-webkit-scrollbar { width: 4px; }
+.filters::-webkit-scrollbar-track { background: #f1f1f1; }
+.filters::-webkit-scrollbar-thumb { background: #ebdfcf; border-radius: 10px; }
+.filters::-webkit-scrollbar-thumb:hover { background: darkred; }
+
+</style>
+
+<script>
+(function () {
+
+  /* ---------- ELEMENTS ---------- */
+  var layout     = document.getElementById('mainLayout');
+  var overlay    = document.getElementById('filterOverlay');
+  var toggleBtn  = document.getElementById('toggleFilter');
+  var closeBtn   = document.getElementById('closeFilter');
+  var sortSel    = document.getElementById('sortProducts');
+  var grid       = document.getElementById('productGrid');
+  var prevBtn    = document.getElementById('prevPage');
+  var nextBtn    = document.getElementById('nextPage');
+  var pageNumsEl = document.getElementById('pageNumbers');
+  var paginWrap  = document.getElementById('paginationWrapper');
+
+  var minSlider    = document.getElementById('priceMin');
+  var maxSlider    = document.getElementById('priceMax');
+  var minNumInput  = document.getElementById('priceMinInput');
+  var maxNumInput  = document.getElementById('priceMaxInput');
+  var priceFill    = document.getElementById('priceFill');
+
+  var PER_PAGE     = 8;
+  var currentPage  = 1;
+  var filteredList = [];
+
+  /* ---------- SNAPSHOT ALL PRODUCTS ---------- */
+  var allProducts = Array.from(grid.querySelectorAll('.product-item'));
+
+  /* ---------- FILTER CHECKBOXES ---------- */
+  var vendorCBs   = Array.from(document.querySelectorAll('.filter-vendor'));
+  var tagCBs      = Array.from(document.querySelectorAll('.filter-tag'));
+  var gemCBs      = Array.from(document.querySelectorAll('.filter-gem'));
+  var materialCBs = Array.from(document.querySelectorAll('.filter-material'));
+  var shapeCBs    = Array.from(document.querySelectorAll('.filter-shape'));
+  var categoryCBs = Array.from(document.querySelectorAll('.filter-category'));
+  var sizeCBs     = Array.from(document.querySelectorAll('.filter-size'));
+  var allCBs      = vendorCBs.concat(tagCBs, gemCBs, materialCBs, shapeCBs, categoryCBs, sizeCBs);
+
+  /* ============================================================
+     SIDEBAR OPEN / CLOSE
+  ============================================================ */
+  function openSidebar() {
+    layout.classList.add('active-filter');
+    overlay.classList.add('is-active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSidebar() {
+    layout.classList.remove('active-filter');
+    overlay.classList.remove('is-active');
+    document.body.style.overflow = '';
+  }
+
+  toggleBtn.addEventListener('click', function () {
+    layout.classList.contains('active-filter') ? closeSidebar() : openSidebar();
+  });
+  if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+  overlay.addEventListener('click', closeSidebar);
+
+  /* ============================================================
+     COLLAPSIBLE FILTER GROUPS
+  ============================================================ */
+  document.querySelectorAll('.filter-group-header').forEach(function (header) {
+    header.addEventListener('click', function () {
+      var targetId = header.getAttribute('data-target');
+      var body = document.getElementById(targetId);
+      if (!body) return;
+      var nowCollapsed = body.classList.toggle('is-collapsed');
+      header.classList.toggle('is-collapsed', nowCollapsed);
+      var iconEl = header.querySelector('.cs-toggle-icon');
+      if (iconEl) {
+        var imgEl = iconEl.querySelector('img');
+        if (imgEl) {
+          var openSrc   = iconEl.dataset.openImg;
+          var closedSrc = iconEl.dataset.closedImg;
+          if (nowCollapsed && closedSrc) {
+            imgEl.src = closedSrc;
+          } else if (!nowCollapsed && openSrc) {
+            imgEl.src = openSrc;
+          }
+        } else {
+          iconEl.textContent = nowCollapsed
+            ? iconEl.dataset.closedChar
+            : iconEl.dataset.openChar;
+        }
+      }
+    });
+  });
+
+  /* ============================================================
+     PRICE RANGE WIDGET
+  ============================================================ */
+  function updatePriceFill() {
+    if (!minSlider || !maxSlider || !priceFill) return;
+    var min = +minSlider.min || 0;
+    var max = +minSlider.max || 1000;
+    var lo  = +minSlider.value;
+    var hi  = +maxSlider.value;
+    var leftPct  = ((lo - min) / (max - min)) * 100;
+    var rightPct = ((hi - min) / (max - min)) * 100;
+    priceFill.style.left  = leftPct + '%';
+    priceFill.style.width = (rightPct - leftPct) + '%';
+  }
+
+  if (minSlider && maxSlider) {
+    minSlider.addEventListener('input', function () {
+      if (+minSlider.value > +maxSlider.value) minSlider.value = maxSlider.value;
+      if (minNumInput) minNumInput.value = minSlider.value;
+      updatePriceFill();
+      applyFilters();
+    });
+    maxSlider.addEventListener('input', function () {
+      if (+maxSlider.value < +minSlider.value) maxSlider.value = minSlider.value;
+      if (maxNumInput) maxNumInput.value = maxSlider.value;
+      updatePriceFill();
+      applyFilters();
+    });
+    if (minNumInput) {
+      minNumInput.addEventListener('input', function () {
+        var v = Math.min(Math.max(+minNumInput.value, +minSlider.min), +maxSlider.value);
+        minSlider.value = v;
+        updatePriceFill();
+        applyFilters();
+      });
+    }
+    if (maxNumInput) {
+      maxNumInput.addEventListener('input', function () {
+        var v = Math.max(Math.min(+maxNumInput.value, +maxSlider.max), +minSlider.value);
+        maxSlider.value = v;
+        updatePriceFill();
+        applyFilters();
+      });
+    }
+    updatePriceFill();
+  }
+
+  /* ============================================================
+     CHECKBOX EVENTS + SORT
+  ============================================================ */
+  allCBs.forEach(function (cb) { cb.addEventListener('change', applyFilters); });
+  sortSel.addEventListener('change', applyFilters);
+
+  function getChecked(arr) {
+    return arr.filter(function (cb) { return cb.checked; }).map(function (cb) { return cb.value; });
+  }
+
+  /* ============================================================
+     HELPER — split a ||‑joined data attribute into an array
+  ============================================================ */
+  function splitVals(str) {
+    if (!str) return [];
+    return str.split('||').map(function (s) { return s.trim(); }).filter(Boolean);
+  }
+
+  /* ============================================================
+     APPLY FILTERS + SORT
+  ============================================================ */
+  function applyFilters() {
+    currentPage = 1;
+
+    var vendors = getChecked(vendorCBs);
+    var tags    = getChecked(tagCBs);
+    var gems    = getChecked(gemCBs);
+    var mats    = getChecked(materialCBs);
+    var shapes  = getChecked(shapeCBs);
+    var cats    = getChecked(categoryCBs);
+    var sizes   = getChecked(sizeCBs);
+    var minP    = minSlider ? +minSlider.value : 0;
+    var maxP    = maxSlider ? +maxSlider.value : 999999;
+    var sort    = sortSel.value;
+
+    filteredList = allProducts.filter(function (p) {
+      var price    = parseFloat(p.dataset.price) || 0;
+      var pTags    = splitVals(p.dataset.tags);
+      var pMats    = splitVals(p.dataset.material);   /* ← now multi-value */
+      var pShapes  = splitVals(p.dataset.shape);      /* ← now multi-value */
+      var pSizes   = splitVals(p.dataset.size);
+
+      var vOk  = vendors.length === 0 || vendors.indexOf(p.dataset.vendor) !== -1;
+      var tOk  = tags.length    === 0 || tags.some(function (t)   { return pTags.indexOf(t)   !== -1; });
+      var gOk  = gems.length    === 0 || gems.indexOf(p.dataset.gem) !== -1;
+      var mOk  = mats.length    === 0 || mats.some(function (m)   { return pMats.indexOf(m)   !== -1; });
+      var shOk = shapes.length  === 0 || shapes.some(function (s) { return pShapes.indexOf(s) !== -1; });
+      var cOk  = cats.length    === 0 || cats.indexOf(p.dataset.category) !== -1;
+      var sOk  = sizes.length   === 0 || sizes.some(function (s)  { return pSizes.indexOf(s)  !== -1; });
+      var pOk  = price >= minP && price <= maxP;
+
+      return vOk && tOk && gOk && mOk && shOk && cOk && sOk && pOk;
+    });
+
+    filteredList.sort(function (a, b) {
+      if (sort === 'title-asc')  return a.dataset.title.localeCompare(b.dataset.title);
+      if (sort === 'title-desc') return b.dataset.title.localeCompare(a.dataset.title);
+      if (sort === 'price-asc')  return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+      if (sort === 'price-desc') return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+      if (sort === 'date-desc')  return new Date(b.dataset.date) - new Date(a.dataset.date);
+      return 0;
+    });
+
+    renderPage();
+  }
+
+  /* ============================================================
+     RENDER PAGE
+  ============================================================ */
+  function renderPage() {
+    var totalPages = Math.max(1, Math.ceil(filteredList.length / PER_PAGE));
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    var start      = (currentPage - 1) * PER_PAGE;
+    var pageItems  = filteredList.slice(start, start + PER_PAGE);
+    var visibleSet = new Set(pageItems);
+
+    pageItems.forEach(function (p) { grid.appendChild(p); });
+
+    allProducts.forEach(function (p) {
+      if (visibleSet.has(p)) {
+        p.classList.remove('cs-hidden');
+      } else {
+        p.classList.add('cs-hidden');
+      }
+    });
+
+    renderPagination(totalPages);
+  }
+
+  /* ============================================================
+     PAGINATION
+  ============================================================ */
+  function renderPagination(totalPages) {
+    pageNumsEl.innerHTML = '';
+    prevBtn.disabled = (currentPage <= 1);
+    nextBtn.disabled = (currentPage >= totalPages);
+
+    if (totalPages <= 1) {
+      paginWrap.style.display = 'none';
+      return;
+    }
+    paginWrap.style.display = 'flex';
+
+    buildPageRange(currentPage, totalPages).forEach(function (p) {
+      if (p === '\u2026') {
+        var dots = document.createElement('span');
+        dots.className = 'page-dots';
+        dots.textContent = '\u2026';
+        pageNumsEl.appendChild(dots);
+      } else {
+        var btn = document.createElement('button');
+        btn.className = 'page-number' + (p === currentPage ? ' active' : '');
+        btn.textContent = p;
+        (function (pageNum) {
+          btn.addEventListener('click', function () {
+            currentPage = pageNum;
+            renderPage();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+        })(p);
+        pageNumsEl.appendChild(btn);
+      }
+    });
+  }
+
+  function buildPageRange(current, total) {
+    if (total <= 7) {
+      var all = [];
+      for (var i = 1; i <= total; i++) all.push(i);
+      return all;
+    }
+    var pages = [];
+    if (current <= 4) {
+      for (var i = 1; i <= 5; i++) pages.push(i);
+      pages.push('\u2026');
+      pages.push(total);
+    } else if (current >= total - 3) {
+      pages.push(1);
+      pages.push('\u2026');
+      for (var i = total - 4; i <= total; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      pages.push('\u2026');
+      pages.push(current - 1);
+      pages.push(current);
+      pages.push(current + 1);
+      pages.push('\u2026');
+      pages.push(total);
+    }
+    return pages;
+  }
+
+  prevBtn.addEventListener('click', function () {
+    if (currentPage > 1) {
+      currentPage--;
+      renderPage();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+  nextBtn.addEventListener('click', function () {
+    var totalPages = Math.ceil(filteredList.length / PER_PAGE);
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderPage();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+
+  /* ---------- INIT ---------- */
+  applyFilters();
+
+})();
+</script> {% endcomment %}
+
+
+
+{% comment %} --------------------------------------------------------------------------------------------------------------------------------------------------------------------- {% endcomment %}
+
+
+{% schema %}
+{
+  "name": "CS Collection Filter",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Filter Visibility"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show Vendor Filter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tags",
+      "label": "Show Tags Filter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_gem",
+      "label": "Show Gem Filter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_material",
+      "label": "Show Material Filter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shape",
+      "label": "Show Shape Filter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_category",
+      "label": "Show Category Filter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_size",
+      "label": "Show Size Filter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_price",
+      "label": "Show Price Filter",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Filter Group Icon"
+    },
+    {
+      "type": "select",
+      "id": "toggle_icon",
+      "label": "Icon Style (used when no custom image set)",
+      "default": "arrow",
+      "options": [
+        { "value": "arrow",   "label": "Arrow ▾" },
+        { "value": "chevron", "label": "Chevron ›" },
+        { "value": "plus",    "label": "Plus +" },
+        { "value": "dash",    "label": "Dash −" }
+      ]
+    },
+    {
+      "type": "image_picker",
+      "id": "icon_open_img",
+      "label": "Custom Icon — Group Open (expanded state)"
+    },
+    {
+      "type": "image_picker",
+      "id": "icon_closed_img",
+      "label": "Custom Icon — Group Closed (collapsed state)"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Custom Icon Size (px)",
+      "min": 10,
+      "max": 40,
+      "step": 1,
+      "default": 18
+    },
+    {
+      "type": "header",
+      "content": "Pagination Icons"
+    },
+    {
+      "type": "image_picker",
+      "id": "prev_icon_img",
+      "label": "Previous Page Icon"
+    },
+    {
+      "type": "image_picker",
+      "id": "next_icon_img",
+      "label": "Next Page Icon"
+    },
+    {
+      "type": "range",
+      "id": "pagination_icon_size",
+      "label": "Pagination Icon Size (px)",
+      "min": 10,
+      "max": 40,
+      "step": 1,
+      "default": 18
+    },
+    {
+      "type": "header",
+      "content": "Filter Close Icon"
+    },
+    {
+      "type": "image_picker",
+      "id": "close_icon_img",
+      "label": "Custom Close Icon (replaces ✕)"
+    },
+    {
+      "type": "range",
+      "id": "close_icon_size",
+      "label": "Close Icon Size (px)",
+      "min": 10,
+      "max": 40,
+      "step": 1,
+      "default": 20
+    }
+  ],
+  "presets": [
+    {
+      "name": "CS Collection Filter"
+    }
+  ]
+}
+{% endschema %}
+
+{% assign toggle_icon      = section.settings.toggle_icon %}
+{% case toggle_icon %}
+  {% when 'chevron' %}{% assign icon_open_char = '›' %}{% assign icon_closed_char = '›' %}
+  {% when 'plus'    %}{% assign icon_open_char = '−' %}{% assign icon_closed_char = '+' %}
+  {% when 'dash'    %}{% assign icon_open_char = '−' %}{% assign icon_closed_char = '−' %}
+  {% else            %}{% assign icon_open_char = '▾' %}{% assign icon_closed_char = '▾' %}
+{% endcase %}
+{% assign icon_open_img        = section.settings.icon_open_img %}
+{% assign icon_closed_img      = section.settings.icon_closed_img %}
+{% assign icon_size            = section.settings.icon_size %}
+{% assign prev_icon_img        = section.settings.prev_icon_img %}
+{% assign next_icon_img        = section.settings.next_icon_img %}
+{% assign pagination_icon_size = section.settings.pagination_icon_size %}
+{% assign close_icon_img       = section.settings.close_icon_img %}
+{% assign close_icon_size      = section.settings.close_icon_size %}
+
+{% comment %}
+  ============================================================
+  SIDEBAR GEM LIST
+  Read all filter_by_gemstone metaobjects from the shop.
+  Each entry's "title" field (key: title) becomes both the
+  sidebar checkbox label AND the value we write into data-gem
+  on every product card. Matching is therefore exact.
+  ============================================================
+{% endcomment %}
+{% assign used_gems_sentinel = '' %}
+{% assign gem_labels = '' %}
+{% assign gem_imgs   = '' %}
+
+{% for gem_entry in shop.metaobjects.filter_by_gemstone.values %}
+  {% assign gem_title = gem_entry.title.value %}
+  {% if gem_title == blank %}{% assign gem_title = gem_entry.title %}{% endif %}
+  {% if gem_title == blank %}{% assign gem_title = gem_entry.system.handle | replace: '-', ' ' | capitalize %}{% endif %}
+
+  {% assign gem_sentinel = '~' | append: gem_title | append: '~' %}
+  {% unless gem_title == blank or used_gems_sentinel contains gem_sentinel %}
+    {% assign used_gems_sentinel = used_gems_sentinel | append: gem_sentinel %}
+
+    {% assign gem_img_list = gem_entry.image.value %}
+    {% assign gem_img_file = gem_img_list | first %}
+    {% if gem_img_file %}
+      {% assign gem_img_src = gem_img_file | image_url: width: 80 %}
+    {% else %}
+      {% assign gem_img_src = '' %}
+    {% endif %}
+
+    {% assign gem_labels = gem_labels | append: gem_title | append: '||' %}
+    {% assign gem_imgs   = gem_imgs   | append: gem_img_src | append: '||' %}
+  {% endunless %}
+{% endfor %}
+
+{% assign gem_label_arr = gem_labels | split: '||' %}
+{% assign gem_img_arr   = gem_imgs   | split: '||' %}
+
+{% comment %}
+  ============================================================
+  MATERIAL & SHAPE — from variant options
+  ============================================================
+{% endcomment %}
+{% assign used_materials  = '' %}
+{% assign material_labels = '' %}
+{% assign material_imgs   = '' %}
+{% assign material_count  = 0 %}
+{% assign used_shapes     = '' %}
+{% assign shape_labels    = '' %}
+{% assign shape_imgs      = '' %}
+
+{% for product in collection.products %}
+  {% assign mat_opt_index = nil %}
+  {% assign shp_opt_index = nil %}
+  {% for opt in product.options %}
+    {% assign opt_lower = opt | downcase %}
+    {% if opt_lower == 'material' %}{% assign mat_opt_index = forloop.index %}{% endif %}
+    {% if opt_lower == 'shape'    %}{% assign shp_opt_index = forloop.index %}{% endif %}
+  {% endfor %}
+
+  {% if mat_opt_index and material_count < 3 %}
+    {% assign mat_key = 'option' | append: mat_opt_index %}
+    {% for variant in product.variants %}
+      {% if material_count >= 3 %}{% break %}{% endif %}
+      {% assign mat_val      = variant[mat_key] %}
+      {% assign mat_sentinel = '~' | append: mat_val | append: '~' %}
+      {% unless mat_val == blank or used_materials contains mat_sentinel %}
+        {% assign used_materials  = used_materials | append: mat_sentinel %}
+        {% assign material_count  = material_count | plus: 1 %}
+        {% if variant.image %}
+          {% assign mat_img_url = variant.image | image_url: width: 80 %}
+        {% else %}
+          {% assign mat_img_url = product.featured_image | image_url: width: 80 %}
+        {% endif %}
+        {% assign material_labels = material_labels | append: mat_val | append: '||' %}
+        {% assign material_imgs   = material_imgs   | append: mat_img_url | append: '||' %}
+      {% endunless %}
+    {% endfor %}
+  {% endif %}
+
+  {% if shp_opt_index %}
+    {% assign shp_key = 'option' | append: shp_opt_index %}
+    {% for variant in product.variants %}
+      {% assign shp_val      = variant[shp_key] %}
+      {% assign shp_sentinel = '~' | append: shp_val | append: '~' %}
+      {% unless shp_val == blank or used_shapes contains shp_sentinel %}
+        {% assign used_shapes  = used_shapes | append: shp_sentinel %}
+        {% if variant.image %}
+          {% assign shp_img_url = variant.image | image_url: width: 80 %}
+        {% else %}
+          {% assign shp_img_url = product.featured_image | image_url: width: 80 %}
+        {% endif %}
+        {% assign shape_labels = shape_labels | append: shp_val | append: '||' %}
+        {% assign shape_imgs   = shape_imgs   | append: shp_img_url | append: '||' %}
+      {% endunless %}
+    {% endfor %}
+  {% endif %}
+{% endfor %}
+
+{% assign material_label_arr = material_labels | split: '||' %}
+{% assign material_img_arr   = material_imgs   | split: '||' %}
+{% assign shape_label_arr    = shape_labels    | split: '||' %}
+{% assign shape_img_arr      = shape_imgs      | split: '||' %}
+
+<div class="filter-overlay" id="filterOverlay"></div>
+
+<section class="custom-collection cs-icon-{{ section.settings.toggle_icon }}">
+  <div class="page-width">
+
+    {% if collection.title != blank or collection.description != blank %}
+    <div class="section-intro">
+      {% if collection.title != blank %}<h1 class="section-heading">{{ collection.title }}</h1>{% endif %}
+      {% if collection.description != blank %}<p class="section-description">{{ collection.description }}</p>{% endif %}
+    </div>
+    {% endif %}
+
+    <div class="cs-sticky-toolbar">
+      <div class="toolbar" style="max-width:1500px;margin:0 auto">
+        <button id="toggleFilter" aria-label="Toggle Filters">&#9776; FILTERS</button>
+        <select id="sortProducts">
+          <option value="">SORT</option>
+          <option value="title-asc">A TO Z</option>
+          <option value="title-desc">Z TO A</option>
+          <option value="price-asc">PRICE LOW TO HIGH</option>
+          <option value="price-desc">PRICE HIGH TO LOW</option>
+          <option value="date-desc">NEWEST</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="layout" id="mainLayout">
+
+      <div class="filters" id="filterSidebar">
+
+        <div class="filter-header">
+          <h4>Filter</h4>
+          <button class="filter-close" id="closeFilter" aria-label="Close Filters">
+            {%- if close_icon_img -%}
+              <img src="{{ close_icon_img | image_url: width: 40 }}" alt="Close" style="width:{{ close_icon_size }}px;height:{{ close_icon_size }}px;object-fit:contain;display:block;">
+            {%- else -%}&#10005;{%- endif -%}
+          </button>
+        </div>
+
+        {% if section.settings.show_vendor %}
+        <div class="filter-group">
+          <div class="filter-group-header" data-target="body-vendor">
+            <h5>Vendor</h5>
+            <span class="toggle-icon cs-toggle-icon" data-open-char="{{ icon_open_char }}" data-closed-char="{{ icon_closed_char }}"{% if icon_open_img %} data-open-img="{{ icon_open_img | image_url: width: 40 }}"{% endif %}{% if icon_closed_img %} data-closed-img="{{ icon_closed_img | image_url: width: 40 }}"{% endif %}>
+              {%- if icon_open_img -%}<img src="{{ icon_open_img | image_url: width: 40 }}" alt="" class="cs-icon-img" style="width:{{ icon_size }}px;height:{{ icon_size }}px;object-fit:contain;display:block;">{%- else -%}{{- icon_open_char -}}{%- endif -%}
+            </span>
+          </div>
+          <div class="filter-group-body" id="body-vendor">
+            {% assign vendors = collection.products | map: 'vendor' | uniq %}
+            {% for vendor in vendors %}
+              <label class="filter-right"><span>{{ vendor }}</span><input type="checkbox" class="filter-vendor" value="{{ vendor }}"></label>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if section.settings.show_tags %}
+        <div class="filter-group">
+          <div class="filter-group-header" data-target="body-tags">
+            <h5>Tags</h5>
+            <span class="toggle-icon cs-toggle-icon" data-open-char="{{ icon_open_char }}" data-closed-char="{{ icon_closed_char }}"{% if icon_open_img %} data-open-img="{{ icon_open_img | image_url: width: 40 }}"{% endif %}{% if icon_closed_img %} data-closed-img="{{ icon_closed_img | image_url: width: 40 }}"{% endif %}>
+              {%- if icon_open_img -%}<img src="{{ icon_open_img | image_url: width: 40 }}" alt="" class="cs-icon-img" style="width:{{ icon_size }}px;height:{{ icon_size }}px;object-fit:contain;display:block;">{%- else -%}{{- icon_open_char -}}{%- endif -%}
+            </span>
+          </div>
+          <div class="filter-group-body" id="body-tags">
+            {% assign used_tags = '' %}
+            {% for product in collection.products %}
+              {% for tag in product.tags %}
+                {% unless used_tags contains tag %}
+                  {% assign used_tags = used_tags | append: tag | append: '||' %}
+                  <label class="filter-right"><span>{{ tag }}</span><input type="checkbox" class="filter-tag" value="{{ tag }}"></label>
+                {% endunless %}
+              {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if section.settings.show_gem and gem_label_arr.size > 0 %}
+        <div class="filter-group">
+          <div class="filter-group-header" data-target="body-gem">
+            <h5>GEMSTONES (MEANINGS)</h5>
+            <span class="toggle-icon cs-toggle-icon" data-open-char="{{ icon_open_char }}" data-closed-char="{{ icon_closed_char }}"{% if icon_open_img %} data-open-img="{{ icon_open_img | image_url: width: 40 }}"{% endif %}{% if icon_closed_img %} data-closed-img="{{ icon_closed_img | image_url: width: 40 }}"{% endif %}>
+              {%- if icon_open_img -%}<img src="{{ icon_open_img | image_url: width: 40 }}" alt="" class="cs-icon-img" style="width:{{ icon_size }}px;height:{{ icon_size }}px;object-fit:contain;display:block;">{%- else -%}{{- icon_open_char -}}{%- endif -%}
+            </span>
+          </div>
+          <div class="filter-group-body" id="body-gem">
+            {% for gem_label in gem_label_arr %}
+              {% unless gem_label == blank %}
+              <label class="filter-right">
+                <span class="filter-item">
+                  {% unless gem_img_arr[forloop.index0] == blank %}
+                  <img src="{{ gem_img_arr[forloop.index0] }}" alt="{{ gem_label }}">
+                  {% endunless %}
+                  <span>{{ gem_label }}</span>
+                </span>
+                <input type="checkbox" class="filter-gem" value="{{ gem_label }}">
+              </label>
+              {% endunless %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if section.settings.show_material and material_label_arr.size > 0 %}
+        <div class="filter-group">
+          <div class="filter-group-header" data-target="body-material">
+            <h5>MATERIAL</h5>
+            <span class="toggle-icon cs-toggle-icon" data-open-char="{{ icon_open_char }}" data-closed-char="{{ icon_closed_char }}"{% if icon_open_img %} data-open-img="{{ icon_open_img | image_url: width: 40 }}"{% endif %}{% if icon_closed_img %} data-closed-img="{{ icon_closed_img | image_url: width: 40 }}"{% endif %}>
+              {%- if icon_open_img -%}<img src="{{ icon_open_img | image_url: width: 40 }}" alt="" class="cs-icon-img" style="width:{{ icon_size }}px;height:{{ icon_size }}px;object-fit:contain;display:block;">{%- else -%}{{- icon_open_char -}}{%- endif -%}
+            </span>
+          </div>
+          <div class="filter-group-body" id="body-material">
+            {% for mat_label in material_label_arr %}
+              {% unless mat_label == blank %}
+              <label class="filter-right">
+                <span class="filter-item">
+                  <img src="{{ material_img_arr[forloop.index0] }}" alt="{{ mat_label }}">
+                  <span>{{ mat_label }}</span>
+                </span>
+                <input type="checkbox" class="filter-material" value="{{ mat_label }}">
+              </label>
+              {% endunless %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if section.settings.show_shape and shape_label_arr.size > 0 %}
+        <div class="filter-group">
+          <div class="filter-group-header" data-target="body-shape">
+            <h5>SHAPE</h5>
+            <span class="toggle-icon cs-toggle-icon" data-open-char="{{ icon_open_char }}" data-closed-char="{{ icon_closed_char }}"{% if icon_open_img %} data-open-img="{{ icon_open_img | image_url: width: 40 }}"{% endif %}{% if icon_closed_img %} data-closed-img="{{ icon_closed_img | image_url: width: 40 }}"{% endif %}>
+              {%- if icon_open_img -%}<img src="{{ icon_open_img | image_url: width: 40 }}" alt="" class="cs-icon-img" style="width:{{ icon_size }}px;height:{{ icon_size }}px;object-fit:contain;display:block;">{%- else -%}{{- icon_open_char -}}{%- endif -%}
+            </span>
+          </div>
+          <div class="filter-group-body" id="body-shape">
+            {% for shp_label in shape_label_arr %}
+              {% unless shp_label == blank %}
+              <label class="filter-right">
+                <span class="filter-item">
+                  <img src="{{ shape_img_arr[forloop.index0] }}" alt="{{ shp_label }}">
+                  <span>{{ shp_label }}</span>
+                </span>
+                <input type="checkbox" class="filter-shape" value="{{ shp_label }}">
+              </label>
+              {% endunless %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if section.settings.show_category %}
+          {% assign has_category = false %}
+          {% for product in collection.products %}
+            {% unless product.metafields.custom.filter_category_title == blank %}
+              {% assign has_category = true %}{% break %}
+            {% endunless %}
+          {% endfor %}
+          {% if has_category %}
+          <div class="filter-group">
+            <div class="filter-group-header" data-target="body-category">
+              <h5>CATEGORY</h5>
+              <span class="toggle-icon cs-toggle-icon" data-open-char="{{ icon_open_char }}" data-closed-char="{{ icon_closed_char }}"{% if icon_open_img %} data-open-img="{{ icon_open_img | image_url: width: 40 }}"{% endif %}{% if icon_closed_img %} data-closed-img="{{ icon_closed_img | image_url: width: 40 }}"{% endif %}>
+                {%- if icon_open_img -%}<img src="{{ icon_open_img | image_url: width: 40 }}" alt="" class="cs-icon-img" style="width:{{ icon_size }}px;height:{{ icon_size }}px;object-fit:contain;display:block;">{%- else -%}{{- icon_open_char -}}{%- endif -%}
+              </span>
+            </div>
+            <div class="filter-group-body" id="body-category">
+              {% assign used_categories = '' %}
+              {% for product in collection.products %}
+                {% assign category = product.metafields.custom.filter_category_title %}
+                {% unless category == blank or used_categories contains category %}
+                  {% assign used_categories = used_categories | append: category | append: '||' %}
+                  <label class="filter-right">
+                    <span class="filter-item">
+                      <img src="{{ product.metafields.custom.filter_category_img | image_url: width: 40 }}" alt="{{ category }}">
+                      <span>{{ category }}</span>
+                    </span>
+                    <input type="checkbox" class="filter-category" value="{{ category }}">
+                  </label>
+                {% endunless %}
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+        {% endif %}
+
+        {% if section.settings.show_size %}
+        <div class="filter-group">
+          <div class="filter-group-header" data-target="body-size">
+            <h5>SIZE</h5>
+            <span class="toggle-icon cs-toggle-icon" data-open-char="{{ icon_open_char }}" data-closed-char="{{ icon_closed_char }}"{% if icon_open_img %} data-open-img="{{ icon_open_img | image_url: width: 40 }}"{% endif %}{% if icon_closed_img %} data-closed-img="{{ icon_closed_img | image_url: width: 40 }}"{% endif %}>
+              {%- if icon_open_img -%}<img src="{{ icon_open_img | image_url: width: 40 }}" alt="" class="cs-icon-img" style="width:{{ icon_size }}px;height:{{ icon_size }}px;object-fit:contain;display:block;">{%- else -%}{{- icon_open_char -}}{%- endif -%}
+            </span>
+          </div>
+          <div class="filter-group-body" id="body-size">
+            {% assign used_sizes = '' %}
+            {% for product in collection.products %}
+              {% for opt_i in (1..3) %}
+                {% assign opt_index = opt_i | minus: 1 %}
+                {% assign opt_name  = product.options[opt_index] | downcase %}
+                {% if opt_name contains 'size' %}
+                  {% for variant in product.variants %}
+                    {% assign opt_key  = 'option' | append: opt_i %}
+                    {% assign size_opt = variant[opt_key] %}
+                    {% unless size_opt == blank or used_sizes contains size_opt %}
+                      {% assign used_sizes = used_sizes | append: size_opt | append: '||' %}
+                      <label class="filter-right"><span>{{ size_opt }}</span><input type="checkbox" class="filter-size" value="{{ size_opt }}"></label>
+                    {% endunless %}
+                  {% endfor %}
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if section.settings.show_price %}
+        <div class="filter-group">
+          <div class="filter-group-header" data-target="body-price">
+            <h5>PRICE</h5>
+            <span class="toggle-icon cs-toggle-icon" data-open-char="{{ icon_open_char }}" data-closed-char="{{ icon_closed_char }}"{% if icon_open_img %} data-open-img="{{ icon_open_img | image_url: width: 40 }}"{% endif %}{% if icon_closed_img %} data-closed-img="{{ icon_closed_img | image_url: width: 40 }}"{% endif %}>
+              {%- if icon_open_img -%}<img src="{{ icon_open_img | image_url: width: 40 }}" alt="" class="cs-icon-img" style="width:{{ icon_size }}px;height:{{ icon_size }}px;object-fit:contain;display:block;">{%- else -%}{{- icon_open_char -}}{%- endif -%}
+            </span>
+          </div>
+          <div class="filter-group-body" id="body-price">
+            <div class="price-range-widget">
+              <div class="price-range-track-wrap">
+                <div class="price-range-track" id="priceTrack">
+                  <div class="price-range-fill" id="priceFill"></div>
+                  <input type="range" id="priceMin" min="0" max="1000" value="0" class="price-thumb price-thumb-min" aria-label="Minimum price">
+                  <input type="range" id="priceMax" min="0" max="1000" value="1000" class="price-thumb price-thumb-max" aria-label="Maximum price">
+                </div>
+              </div>
+              <div class="price-inputs-row">
+                <div class="price-input-box"><span class="price-input-prefix">$</span><input type="number" id="priceMinInput" min="0" max="1000" value="0" class="price-num-input" aria-label="Min price input"></div>
+                <div class="price-input-box"><span class="price-input-prefix">$</span><input type="number" id="priceMaxInput" min="0" max="1000" value="1000" class="price-num-input" aria-label="Max price input"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+      <div class="products-area" style="max-width:1500px;margin:0 auto">
+        <div class="grid" id="productGrid">
+          {% paginate collection.products by 250 %}
+            {% for product in collection.products %}
+
+              {% comment %}
+                ============================================================
+                MATERIAL & SHAPE from variant options
+                ============================================================
+              {% endcomment %}
+              {% assign p_mat_opt_idx = nil %}
+              {% assign p_shp_opt_idx = nil %}
+              {% for opt in product.options %}
+                {% assign opt_lower = opt | downcase %}
+                {% if opt_lower == 'material' %}{% assign p_mat_opt_idx = forloop.index %}{% endif %}
+                {% if opt_lower == 'shape'    %}{% assign p_shp_opt_idx = forloop.index %}{% endif %}
+              {% endfor %}
+
+              {% assign p_mat_vals = '' %}
+              {% if p_mat_opt_idx %}
+                {% assign p_mat_key = 'option' | append: p_mat_opt_idx %}
+                {% for variant in product.variants %}
+                  {% assign v_mat = variant[p_mat_key] %}
+                  {% unless v_mat == blank or p_mat_vals contains v_mat %}
+                    {% assign p_mat_vals = p_mat_vals | append: v_mat | append: '||' %}
+                  {% endunless %}
+                {% endfor %}
+              {% endif %}
+
+              {% assign p_shp_vals = '' %}
+              {% if p_shp_opt_idx %}
+                {% assign p_shp_key = 'option' | append: p_shp_opt_idx %}
+                {% for variant in product.variants %}
+                  {% assign v_shp = variant[p_shp_key] %}
+                  {% unless v_shp == blank or p_shp_vals contains v_shp %}
+                    {% assign p_shp_vals = p_shp_vals | append: v_shp | append: '||' %}
+                  {% endunless %}
+                {% endfor %}
+              {% endif %}
+
+              {% assign size_vals = '' %}
+              {% for opt_i in (1..3) %}
+                {% assign opt_index = opt_i | minus: 1 %}
+                {% assign opt_name  = product.options[opt_index] | downcase %}
+                {% assign opt_key   = 'option' | append: opt_i %}
+                {% for variant in product.variants %}
+                  {% assign opt_val = variant[opt_key] %}
+                  {% if opt_name contains 'size' %}
+                    {% unless size_vals contains opt_val %}
+                      {% assign size_vals = size_vals | append: opt_val | append: '||' %}
+                    {% endunless %}
+                  {% endif %}
+                {% endfor %}
+              {% endfor %}
+
+             
+              {% assign product_gem_vals = '' %}
+
+              {% comment %} Try list reference first (Filter by gemstones pill field) {% endcomment %}
+              {% assign gem_ref_list = product.metafields.custom.filter_by_gemstones.value %}
+              {% if gem_ref_list != blank %}
+                {% for gem_ref in gem_ref_list %}
+                  {% assign g_t = gem_ref.title.value %}
+                  {% if g_t == blank %}{% assign g_t = gem_ref.title %}{% endif %}
+                  {% if g_t == blank %}{% assign g_t = gem_ref.system.handle | replace: '-', ' ' | capitalize %}{% endif %}
+                  {% unless g_t == blank %}
+                    {% if product_gem_vals == blank %}
+                      {% assign product_gem_vals = g_t %}
+                    {% else %}
+                      {% assign product_gem_vals = product_gem_vals | append: '||' | append: g_t %}
+                    {% endif %}
+                  {% endunless %}
+                {% endfor %}
+              {% endif %}
+
+              {% comment %}
+                Fallback: also try single reference key "filter_gem"
+                in case some products use the single-reference field.
+              {% endcomment %}
+              {% if product_gem_vals == blank %}
+                {% assign gem_single = product.metafields.custom.filter_gem.value %}
+                {% if gem_single != blank %}
+                  {% assign g_t = gem_single.title.value %}
+                  {% if g_t == blank %}{% assign g_t = gem_single.title %}{% endif %}
+                  {% if g_t == blank %}{% assign g_t = gem_single.system.handle | replace: '-', ' ' | capitalize %}{% endif %}
+                  {% unless g_t == blank %}{% assign product_gem_vals = g_t %}{% endunless %}
+                {% endif %}
+              {% endif %}
+
+              {% comment %}
+                Final fallback: use filter_gem_title plain-text metafield
+                visible in the screenshot (key: filter_gem_title).
+                This guarantees something is written to data-gem even if
+                the metaobject reference fields use a different key.
+              {% endcomment %}
+              {% if product_gem_vals == blank %}
+                {% assign gem_plain = product.metafields.custom.filter_gem_title %}
+                {% unless gem_plain == blank %}
+                  {% assign product_gem_vals = gem_plain %}
+                {% endunless %}
+              {% endif %}
+
+              <div class="product-item"
+                data-vendor="{{ product.vendor }}"
+                data-price="{{ product.price | divided_by: 100 }}"
+                data-title="{{ product.title | downcase }}"
+                data-date="{{ product.created_at }}"
+                data-tags="{{ product.tags | join: '||' }}"
+                data-gem="{{ product_gem_vals }}"
+                data-material="{{ p_mat_vals }}"
+                data-shape="{{ p_shp_vals }}"
+                data-size="{{ size_vals }}"
+                data-category="{{ product.metafields.custom.filter_category_title }}">
+                {%- render 'product-card-2',
+                  product: product,
+                  section_id: section.id,
+                  product_card_style: 'style-1'
+                -%}
+              </div>
+            {% endfor %}
+          {% endpaginate %}
+        </div>
+
+        <div class="pagination-wrapper" id="paginationWrapper" style="display:none;">
+          {%- if prev_icon_img -%}
+          <button class="page-btn cs-page-btn-img" id="prevPage" aria-label="Previous">
+            <img src="{{ prev_icon_img | image_url: width: 40 }}" alt="Previous" style="width:{{ pagination_icon_size }}px;height:{{ pagination_icon_size }}px;object-fit:contain;display:block;">
+          </button>
+          {%- else -%}
+          <button class="page-btn" id="prevPage" aria-label="Previous">&#8249;</button>
+          {%- endif -%}
+          <div class="page-numbers" id="pageNumbers"></div>
+          {%- if next_icon_img -%}
+          <button class="page-btn cs-page-btn-img" id="nextPage" aria-label="Next">
+            <img src="{{ next_icon_img | image_url: width: 40 }}" alt="Next" style="width:{{ pagination_icon_size }}px;height:{{ pagination_icon_size }}px;object-fit:contain;display:block;">
+          </button>
+          {%- else -%}
+          <button class="page-btn" id="nextPage" aria-label="Next">&#8250;</button>
+          {%- endif -%}
+        </div>
+
+      </div>
+      </div>
+  </div>
+</section>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400&family=Inter:wght@400;500&display=swap');
+
+.custom-collection { max-width: 1920px; margin: auto; }
+.page-width { padding: 70px 20px; margin: auto; box-sizing: border-box; }
+
+.section-intro { margin-bottom: 32px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+.section-heading { font-family: 'Libre Caslon Text', Georgia, serif; text-align: center; font-size: 64px; font-weight: 400; line-height: 1.1; margin: 0 0 16px 0; color: #2C2C2C; letter-spacing: -0.5px; }
+.section-description { font-family: 'Inter', sans-serif; font-size: 20px !important; font-weight: 400 !important; line-height: 1.6; color: #2C2C2C; margin: 0; }
+
+.toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 12px; padding: 20px 0; }
+.cs-sticky-toolbar { background: #fff; position: sticky; top: 61px; z-index: 10; padding: 20px 0; }
+.toolbar button { padding: 12px; border: 1px solid #F4F3F1; background: #fff; color: #2C2C2C; border-radius: 4px; cursor: pointer; font-size: 20px; font-weight: 400; transition: background 0.2s, color 0.2s; white-space: nowrap; }
+
+.toolbar select { 
+  padding: 12px 32px 12px 12px; 
+  border: 1px solid #F4F3F1; 
+  background-color: #fff; 
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%232C2C2C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 16px !important;
+  -webkit-appearance: none;
+  appearance: none;
+  color: #2C2C2C; 
+  border-radius: 4px; 
+  cursor: pointer; 
+  font-size: 20px; 
+  font-weight: 400; 
+  outline: none;
+}
+
+.layout { display: block; position: relative; }
+.products-area { width: 100%; overflow: hidden; }
+
+.filters { position: fixed; top: 0; left: 0; width: 360px; max-width: 88vw; height: 100dvh; background: #fff; z-index: 999; padding: 24px 32px; box-shadow: 4px 0 24px rgba(0,0,0,0.15); overflow-y: auto; overflow-x: hidden; pointer-events: none; transform: translateX(-105%); transition: transform 0.35s cubic-bezier(0.4,0,0.2,1); box-sizing: border-box; }
+.layout.active-filter .filters { transform: translateX(0); pointer-events: auto; }
+
+.filter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 4px 20px; border-bottom: 2px solid #F4F3F1; }
+.filter-header h4 { font-family: 'Inter'; margin: 0; font-size: 22px; font-weight: 400; }
+.filter-close { display: flex; align-items: center; justify-content: center; background: none; border: none; font-size: 20px; cursor: pointer; border-radius: 6px; line-height: 1; transition: background 0.2s; }
+.filter-close:hover { background: #f0f0f0; }
+
+.filter-group { border-bottom: 1px solid #eee; padding: 8px 0; }
+.filter-group-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 6px 4px; border-radius: 6px; user-select: none; transition: background 0.15s; }
+.filter-group-header:hover { background: #f5f5f5; }
+.filter-group-header h5 { margin: 0; font-size: 18px; font-weight: 400; }
+.toggle-icon { font-size: 13px; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; flex-shrink: 0; color: #666; transition: transform 0.25s ease; }
+.cs-icon-arrow .filter-group-header.is-collapsed .toggle-icon { transform: rotate(-90deg); }
+.cs-icon-chevron .filter-group-header:not(.is-collapsed) .toggle-icon { transform: rotate(90deg); }
+.cs-icon-chevron .filter-group-header.is-collapsed .toggle-icon { transform: rotate(0deg); }
+.filter-group-body { overflow: hidden; max-height: 600px; opacity: 1; padding: 24px 0; transition: max-height 0.35s ease, opacity 0.25s ease, padding-top 0.25s ease; }
+.filter-group-body.is-collapsed { max-height: 0 !important; opacity: 0; padding-top: 0; }
+
+.filter-right { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; border-radius: 10px; cursor: pointer; transition: background 0.15s; gap: 8px; }
+.filter-right:hover { background: #f5f5f5; }
+.filter-right > span:first-child { font-size: 16px; flex: 1; min-width: 0; }
+.filter-right input[type="checkbox"] { appearance: none; -webkit-appearance: none; width: 18px; height: 18px; border: 2px solid #bbb; border-radius: 50%; position: relative; cursor: pointer; flex-shrink: 0; transition: border-color 0.2s, background 0.2s; margin: 0; }
+.filter-right input[type="checkbox"]:checked { background: #222; border-color: #222; }
+.filter-right input[type="checkbox"]:checked::after { content: ""; width: 6px; height: 6px; background: #fff; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+
+.filter-item { display: flex; align-items: center; gap: 8px; }
+.filter-item img { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+
+.cs-toggle-icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.cs-toggle-icon .cs-icon-img { display: block; transition: transform 0.25s ease; }
+.cs-icon-arrow .filter-group-header:not(.is-collapsed) .cs-toggle-icon .cs-icon-img { transform: rotate(0deg); }
+.cs-icon-arrow .filter-group-header.is-collapsed .cs-toggle-icon .cs-icon-img { transform: rotate(-90deg); }
+
+.cs-page-btn-img { background: transparent; border-color: transparent; padding: 4px; }
+.cs-page-btn-img:hover:not(:disabled) { background: #f5f5f5; border-color: #ddd; }
+.cs-page-btn-img img { display: block; object-fit: contain; }
+
+.price-range-widget { padding: 8px 4px 12px; }
+.price-range-track-wrap { position: relative; margin-bottom: 16px; }
+.price-range-track { position: relative; height: 4px; background: #e0e0e0; border-radius: 2px; margin: 18px 0 6px; }
+.price-range-fill { position: absolute; height: 100%; background: #111; border-radius: 2px; pointer-events: none; }
+.price-thumb { -webkit-appearance: none; appearance: none; position: absolute; top: 50%; transform: translateY(-50%); width: 100%; height: 20px; background: transparent; pointer-events: none; margin: 0; padding: 0; outline: none; }
+.price-thumb::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #111; border: none; pointer-events: all; cursor: grab; box-shadow: 0 1px 4px rgba(0,0,0,0.18); transition: transform 0.15s; }
+.price-thumb::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.15); }
+.price-thumb::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: #111; border: none; pointer-events: all; cursor: grab; }
+.price-thumb-min { z-index: 3; }
+.price-thumb-max { z-index: 4; }
+.price-inputs-row { display: flex; justify-content: space-between; gap: 10px; margin-top: 4px; }
+.price-input-box { display: flex; align-items: center; border: 1.5px solid #d0d0d0; border-radius: 6px; padding: 5px 8px; background: #fff; gap: 2px; width: 60px !important; transition: border-color 0.2s; }
+.price-input-box:focus-within { border-color: #111; }
+.price-input-prefix { font-size: 13px; color: #777; user-select: none; }
+.price-num-input { border: none; outline: none; font-size: 13px; width: 100%; color: #111; background: transparent; -moz-appearance: textfield; }
+.price-num-input::-webkit-outer-spin-button, .price-num-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.product-item { display: block; min-width: 0; overflow: hidden; }
+.product-item.cs-hidden { display: none !important; }
+
+.pagination-wrapper { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 40px; flex-wrap: nowrap; white-space: nowrap; }
+.page-numbers { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; flex-shrink: 1; min-width: 0; }
+.page-btn { width: 38px; height: 38px; min-width: 38px; border: 1.5px solid #ddd; border-radius: 8px; background: #fff; font-size: 22px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: border-color 0.2s, background 0.2s, color 0.2s; }
+.page-btn:hover:not(:disabled) { border-color: #222; background: #222; color: #fff; }
+.page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.page-number { width: 38px; height: 38px; min-width: 38px; border: 1.5px solid #ddd; border-radius: 8px; background: #fff; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: border-color 0.2s, background 0.2s, color 0.2s; }
+.page-number:hover { border-color: #222; }
+.page-number.active { background: #222; color: #fff; border-color: #222; }
+.page-dots { width: 20px; height: 38px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #aaa; flex-shrink: 0; }
+
+.filter-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 998; pointer-events: none; }
+.filter-overlay.is-active { display: block; pointer-events: auto; }
+
+@media (max-width: 1280px) { .custom-collection { padding: 0 120px; } }
+@media (max-width: 1024px) { .grid { grid-template-columns: repeat(3, 1fr); gap: 16px; } }
+@media screen and (min-width: 769px) and (max-width: 1024px) {     
+  .custom-collection {
+        padding: 0 40px;
+    }
+    .section-heading{
+    font-size:40px;
+  }
+  }
+@media (max-width: 768px) {
+  .custom-collection { padding: 0; }
+  .section-heading { font-size: 40px; }
+  .section-description { font-size: 16px !important; }
+  .page-width { padding: 24px 12px; }
+  .grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+  .product-item { width: 100%; min-width: 0; overflow: hidden; }
+  .toolbar { flex-wrap: wrap; gap: 8px; }
+  .toolbar button, .toolbar select { font-size: 13px; padding: 8px 12px; }
+  .cs-sticky-toolbar { top: 48px; }
+  .page-btn, .page-number { width: 32px; height: 32px; min-width: 32px; font-size: 13px; }
+  .page-btn { font-size: 18px; }
+  .pagination-wrapper { gap: 4px; }
+  .page-numbers { gap: 4px; }
+}
+@media (max-width: 480px) {
+  .page-width { padding: 16px 10px; }
+  .grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+  .section-heading { font-size: 30px; }
+}
+
+.filters::-webkit-scrollbar { width: 4px; }
+.filters::-webkit-scrollbar-track { background: #f1f1f1; }
+.filters::-webkit-scrollbar-thumb { background: #ebdfcf; border-radius: 10px; }
+.filters::-webkit-scrollbar-thumb:hover { background: darkred; }
+</style>
+
+<script>
+(function () {
+
+  var layout     = document.getElementById('mainLayout');
+  var overlay    = document.getElementById('filterOverlay');
+  var toggleBtn  = document.getElementById('toggleFilter');
+  var closeBtn   = document.getElementById('closeFilter');
+  var sortSel    = document.getElementById('sortProducts');
+  var grid       = document.getElementById('productGrid');
+  var prevBtn    = document.getElementById('prevPage');
+  var nextBtn    = document.getElementById('nextPage');
+  var pageNumsEl = document.getElementById('pageNumbers');
+  var paginWrap  = document.getElementById('paginationWrapper');
+  var minSlider  = document.getElementById('priceMin');
+  var maxSlider  = document.getElementById('priceMax');
+  var minNumInput = document.getElementById('priceMinInput');
+  var maxNumInput = document.getElementById('priceMaxInput');
+  var priceFill  = document.getElementById('priceFill');
+
+  var PER_PAGE     = 8;
+  var currentPage  = 1;
+  var filteredList = [];
+
+  var allProducts = Array.from(grid.querySelectorAll('.product-item'));
+
+  var vendorCBs   = Array.from(document.querySelectorAll('.filter-vendor'));
+  var tagCBs      = Array.from(document.querySelectorAll('.filter-tag'));
+  var gemCBs      = Array.from(document.querySelectorAll('.filter-gem'));
+  var materialCBs = Array.from(document.querySelectorAll('.filter-material'));
+  var shapeCBs    = Array.from(document.querySelectorAll('.filter-shape'));
+  var categoryCBs = Array.from(document.querySelectorAll('.filter-category'));
+  var sizeCBs     = Array.from(document.querySelectorAll('.filter-size'));
+  var allCBs      = vendorCBs.concat(tagCBs, gemCBs, materialCBs, shapeCBs, categoryCBs, sizeCBs);
+
+  /* ---- SIDEBAR ---- */
+  function openSidebar()  { layout.classList.add('active-filter'); overlay.classList.add('is-active'); document.body.style.overflow = 'hidden'; }
+  function closeSidebar() { layout.classList.remove('active-filter'); overlay.classList.remove('is-active'); document.body.style.overflow = ''; }
+  toggleBtn.addEventListener('click', function () { layout.classList.contains('active-filter') ? closeSidebar() : openSidebar(); });
+  if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+  overlay.addEventListener('click', closeSidebar);
+
+  /* ---- COLLAPSIBLE ---- */
+  document.querySelectorAll('.filter-group-header').forEach(function (header) {
+    header.addEventListener('click', function () {
+      var body = document.getElementById(header.getAttribute('data-target'));
+      if (!body) return;
+      var collapsed = body.classList.toggle('is-collapsed');
+      header.classList.toggle('is-collapsed', collapsed);
+      var iconEl = header.querySelector('.cs-toggle-icon');
+      if (!iconEl) return;
+      var imgEl = iconEl.querySelector('img');
+      if (imgEl) {
+        imgEl.src = collapsed ? (iconEl.dataset.closedImg || imgEl.src) : (iconEl.dataset.openImg || imgEl.src);
+      } else {
+        iconEl.textContent = collapsed ? iconEl.dataset.closedChar : iconEl.dataset.openChar;
+      }
+    });
+  });
+
+  /* ---- PRICE ---- */
+  function updatePriceFill() {
+    if (!minSlider || !maxSlider || !priceFill) return;
+    var min = +minSlider.min, max = +minSlider.max;
+    var lo  = +minSlider.value, hi = +maxSlider.value;
+    priceFill.style.left  = ((lo - min) / (max - min) * 100) + '%';
+    priceFill.style.width = ((hi - lo)  / (max - min) * 100) + '%';
+  }
+  if (minSlider && maxSlider) {
+    minSlider.addEventListener('input', function () {
+      if (+minSlider.value > +maxSlider.value) minSlider.value = maxSlider.value;
+      if (minNumInput) minNumInput.value = minSlider.value;
+      updatePriceFill(); applyFilters();
+    });
+    maxSlider.addEventListener('input', function () {
+      if (+maxSlider.value < +minSlider.value) maxSlider.value = minSlider.value;
+      if (maxNumInput) maxNumInput.value = maxSlider.value;
+      updatePriceFill(); applyFilters();
+    });
+    if (minNumInput) minNumInput.addEventListener('input', function () {
+      minSlider.value = Math.min(Math.max(+minNumInput.value, +minSlider.min), +maxSlider.value);
+      updatePriceFill(); applyFilters();
+    });
+    if (maxNumInput) maxNumInput.addEventListener('input', function () {
+      maxSlider.value = Math.max(Math.min(+maxNumInput.value, +maxSlider.max), +minSlider.value);
+      updatePriceFill(); applyFilters();
+    });
+    updatePriceFill();
+  }
+
+  allCBs.forEach(function (cb) { cb.addEventListener('change', applyFilters); });
+  sortSel.addEventListener('change', applyFilters);
+
+  function getChecked(arr) { return arr.filter(function (c) { return c.checked; }).map(function (c) { return c.value; }); }
+
+  function splitVals(str) {
+    if (!str) return [];
+    return str.split('||').map(function (s) { return s.trim(); }).filter(Boolean);
+  }
+
+  /* ---- APPLY FILTERS ---- */
+  function applyFilters() {
+    currentPage = 1;
+    var vendors = getChecked(vendorCBs);
+    var tags    = getChecked(tagCBs);
+    var gems    = getChecked(gemCBs);
+    var mats    = getChecked(materialCBs);
+    var shapes  = getChecked(shapeCBs);
+    var cats    = getChecked(categoryCBs);
+    var sizes   = getChecked(sizeCBs);
+    var minP    = minSlider ? +minSlider.value : 0;
+    var maxP    = maxSlider ? +maxSlider.value : 999999;
+    var sort    = sortSel.value;
+
+    /* lowercase once for gem comparison */
+    var gemsLow = gems.map(function (g) { return g.toLowerCase().trim(); });
+
+    filteredList = allProducts.filter(function (p) {
+      var price   = parseFloat(p.dataset.price) || 0;
+      var pTags   = splitVals(p.dataset.tags);
+      var pMats   = splitVals(p.dataset.material);
+      var pShapes = splitVals(p.dataset.shape);
+      var pSizes  = splitVals(p.dataset.size);
+
+      /* gem: split data-gem, lowercase, intersect with checked gems */
+      var pGems = splitVals(p.dataset.gem).map(function (s) { return s.toLowerCase().trim(); });
+
+      var vOk  = !vendors.length || vendors.indexOf(p.dataset.vendor) !== -1;
+      var tOk  = !tags.length    || tags.some(function (t)   { return pTags.indexOf(t)   !== -1; });
+      var gOk  = !gemsLow.length || gemsLow.some(function (g){ return pGems.indexOf(g)  !== -1; });
+      var mOk  = !mats.length    || mats.some(function (m)   { return pMats.indexOf(m)   !== -1; });
+      var shOk = !shapes.length  || shapes.some(function (s) { return pShapes.indexOf(s) !== -1; });
+      var cOk  = !cats.length    || cats.indexOf(p.dataset.category) !== -1;
+      var sOk  = !sizes.length   || sizes.some(function (s)  { return pSizes.indexOf(s)  !== -1; });
+      var pOk  = price >= minP && price <= maxP;
+
+      return vOk && tOk && gOk && mOk && shOk && cOk && sOk && pOk;
+    });
+
+    filteredList.sort(function (a, b) {
+      if (sort === 'title-asc')  return a.dataset.title.localeCompare(b.dataset.title);
+      if (sort === 'title-desc') return b.dataset.title.localeCompare(a.dataset.title);
+      if (sort === 'price-asc')  return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+      if (sort === 'price-desc') return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+      if (sort === 'date-desc')  return new Date(b.dataset.date) - new Date(a.dataset.date);
+      return 0;
+    });
+
+    renderPage();
+  }
+
+  /* ---- RENDER ---- */
+  function renderPage() {
+    var totalPages = Math.max(1, Math.ceil(filteredList.length / PER_PAGE));
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+    var start      = (currentPage - 1) * PER_PAGE;
+    var pageItems  = filteredList.slice(start, start + PER_PAGE);
+    var visibleSet = new Set(pageItems);
+    pageItems.forEach(function (p) { grid.appendChild(p); });
+    allProducts.forEach(function (p) {
+      p.classList.toggle('cs-hidden', !visibleSet.has(p));
+    });
+    renderPagination(totalPages);
+  }
+
+  function renderPagination(totalPages) {
+    pageNumsEl.innerHTML = '';
+    prevBtn.disabled = currentPage <= 1;
+    nextBtn.disabled = currentPage >= totalPages;
+    if (totalPages <= 1) { paginWrap.style.display = 'none'; return; }
+    paginWrap.style.display = 'flex';
+    buildPageRange(currentPage, totalPages).forEach(function (p) {
+      if (p === '\u2026') {
+        var d = document.createElement('span'); d.className = 'page-dots'; d.textContent = '\u2026';
+        pageNumsEl.appendChild(d);
+      } else {
+        var btn = document.createElement('button');
+        btn.className = 'page-number' + (p === currentPage ? ' active' : '');
+        btn.textContent = p;
+        (function (n) { btn.addEventListener('click', function () { currentPage = n; renderPage(); window.scrollTo({ top: 0, behavior: 'smooth' }); }); })(p);
+        pageNumsEl.appendChild(btn);
+      }
+    });
+  }
+
+  function buildPageRange(cur, tot) {
+    if (tot <= 7) { var a = []; for (var i = 1; i <= tot; i++) a.push(i); return a; }
+    var p = [];
+    if (cur <= 4) { for (var i = 1; i <= 5; i++) p.push(i); p.push('\u2026'); p.push(tot); }
+    else if (cur >= tot - 3) { p.push(1); p.push('\u2026'); for (var i = tot - 4; i <= tot; i++) p.push(i); }
+    else { p.push(1); p.push('\u2026'); p.push(cur - 1); p.push(cur); p.push(cur + 1); p.push('\u2026'); p.push(tot); }
+    return p;
+  }
+
+  prevBtn.addEventListener('click', function () { if (currentPage > 1) { currentPage--; renderPage(); window.scrollTo({ top: 0, behavior: 'smooth' }); } });
+  nextBtn.addEventListener('click', function () { if (currentPage < Math.ceil(filteredList.length / PER_PAGE)) { currentPage++; renderPage(); window.scrollTo({ top: 0, behavior: 'smooth' }); } });
+
+  applyFilters();
+})();
+</script>

@@ -1,0 +1,938 @@
+{% comment %}
+  Section: Happy Customers Reviews
+  Layout: Carousel with octagon images, stars, review text, verified buyer badge
+  Data: Dynamic from JudgeMe API via Cloudflare Worker proxy
+         API: https://s-brillet.proud-glade-d7b6.workers.dev/?shop_domain=t2wxuv-tm.myshopify.com
+{% endcomment %}
+
+<section
+  class="happy-customers"
+  id="section-{{ section.id }}"
+  style="
+    --color-bg: {{ section.settings.background_color }};
+    --color-card-bg: {{ section.settings.card_background_color }};
+    --color-heading: {{ section.settings.heading_color }};
+    --color-text: {{ section.settings.text_color }};
+    --color-star: {{ section.settings.star_color }};
+    --color-link: {{ section.settings.link_color }};
+    --color-badge: {{ section.settings.badge_color }};
+    --color-btn-bg: {{ section.settings.button_bg_color }};
+    --color-btn-text: {{ section.settings.button_text_color }};
+    --color-nav: {{ section.settings.nav_arrow_color }};
+  "
+>
+  <div class="happy-customers__inner">
+
+    {% if section.settings.heading != blank %}
+      <h2 class="happy-customers__heading">{{ section.settings.heading }}</h2>
+    {% endif %}
+
+    <div class="happy-customers__carousel-wrapper">
+
+      <!-- Prev Arrow -->
+      <button class="happy-customers__nav happy-customers__nav--prev" aria-label="Previous reviews" disabled>
+        {% if section.settings.prev_nav_icon != blank %}
+          {{ section.settings.prev_nav_icon | image_url: width: 32 | image_tag: loading: 'eager', alt: 'Previous', width: 24, height: 24 }}
+        {% else %}
+          {% case section.settings.nav_icon %}
+            {% when 'arrow' %}
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <line x1="19" y1="12" x2="5" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <polyline points="12 19 5 12 12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            {% when 'double-chevron' %}
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polyline points="11 17 6 12 11 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="18 17 13 12 18 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            {% when 'circle-arrow' %}
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="15" stroke="currentColor" stroke-width="1.5"/>
+                <polyline points="18 21 13 16 18 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            {% else %}
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polyline points="15 18 9 12 15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+          {% endcase %}
+        {% endif %}
+      </button>
+
+      <div class="happy-customers__track-container">
+        <div class="happy-customers__track" id="reviews-track-{{ section.id }}">
+          <div class="happy-customers__loading" id="hc-loading-{{ section.id }}">
+            <span>Loading reviews…</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Next Arrow -->
+      <button class="happy-customers__nav happy-customers__nav--next" aria-label="Next reviews" disabled>
+        {% if section.settings.next_nav_icon != blank %}
+          {{ section.settings.next_nav_icon | image_url: width: 32 | image_tag: loading: 'eager', alt: 'Next', width: 24, height: 24 }}
+        {% else %}
+          {% case section.settings.nav_icon %}
+            {% when 'arrow' %}
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <polyline points="12 5 19 12 12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            {% when 'double-chevron' %}
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polyline points="13 17 18 12 13 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="6 17 11 12 6 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            {% when 'circle-arrow' %}
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="15" stroke="currentColor" stroke-width="1.5"/>
+                <polyline points="14 11 19 16 14 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            {% else %}
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polyline points="9 18 15 12 9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+          {% endcase %}
+        {% endif %}
+      </button>
+
+    </div>
+
+    <!-- CTA Button -->
+    {% if section.settings.button_label != blank %}
+      <div class="happy-customers__cta-wrap">
+        
+          <a href="{{ section.settings.button_url }}"
+          class="happy-customers__cta"
+          id="hc-cta-{{ section.id }}"
+          {% if section.settings.button_url == blank %}aria-disabled="true"{% endif %}
+        >
+          {{ section.settings.button_label }}
+        </a>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% stylesheet %}
+.happy-customers {
+  background-color: var(--color-bg, #f9f8f6);
+  padding: 80px 120px;
+  width: 100%;
+  box-sizing: border-box;
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
+.happy-customers__inner {
+  width: 100%;
+}
+
+/* Heading */
+.happy-customers__heading {
+  text-align: center;
+  font-family: "Libre Caslon Text", serif;
+  font-size: 56px;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: #2c2c2c;
+  margin: 0 0 56px;
+  line-height: 1.1;
+}
+
+/* Carousel Wrapper */
+.happy-customers__carousel-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+}
+
+.happy-customers__track-container {
+  flex: 1;
+  overflow: hidden;
+}
+
+.happy-customers__track {
+  display: flex;
+  gap: 20px;
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+/* Loading / Error state */
+.happy-customers__loading,
+.happy-customers__error {
+  width: 100%;
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--color-text, #3a3632);
+  opacity: 0.5;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Card */
+.happy-customers__card {
+  background: var(--color-card-bg, #f0ede8);
+  border-radius: 6px;
+  padding: 36px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 0 0 calc(25% - 15px);
+  min-width: 0;
+  box-sizing: border-box;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* Octagon Image */
+.happy-customers__image-wrap {
+  margin-bottom: 20px;
+  transition: transform 0.3s ease;
+}
+
+/* Hover card → image scales */
+.happy-customers__card:hover .happy-customers__image-wrap {
+  transform: translateY(-5px) scale(1.05);
+}
+
+.happy-customers__octagon {
+  width: 130px;
+  height: 130px;
+  clip-path: polygon(
+    30% 0%, 70% 0%,
+    100% 30%, 100% 70%,
+    70% 100%, 30% 100%,
+    0% 70%, 0% 30%
+  );
+  overflow: hidden;
+  position: relative;
+}
+
+.happy-customers__octagon-inner {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.happy-customers__octagon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.happy-customers__octagon--initial {
+  background-color: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.happy-customers__initial-letter {
+  color: #fff;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* Stars */
+.happy-customers__stars {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 14px;
+  justify-content: center;
+  align-items: center;
+}
+
+.happy-customers__star-wrap {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.happy-customers__star-wrap svg,
+.happy-customers__star-wrap img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  display: block;
+  object-fit: contain;
+}
+
+.happy-customers__star-base { opacity: 0.18; }
+
+.happy-customers__star-fill--full  { opacity: 1; }
+.happy-customers__star-fill--half  { opacity: 1; clip-path: inset(0 50% 0 0); }
+.happy-customers__star-fill--empty { opacity: 0; }
+
+/* Review Text */
+.happy-customers__review-text {
+  margin-bottom: 20px;
+}
+
+.happy-customers__review-body {
+  font-size: 14px;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: #2c2c2c;
+  margin: 0 0 6px;
+}
+
+.happy-customers__read-more {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #2c2c2c;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.happy-customers__read-more:hover {
+  opacity: 0.7;
+}
+
+/* Reviewer */
+.happy-customers__reviewer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.happy-customers__reviewer-icon {
+  display: flex;
+  align-items: center;
+  color: var(--color-badge, #3a3632);
+  opacity: 0.6;
+}
+
+.happy-customers__reviewer-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.happy-customers__reviewer-name {
+  font-size: 13px;
+  text-transform: uppercase;
+  font-weight: 400;
+  color: var(--color-text, #3a3632);
+}
+
+.happy-customers__verified {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--color-badge, #3a3632);
+  opacity: 0.7;
+}
+
+.happy-customers__verified svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+/* Date */
+.happy-customers__date {
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  color: var(--color-text, #3a3632);
+  opacity: 0.55;
+}
+
+/* Nav Arrows */
+.happy-customers__nav {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: var(--color-nav, #3a3632);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.happy-customers__nav:hover:not(:disabled) {
+  opacity: 1;
+}
+
+.happy-customers__nav:disabled {
+  opacity: 0.2;
+  cursor: default;
+}
+
+.happy-customers__nav img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  display: block;
+}
+
+/* CTA */
+.happy-customers__cta-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 44px;
+}
+
+.happy-customers__cta {
+  width: 390px;
+  height: 55px;
+  background: #2C2C2C;
+  color: #FFFFFF;
+  font-size: 20px;
+  font-weight: 300;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.happy-customers__cta:hover {
+  background: linear-gradient(135deg, #947863, #E9DDD4, #947863) !important;
+  color: #FFFFFF;
+}
+
+/* ── Mac range: 1440px – 1710px → 3 cards, heading 46px ── */
+@media screen and (min-width: 1440px) and (max-width: 1710px) {
+  .happy-customers__heading {
+    font-size: 46px;
+  }
+  .happy-customers__card {
+    flex: 0 0 calc(33.333% - 14px);
+  }
+}
+
+/* ── 900px – 1439px → 3 cards ── */
+@media screen and (max-width: 1439px) {
+  .happy-customers { padding: 64px 60px; }
+  .happy-customers__card { flex: 0 0 calc(33.333% - 14px); }
+}
+
+@media screen and (max-width: 900px) {
+  .happy-customers { padding: 56px 40px; }
+  .happy-customers__card { flex: 0 0 calc(50% - 10px); }
+}
+
+@media screen and (max-width: 600px) {
+  .happy-customers { padding: 48px 20px; }
+  .happy-customers__card { flex: 0 0 100%; }
+  .happy-customers__heading { font-size: 28px; }
+  .happy-customers__octagon { width: 110px; height: 110px; }
+}
+{% endstylesheet %}
+
+<script>
+(function () {
+  var SID      = '{{ section.id }}';
+  var SHOP     = 't2wxuv-tm.myshopify.com';
+  var API      = 'https://s-brillet.proud-glade-d7b6.workers.dev/?shop_domain=' + SHOP;
+  var TRUNCATE = {{ section.settings.truncate_length | default: 120 }};
+  var MAX      = {{ section.settings.max_reviews | default: 20 }};
+  var READ_MORE_LABEL = {{ section.settings.read_more_label | default: 'Read More' | json }};
+  var READ_LESS_LABEL = {{ section.settings.read_less_label | default: 'Read Less' | json }};
+  var VERIFIED_LABEL  = {{ section.settings.verified_label  | default: 'Verified buyer' | json }};
+  var ONLY_POSITIVE   = {{ section.settings.only_positive | json }};
+
+  /* Star icon config – from Liquid */
+  var USE_STAR_IMG  = {{ section.settings.star_icon | json }};
+  var STAR_IMG_URL  = '{{ section.settings.star_icon | image_url: width: 36 }}';
+
+  var sectionEl = document.getElementById('section-' + SID);
+  if (!sectionEl) return;
+
+  var track   = document.getElementById('reviews-track-' + SID);
+  var prevBtn = sectionEl.querySelector('.happy-customers__nav--prev');
+  var nextBtn = sectionEl.querySelector('.happy-customers__nav--next');
+  var ctaEl   = document.getElementById('hc-cta-' + SID);
+
+  var currentIndex = 0;
+
+  /* ── SVGs ── */
+  var DIAMOND_SVG =
+              `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="24" viewBox="0 0 28 24" fill="none">
+                  <path d="M18.7637 0.5L25.5 7.23633L25.5 16.7637L18.7637 23.5L9.23633 23.5L2.5 16.7637L2.5 7.23633L9.23633 0.5L18.7637 0.5Z" fill="white" stroke="url(#paint0_linear_8384_14850)"/>
+                  <path d="M14 7.74902C14.7533 9.69674 16.3024 11.2465 18.25 12C16.3027 12.7534 14.7534 14.3027 14 16.25C13.2465 14.3024 11.6967 12.7533 9.74902 12C11.697 11.2466 13.2466 9.69703 14 7.74902Z" stroke="url(#paint1_linear_8384_14850)"/>
+                  <defs>
+                    <linearGradient id="paint0_linear_8384_14850" x1="14" y1="0" x2="14" y2="24" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#947863"/>
+                      <stop offset="0.5" stop-color="#E9DDD4"/>
+                      <stop offset="1" stop-color="#947863"/>
+                    </linearGradient>
+                    <linearGradient id="paint1_linear_8384_14850" x1="14" y1="4.5" x2="14" y2="19.5" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#947863"/>
+                      <stop offset="0.5" stop-color="#E9DDD4"/>
+                      <stop offset="1" stop-color="#947863"/>
+                    </linearGradient>
+                  </defs>
+              </svg>`;
+  var CHECK_SVG =
+             `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 22C12 22 4 18 4 11V5L12 2L20 5V11C20 18 12 22 12 22Z"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+                <path d="M8 12L11 15L16 9"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+              </svg>`;
+
+  /* ── Star icon: the sparkle/diamond SVG path ── */
+  var STAR_PATH = 'M8 0L10.1607 5.83927L16 8L10.1607 10.1607L8 16L5.83927 10.1607L0 8L5.83927 5.83927L8 0Z';
+
+  function makeSVGStar(fillAttr, extraAttr) {
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"' +
+      (extraAttr ? ' ' + extraAttr : '') + '>' +
+      '<path d="' + STAR_PATH + '" fill="' + fillAttr + '"/></svg>';
+  }
+
+  /* ── Build stars: full / half / empty — image picker OR inline SVG ── */
+  function buildStars(rating) {
+    var r = parseFloat(rating) || 5;
+    var html = '';
+
+    for (var i = 1; i <= 5; i++) {
+      var type = 'empty';
+      if (r >= i)            type = 'full';
+      else if (r >= i - 0.5) type = 'half';
+
+      if (USE_STAR_IMG && STAR_IMG_URL) {
+        html +=
+          '<span class="happy-customers__star-wrap">' +
+            '<img src="' + STAR_IMG_URL + '" alt="" class="happy-customers__star-base">' +
+            '<img src="' + STAR_IMG_URL + '" alt="star" class="happy-customers__star-fill--' + type + '">' +
+          '</span>';
+      } else {
+        var uid = 'hc-sg-' + i + '-' + SID;
+        var fillColor = 'var(--color-star, #2C2C2C)';
+
+        if (type === 'full') {
+          html +=
+            '<span class="happy-customers__star-wrap">' +
+              makeSVGStar(fillColor, 'class="happy-customers__star-fill--full"') +
+            '</span>';
+        } else if (type === 'half') {
+          html +=
+            '<span class="happy-customers__star-wrap">' +
+              '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">' +
+                '<defs>' +
+                  '<linearGradient id="' + uid + '" x1="0" y1="0" x2="1" y2="0">' +
+                    '<stop offset="50%" stop-color="var(--color-star, #2C2C2C)" stop-opacity="1"/>' +
+                    '<stop offset="50%" stop-color="var(--color-star, #2C2C2C)" stop-opacity="0.18"/>' +
+                  '</linearGradient>' +
+                '</defs>' +
+                '<path d="' + STAR_PATH + '" fill="url(#' + uid + ')"/>' +
+              '</svg>' +
+            '</span>';
+        } else {
+          html +=
+            '<span class="happy-customers__star-wrap">' +
+              '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" style="opacity:0.18">' +
+                '<path d="' + STAR_PATH + '" fill="var(--color-star, #2C2C2C)"/>' +
+              '</svg>' +
+            '</span>';
+        }
+      }
+    }
+    return html;
+  }
+
+  function formatDate(str) {
+    if (!str) return '';
+    var d = str.split('T')[0].split('-');
+    return d.length === 3 ? d[2] + '/' + d[1] + '/' + d[0] : str;
+  }
+
+  function truncate(text, len) {
+    if (!text) return '';
+    text = text.trim();
+    return text.length <= len ? text : text.substring(0, len).trimEnd() + '…';
+  }
+
+  function getProductUrl(r) {
+    if (r.product_handle) return '/products/' + r.product_handle + '#reviews';
+    if (r.product_title) {
+      var slug = r.product_title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      return '/products/' + slug + '#reviews';
+    }
+    return '/collections/all#reviews';
+  }
+
+  function buildCard(r) {
+    var name     = (r.reviewer && r.reviewer.name) ? r.reviewer.name : 'Anonymous';
+    var initial  = name.charAt(0).toUpperCase();
+    var rating   = r.rating || 5;
+    var body     = (r.body || '').trim();
+    var date     = formatDate(r.created_at);
+    var verified = r.verified && r.verified !== 'nothing';
+    var prodUrl  = getProductUrl(r);
+
+    /* Avatar */
+    var imgSrc = '';
+    if (r.pictures && r.pictures.length > 0 && r.pictures[0].urls && r.pictures[0].urls.original) {
+      imgSrc = r.pictures[0].urls.original;
+    }
+    var avatarHtml = imgSrc
+      ? '<div class="happy-customers__octagon"><div class="happy-customers__octagon-inner">' +
+          '<img src="' + imgSrc + '" alt="' + name + '" class="happy-customers__octagon-img" loading="lazy">' +
+        '</div></div>'
+      : '<div class="happy-customers__octagon happy-customers__octagon--initial">' +
+          '<div class="happy-customers__octagon-inner" style="display:flex;align-items:center;justify-content:center;">' +
+            '<span class="happy-customers__initial-letter">' + initial + '</span>' +
+          '</div></div>';
+
+    /* Read-more */
+    var needsReadMore = body.length > TRUNCATE;
+    var displayBody   = needsReadMore ? truncate(body, TRUNCATE) : body;
+    var readMoreHtml  = needsReadMore
+      ? '<button class="happy-customers__read-more" aria-expanded="false" data-full-text="' +
+          body.replace(/"/g, '&quot;') + '">' + READ_MORE_LABEL + '</button>'
+      : '';
+
+    var verifiedHtml = verified
+      ? '<span class="happy-customers__verified">' + CHECK_SVG + ' ' + VERIFIED_LABEL + '</span>'
+      : '';
+
+    return (
+      '<a class="happy-customers__card" href="' + prodUrl + '" title="Read review on ' + (r.product_title || 'product') + '">' +
+        '<div class="happy-customers__image-wrap">' + avatarHtml + '</div>' +
+        '<div class="happy-customers__stars" aria-label="' + rating + ' out of 5 stars">' + buildStars(rating) + '</div>' +
+        '<div class="happy-customers__review-text">' +
+          '<p class="happy-customers__review-body">' + displayBody + '</p>' +
+          readMoreHtml +
+        '</div>' +
+        '<div class="happy-customers__reviewer">' +
+          '<span class="happy-customers__reviewer-icon" aria-hidden="true">' + DIAMOND_SVG + '</span>' +
+          '<span class="happy-customers__reviewer-name">' + name + '</span>' +
+          verifiedHtml +
+        '</div>' +
+        (date ? '<div class="happy-customers__date">' + date + '</div>' : '') +
+      '</a>'
+    );
+  }
+
+  /* ── Carousel ── */
+  function getVisibleCount() {
+    var w = window.innerWidth;
+    if (w <= 600)  return 1;
+    if (w <= 900)  return 2;
+    if (w <= 1439) return 3;
+    if (w <= 1710) return 3;
+    return 4;
+  }
+
+  function getCardWidth() {
+    var cards = track.querySelectorAll('.happy-customers__card');
+    if (!cards.length) return 0;
+    var gap = parseFloat(window.getComputedStyle(track).gap) || 20;
+    return cards[0].offsetWidth + gap;
+  }
+
+  function totalSlides() {
+    return Math.max(0, track.querySelectorAll('.happy-customers__card').length - getVisibleCount());
+  }
+
+  function updateButtons() {
+    if (prevBtn) prevBtn.disabled = currentIndex <= 0;
+    if (nextBtn) nextBtn.disabled = currentIndex >= totalSlides();
+  }
+
+  function goTo(index) {
+    currentIndex = Math.max(0, Math.min(index, totalSlides()));
+    track.style.transform = 'translateX(-' + (currentIndex * getCardWidth()) + 'px)';
+    updateButtons();
+  }
+
+  /* ── Read-more toggle ── */
+  track.addEventListener('click', function (e) {
+    var btn = e.target.closest('.happy-customers__read-more');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var body     = btn.previousElementSibling;
+    var expanded = btn.getAttribute('aria-expanded') === 'true';
+    if (!expanded) {
+      body.textContent = btn.dataset.fullText;
+      btn.textContent  = READ_LESS_LABEL;
+      btn.setAttribute('aria-expanded', 'true');
+    } else {
+      body.textContent = truncate(btn.dataset.fullText, TRUNCATE);
+      btn.textContent  = READ_MORE_LABEL;
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  if (prevBtn) prevBtn.addEventListener('click', function () { goTo(currentIndex - 1); });
+  if (nextBtn) nextBtn.addEventListener('click', function () { goTo(currentIndex + 1); });
+
+  /* ── Touch / swipe ── */
+  var startX = 0;
+  track.addEventListener('touchstart', function (e) { startX = e.touches[0].clientX; }, { passive: true });
+  track.addEventListener('touchend',   function (e) {
+    var diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) goTo(diff > 0 ? currentIndex + 1 : currentIndex - 1);
+  });
+
+  /* ── Resize ── */
+  var resizeTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () { currentIndex = 0; goTo(0); }, 150);
+  });
+
+  /* ── Render ── */
+  function renderReviews(reviews) {
+    if (!reviews || !reviews.length) {
+      track.innerHTML = '<div class="happy-customers__error">No reviews found.</div>';
+      return;
+    }
+
+    var list = ONLY_POSITIVE ? reviews.filter(function (r) { return (r.rating || 5) >= 4; }) : reviews;
+    list = list.slice(0, MAX);
+
+    if (!list.length) {
+      track.innerHTML = '<div class="happy-customers__error">No reviews to display.</div>';
+      return;
+    }
+
+    {% if section.settings.button_url == blank %}
+    if (ctaEl && list[0]) ctaEl.href = getProductUrl(list[0]);
+    {% endif %}
+
+    var html = '';
+    list.forEach(function (r) { html += buildCard(r); });
+    track.innerHTML = html;
+
+    currentIndex = 0;
+    goTo(0);
+  }
+
+  /* ── Fetch ── */
+  fetch(API)
+    .then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    })
+    .then(function (data) {
+      renderReviews((data && data.reviews) ? data.reviews : []);
+    })
+    .catch(function () {
+      track.innerHTML = '<div class="happy-customers__error">Unable to load reviews. Please try again later.</div>';
+    });
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Happy Customers",
+  "tag": "section",
+  "class": "section-happy-customers",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "70K+ Happy Customers & Counting"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button Label",
+      "default": "Learn More"
+    },
+    {
+      "type": "url",
+      "id": "button_url",
+      "label": "Button URL",
+      "info": "Leave blank to auto-link to the first review's product page."
+    },
+    {
+      "type": "text",
+      "id": "read_more_label",
+      "label": "Read More Label",
+      "default": "Read More"
+    },
+    {
+      "type": "text",
+      "id": "read_less_label",
+      "label": "Read Less Label",
+      "default": "Read Less"
+    },
+    {
+      "type": "text",
+      "id": "verified_label",
+      "label": "Verified Buyer Label",
+      "default": "Verified buyer"
+    },
+    {
+      "type": "range",
+      "id": "truncate_length",
+      "min": 60,
+      "max": 300,
+      "step": 10,
+      "label": "Review Truncate Length (chars)",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "max_reviews",
+      "min": 4,
+      "max": 50,
+      "step": 1,
+      "label": "Maximum reviews to show",
+      "default": 20
+    },
+    {
+      "type": "checkbox",
+      "id": "only_positive",
+      "label": "Show only 4★ and 5★ reviews",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Star Icon"
+    },
+    {
+      "type": "image_picker",
+      "id": "star_icon",
+      "label": "Custom Star Icon",
+      "info": "Upload a custom star image. If left empty, the default built-in star SVG is used. Recommended size: 36×36px."
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "select",
+      "id": "nav_icon",
+      "label": "Fallback Navigation Arrow Style",
+      "info": "Used when no custom image is uploaded below.",
+      "options": [
+        { "value": "chevron",        "label": "Chevron ( < > )" },
+        { "value": "arrow",          "label": "Arrow ( ← → )" },
+        { "value": "double-chevron", "label": "Double Chevron ( << >> )" },
+        { "value": "circle-arrow",   "label": "Circle Arrow" }
+      ],
+      "default": "chevron"
+    },
+    {
+      "type": "image_picker",
+      "id": "prev_nav_icon",
+      "label": "Previous Page Icon",
+      "info": "Custom image for the ← button. Overrides the fallback style. Recommended: 32×32px."
+    },
+    {
+      "type": "image_picker",
+      "id": "next_nav_icon",
+      "label": "Next Page Icon",
+      "info": "Custom image for the → button. Overrides the fallback style. Recommended: 32×32px."
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section Background",
+      "default": "#f9f8f6"
+    },
+    {
+      "type": "color",
+      "id": "card_background_color",
+      "label": "Card Background",
+      "default": "#f0ede8"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#3a3632"
+    },
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "Star Color (SVG fallback only)",
+      "default": "#2b2b2b"
+    },
+    {
+      "type": "color",
+      "id": "link_color",
+      "label": "Read More Link Color",
+      "default": "#3a3632"
+    },
+    {
+      "type": "color",
+      "id": "badge_color",
+      "label": "Verified Badge Color",
+      "default": "#3a3632"
+    },
+    {
+      "type": "color",
+      "id": "nav_arrow_color",
+      "label": "Navigation Arrow Color",
+      "default": "#3a3632"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Button Background",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button Text",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Happy Customers"
+    }
+  ]
+}
+{% endschema %}

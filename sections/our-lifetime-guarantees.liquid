@@ -1,0 +1,512 @@
+{%- style -%}
+  /* =========================================================
+     Our Lifetime Guarantees - Pixel Perfect Custom CSS
+     ========================================================= */
+  .custom-guarantees-{{ section.id }} {
+    --bg-color: {{ section.settings.bg_color }};
+    --card-bg: {{ section.settings.card_bg_color }};
+    --card-hover-bg: {{ section.settings.card_hover_bg_color }};
+    --title-color: {{ section.settings.title_color }};
+    --text-color: {{ section.settings.text_color }};
+    --card-title-color: {{ section.settings.card_title_color }};
+    
+    background-color: var(--bg-color);
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .custom-guarantees-{{ section.id }} * {
+    box-sizing: border-box;
+  }
+
+  .custom-guarantees-{{ section.id }} .guarantees-container {
+    max-width: 1920px; /* Outer container matching Figma canvas */
+    margin: 0 auto;
+    padding-left: {{ section.settings.padding_sides }}px;
+    padding-right: {{ section.settings.padding_sides }}px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 80px; /* Gap between Title and Grid based on Figma */
+  }
+
+  /* Section Title - 64px, 123% LH, Uppercase */
+  .custom-guarantees-{{ section.id }} .guarantees-title {
+    font-family: var(--font-heading-family, {{ section.settings.title_font.family }}, serif);
+    font-size: {{ section.settings.title_size }}px;
+    line-height: 1.23;
+    color: var(--title-color);
+    margin: 0;
+    font-weight: 400;
+    text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 0px;
+    max-width: 981px; /* Title container width from Figma */
+  }
+
+  /* Main Grid - 2x2 with 40px gap */
+  .custom-guarantees-{{ section.id }} .guarantees-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: {{ section.settings.grid_gap }}px; /* Default 40px */
+    width: 100%;
+    max-width: 1680px; /* Content width from Figma */
+  }
+
+  /* Individual Card */
+  .custom-guarantees-{{ section.id }} .guarantee-card {
+    background-color: var(--card-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 40px; 
+    transition: background-color 0.4s ease; /* Removed transform transition */
+    cursor: pointer;
+  }
+
+  /* Hover State for Card */
+  .custom-guarantees-{{ section.id }} .guarantee-card:hover {
+    background-color: var(--card-hover-bg); /* #E6D7CB */
+    /* Removed transform: translateY(-5px); to stop movement */
+  }
+
+  /* Icon - Exact 100x100px */
+  .custom-guarantees-{{ section.id }} .guarantee-icon {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; /* Essential for swapping absolute images */
+  }
+
+  .custom-guarantees-{{ section.id }} .guarantee-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+  }
+
+  /* Image Swap Logic */
+  .custom-guarantees-{{ section.id }} .icon-hover {
+    opacity: 0;
+    visibility: hidden;
+  }
+  .custom-guarantees-{{ section.id }} .icon-normal {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* On Card Hover -> Swap Images */
+  .custom-guarantees-{{ section.id }} .guarantee-card:hover .icon-normal {
+    opacity: 0;
+    visibility: hidden;
+  }
+  .custom-guarantees-{{ section.id }} .guarantee-card:hover .icon-hover {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Card Title - Inter, 500 Medium, 20px, 30px LH, Uppercase */
+  .custom-guarantees-{{ section.id }} .guarantee-card-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 30px;
+    color: var(--card-title-color);
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 0px;
+    transition: color 0.4s ease;
+  }
+
+  /* Card Text - Inter, 400 Regular, 20px (From Figma) */
+  .custom-guarantees-{{ section.id }} .guarantee-card-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 1.5; /* Approx 30px */
+    color: var(--text-color);
+    margin: 0;
+    max-width: 595px;
+    transition: color 0.4s ease;
+  }
+
+  /* On Card Hover -> Change Text to White */
+  .custom-guarantees-{{ section.id }} .guarantee-card:hover .guarantee-card-title,
+  .custom-guarantees-{{ section.id }} .guarantee-card:hover .guarantee-card-text {
+    color: #FFFFFF;
+  }
+
+  /* =========================================================
+     RESPONSIVE DESIGN (Proportional Scaling)
+     ========================================================= */
+
+
+     /* ─── MacBook Air 15 inch M2 (1441px - 1728px) ───────────────── */
+@media (min-width: 1441px) and (max-width: 1728px) {
+  .custom-guarantees-{{ section.id }} .guarantees-container {
+    gap: 65px;
+  }
+  .custom-guarantees-{{ section.id }} .guarantees-title {
+    font-size: 54px;
+  }
+  .custom-guarantees-{{ section.id }} .guarantee-card {
+    padding: 35px;
+  }
+  .custom-guarantees-{{ section.id }} .guarantees-grid {
+    gap: 35px;
+  }
+  .custom-guarantees-{{ section.id }} .guarantee-icon {
+    width: 90px;
+    height: 90px;
+    margin-bottom: 22px;
+  }
+  .custom-guarantees-{{ section.id }} .guarantee-card-title {
+    font-size: 19px;
+    line-height: 29px;
+  }
+  .custom-guarantees-{{ section.id }} .guarantee-card-text {
+    font-size: 18px;
+    line-height: 28px;
+  }
+}
+
+
+  /* MacBook & Laptops (1025px - 1440px) */
+  @media (max-width: 1440px) {
+    .custom-guarantees-{{ section.id }} .guarantees-container {
+      /* Padding inherits 120px from default, only gap changes */
+      gap: 50px;
+    }
+    .custom-guarantees-{{ section.id }} .guarantees-title {
+      font-size: 50px;
+    }
+    .custom-guarantees-{{ section.id }} .guarantee-card {
+      padding: 30px;
+    }
+    .custom-guarantees-{{ section.id }} .guarantees-grid {
+      gap: 30px;
+    }
+    .custom-guarantees-{{ section.id }} .guarantee-icon {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
+    }
+    .custom-guarantees-{{ section.id }} .guarantee-card-title {
+      font-size: 18px;
+      line-height: 28px;
+    }
+    .custom-guarantees-{{ section.id }} .guarantee-card-text {
+      font-size: 16px;
+      line-height: 26px;
+    }
+  }
+
+  /* Tablets (769px - 1024px) */
+  @media (max-width: 1024px) {
+    
+    .custom-guarantees-{{ section.id }} .guarantees-container {
+      padding-left: 40px;
+    padding-right: 40px;
+    }
+    .custom-guarantees-{{ section.id }} .guarantees-title {
+      font-size: 42px;
+    }
+    .custom-guarantees-{{ section.id }} .guarantees-grid {
+      gap: 20px;
+    }
+    .custom-guarantees-{{ section.id }} .guarantee-card {
+      padding: 25px 20px;
+    }
+    .custom-guarantees-{{ section.id }} .guarantee-icon {
+      width: 70px;
+      height: 70px;
+    }
+    .custom-guarantees-{{ section.id }} .guarantee-card-title {
+      font-size: 16px;
+      line-height: 24px;
+    }
+    .custom-guarantees-{{ section.id }} .guarantee-card-text {
+      font-size: 14px;
+      line-height: 22px;
+    }
+  }
+
+  /* Mobile Phones (up to 768px) - 2 Column Forced Grid */
+  @media (max-width: 768px) {
+    .custom-guarantees-{{ section.id }} .guarantees-container {
+      padding-left: 15px; /* Reduced for mobile viewport */
+      padding-right: 15px;
+      gap: 30px;
+    }
+    .custom-guarantees-{{ section.id }} .guarantees-title {
+      font-size: 28px; /* Scaled down for mobile */
+      margin-bottom: 10px;
+    }
+    .custom-guarantees-{{ section.id }} .guarantees-grid {
+      grid-template-columns: repeat(2, 1fr); /* STRICT 2-COLUMN GRID ON MOBILE */
+      gap: 12px; /* Smaller gap to fit both cards */
+    }
+    .custom-guarantees-{{ section.id }} .guarantee-card {
+      padding: 20px 10px; /* Reduced padding so content fits */
+    }
+    .custom-guarantees-{{ section.id }} .guarantee-icon {
+      width: 45px;
+      height: 45px;
+      margin-bottom: 15px;
+    }
+    .custom-guarantees-{{ section.id }} .guarantee-card-title {
+      font-size: 12px; /* Small text to prevent line breaking */
+      line-height: 18px;
+      margin-bottom: 8px;
+    }
+    .custom-guarantees-{{ section.id }} .guarantee-card-text {
+      font-size: 11px; /* Small text to fit nicely side-by-side */
+      line-height: 16px;
+    }
+  }
+{%- endstyle -%}
+
+<section class="custom-guarantees-{{ section.id }}" data-section-id="{{ section.id }}">
+  <div class="guarantees-container">
+    
+    {%- if section.settings.title != blank -%}
+      <h2 class="guarantees-title">{{ section.settings.title }}</h2>
+    {%- endif -%}
+
+    <div class="guarantees-grid">
+      {%- for block in section.blocks -%}
+        <div class="guarantee-card" {{ block.shopify_attributes }}>
+          
+          <div class="guarantee-icon">
+            <!-- Normal Icon -->
+            {%- if block.settings.icon_image != blank -%}
+              <img src="{{ block.settings.icon_image | image_url: width: 200 }}" alt="{{ block.settings.title | escape }}" class="icon-normal" loading="lazy">
+            {%- else -%}
+              {{ 'image' | placeholder_svg_tag: 'placeholder-svg icon-normal' }}
+            {%- endif -%}
+
+            <!-- Hover (White) Icon -->
+            {%- if block.settings.icon_image_hover != blank -%}
+              <img src="{{ block.settings.icon_image_hover | image_url: width: 200 }}" alt="{{ block.settings.title | escape }} Hover" class="icon-hover" loading="lazy">
+            {%- else -%}
+              <!-- Fallback if hover image is missing -->
+              {%- if block.settings.icon_image != blank -%}
+                <img src="{{ block.settings.icon_image | image_url: width: 200 }}" alt="{{ block.settings.title | escape }} Hover" class="icon-hover" style="filter: brightness(0) invert(1);" loading="lazy">
+              {%- endif -%}
+            {%- endif -%}
+          </div>
+
+          {%- if block.settings.title != blank -%}
+            <h3 class="guarantee-card-title">{{ block.settings.title }}</h3>
+          {%- endif -%}
+
+          {%- if block.settings.text != blank -%}
+            <p class="guarantee-card-text">{{ block.settings.text }}</p>
+          {%- endif -%}
+          
+        </div>
+      {%- endfor -%}
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Lifetime Guarantees",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Layout & Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_sides",
+      "label": "Side Padding (Desktop)",
+      "default": 120,
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding",
+      "default": 80,
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding",
+      "default": 80,
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "label": "Gap between cards (Desktop)",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Section Background Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Card Background Color",
+      "default": "#FAFAFA",
+      "info": "The light grey background of each individual card."
+    },
+    {
+      "type": "color",
+      "id": "card_hover_bg_color",
+      "label": "Card Hover Background Color",
+      "default": "#E6D7CB",
+      "info": "The color when you hover over the card."
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Main Title Color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "card_title_color",
+      "label": "Card Title Color (Normal)",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Card Description Text Color (Normal)",
+      "default": "#555555"
+    },
+    {
+      "type": "header",
+      "content": "Section Title Settings"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section Title",
+      "default": "OUR LIFETIME GUARANTEES"
+    },
+    {
+      "type": "font_picker",
+      "id": "title_font",
+      "label": "Title Font",
+      "default": "playfair_display_n4",
+      "info": "This will default to your theme's heading font automatically."
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Title Font Size (Desktop)",
+      "default": 64,
+      "min": 20,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "guarantee_card",
+      "name": "Guarantee Card",
+      "limit": 4,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon_image",
+          "label": "Card Icon (Normal)",
+          "info": "100x100px recommended"
+        },
+        {
+          "type": "image_picker",
+          "id": "icon_image_hover",
+          "label": "Card Icon (Hover/White)",
+          "info": "Upload the white version of the icon for the hover state."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Card Title",
+          "default": "QUALITY ASSURANCE"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Card Description",
+          "default": "Each gemstone is certified by the GIA, ensuring authenticity and unmatched quality."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Lifetime Guarantees",
+      "blocks": [
+        {
+          "type": "guarantee_card",
+          "settings": {
+            "title": "QUALITY ASSURANCE",
+            "text": "Each gemstone is certified by the GIA, ensuring authenticity and unmatched quality."
+          }
+        },
+        {
+          "type": "guarantee_card",
+          "settings": {
+            "title": "MATERIAL TRANSPARENCY",
+            "text": "Feel confident in what you wear with our ethically sourced, authentic materials."
+          }
+        },
+        {
+          "type": "guarantee_card",
+          "settings": {
+            "title": "SECURE ONLINE SHOPPING",
+            "text": "Shop with confidence – secure online transactions and data protection."
+          }
+        },
+        {
+          "type": "guarantee_card",
+          "settings": {
+            "title": "WORLDWIDE FREE SHIPPING",
+            "text": "Enjoy free and fast shipping in 7 - 14 days, because your satisfaction is our priority."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

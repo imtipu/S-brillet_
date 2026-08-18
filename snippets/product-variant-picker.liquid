@@ -1,0 +1,1670 @@
+{% comment %} {% liquid
+  assign is_size = false
+  assign size_title_downcase = size_title | downcase
+  assign picker_types = ''
+  assign option_labels = ''
+
+  for option in product.options_with_values
+    assign found_option = false
+    assign option_design = ''
+    assign option_label = option.name
+
+    for i in (1..5)
+      unless found_option == true
+        assign option_name_key = 'variant_option_title' | append: i
+        assign option_design_key = 'variant_option_design' | append: i
+        assign option_label_key = 'variant_option_display_name' | append: i
+
+        assign option_name = settings[option_name_key]
+        if option_name == option.name
+          assign found_option = true
+          assign option_design = settings[option_design_key]
+          assign option_label = settings[option_label_key] | default: option.name
+        endif
+      endunless
+    endfor
+
+    assign design = option_design | prepend: ','
+    assign option_label = option_label | prepend: ','
+    if found_option == false or option_design == ''
+      assign design = settings.variant_option_design_default | prepend: ','
+    endif
+
+    assign picker_types = picker_types | append: design
+    assign option_labels = option_labels | append: option_label
+  endfor
+
+  assign picker_types = picker_types | remove_first: ',' | split: ','
+  assign option_labels = option_labels | remove_first: ',' | split: ','
+
+  assign has_shape = false
+  assign has_material = false
+  for option in product.options_with_values
+    assign opt_down = option.name | downcase
+    if opt_down == 'shape'
+      assign has_shape = true
+    endif
+    if opt_down == 'material'
+      assign has_material = true
+    endif
+  endfor
+%}
+
+<style>
+  /* ── Gap between swatches ── */
+  .m-product-option--content {
+    gap: 8px !important;
+  }
+
+  /* ── Shared wrapper ── */
+  .m-product-option--node[data-option-type="button"],
+  .m-product-option--node[data-option-type="color"],
+  .m-product-option--node[data-option-type="swatch_color"],
+  .m-product-option--node[data-option-type="image"],
+  .m-product-option--node[data-option-type="gemstone"] {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    background: none !important;
+    clip-path: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+    padding: 0 !important;
+    box-sizing: border-box;
+    cursor: pointer;
+  }
+
+  /* ── Gemstone specific rectangular size ── */
+  .m-product-option--node[data-option-type="gemstone"] {
+    {% comment %} width: 66px !important; {% endcomment %}
+    width: auto !important;
+
+    height: 38px !important;
+  }
+
+  /* ── 1. Add the shadow and force remove ALL default theme borders ── */
+  .m-product-option--node[data-option-type="gemstone"] {
+    filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.10));
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  /* Target hidden theme rings */
+  .m-product-option--node[data-option-type="gemstone"]::before,
+  .m-product-option--node[data-option-type="gemstone"]::after {
+    display: none !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* ── 2. Completely kill the zoom/scale effect everywhere ── */
+  .m-product-option--node[data-option-type="gemstone"]:hover,
+  .m-product-option--node[data-option-type="gemstone"]:hover img,
+  .m-product-option--node[data-option-type="gemstone"] img {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* ── Octagon-clipped inner shape ── */
+  .m-product-option--oct-gap {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-sizing: border-box;
+    background: none;
+  }
+
+  /* Button: white fill */
+  .m-product-option--node[data-option-type="button"] .m-product-option--oct-gap {
+    background: #fff;
+  }
+
+  /* ── Hidden radio ── */
+  .m-product-option--node input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
+  /* ── Button label ── */
+  .m-product-option--node[data-option-type="button"] label.m-product-option--node__label {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 500;
+    color: #111;
+    cursor: pointer;
+    margin: 0;
+    text-align: center;
+    line-height: 1;
+  }
+
+  /* ── Material label: Figma anujayi 22x22px centered ── */
+  .m-product-option--node[data-option-type="color"] label.m-product-option--node__label,
+  .m-product-option--node[data-option-type="swatch_color"] label.m-product-option--node__label,
+  .m-product-option--node[data-option-type="image"] label.m-product-option--node__label {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    font-size: 0;
+    background-size: 22px 22px !important; 
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    margin: 0;
+  }
+
+  /* ── Gemstone label ── */
+  .m-product-option--node[data-option-type="gemstone"] label.m-product-option--node__label {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    font-size: 0;
+    margin: 0;
+  }
+
+  /* ── Gemstone img inside label ── */
+  .m-product-option--node[data-option-type="gemstone"] label.m-product-option--node__label img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
+  }
+
+  /* ── SVG border: hidden by default ── */
+  .m-product-option--oct-svg-border {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 4;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+    overflow: visible;
+  }
+
+  /* Hover & Selected: show gray border */
+  .m-product-option--node:hover .m-product-option--oct-svg-border,
+  .m-product-option--node.is-selected .m-product-option--oct-svg-border {
+    opacity: 1;
+  }
+
+  /* ── Sold-out diagonal strike ── */
+  .m-product-option--node__unavailable .m-product-option--oct-gap {
+    position: relative;
+  }
+  .m-product-option--node__unavailable .m-product-option--oct-gap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top right,
+      transparent calc(50% - 0.5px),
+      rgba(0,0,0,0.3) calc(50% - 0.5px),
+      rgba(0,0,0,0.3) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    );
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .m-product-option--node[data-option-type="button"],
+    .m-product-option--node[data-option-type="color"],
+    .m-product-option--node[data-option-type="swatch_color"],
+    .m-product-option--node[data-option-type="image"],
+    .m-product-option--node[data-option-type="gemstone"] {
+      width: 44px;
+      height: 44px;
+    }
+    .m-product-option--content {
+      gap: 6px !important;
+    }
+  }
+
+  /* ── 3. Destroy theme circular ghost borders ── */
+  .m-product-option--node[data-option-type="gemstone"] label::before,
+  .m-product-option--node[data-option-type="gemstone"] label::after,
+  .m-product-option--node[data-option-type="gemstone"] .m-product-option--oct-gap::before,
+  .m-product-option--node[data-option-type="gemstone"] .m-product-option--oct-gap::after {
+    content: none !important;
+    display: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: none !important;
+  }
+
+  /* ── 4. Fix ghost shadow ── */
+  .m-product-option--node[data-option-type="gemstone"] .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="gemstone"] label.m-product-option--node__label {
+    background: transparent !important;
+    background-color: transparent !important;
+    border-radius: 0 !important;
+  }
+
+  /* ── Universal Drop Shadow ── */
+  .m-product-option--node {
+    filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.10)) !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  /* ── Physical Octagon Shape ── */
+  .m-product-option--oct-gap {
+    background: #FFFFFF !important;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    clip-path: polygon(15.79% 0%, 84.21% 0%, 100% 15.79%, 100% 84.21%, 84.21% 100%, 15.79% 100%, 0% 84.21%, 0% 15.79%) !important;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  /* Gemstone Specific (66x38) Octagon Clip Path */
+  .m-product-option--node[data-option-type="gemstone"] .m-product-option--oct-gap {
+    clip-path: polygon(9.09% 0%, 90.91% 0%, 100% 15.79%, 100% 84.21%, 90.91% 100%, 9.09% 100%, 0% 84.21%, 0% 15.79%) !important;
+  }
+
+  /* ── SVG Border properties ── */
+  .m-product-option--oct-svg-border {
+    opacity: 0 !important;
+    transition: opacity 0.2s ease !important;
+  }
+  
+  .m-product-option--oct-svg-border polygon {
+    stroke: #E8E2DC !important;
+    stroke-width: 1.25px !important;
+  }
+
+  .m-product-option--node:hover .m-product-option--oct-svg-border,
+  .m-product-option--node.is-selected .m-product-option--oct-svg-border {
+    opacity: 1 !important;
+  }
+
+  .m-product-option--node:hover .m-product-option--oct-gap,
+  .m-product-option--node.is-selected .m-product-option--oct-gap {
+    background: transparent !important;
+  }
+
+  /* ── Size Button Layout ── */
+  .m-product-option--node[data-option-type="button"] label.m-product-option--node__label {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #2C2C2C !important;
+    cursor: pointer;
+    margin: 0;
+    text-align: center;
+    line-height: 1;
+  }
+
+  .m-product-option--node[data-option-type="button"] .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="button"]:hover .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="button"].is-selected .m-product-option--oct-gap {
+    background: #FFFFFF !important;
+  }
+
+  .m-product-option--node[data-option-type="button"],
+  .m-product-option--node[data-option-type="button"].is-selected,
+  .m-product-option--node[data-option-type="button"]:hover,
+  .m-product-option--node[data-option-type="button"] label,
+  .m-product-option--node[data-option-type="button"].is-selected label,
+  .m-product-option--node[data-option-type="button"]::before,
+  .m-product-option--node[data-option-type="button"]::after,
+  .m-product-option--node[data-option-type="button"].is-selected::before,
+  .m-product-option--node[data-option-type="button"].is-selected::after {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+
+  /* ── 5. Stop zoom effect on Gemstones ── */
+  .gemstone-picker-wrapper,
+  .gemstone-picker-wrapper:hover,
+  .gemstone-picker-wrapper .m-product-option--content,
+  .gemstone-picker-wrapper .m-product-option--content:hover,
+  .m-product-option--node[data-option-type="gemstone"],
+  .m-product-option--node[data-option-type="gemstone"]:hover,
+  .m-product-option--node[data-option-type="gemstone"] label,
+  .m-product-option--node[data-option-type="gemstone"] label:hover,
+  .m-product-option--node[data-option-type="gemstone"] img {
+    transform: none !important;
+    scale: 1 !important;
+    transition: transform 0s, scale 0s !important;
+  }
+</style>
+
+<variant-picker
+  id="variant-picker-{{ section.id }}"
+  data-product-id="{{ product.id }}"
+  data-section-id="{{ section.id }}"
+  data-update-url="{{ update_browser_history }}"
+  data-product-url="{{ product.url }}"
+  data-has-only-default-variant="{{ product.has_only_default_variant }}"
+>
+  {%- unless product.has_only_default_variant -%}
+    
+    {%- comment -%} 1. MATERIAL OPTION {%- endcomment -%}
+    {%- for option in product.options_with_values -%}
+      {%- liquid
+        assign picker_type = picker_types[forloop.index0]
+        assign option_label = option_labels[forloop.index0]
+        assign option_name_clean = option.name | downcase | strip
+        assign swatch_count = option.values | map: 'swatch' | compact | size
+        if swatch_count > 0
+          if picker_type == 'dropdown'
+            assign picker_type = 'swatch_dropdown'
+          elsif picker_type == 'color'
+            assign picker_type = 'swatch_color'
+          endif
+        endif
+      -%}
+      {%- if option_name_clean == 'material' -%}
+        <div class="m-product-option m-product-option--{{ picker_type }}">
+          <div data-picker-field="radio" data-option-name="{{ option.name }}" data-selected-value="{{ option.selected_value }}" class="m-product-option__inner">
+            <div class="m-product-option--label">
+              <label class="option-label">
+                <span class="option-label--title">{{ option_label }}:</span>
+                <span class="option-label--selected" data-option-display-target="{{ option.name | handle }}">{{ option.selected_value }}</span>
+              </label>
+            </div>
+            <div class="m-product-option--content m:inline-flex m:flex-wrap" data-option-container="{{ option.name | handle }}">
+              {%- render 'product-variant-options', product: product, option: option, picker_type: picker_type -%}
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+
+    {%- comment -%} 2. GEMSTONE OPTION (Native rendering inside custom layout wrapper) {%- endcomment -%}
+    {%- for option in product.options_with_values -%}
+      {%- liquid
+        assign option_label = option.name
+        assign option_name_clean = option.name | downcase | strip
+      -%}
+      {%- if option_name_clean == 'gemstone' -%}
+        <div class="m-product-option m-product-option--swatch gemstone-picker-wrapper">
+          <div data-picker-field="radio" data-option-name="{{ option.name }}" data-selected-value="{{ option.selected_value }}" class="m-product-option__inner">
+            <div class="m-product-option--label">
+              <label class="option-label">
+                <span class="option-label--title">Gemstone:</span>
+                <span class="option-label--selected" data-option-display-target="{{ option.name | handle }}">{{ option.selected_value }}</span>
+              </label>
+            </div>
+            <div class="m-product-option--content m:inline-flex m:flex-wrap" data-option-container="{{ option.name | handle }}">
+              {%- render 'product-variant-options', product: product, option: option, picker_type: 'swatch_color' -%}
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+
+    {%- comment -%} 3. SIZE OPTION {%- endcomment -%}
+    {%- for option in product.options_with_values -%}
+      {%- liquid
+        assign picker_type = picker_types[forloop.index0]
+        assign option_label = option_labels[forloop.index0]
+        assign option_name_clean = option.name | downcase | strip
+        assign swatch_count = option.values | map: 'swatch' | compact | size
+        if swatch_count > 0
+          if picker_type == 'dropdown'
+            assign picker_type = 'swatch_dropdown'
+          elsif picker_type == 'color'
+            assign picker_type = 'swatch_color'
+          endif
+        endif
+      -%}
+      {%- if option_name_clean contains size_title_downcase or option_name_clean == 'size' -%}
+        <div class="m-product-option m-product-option--{{ picker_type }}">
+          <div data-picker-field="radio" data-option-name="{{ option.name }}" data-selected-value="{{ option.selected_value }}" class="m-product-option__inner">
+            <div class="m-product-option--label">
+              <label class="option-label">
+                <span class="option-label--title">{{ option_label }}:</span>
+                <span class="option-label--selected" data-option-display-target="{{ option.name | handle }}">{{ option.selected_value }}</span>
+              </label>
+              <button type="button" id="size-guide-btn" style="background:none;border:none;padding:0;cursor:pointer;font-size:16px;text-decoration:underline;color:inherit;margin-left:12px;font-family:'Inter',sans-serif;font-weight:500;">
+                Size Guide
+              </button>
+            </div>
+            <div class="m-product-option--content m:inline-flex m:flex-wrap" data-option-container="{{ option.name | handle }}">
+              {%- render 'product-variant-options', product: product, option: option, picker_type: picker_type -%}
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+
+    {%- comment -%} 4. OTHERS {%- endcomment -%}
+    {%- for option in product.options_with_values -%}
+      {%- liquid
+        assign picker_type = picker_types[forloop.index0]
+        assign option_label = option_labels[forloop.index0]
+        assign option_name_clean = option.name | downcase | strip
+      -%}
+      {%- unless option_name_clean == 'material' or option_name_clean == 'gemstone' or option_name_clean contains size_title_downcase or option_name_clean == 'size' -%}
+        <div class="m-product-option m-product-option--{{ picker_type }}">
+          <div data-picker-field="radio" data-option-name="{{ option.name }}" data-selected-value="{{ option.selected_value }}" class="m-product-option__inner">
+            <div class="m-product-option--label">
+              <label class="option-label">
+                <span class="option-label--title">{{ option_label }}:</span>
+                <span class="option-label--selected" data-option-display-target="{{ option.name | handle }}">{{ option.selected_value }}</span>
+              </label>
+            </div>
+            <div class="m-product-option--content m:inline-flex m:flex-wrap" data-option-container="{{ option.name | handle }}">
+              {%- render 'product-variant-options', product: product, option: option, picker_type: picker_type -%}
+            </div>
+          </div>
+        </div>
+      {%- endunless -%}
+    {%- endfor -%}
+
+  {%- endunless -%}
+  <script type="application/json" data-selected-variant>
+    {{ product.selected_or_first_available_variant | json }}
+  </script>
+</variant-picker>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Libre+Caslon+Text:wght@400&display=swap');
+
+  .sg-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    background: rgba(245, 240, 235, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+  }
+
+  .sg-modal-box {
+    background: #ffffff;
+    max-width: 850px;
+    width: 100%;
+    max-height: 95vh;
+    overflow-y: auto;
+    padding: 30px 40px;
+    position: relative;
+    box-sizing: border-box;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+  }
+
+  .sg-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+  }
+
+  .sg-modal-close:hover { transform: scale(1.1); }
+
+  .sg-modal-title {
+    font-family: 'Libre Caslon Text', serif;
+    font-size: 30px;
+    font-weight: 400;
+    color: #2C2C2C;
+    text-align: center;
+    text-transform: uppercase;
+    margin: 0 0 8px 0;
+    line-height: 1.2;
+  }
+
+  .sg-modal-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #2C2C2C;
+    text-align: center;
+    margin: 0 0 20px 0;
+    line-height: 1.2;
+  }
+
+  .sg-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin-bottom: 20px;
+  }
+
+  .sg-size-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    text-align: center;
+    color: #2C2C2C;
+    min-width: 550px;
+  }
+
+  .sg-size-table th {
+    background-color: #F8F8F8;
+    padding: 10px;
+    font-weight: 400;
+    border-bottom: 1px solid #E5E7EB;
+  }
+
+  .sg-size-table td {
+    padding: 10px;
+    border-bottom: 1px solid #E5E7EB;
+  }
+
+  .sg-steps-banner {
+    background-color: #F8F8F8;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #2C2C2C;
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 20px;
+  }
+
+  .sg-bottom-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .sg-instructions {
+    flex: 1;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #2C2C2C;
+    line-height: 1.4;
+  }
+
+  .sg-instructions p { margin: 0 0 12px 0; }
+
+  .sg-learn-more-btn {
+    display: inline-block;
+    background-color: #2C2C2C;
+    color: #FFFFFF;
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    padding: 10px 24px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+  }
+
+  .sg-learn-more-btn:hover {
+    background: linear-gradient(135deg, #947863, #E9DDD4, #947863) !important;
+    color: #FFFFFF;
+  }
+
+  .sg-image-wrapper {
+    flex: 1;
+    text-align: right;
+    overflow: hidden !important;
+  }
+
+  .sg-image-wrapper img {
+    max-width: 100%;
+    max-height: 140px;
+    object-fit: contain;
+    display: block !important; 
+    margin-left: auto;
+    transform: translateY(30px) !important;
+  }
+
+  @media screen and (max-width: 768px) {
+    .sg-modal-box { padding: 30px 20px 20px; }
+    .sg-modal-title { font-size: 24px; }
+    .sg-modal-subtitle { font-size: 13px; margin-bottom: 15px; }
+    .sg-bottom-section { flex-direction: column; text-align: center; }
+    .sg-image-wrapper { text-align: center; }
+    .sg-image-wrapper img { margin: 0 auto; max-height: 120px; }
+  }
+</style>
+
+<div id="size-guide-modal" class="sg-modal-overlay" style="display:none;">
+  <div class="sg-modal-box">
+    <button type="button" id="size-guide-close" class="sg-modal-close" aria-label="Close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25" fill="none">
+        <path d="M0.0442995 0.0442707C0.844312 -0.75544 9.5443 9.54427 12.0443 9.54427C14.5443 9.54427 23.2443 -0.75544 24.0443 0.0442707C24.8443 0.843945 14.5443 9.54427 14.5443 12.0443C14.5443 14.5443 24.8443 23.2439 24.0443 24.0443C23.2443 24.8439 14.5443 14.5443 12.0443 14.5443C9.5443 14.5443 0.842969 24.8439 0.0442995 24.0443C-0.755688 23.2439 9.5443 14.5443 9.5443 12.0443C9.5443 9.54427 -0.755688 0.84456 0.0442995 0.0442707Z" fill="#2C2C2C" fill-opacity="0.5"/>
+      </svg>
+    </button>
+
+    <h2 class="sg-modal-title">RING SIZE GUIDE</h2>
+    <p class="sg-modal-subtitle">Use our easy conversion chart to find the right ring size. Our website follows US & Canada sizing for accuracy.</p>
+
+    <div class="sg-table-wrapper">
+      <table class="sg-size-table">
+        <thead>
+          <tr>
+            <th>USA & Canada</th>
+            <th>Europe</th>
+            <th>UK & Australia</th>
+            <th>Circumference (mm)</th>
+            <th>Diameter (mm)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>4</td><td>47</td><td>H</td><td>46.8</td><td>14.9</td></tr>
+          <tr><td>5</td><td>49</td><td>J</td><td>48.0</td><td>15.3</td></tr>
+          <tr><td>6</td><td>51</td><td>L</td><td>49.3</td><td>15.7</td></tr>
+          <tr><td>7</td><td>53</td><td>N</td><td>51.8</td><td>16.5</td></tr>
+          <tr><td>8</td><td>56</td><td>P</td><td>54.4</td><td>17.3</td></tr>
+          <tr><td>9</td><td>59</td><td>R</td><td>57.0</td><td>18.1</td></tr>
+          <tr><td>10</td><td>62</td><td>T</td><td>59.5</td><td>18.9</td></tr>
+          <tr><td>11</td><td>64</td><td>V</td><td>62.1</td><td>19.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sg-steps-banner">Find Your Ring Size in 3 Easy Steps</div>
+
+    <div class="sg-bottom-section">
+      <div class="sg-instructions">
+        <p><strong>With our simple mobile ring sizer tool:</strong><br>
+        1. Go to sbrillet.ringsizer.com on your phone.<br>
+        2. Select "I have a ring" or "I don't have a ring."<br>
+        3. Follow the quick steps to get your perfect size in seconds.</p>
+        <a href="{{ section.settings.btn_link | default: '#' }}" class="sg-learn-more-btn">LEARN MORE</a>
+      </div>
+      <div class="sg-image-wrapper">
+        {% if section.settings.size_guide_image != blank %}
+          {{ section.settings.size_guide_image | image_url: width: 400 | image_tag: loading: 'lazy' }}
+        {% else %}
+          <img src="https://cdn.shopify.com/s/files/1/0997/1941/4142/files/049addf58ed6abcb0577495867cc27f5f3b5aced.png?v=1777877131" alt="Ring size guide" loading="lazy">
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // Function to map input changes to text displays seamlessly
+  function bindDynamicDisplays() {
+    document.querySelectorAll('.m-product-option--content').forEach(function(container) {
+      var targetHandle = container.getAttribute('data-option-container');
+      if (!targetHandle) return;
+
+      var displayTarget = document.querySelector('[data-option-display-target="' + CSS.escape(targetHandle) + '"]');
+      if (!displayTarget) return;
+
+      var inputs = container.querySelectorAll('input[type="radio"]');
+      inputs.forEach(function(input) {
+        // Ensure the initial label matches the natively selected input
+        if (input.checked) {
+          displayTarget.textContent = input.getAttribute('data-label') || input.value;
+        }
+
+        // Update target text instantly when user makes a choice
+        input.addEventListener('change', function() {
+          displayTarget.textContent = this.getAttribute('data-label') || this.value;
+        });
+      });
+    });
+  }
+
+  // Init Modal logic handling duplication & Safari append DOM lifecycle
+  function initModal() {
+    var modal = document.getElementById('size-guide-modal');
+    if (!modal) return;
+    
+    // Move modal to body if it isn't already there to avoid z-index/parent transform issues in Safari
+    if (modal.parentNode !== document.body) {
+      document.body.appendChild(modal);
+    }
+
+    // Cleanup any duplicate modals generated by Shopify section AJAX re-renders
+    var allModals = document.querySelectorAll('#size-guide-modal');
+    if (allModals.length > 1) {
+      allModals.forEach(function(m, index) {
+        if (index > 0) m.remove();
+      });
+    }
+  }
+
+  function init() {
+    bindDynamicDisplays();
+    initModal();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  // Re-sync if the theme's core JS manipulates the DOM
+  ['variant:changed', 'theme:variant:changed', 'section:load', 'shopify:section:load'].forEach(function (evt) {
+    document.addEventListener(evt, function () { 
+      bindDynamicDisplays(); 
+      initModal();
+    });
+  });
+
+  // Use Event Delegation to guarantee Safari compatibility on dynamic UI swaps
+  document.addEventListener('click', function(e) {
+    // Open Modal logic
+    var btn = e.target.closest('#size-guide-btn');
+    if (btn) {
+      e.preventDefault();
+      var modal = document.getElementById('size-guide-modal');
+      if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      }
+    }
+    
+    // Close Modal logic via button
+    var closeBtn = e.target.closest('#size-guide-close');
+    if (closeBtn) {
+      e.preventDefault();
+      var modal = document.getElementById('size-guide-modal');
+      if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+    }
+    
+    // Close Modal logic via background click
+    var modalElem = document.getElementById('size-guide-modal');
+    if (modalElem && e.target === modalElem) {
+      modalElem.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  });
+
+  // Close Modal logic via Escape key
+  document.addEventListener('keydown', function (e) {
+    var modal = document.getElementById('size-guide-modal');
+    if (e.key === 'Escape' && modal && modal.style.display === 'flex') {
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  });
+
+})();
+</script> {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% liquid
+  assign is_size = false
+  assign size_title_downcase = size_title | downcase
+  assign picker_types = ''
+  assign option_labels = ''
+
+  for option in product.options_with_values
+    assign found_option = false
+    assign option_design = ''
+    assign option_label = option.name
+
+    for i in (1..5)
+      unless found_option == true
+        assign option_name_key = 'variant_option_title' | append: i
+        assign option_design_key = 'variant_option_design' | append: i
+        assign option_label_key = 'variant_option_display_name' | append: i
+
+        assign option_name = settings[option_name_key]
+        if option_name == option.name
+          assign found_option = true
+          assign option_design = settings[option_design_key]
+          assign option_label = settings[option_label_key] | default: option.name
+        endif
+      endunless
+    endfor
+
+    assign design = option_design | prepend: ','
+    assign option_label = option_label | prepend: ','
+    if found_option == false or option_design == ''
+      assign design = settings.variant_option_design_default | prepend: ','
+    endif
+
+    assign picker_types = picker_types | append: design
+    assign option_labels = option_labels | append: option_label
+  endfor
+
+  assign picker_types = picker_types | remove_first: ',' | split: ','
+  assign option_labels = option_labels | remove_first: ',' | split: ','
+
+  assign product_grouping_block = blank
+  assign product_grouping_blocks = section.blocks | where: 'type', 'product_grouping_picker'
+  assign product_grouping_block = product_grouping_blocks | first
+
+  assign has_shape = false
+  assign has_material = false
+  for option in product.options_with_values
+    assign opt_down = option.name | downcase
+    if opt_down == 'shape'
+      assign has_shape = true
+    endif
+    if opt_down == 'material'
+      assign has_material = true
+    endif
+  endfor
+%}
+
+<style>
+  /* ── Gap between swatches ── */
+  .m-product-option--content {
+    gap: 8px !important;
+  }
+
+  .m-product-option--product-grouping {
+    width: 100%;
+    margin: 0;
+  }
+
+  .m-product-option--product-grouping .mpg-product-grouping {
+    width: 100%;
+    margin: 0;
+  }
+
+  /* ── Shared wrapper ── */
+  .m-product-option--node[data-option-type="button"],
+  .m-product-option--node[data-option-type="color"],
+  .m-product-option--node[data-option-type="swatch_color"],
+  .m-product-option--node[data-option-type="image"],
+  .m-product-option--node[data-option-type="gemstone"] {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    background: none !important;
+    clip-path: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+    padding: 0 !important;
+    box-sizing: border-box;
+    cursor: pointer;
+  }
+
+  /* ── Gemstone specific rectangular size ── */
+  .m-product-option--node[data-option-type="gemstone"] {
+    {% comment %} width: 66px !important; {% endcomment %}
+    width: auto !important;
+
+    height: 38px !important;
+  }
+
+  /* ── 1. Add the shadow and force remove ALL default theme borders ── */
+  .m-product-option--node[data-option-type="gemstone"] {
+    filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.10));
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  /* Target hidden theme rings */
+  .m-product-option--node[data-option-type="gemstone"]::before,
+  .m-product-option--node[data-option-type="gemstone"]::after {
+    display: none !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* ── 2. Completely kill the zoom/scale effect everywhere ── */
+  .m-product-option--node[data-option-type="gemstone"]:hover,
+  .m-product-option--node[data-option-type="gemstone"]:hover img,
+  .m-product-option--node[data-option-type="gemstone"] img {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* ── Octagon-clipped inner shape ── */
+  .m-product-option--oct-gap {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-sizing: border-box;
+    background: none;
+  }
+
+  /* Button: white fill */
+  .m-product-option--node[data-option-type="button"] .m-product-option--oct-gap {
+    background: #fff;
+  }
+
+  /* ── Hidden radio ── */
+  .m-product-option--node input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
+  /* ── Button label ── */
+  .m-product-option--node[data-option-type="button"] label.m-product-option--node__label {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 500;
+    color: #111;
+    cursor: pointer;
+    margin: 0;
+    text-align: center;
+    line-height: 1;
+  }
+
+  /* ── Material label: Figma anujayi 22x22px centered ── */
+  .m-product-option--node[data-option-type="color"] label.m-product-option--node__label,
+  .m-product-option--node[data-option-type="swatch_color"] label.m-product-option--node__label,
+  .m-product-option--node[data-option-type="image"] label.m-product-option--node__label {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    font-size: 0;
+    background-size: 22px 22px !important; 
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    margin: 0;
+  }
+
+  /* ── Gemstone label ── */
+  .m-product-option--node[data-option-type="gemstone"] label.m-product-option--node__label {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    font-size: 0;
+    margin: 0;
+  }
+
+  /* ── Gemstone img inside label ── */
+  .m-product-option--node[data-option-type="gemstone"] label.m-product-option--node__label img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
+  }
+
+  /* ── SVG border: hidden by default ── */
+  .m-product-option--oct-svg-border {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 4;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+    overflow: visible;
+  }
+
+  /* Hover & Selected: show gray border */
+  .m-product-option--node:hover .m-product-option--oct-svg-border,
+  .m-product-option--node.is-selected .m-product-option--oct-svg-border {
+    opacity: 1;
+  }
+
+  /* ── Sold-out diagonal strike ── */
+  .m-product-option--node__unavailable .m-product-option--oct-gap {
+    position: relative;
+  }
+  .m-product-option--node__unavailable .m-product-option--oct-gap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top right,
+      transparent calc(50% - 0.5px),
+      rgba(0,0,0,0.3) calc(50% - 0.5px),
+      rgba(0,0,0,0.3) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    );
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .m-product-option--node[data-option-type="button"],
+    .m-product-option--node[data-option-type="color"],
+    .m-product-option--node[data-option-type="swatch_color"],
+    .m-product-option--node[data-option-type="image"],
+    .m-product-option--node[data-option-type="gemstone"] {
+      width: 44px;
+      height: 44px;
+    }
+    .m-product-option--content {
+      gap: 6px !important;
+    }
+  }
+
+  /* ── 3. Destroy theme circular ghost borders ── */
+  .m-product-option--node[data-option-type="gemstone"] label::before,
+  .m-product-option--node[data-option-type="gemstone"] label::after,
+  .m-product-option--node[data-option-type="gemstone"] .m-product-option--oct-gap::before,
+  .m-product-option--node[data-option-type="gemstone"] .m-product-option--oct-gap::after {
+    content: none !important;
+    display: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: none !important;
+  }
+
+  /* ── 4. Fix ghost shadow ── */
+  .m-product-option--node[data-option-type="gemstone"] .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="gemstone"] label.m-product-option--node__label {
+    background: transparent !important;
+    background-color: transparent !important;
+    border-radius: 0 !important;
+  }
+
+  /* ── Universal Drop Shadow ── */
+  .m-product-option--node {
+    filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.10)) !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  /* ── Physical Octagon Shape ── */
+  .m-product-option--oct-gap {
+    background: #FFFFFF !important;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    clip-path: polygon(15.79% 0%, 84.21% 0%, 100% 15.79%, 100% 84.21%, 84.21% 100%, 15.79% 100%, 0% 84.21%, 0% 15.79%) !important;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  /* Gemstone Specific (66x38) Octagon Clip Path */
+  .m-product-option--node[data-option-type="gemstone"] .m-product-option--oct-gap {
+    clip-path: polygon(9.09% 0%, 90.91% 0%, 100% 15.79%, 100% 84.21%, 90.91% 100%, 9.09% 100%, 0% 84.21%, 0% 15.79%) !important;
+  }
+
+  /* ── SVG Border properties ── */
+  .m-product-option--oct-svg-border {
+    opacity: 0 !important;
+    transition: opacity 0.2s ease !important;
+  }
+  
+  .m-product-option--oct-svg-border polygon {
+    stroke: #E8E2DC !important;
+    stroke-width: 1.25px !important;
+  }
+
+  .m-product-option--node:hover .m-product-option--oct-svg-border,
+  .m-product-option--node.is-selected .m-product-option--oct-svg-border {
+    opacity: 1 !important;
+  }
+
+  .m-product-option--node:hover .m-product-option--oct-gap,
+  .m-product-option--node.is-selected .m-product-option--oct-gap {
+    background: transparent !important;
+  }
+
+  /* ── Size Button Layout ── */
+  .m-product-option--node[data-option-type="button"] label.m-product-option--node__label {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #2C2C2C !important;
+    cursor: pointer;
+    margin: 0;
+    text-align: center;
+    line-height: 1;
+  }
+
+  .m-product-option--node[data-option-type="button"] .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="button"]:hover .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="button"].is-selected .m-product-option--oct-gap {
+    background: #FFFFFF !important;
+  }
+
+  .m-product-option--node[data-option-type="button"],
+  .m-product-option--node[data-option-type="button"].is-selected,
+  .m-product-option--node[data-option-type="button"]:hover,
+  .m-product-option--node[data-option-type="button"] label,
+  .m-product-option--node[data-option-type="button"].is-selected label,
+  .m-product-option--node[data-option-type="button"]::before,
+  .m-product-option--node[data-option-type="button"]::after,
+  .m-product-option--node[data-option-type="button"].is-selected::before,
+  .m-product-option--node[data-option-type="button"].is-selected::after {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+
+  /* ── 5. Stop zoom effect on Gemstones ── */
+  .gemstone-picker-wrapper,
+  .gemstone-picker-wrapper:hover,
+  .gemstone-picker-wrapper .m-product-option--content,
+  .gemstone-picker-wrapper .m-product-option--content:hover,
+  .m-product-option--node[data-option-type="gemstone"],
+  .m-product-option--node[data-option-type="gemstone"]:hover,
+  .m-product-option--node[data-option-type="gemstone"] label,
+  .m-product-option--node[data-option-type="gemstone"] label:hover,
+  .m-product-option--node[data-option-type="gemstone"] img {
+    transform: none !important;
+    scale: 1 !important;
+    transition: transform 0s, scale 0s !important;
+  }
+</style>
+
+<variant-picker
+  id="variant-picker-{{ section.id }}"
+  data-product-id="{{ product.id }}"
+  data-section-id="{{ section.id }}"
+  data-update-url="{{ update_browser_history }}"
+  data-product-url="{{ product.url }}"
+  data-has-only-default-variant="{{ product.has_only_default_variant }}"
+>
+  {%- unless product.has_only_default_variant -%}
+    
+    {%- comment -%} 1. MATERIAL OPTION {%- endcomment -%}
+    {%- for option in product.options_with_values -%}
+      {%- liquid
+        assign picker_type = picker_types[forloop.index0]
+        assign option_label = option_labels[forloop.index0]
+        assign option_name_clean = option.name | downcase | strip
+        assign swatch_count = option.values | map: 'swatch' | compact | size
+        if swatch_count > 0
+          if picker_type == 'dropdown'
+            assign picker_type = 'swatch_dropdown'
+          elsif picker_type == 'color'
+            assign picker_type = 'swatch_color'
+          endif
+        endif
+      -%}
+      {%- if option_name_clean == 'material' -%}
+        <div class="m-product-option m-product-option--{{ picker_type }}">
+          <div data-picker-field="radio" data-option-name="{{ option.name }}" data-selected-value="{{ option.selected_value }}" class="m-product-option__inner">
+            <div class="m-product-option--label">
+              <label class="option-label">
+                <span class="option-label--title">{{ option_label }}:</span>
+                <span class="option-label--selected" data-option-display-target="{{ option.name | handle }}">{{ option.selected_value }}</span>
+              </label>
+            </div>
+            <div class="m-product-option--content m:inline-flex m:flex-wrap" data-option-container="{{ option.name | handle }}">
+              {%- render 'product-variant-options', product: product, option: option, picker_type: picker_type -%}
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+
+    {%- comment -%}
+      2. PRODUCT GROUPING
+      This permanently replaces the old Gemstone variant interface and is
+      rendered server-side directly between Material and Size.
+    {%- endcomment -%}
+    {%- if product_grouping_block != blank -%}
+      <div class="m-product-option m-product-option--product-grouping">
+        {%- render 'product-grouping-picker-custom',
+          product: product,
+          block: product_grouping_block,
+          section: section
+        -%}
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} 3. SIZE OPTION {%- endcomment -%}
+    {%- for option in product.options_with_values -%}
+      {%- liquid
+        assign picker_type = picker_types[forloop.index0]
+        assign option_label = option_labels[forloop.index0]
+        assign option_name_clean = option.name | downcase | strip
+        assign swatch_count = option.values | map: 'swatch' | compact | size
+        if swatch_count > 0
+          if picker_type == 'dropdown'
+            assign picker_type = 'swatch_dropdown'
+          elsif picker_type == 'color'
+            assign picker_type = 'swatch_color'
+          endif
+        endif
+      -%}
+      {%- if option_name_clean contains size_title_downcase or option_name_clean == 'size' -%}
+        <div class="m-product-option m-product-option--{{ picker_type }}">
+          <div data-picker-field="radio" data-option-name="{{ option.name }}" data-selected-value="{{ option.selected_value }}" class="m-product-option__inner">
+            <div class="m-product-option--label">
+              <label class="option-label">
+                <span class="option-label--title">{{ option_label }}:</span>
+                <span class="option-label--selected" data-option-display-target="{{ option.name | handle }}">{{ option.selected_value }}</span>
+              </label>
+              <button type="button" id="size-guide-btn" style="background:none;border:none;padding:0;cursor:pointer;font-size:16px;text-decoration:underline;color:inherit;margin-left:12px;font-family:'Inter',sans-serif;font-weight:500;">
+                Size Guide
+              </button>
+            </div>
+            <div class="m-product-option--content m:inline-flex m:flex-wrap" data-option-container="{{ option.name | handle }}">
+              {%- render 'product-variant-options', product: product, option: option, picker_type: picker_type -%}
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+
+    {%- comment -%} 4. OTHERS {%- endcomment -%}
+    {%- for option in product.options_with_values -%}
+      {%- liquid
+        assign picker_type = picker_types[forloop.index0]
+        assign option_label = option_labels[forloop.index0]
+        assign option_name_clean = option.name | downcase | strip
+      -%}
+      {%- unless option_name_clean == 'material' or option_name_clean == 'gemstone' or option_name_clean contains size_title_downcase or option_name_clean == 'size' -%}
+        <div class="m-product-option m-product-option--{{ picker_type }}">
+          <div data-picker-field="radio" data-option-name="{{ option.name }}" data-selected-value="{{ option.selected_value }}" class="m-product-option__inner">
+            <div class="m-product-option--label">
+              <label class="option-label">
+                <span class="option-label--title">{{ option_label }}:</span>
+                <span class="option-label--selected" data-option-display-target="{{ option.name | handle }}">{{ option.selected_value }}</span>
+              </label>
+            </div>
+            <div class="m-product-option--content m:inline-flex m:flex-wrap" data-option-container="{{ option.name | handle }}">
+              {%- render 'product-variant-options', product: product, option: option, picker_type: picker_type -%}
+            </div>
+          </div>
+        </div>
+      {%- endunless -%}
+    {%- endfor -%}
+
+  {%- endunless -%}
+  <script type="application/json" data-selected-variant>
+    {{ product.selected_or_first_available_variant | json }}
+  </script>
+</variant-picker>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Libre+Caslon+Text:wght@400&display=swap');
+
+  .sg-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    background: rgba(245, 240, 235, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+  }
+
+  .sg-modal-box {
+    background: #ffffff;
+    max-width: 850px;
+    width: 100%;
+    max-height: 95vh;
+    overflow-y: auto;
+    padding: 30px 40px;
+    position: relative;
+    box-sizing: border-box;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+  }
+
+  .sg-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+  }
+
+  .sg-modal-close:hover { transform: scale(1.1); }
+
+  .sg-modal-title {
+    font-family: 'Libre Caslon Text', serif;
+    font-size: 30px;
+    font-weight: 400;
+    color: #2C2C2C;
+    text-align: center;
+    text-transform: uppercase;
+    margin: 0 0 8px 0;
+    line-height: 1.2;
+  }
+
+  .sg-modal-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #2C2C2C;
+    text-align: center;
+    margin: 0 0 20px 0;
+    line-height: 1.2;
+  }
+
+  .sg-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin-bottom: 20px;
+  }
+
+  .sg-size-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    text-align: center;
+    color: #2C2C2C;
+    min-width: 550px;
+  }
+
+  .sg-size-table th {
+    background-color: #F8F8F8;
+    padding: 10px;
+    font-weight: 400;
+    border-bottom: 1px solid #E5E7EB;
+  }
+
+  .sg-size-table td {
+    padding: 10px;
+    border-bottom: 1px solid #E5E7EB;
+  }
+
+  .sg-steps-banner {
+    background-color: #F8F8F8;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #2C2C2C;
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 20px;
+  }
+
+  .sg-bottom-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .sg-instructions {
+    flex: 1;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #2C2C2C;
+    line-height: 1.4;
+  }
+
+  .sg-instructions p { margin: 0 0 12px 0; }
+
+  .sg-learn-more-btn {
+    display: inline-block;
+    background-color: #2C2C2C;
+    color: #FFFFFF;
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    padding: 10px 24px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+  }
+
+  .sg-learn-more-btn:hover {
+    background: linear-gradient(135deg, #947863, #E9DDD4, #947863) !important;
+    color: #FFFFFF;
+  }
+
+  .sg-image-wrapper {
+    flex: 1;
+    text-align: right;
+    overflow: hidden !important;
+  }
+
+  .sg-image-wrapper img {
+    max-width: 100%;
+    max-height: 140px;
+    object-fit: contain;
+    display: block !important; 
+    margin-left: auto;
+    transform: translateY(30px) !important;
+  }
+
+  @media screen and (max-width: 768px) {
+    .sg-modal-box { padding: 30px 20px 20px; }
+    .sg-modal-title { font-size: 24px; }
+    .sg-modal-subtitle { font-size: 13px; margin-bottom: 15px; }
+    .sg-bottom-section { flex-direction: column; text-align: center; }
+    .sg-image-wrapper { text-align: center; }
+    .sg-image-wrapper img { margin: 0 auto; max-height: 120px; }
+  }
+</style>
+
+<div id="size-guide-modal" class="sg-modal-overlay" style="display:none;">
+  <div class="sg-modal-box">
+    <button type="button" id="size-guide-close" class="sg-modal-close" aria-label="Close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25" fill="none">
+        <path d="M0.0442995 0.0442707C0.844312 -0.75544 9.5443 9.54427 12.0443 9.54427C14.5443 9.54427 23.2443 -0.75544 24.0443 0.0442707C24.8443 0.843945 14.5443 9.54427 14.5443 12.0443C14.5443 14.5443 24.8443 23.2439 24.0443 24.0443C23.2443 24.8439 14.5443 14.5443 12.0443 14.5443C9.5443 14.5443 0.842969 24.8439 0.0442995 24.0443C-0.755688 23.2439 9.5443 14.5443 9.5443 12.0443C9.5443 9.54427 -0.755688 0.84456 0.0442995 0.0442707Z" fill="#2C2C2C" fill-opacity="0.5"/>
+      </svg>
+    </button>
+
+    <h2 class="sg-modal-title">RING SIZE GUIDE</h2>
+    <p class="sg-modal-subtitle">Use our easy conversion chart to find the right ring size. Our website follows US & Canada sizing for accuracy.</p>
+
+    <div class="sg-table-wrapper">
+      <table class="sg-size-table">
+        <thead>
+          <tr>
+            <th>USA & Canada</th>
+            <th>Europe</th>
+            <th>UK & Australia</th>
+            <th>Circumference (mm)</th>
+            <th>Diameter (mm)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>4</td><td>47</td><td>H</td><td>46.8</td><td>14.9</td></tr>
+          <tr><td>5</td><td>49</td><td>J</td><td>48.0</td><td>15.3</td></tr>
+          <tr><td>6</td><td>51</td><td>L</td><td>49.3</td><td>15.7</td></tr>
+          <tr><td>7</td><td>53</td><td>N</td><td>51.8</td><td>16.5</td></tr>
+          <tr><td>8</td><td>56</td><td>P</td><td>54.4</td><td>17.3</td></tr>
+          <tr><td>9</td><td>59</td><td>R</td><td>57.0</td><td>18.1</td></tr>
+          <tr><td>10</td><td>62</td><td>T</td><td>59.5</td><td>18.9</td></tr>
+          <tr><td>11</td><td>64</td><td>V</td><td>62.1</td><td>19.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sg-steps-banner">Find Your Ring Size in 3 Easy Steps</div>
+
+    <div class="sg-bottom-section">
+      <div class="sg-instructions">
+        <p><strong>With our simple mobile ring sizer tool:</strong><br>
+        1. Go to sbrillet.ringsizer.com on your phone.<br>
+        2. Select "I have a ring" or "I don't have a ring."<br>
+        3. Follow the quick steps to get your perfect size in seconds.</p>
+        <a href="{{ section.settings.btn_link | default: '#' }}" class="sg-learn-more-btn">LEARN MORE</a>
+      </div>
+      <div class="sg-image-wrapper">
+        {% if section.settings.size_guide_image != blank %}
+          {{ section.settings.size_guide_image | image_url: width: 400 | image_tag: loading: 'lazy' }}
+        {% else %}
+          <img src="https://cdn.shopify.com/s/files/1/0997/1941/4142/files/049addf58ed6abcb0577495867cc27f5f3b5aced.png?v=1777877131" alt="Ring size guide" loading="lazy">
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // Function to map input changes to text displays seamlessly
+  function bindDynamicDisplays() {
+    document.querySelectorAll('.m-product-option--content').forEach(function(container) {
+      var targetHandle = container.getAttribute('data-option-container');
+      if (!targetHandle) return;
+
+      var displayTarget = document.querySelector('[data-option-display-target="' + CSS.escape(targetHandle) + '"]');
+      if (!displayTarget) return;
+
+      var inputs = container.querySelectorAll('input[type="radio"]');
+      inputs.forEach(function(input) {
+        // Ensure the initial label matches the natively selected input
+        if (input.checked) {
+          displayTarget.textContent = input.getAttribute('data-label') || input.value;
+        }
+
+        // Update target text instantly when user makes a choice
+        input.addEventListener('change', function() {
+          displayTarget.textContent = this.getAttribute('data-label') || this.value;
+        });
+      });
+    });
+  }
+
+  // Init Modal logic handling duplication & Safari append DOM lifecycle
+  function initModal() {
+    var modal = document.getElementById('size-guide-modal');
+    if (!modal) return;
+    
+    // Move modal to body if it isn't already there to avoid z-index/parent transform issues in Safari
+    if (modal.parentNode !== document.body) {
+      document.body.appendChild(modal);
+    }
+
+    // Cleanup any duplicate modals generated by Shopify section AJAX re-renders
+    var allModals = document.querySelectorAll('#size-guide-modal');
+    if (allModals.length > 1) {
+      allModals.forEach(function(m, index) {
+        if (index > 0) m.remove();
+      });
+    }
+  }
+
+  function init() {
+    bindDynamicDisplays();
+    initModal();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  // Re-sync if the theme's core JS manipulates the DOM
+  ['variant:changed', 'theme:variant:changed', 'section:load', 'shopify:section:load'].forEach(function (evt) {
+    document.addEventListener(evt, function () { 
+      bindDynamicDisplays(); 
+      initModal();
+    });
+  });
+
+  // Use Event Delegation to guarantee Safari compatibility on dynamic UI swaps
+  document.addEventListener('click', function(e) {
+    // Open Modal logic
+    var btn = e.target.closest('#size-guide-btn');
+    if (btn) {
+      e.preventDefault();
+      var modal = document.getElementById('size-guide-modal');
+      if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      }
+    }
+    
+    // Close Modal logic via button
+    var closeBtn = e.target.closest('#size-guide-close');
+    if (closeBtn) {
+      e.preventDefault();
+      var modal = document.getElementById('size-guide-modal');
+      if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+    }
+    
+    // Close Modal logic via background click
+    var modalElem = document.getElementById('size-guide-modal');
+    if (modalElem && e.target === modalElem) {
+      modalElem.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  });
+
+  // Close Modal logic via Escape key
+  document.addEventListener('keydown', function (e) {
+    var modal = document.getElementById('size-guide-modal');
+    if (e.key === 'Escape' && modal && modal.style.display === 'flex') {
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  });
+
+})();
+</script>

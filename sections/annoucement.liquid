@@ -1,0 +1,381 @@
+<script src="{{ 'announcement-bar.js' | asset_url }}" defer="defer"></script>
+
+{% liquid
+  assign show_divider = section.settings.show_divider
+  assign container = section.settings.container
+  if container == 'w-full'
+    assign container = 'container-full'
+  endif
+%}
+
+{% if section.settings.show_announcement %}
+  {% if section.settings.homepage_only == false or request.page_type == 'index' %}
+    <section
+      id="m-announcement--{{ section.id }}"
+      data-section-id="{{ section.id }}"
+      data-section-type="announcement"
+      class="m-announcement-bar m-gradient m-color-{{ section.settings.color_scheme }}"
+      {% if show_divider %}
+        style="--border-width: 1px"
+      {% endif %}
+    >
+      <div class="m-announcement-bar__container {{ container }}">
+        <div class="m-announcement-bar__layout">
+
+          {%- comment -%} LEFT: Main announcement message in outlined pill/box {%- endcomment -%}
+          <div class="m-announcement-bar__left">
+            {% if section.settings.announcement_link != blank %}
+              <a href="{{ section.settings.announcement_link }}" class="m-announcement-bar__main-link">
+                <span class="m-announcement-bar__main-text">{{ section.settings.announcement_text }}</span>
+              </a>
+            {% else %}
+              <span class="m-announcement-bar__main-text">{{ section.settings.announcement_text }}</span>
+            {% endif %}
+          </div>
+
+          {%- comment -%} RIGHT: 4 nav links {%- endcomment -%}
+          <div class="m-announcement-bar__right">
+            {% for i in (1..4) %}
+              {% liquid
+                assign label_key = 'nav_label_' | append: i
+                assign url_key   = 'nav_url_'   | append: i
+                assign label     = section.settings[label_key]
+                assign url       = section.settings[url_key]
+              %}
+              {% if label != blank %}
+                <a
+                  href="{% if url != blank %}{{ url }}{% else %}#{% endif %}"
+                  class="m-announcement-bar__nav-link"
+                >
+                  {{ label }}
+                </a>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+        </div>
+      </div>
+
+      {% if section.settings.show_close %}
+        <button class="m-announcement-bar__close" aria-label="Close announcement">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+        <script>
+          document.querySelector('.m-announcement-bar__close').addEventListener('click', function () {
+            document.querySelector('.m-announcement-bar').remove();
+            document.documentElement.style.setProperty('--m-announcement-height', '0px');
+          });
+        </script>
+      {% endif %}
+    </section>
+  {% endif %}
+{% endif %}
+
+<style>
+  .m-announcement-bar {
+    width: 100%;
+    font-size: 20px;
+    text-transform: uppercase;
+    position: relative;
+  }
+
+  /* ── Container: max 1920px, responsive padding ── */
+  .m-announcement-bar__container {
+    max-width: 1720px;
+    margin: 0 auto;
+    padding: 10px 20px;
+  }
+
+  .m-announcement-bar__layout {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 30px;
+    gap: 16px;
+  }
+
+  /* ── Left: outlined text box ── */
+  .m-announcement-bar__left {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+  }
+
+  .m-announcement-bar__main-text {
+    display: inline-block;
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    padding: 4px 20px;
+    font-size: 20px;
+    white-space: nowrap;
+    line-height: 1.6;
+  }
+
+  .m-announcement-bar__main-link {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .m-announcement-bar__main-link:hover .m-announcement-bar__main-text {
+    background-color: rgba(0, 0, 0, 0.06);
+  }
+
+  /* ── Right: nav links ── */
+  .m-announcement-bar__right {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-shrink: 0;
+  }
+
+  .m-announcement-bar__nav-link {
+    text-decoration: none;
+    color: inherit;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0.9;
+    transition: opacity 0.2s ease;
+  }
+
+  .m-announcement-bar__nav-link:hover {
+    opacity: 1;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* ── Close button ── */
+  .m-announcement-bar__close {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    z-index: 2;
+  }
+
+  .m-announcement-bar__close:hover { opacity: 1; }
+  .m-announcement-bar__close svg { width: 14px; height: 14px; }
+
+  /* ════════════════════════════════════════
+      RESPONSIVE BREAKPOINTS
+  ════════════════════════════════════════ */
+
+  /* Laptops / Small Desktops (max-width: 1199px) */
+  @media (max-width: 1199px) {
+    .m-announcement-bar { font-size: 18px; }
+    .m-announcement-bar__main-text {
+      font-size: 16px;
+      padding: 4px 16px;
+    }
+    .m-announcement-bar__right { gap: 20px; }
+    .m-announcement-bar__nav-link { font-size: 13px; }
+  }
+
+  /* Tablets (max-width: 991px) */
+  @media (max-width: 991px) {
+    .m-announcement-bar__main-text {
+      font-size: 14px;
+      padding: 4px 12px;
+      white-space: normal; /* Allows text to wrap safely if long */
+    }
+    .m-announcement-bar__right { gap: 14px; display:none}
+    .m-announcement-bar__nav-link { font-size: 12px; }
+    .m-announcement-bar__layout { gap: 10px; }
+    .m-announcement-bar__layout {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 30px;
+    gap: 16px;
+    flex-direction: column;
+}
+  }
+
+  /* Mobile Landscape / Small Tablets (max-width: 767px) 
+     Hide nav links, center the main text */
+  @media (max-width: 767px) {
+    .m-announcement-bar__right {
+      display: none;
+    }
+    .m-announcement-bar__left {
+      justify-content: center;
+      width: 100%;
+    }
+    .m-announcement-bar__layout {
+      min-height: 34px;
+      justify-content: center;
+      padding-right: 28px; /* Prevents text from hiding behind the close button */
+      padding-left: 10px;
+    }
+    .m-announcement-bar__main-text {
+      font-size: 13px;
+      text-align: center;
+      white-space: normal;
+    }
+  }
+
+  /* Small Mobile (max-width: 599px) */
+  @media (max-width: 599px) {
+    .m-announcement-bar__container {
+      padding: 8px 12px;
+    }
+    .m-announcement-bar__main-text {
+      font-size: 11px;
+      padding: 4px 10px;
+      letter-spacing: 0.05em;
+    }
+    .m-announcement-bar__layout {
+      min-height: 30px;
+      padding: 2px 0;
+    }
+    .m-announcement-bar__close {
+      right: 10px;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Announcement bar",
+  "enabled_on": {
+    "groups": ["header"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "General"
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "label": "Container type",
+      "default": "container",
+      "options": [
+        { "value": "container-fluid", "label": "Default" },
+        { "value": "w-full",          "label": "Full width" },
+        { "value": "container",       "label": "Use container box" }
+      ]
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_announcement",
+      "label": "Show announcement",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "homepage_only",
+      "label": "Home page only",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_close",
+      "label": "Show close button",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_divider",
+      "label": "Show bottom divider",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Announcement message"
+    },
+    {
+      "type": "text",
+      "id": "announcement_text",
+      "label": "Message text",
+      "default": "SIGN UP & UNLOCK STARLIGHT TIER BUNDLE OFFER"
+    },
+    {
+      "type": "url",
+      "id": "announcement_link",
+      "label": "Message link (optional)"
+    },
+    {
+      "type": "header",
+      "content": "Navigation link 1"
+    },
+    {
+      "type": "text",
+      "id": "nav_label_1",
+      "label": "Label",
+      "default": "VIP Loyalty Universe Club"
+    },
+    {
+      "type": "url",
+      "id": "nav_url_1",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Navigation link 2"
+    },
+    {
+      "type": "text",
+      "id": "nav_label_2",
+      "label": "Label",
+      "default": "Customers Review"
+    },
+    {
+      "type": "url",
+      "id": "nav_url_2",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Navigation link 3"
+    },
+    {
+      "type": "text",
+      "id": "nav_label_3",
+      "label": "Label",
+      "default": "FAQ"
+    },
+    {
+      "type": "url",
+      "id": "nav_url_3",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Navigation link 4"
+    },
+    {
+      "type": "text",
+      "id": "nav_label_4",
+      "label": "Label",
+      "default": "Contact us"
+    },
+    {
+      "type": "url",
+      "id": "nav_url_4",
+      "label": "Link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Announcement bar",
+      "category": "Header"
+    }
+  ]
+}
+{% endschema %}

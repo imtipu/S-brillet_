@@ -1,0 +1,1563 @@
+{% comment %}
+  ============================================================
+  cs product info — Dynamic Product Detail Page
+  ============================================================
+  Schema supports:
+  - Left: Main image + thumbnail gallery (2-column)
+  - Right: Breadcrumb, Title, Wishlist, Price, Variants,
+           Material, Gemstones (metaobject), Size + meta selectors,
+           Delivery badge, Add to Cart + Buy Now (icon picker),
+           4-grid trust badges, Collapsible tabs (icon picker)
+  ============================================================
+{% endcomment %}
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign product_form_id = 'custom-product-form-' | append: section.id
+  assign show_wishlist   = section.settings.show_wishlist
+  assign wishlist_app    = settings.wishlist_app
+
+  assign gemstones_meta = product.metafields[section.settings.gemstone_metafield_namespace][section.settings.gemstone_metafield_key]
+-%}
+
+<section
+  id="custom-product-section-{{ section.id }}"
+  class="cps-section"
+  data-section-id="{{ section.id }}"
+  data-section-type="custom-product"
+>
+  <div class="cps-container">
+
+    {%- comment -%} ===== LEFT — GALLERY ===== {%- endcomment -%}
+    <div class="cps-gallery" style="max-width:{{ section.settings.gallery_width }}px;">
+
+      {%- comment -%} Main image {%- endcomment -%}
+      <div class="cps-main-image-wrap">
+        <div class="cps-main-image" id="cps-main-img-{{ section.id }}">
+          {%- if product.featured_media -%}
+            <img
+              id="cps-featured-img"
+              src="{{ product.featured_media | image_url: width: 900 }}"
+              alt="{{ product.featured_media.alt | escape }}"
+              width="900"
+              height="{{ 900 | divided_by: product.featured_media.aspect_ratio | round }}"
+              loading="eager"
+            >
+          {%- else -%}
+            {{ 'product-1' | placeholder_svg_tag: 'cps-placeholder-svg' }}
+          {%- endif -%}
+        </div>
+      </div>
+
+      {%- comment -%} Thumbnail grid — 2 columns {%- endcomment -%}
+      {%- if product.media.size > 1 -%}
+        <div class="cps-thumbs-grid">
+          {%- for media in product.media -%}
+            <button
+              class="cps-thumb-btn{% if forloop.first %} is-active{% endif %}"
+              data-media-src="{{ media | image_url: width: 900 }}"
+              data-media-alt="{{ media.alt | escape }}"
+              aria-label="{{ media.alt | default: product.title | escape }}"
+              type="button"
+            >
+              <img
+                src="{{ media | image_url: width: 200 }}"
+                alt="{{ media.alt | escape }}"
+                width="200"
+                height="{{ 200 | divided_by: media.aspect_ratio | round }}"
+                loading="lazy"
+              >
+            </button>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+    </div>
+    {%- comment -%} END LEFT {%- endcomment -%}
+
+    {%- comment -%} ===== RIGHT — PRODUCT DETAILS ===== {%- endcomment -%}
+    <div class="cps-details">
+
+      {%- comment -%} Breadcrumb {%- endcomment -%}
+      {%- if section.settings.show_breadcrumb -%}
+        <nav class="cps-breadcrumb" aria-label="Breadcrumb">
+          <a href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t | default: 'Home' }}</a>
+          <span class="cps-bc-sep">{{ section.settings.breadcrumb_separator | default: '/' }}</span>
+          {%- for collection in product.collections limit: 1 -%}
+            <a href="{{ collection.url }}">{{ collection.title }}</a>
+            <span class="cps-bc-sep">{{ section.settings.breadcrumb_separator | default: '/' }}</span>
+          {%- endfor -%}
+          <span aria-current="page">{{ product.title }}</span>
+        </nav>
+      {%- endif -%}
+
+      {%- comment -%} Title + Wishlist row {%- endcomment -%}
+      <div class="cps-title-row">
+        <h1 class="cps-product-title">{{ product.title }}</h1>
+
+        {%- comment -%} Wishlist button (injected from user code) {%- endcomment -%}
+        <div class="m-pcard-wishlist-wrap">
+          {%- if show_wishlist -%}
+            {% if wishlist_app == 'growave' %}
+              <div class="m-tooltip m-wishlist-button m-button--icon m-tooltip--style-1">
+                <span class="m-tooltip-icon m:block">
+                  {% comment %} theme-check-disable {% endcomment %}
+                  {% capture the_snippet_fave_icon %}{% render 'ssw-widget-faveicon' with product.id %}{% endcapture %}
+                  {% unless the_snippet_fave_icon contains 'Liquid error' %}
+                    {{ the_snippet_fave_icon }}
+                  {% else %}
+                    {% render 'mm-ssw-widget-faveicon' with product.id %}
+                  {% endunless %}
+                  {% comment %} theme-check-enable {% endcomment %}
+                </span>
+              </div>
+            {% else %}
+              <div class="m-pcard-wish-wrapper">
+                {% render 'tooltip', type: 'wishlist', product: product, class_name: 'm-tooltip--left', style: 2 %}
+                <span class="pcard-wish-icon-default" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#FFFF" stroke="#222222" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                </span>
+                <span class="pcard-wish-icon-filled" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#222222" stroke="#222222" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                </span>
+              </div>
+            {% endif %}
+          {%- else -%}
+            <button type="button" aria-label="{{ 'products.product.add_to_wishlist' | t }}" class="m-pcard-wish-wrapper">
+              <span class="pcard-wish-icon-default" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#222222" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+              </span>
+              <span class="pcard-wish-icon-filled" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#222222" stroke="#222222" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+              </span>
+            </button>
+          {%- endif -%}
+        </div>
+      </div>
+
+      {%- comment -%} Price row {%- endcomment -%}
+      <div class="cps-price-row" id="cps-price-{{ section.id }}">
+        {%- if current_variant.compare_at_price > current_variant.price -%}
+          <span class="cps-price-current">{{ current_variant.price | money }}</span>
+          <span class="cps-price-compare">{{ current_variant.compare_at_price | money }}</span>
+          {%- if section.settings.show_badge -%}
+            {%- assign savings_pct = current_variant.compare_at_price | minus: current_variant.price | times: 100 | divided_by: current_variant.compare_at_price -%}
+            <span class="cps-badge-sale">-{{ savings_pct }}%</span>
+          {%- endif -%}
+        {%- else -%}
+          <span class="cps-price-current">{{ current_variant.price | money }}</span>
+        {%- endif -%}
+
+        {%- comment -%} Star rating {%- endcomment -%}
+        {%- if section.settings.show_rating -%}
+          <div class="cps-rating">
+            <span class="cps-stars" aria-label="{{ section.settings.rating_value }} out of 5 stars">
+              {%- assign full = section.settings.rating_value | floor -%}
+              {%- assign half = section.settings.rating_value | modulo: 1 -%}
+              {%- assign full_plus_one = full | plus: 1 -%}
+              {%- for i in (1..5) -%}
+                {%- if i <= full -%}
+                  <svg viewBox="0 0 16 16"><path d="M8 .25l1.84 3.73 4.12.6-2.98 2.9.7 4.1L8 9.44l-3.68 1.94.7-4.1L2.04 4.58l4.12-.6z" fill="currentColor"/></svg>
+                {%- elsif half >= 0.5 and i == full_plus_one -%}
+                  <svg viewBox="0 0 16 16"><path d="M8 .25l1.84 3.73 4.12.6-2.98 2.9.7 4.1L8 9.44l-3.68 1.94.7-4.1L2.04 4.58l4.12-.6z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+                {%- else -%}
+                  <svg viewBox="0 0 16 16"><path d="M8 .25l1.84 3.73 4.12.6-2.98 2.9.7 4.1L8 9.44l-3.68 1.94.7-4.1L2.04 4.58l4.12-.6z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+                {%- endif -%}
+              {%- endfor -%}
+            </span>
+            {%- if section.settings.review_count > 0 -%}
+              <span class="cps-review-count">({{ section.settings.review_count }})</span>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} ---- PRODUCT FORM ---- {%- endcomment -%}
+      {%- form 'product', product, id: product_form_id, novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
+        <input type="hidden" name="id" value="{{ current_variant.id }}" id="cps-variant-id-{{ section.id }}">
+
+        {%- comment -%} Material selector {%- endcomment -%}
+        {%- if section.settings.show_material -%}
+          {%- assign material_option = nil -%}
+          {%- for option in product.options_with_values -%}
+            {%- if option.name == section.settings.material_option_name -%}
+              {%- assign material_option = option -%}
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- if material_option -%}
+            <div class="cps-option-group" data-option-index="{{ material_option.position | minus: 1 }}">
+              <div class="cps-option-label">
+                {{ section.settings.material_label | default: 'Material' }}:
+                <strong class="cps-option-selected-val" id="cps-mat-val-{{ section.id }}">{{ material_option.selected_value }}</strong>
+              </div>
+              <div class="cps-swatch-row">
+                {%- for value in material_option.values -%}
+                  <label class="cps-swatch cps-swatch--circle{% if value == material_option.selected_value %} is-selected{% endif %}"
+                    title="{{ value | escape }}">
+                    <input
+                      type="radio"
+                      name="options[{{ material_option.name | escape }}]"
+                      value="{{ value | escape }}"
+                      class="cps-variant-radio"
+                      data-option-index="{{ material_option.position | minus: 1 }}"
+                      {% if value == material_option.selected_value %}checked{% endif %}
+                    >
+                    <span class="cps-swatch-inner" style="background:{{ value | downcase | replace: ' ', '' | replace: '18kt', '' | replace: 'yellow', '#e8c96a' | replace: 'rose', '#e8a999' | replace: 'white', '#e0e0e0' | replace: 'silver', '#c0c0c0' | replace: 'gold', '#d4af37' }}"></span>
+                  </label>
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endif -%}
+
+        {%- comment -%} Gemstones — from metaobject {%- endcomment -%}
+        {%- if section.settings.show_gemstones and gemstones_meta != blank -%}
+          <div class="cps-option-group">
+            <div class="cps-option-label">
+              {{ section.settings.gemstone_label | default: 'Gemstones' }}:
+              <strong id="cps-gem-val-{{ section.id }}">{{ gemstones_meta | split: ',' | first }}</strong>
+            </div>
+            <div class="cps-swatch-row cps-swatch-row--gems">
+              {%- assign gems = gemstones_meta | split: ',' -%}
+              {%- for gem in gems -%}
+                {%- assign gem_clean = gem | strip -%}
+                <label class="cps-swatch cps-swatch--gem{% if forloop.first %} is-selected{% endif %}" title="{{ gem_clean }}">
+                  <input type="radio" name="gemstone_choice" value="{{ gem_clean }}" class="cps-gem-radio" {% if forloop.first %}checked{% endif %}>
+                  <span class="cps-swatch-inner cps-gem-dot" data-gem="{{ gem_clean | downcase | replace: ' ', '-' }}"></span>
+                </label>
+              {%- endfor -%}
+            </div>
+          </div>
+        {%- endif -%}
+
+        {%- comment -%} Dynamic option selectors (size, shape, quantity, etc.) {%- endcomment -%}
+        {%- assign material_option_name_lower = section.settings.material_option_name | downcase -%}
+        {%- for option in product.options_with_values -%}
+          {%- assign opt_name_lower = option.name | downcase -%}
+          {%- unless opt_name_lower == material_option_name_lower -%}
+            <div class="cps-option-group" data-option-index="{{ option.position | minus: 1 }}">
+              <div class="cps-option-label">
+                {{ option.name }}:
+                <strong class="cps-option-selected-val" id="cps-opt-val-{{ section.id }}-{{ forloop.index }}">{{ option.selected_value }}</strong>
+                {%- if option.name == 'Size' and section.settings.size_guide_url != blank -%}
+                  <a href="{{ section.settings.size_guide_url }}" class="cps-size-guide" target="_blank">{{ section.settings.size_guide_label | default: 'Size Guide' }}</a>
+                {%- endif -%}
+              </div>
+
+              {%- comment -%} Check if any value has an associated image (color-image metafield pattern) {%- endcomment -%}
+              {%- assign has_images = false -%}
+              {%- for value in option.values -%}
+                {%- assign vslug = value | handleize -%}
+                {%- if product.metafields.custom[vslug] != blank -%}
+                  {%- assign has_images = true -%}
+                {%- endif -%}
+              {%- endfor -%}
+
+              <div class="cps-option-values">
+                {%- for value in option.values -%}
+                  {%- assign vslug = value | handleize -%}
+                  {%- assign value_img = product.metafields.custom[vslug] -%}
+
+                  {%- if has_images and value_img != blank -%}
+                    {%- comment -%} Image swatch {%- endcomment -%}
+                    <label class="cps-swatch cps-swatch--image{% if value == option.selected_value %} is-selected{% endif %}" title="{{ value | escape }}">
+                      <input
+                        type="radio"
+                        name="options[{{ option.name | escape }}]"
+                        value="{{ value | escape }}"
+                        class="cps-variant-radio"
+                        data-option-index="{{ option.position | minus: 1 }}"
+                        {% if value == option.selected_value %}checked{% endif %}
+                      >
+                      <img src="{{ value_img | image_url: width: 60 }}" alt="{{ value | escape }}" width="60" height="60">
+                    </label>
+                  {%- else -%}
+                    {%- comment -%} Text/pill swatch {%- endcomment -%}
+                    <label class="cps-pill{% if value == option.selected_value %} is-selected{% endif %}">
+                      <input
+                        type="radio"
+                        name="options[{{ option.name | escape }}]"
+                        value="{{ value | escape }}"
+                        class="cps-variant-radio"
+                        data-option-index="{{ option.position | minus: 1 }}"
+                        {% if value == option.selected_value %}checked{% endif %}
+                      >
+                      {{ value }}
+                    </label>
+                  {%- endif -%}
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- endunless -%}
+        {%- endfor -%}
+
+        {%- comment -%} Delivery badge {%- endcomment -%}
+        {%- if section.settings.delivery_badge_text != blank -%}
+          <div class="cps-delivery-badge">
+            {%- if section.settings.delivery_badge_icon != blank -%}
+              <img src="{{ section.settings.delivery_badge_icon | image_url: width: 24 }}" width="24" height="24" alt="" aria-hidden="true">
+            {%- else -%}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            {%- endif -%}
+            {{ section.settings.delivery_badge_text }}
+          </div>
+        {%- endif -%}
+
+        {%- comment -%} Custom description text above buttons {%- endcomment -%}
+        {%- if section.settings.above_btn_text != blank -%}
+          <p class="cps-above-btn-text">{{ section.settings.above_btn_text }}</p>
+        {%- endif -%}
+
+        {%- comment -%} CTA Buttons {%- endcomment -%}
+        <div class="cps-cta-row">
+          {%- comment -%} Add to Cart {%- endcomment -%}
+          <button
+            type="submit"
+            class="cps-btn cps-btn--cart"
+            {% unless current_variant.available %}disabled{% endunless %}
+            aria-label="{{ 'products.product.add_to_cart' | t }}"
+          >
+            {%- if section.settings.atc_icon != blank -%}
+              <img src="{{ section.settings.atc_icon | image_url: width: 24 }}" width="20" height="20" alt="" aria-hidden="true">
+            {%- endif -%}
+            <span>
+              {%- if current_variant.available -%}
+                {{ section.settings.atc_label | default: 'Add to Cart' }}
+              {%- else -%}
+                {{ section.settings.sold_out_label | default: 'Sold Out' }}
+              {%- endif -%}
+            </span>
+          </button>
+
+          {%- comment -%} Buy Now {%- endcomment -%}
+          {%- if section.settings.show_buy_now -%}
+            <a
+              href="/checkout?{{ current_variant.id | prepend: '1:' | prepend: 'items[][id]=' | append: '&items[][quantity]=1' }}"
+              class="cps-btn cps-btn--buynow"
+              id="cps-buynow-{{ section.id }}"
+              aria-label="{{ section.settings.buy_now_label | default: 'Buy Now' }}"
+            >
+              {%- if section.settings.buy_now_icon != blank -%}
+                <img src="{{ section.settings.buy_now_icon | image_url: width: 24 }}" width="20" height="20" alt="" aria-hidden="true">
+              {%- else -%}
+                {%- if section.settings.buy_now_icon_type == 'apple_pay' -%}
+                  <svg viewBox="0 0 50 22" width="40" aria-hidden="true"><text x="0" y="17" font-size="16" font-family="sans-serif" font-weight="600" fill="currentColor">⌘ Pay</text></svg>
+                {%- else -%}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                {%- endif -%}
+              {%- endif -%}
+              <span>{{ section.settings.buy_now_label | default: 'Buy Now' }}</span>
+            </a>
+          {%- endif -%}
+        </div>
+
+      {%- endform -%}
+
+      {%- comment -%} 4-grid trust badges {%- endcomment -%}
+      {%- assign trust_blocks = section.blocks | where: 'type', 'trust_badge' -%}
+      {%- if trust_blocks.size > 0 -%}
+        <div class="cps-trust-grid">
+          {%- for block in trust_blocks -%}
+            <div class="cps-trust-item" {{ block.shopify_attributes }}>
+              {%- if block.settings.icon != blank -%}
+                <img src="{{ block.settings.icon | image_url: width: 48 }}" width="28" height="28" alt="" aria-hidden="true">
+              {%- else -%}
+                <span class="cps-trust-default-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </span>
+              {%- endif -%}
+              <span class="cps-trust-text">{{ block.settings.text }}</span>
+            </div>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} Collapsible tabs {%- endcomment -%}
+      {%- assign tab_blocks = section.blocks | where: 'type', 'collapsible_tab' -%}
+      {%- if tab_blocks.size > 0 -%}
+        <div class="cps-tabs" id="cps-tabs-{{ section.id }}">
+          {%- for block in tab_blocks -%}
+            <div class="cps-tab" {{ block.shopify_attributes }}>
+              <button
+                class="cps-tab-trigger"
+                type="button"
+                aria-expanded="false"
+                aria-controls="cps-tab-body-{{ section.id }}-{{ forloop.index }}"
+              >
+                {%- if block.settings.icon != blank -%}
+                  <img src="{{ block.settings.icon | image_url: width: 32 }}" width="20" height="20" alt="" aria-hidden="true" class="cps-tab-icon">
+                {%- else -%}
+                  <span class="cps-tab-icon cps-tab-icon--default">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+                  </span>
+                {%- endif -%}
+                <span class="cps-tab-title">{{ block.settings.title }}</span>
+                <span class="cps-tab-chevron" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14"><path d="M4 6l4 4 4-4"/></svg>
+                </span>
+              </button>
+              <div
+                class="cps-tab-body"
+                id="cps-tab-body-{{ section.id }}-{{ forloop.index }}"
+                hidden
+              >
+                <div class="cps-tab-content">
+                  {%- if block.settings.content != blank -%}
+                    {{ block.settings.content }}
+                  {%- elsif block.settings.page != blank -%}
+                    {{ pages[block.settings.page].content }}
+                  {%- endif -%}
+                </div>
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+    </div>
+    {%- comment -%} END RIGHT {%- endcomment -%}
+
+  </div>
+</section>
+
+{%- comment -%} ============ STYLES ============ {%- endcomment -%}
+<style>
+  #custom-product-section-{{ section.id }} {
+    --cps-gap: {{ section.settings.section_gap }}px;
+    --cps-btn-radius: {{ section.settings.btn_radius }}px;
+    --cps-pill-radius: {{ section.settings.pill_radius }}px;
+    --cps-accent: {{ section.settings.accent_color }};
+    --cps-text: {{ section.settings.text_color }};
+    --cps-bg: {{ section.settings.bg_color }};
+    --cps-border: {{ section.settings.border_color }};
+    --cps-font-title: {{ section.settings.title_font_size }}px;
+    --cps-font-price: {{ section.settings.price_font_size }}px;
+    padding: {{ section.settings.section_padding_top }}px 0 {{ section.settings.section_padding_bottom }}px;
+    background: var(--cps-bg);
+    color: var(--cps-text);
+  }
+
+  .cps-container {
+    display: flex;
+    gap: var(--cps-gap, 40px);
+    max-width: {{ section.settings.content_max_width }}px;
+    margin: 0 auto;
+    padding: 0 20px;
+    align-items: flex-start;
+  }
+
+  /* ==== GALLERY ==== */
+  .cps-gallery {
+    flex-shrink: 0;
+    width: 100%;
+  }
+
+  .cps-main-image-wrap {
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f5f5f5;
+    margin-bottom: 12px;
+  }
+
+  .cps-main-image img,
+  .cps-main-image .cps-placeholder-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    transition: opacity 0.25s ease;
+  }
+
+  .cps-thumbs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .cps-thumb-btn {
+    border: 2px solid transparent;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    background: #f5f5f5;
+    padding: 0;
+    transition: border-color 0.2s;
+  }
+
+  .cps-thumb-btn img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    aspect-ratio: 1;
+  }
+
+  .cps-thumb-btn.is-active,
+  .cps-thumb-btn:hover {
+    border-color: var(--cps-accent);
+  }
+
+  /* ==== DETAILS ==== */
+  .cps-details {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Breadcrumb */
+  .cps-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .cps-breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .cps-breadcrumb a:hover { text-decoration: underline; }
+  .cps-bc-sep { opacity: 0.5; }
+
+  /* Title row */
+  .cps-title-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .cps-product-title {
+    font-size: var(--cps-font-title, 26px);
+    font-weight: 600;
+    line-height: 1.2;
+    margin: 0;
+    color: var(--cps-text);
+  }
+
+  .m-pcard-wishlist-wrap,
+  .m-pcard-wish-wrapper {
+    flex-shrink: 0;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 4px;
+    display: flex;
+  }
+
+  .m-pcard-wish-wrapper svg,
+  .m-pcard-wish-wrapper img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .pcard-wish-icon-filled { display: none; }
+
+  .m-pcard-wish-wrapper.is-wishlisted .pcard-wish-icon-default { display: none; }
+  .m-pcard-wish-wrapper.is-wishlisted .pcard-wish-icon-filled  { display: block; }
+
+  /* Price row */
+  .cps-price-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .cps-price-current {
+    font-size: var(--cps-font-price, 20px);
+    font-weight: 700;
+    color: var(--cps-text);
+  }
+
+  .cps-price-compare {
+    font-size: 15px;
+    color: #999;
+    text-decoration: line-through;
+  }
+
+  .cps-badge-sale {
+    background: var(--cps-accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 40px;
+    letter-spacing: 0.03em;
+  }
+
+  .cps-rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+  }
+
+  .cps-stars {
+    display: flex;
+    gap: 1px;
+    color: #f5a623;
+  }
+
+  .cps-stars svg { width: 14px; height: 14px; }
+  .cps-review-count { font-size: 12px; color: #888; }
+
+  /* Option groups */
+  .cps-option-group {
+    margin-bottom: 18px;
+  }
+
+  .cps-option-label {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .cps-option-label strong {
+    color: var(--cps-text);
+    font-weight: 600;
+  }
+
+  .cps-size-guide {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--cps-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* Swatch rows */
+  .cps-swatch-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .cps-swatch input { display: none; }
+
+  .cps-swatch--circle .cps-swatch-inner {
+    display: block;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    cursor: pointer;
+    transition: outline-color 0.15s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+
+  .cps-swatch--circle.is-selected .cps-swatch-inner,
+  .cps-swatch--circle:hover .cps-swatch-inner {
+    outline-color: var(--cps-accent);
+  }
+
+  /* Gem dots */
+  .cps-gem-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: block;
+    cursor: pointer;
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    transition: outline-color 0.15s;
+  }
+
+  .cps-swatch--gem.is-selected .cps-gem-dot,
+  .cps-swatch--gem:hover .cps-gem-dot {
+    outline-color: var(--cps-accent);
+  }
+
+  .cps-gem-dot[data-gem*="moissanite"],
+  .cps-gem-dot[data-gem*="diamond"] { background: radial-gradient(circle at 30% 30%, #e8f4ff, #a8d4f5 60%, #6aabdc); }
+  .cps-gem-dot[data-gem*="amethyst"]{ background: radial-gradient(circle at 30% 30%, #e8d5f5, #b07fd4 60%, #7b3fa0); }
+  .cps-gem-dot[data-gem*="ruby"]    { background: radial-gradient(circle at 30% 30%, #ffd6d6, #e05c5c 60%, #b01a1a); }
+  .cps-gem-dot[data-gem*="emerald"] { background: radial-gradient(circle at 30% 30%, #d5f5d5, #5cb85c 60%, #1a7a1a); }
+  .cps-gem-dot[data-gem*="sapphire"]{ background: radial-gradient(circle at 30% 30%, #d5e0ff, #4a6fd4 60%, #1a3a9a); }
+  .cps-gem-dot                      { background: radial-gradient(circle at 30% 30%, #f5f5f5, #ccc 60%, #888); }
+
+  /* Image swatch */
+  .cps-swatch--image {
+    display: block;
+    cursor: pointer;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    transition: outline-color 0.15s;
+  }
+
+  .cps-swatch--image.is-selected,
+  .cps-swatch--image:hover {
+    outline-color: var(--cps-accent);
+  }
+
+  .cps-swatch--image img {
+    display: block;
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+  }
+
+  /* Option values / pill */
+  .cps-option-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .cps-pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    height: 38px;
+    padding: 0 14px;
+    border: 1.5px solid var(--cps-border);
+    border-radius: var(--cps-pill-radius, 4px);
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .cps-pill input { display: none; }
+
+  .cps-pill.is-selected,
+  .cps-pill:hover {
+    border-color: var(--cps-accent);
+    background: var(--cps-accent);
+    color: #fff;
+  }
+
+  /* Delivery badge */
+  .cps-delivery-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f7f7f7;
+    border: 1px solid var(--cps-border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .cps-delivery-badge svg { flex-shrink: 0; }
+
+  /* Above button text */
+  .cps-above-btn-text {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+
+  /* CTA Buttons */
+  .cps-cta-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .cps-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-radius: var(--cps-btn-radius, 4px);
+    cursor: pointer;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.15s;
+    border: none;
+  }
+
+  .cps-btn:active { transform: scale(0.98); }
+  .cps-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .cps-btn--cart {
+    background: {{ section.settings.atc_bg_color }};
+    color: {{ section.settings.atc_text_color }};
+  }
+
+  .cps-btn--cart:hover:not(:disabled) { opacity: 0.88; }
+
+  .cps-btn--buynow {
+    background: {{ section.settings.buy_now_bg_color }};
+    color: {{ section.settings.buy_now_text_color }};
+    border: 1.5px solid {{ section.settings.buy_now_border_color }};
+  }
+
+  .cps-btn--buynow:hover { opacity: 0.88; }
+
+  /* Trust badges */
+  .cps-trust-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-top: 4px;
+  }
+
+  .cps-trust-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: #555;
+    line-height: 1.4;
+  }
+
+  .cps-trust-item img,
+  .cps-trust-default-icon { flex-shrink: 0; }
+
+  /* Tabs */
+  .cps-tabs {
+    border-top: 1px solid var(--cps-border);
+  }
+
+  .cps-tab {
+    border-bottom: 1px solid var(--cps-border);
+  }
+
+  .cps-tab-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--cps-text);
+    text-align: left;
+  }
+
+  .cps-tab-icon { flex-shrink: 0; }
+  .cps-tab-title { flex: 1; }
+
+  .cps-tab-chevron {
+    transition: transform 0.25s ease;
+  }
+
+  .cps-tab-trigger[aria-expanded="true"] .cps-tab-chevron {
+    transform: rotate(180deg);
+  }
+
+  .cps-tab-body {
+    overflow: hidden;
+  }
+
+  .cps-tab-body[hidden] { display: none; }
+
+  .cps-tab-body.is-animating {
+    display: block;
+    animation: cps-slide-down 0.25s ease forwards;
+  }
+
+  @keyframes cps-slide-down {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .cps-tab-content {
+    padding: 0 0 16px;
+    font-size: 14px;
+    line-height: 1.65;
+    color: #555;
+  }
+
+  .cps-tab-content p:last-child { margin-bottom: 0; }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .cps-container {
+      flex-direction: column;
+    }
+    .cps-gallery {
+      max-width: 100% !important;
+    }
+    .cps-trust-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 500px) {
+    .cps-cta-row { flex-direction: column; }
+    .cps-trust-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+{%- comment -%} ============ SCRIPTS ============ {%- endcomment -%}
+<script>
+(function() {
+  var sid = "{{ section.id }}";
+  var section = document.getElementById("custom-product-section-" + sid);
+  if (!section) return;
+
+  // --- Thumbnail switching ---
+  var thumbBtns = section.querySelectorAll(".cps-thumb-btn");
+  var featImg   = section.querySelector("#cps-featured-img");
+
+  thumbBtns.forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      thumbBtns.forEach(function(b) { b.classList.remove("is-active"); });
+      btn.classList.add("is-active");
+      if (featImg) {
+        featImg.style.opacity = "0";
+        setTimeout(function() {
+          featImg.src = btn.dataset.mediaSrc;
+          featImg.alt = btn.dataset.mediaAlt || "";
+          featImg.style.opacity = "1";
+        }, 150);
+      }
+    });
+  });
+
+  // --- Variant selection ---
+  var variantRadios  = section.querySelectorAll(".cps-variant-radio");
+  var variantInput   = section.querySelector("#cps-variant-id-" + sid);
+  var priceContainer = section.querySelector("#cps-price-" + sid);
+
+  var productVariants = {{ product.variants | json }};
+  var selectedOptions = Array.from({ length: {{ product.options.size }} }, function() { return ""; });
+
+  // Init selected options from checked radios
+  variantRadios.forEach(function(radio) {
+    if (radio.checked) {
+      var idx = parseInt(radio.dataset.optionIndex, 10);
+      selectedOptions[idx] = radio.value;
+    }
+  });
+
+  // Label selection highlight
+  function updateLabels() {
+    section.querySelectorAll(".cps-option-group").forEach(function(group) {
+      var idx  = parseInt(group.dataset.optionIndex, 10);
+      var val  = selectedOptions[idx];
+      // pills
+      group.querySelectorAll(".cps-pill").forEach(function(pill) {
+        var r = pill.querySelector("input");
+        pill.classList.toggle("is-selected", r && r.value === val);
+      });
+      // swatches
+      group.querySelectorAll(".cps-swatch").forEach(function(sw) {
+        var r = sw.querySelector("input");
+        sw.classList.toggle("is-selected", r && r.value === val);
+      });
+      // display value
+      var display = group.querySelector(".cps-option-selected-val");
+      if (display && val) display.textContent = val;
+    });
+  }
+
+  function findVariant() {
+    return productVariants.find(function(v) {
+      return v.options.every(function(opt, i) {
+        return selectedOptions[i] === opt;
+      });
+    });
+  }
+
+  variantRadios.forEach(function(radio) {
+    radio.addEventListener("change", function() {
+      var idx = parseInt(radio.dataset.optionIndex, 10);
+      selectedOptions[idx] = radio.value;
+      updateLabels();
+
+      var match = findVariant();
+      if (match && variantInput) {
+        variantInput.value = match.id;
+
+        // Update buy now link
+        var buyBtn = section.querySelector("#cps-buynow-" + sid);
+        if (buyBtn) {
+          buyBtn.href = "/checkout?items[][id]=" + match.id + "&items[][quantity]=1";
+        }
+
+        // Update add to cart button state
+        var cartBtn = section.querySelector(".cps-btn--cart span");
+        if (cartBtn) {
+          cartBtn.textContent = match.available
+            ? ("{{ section.settings.atc_label | default: 'Add to Cart' }}")
+            : ("{{ section.settings.sold_out_label | default: 'Sold Out' }}");
+        }
+        var cartBtnEl = section.querySelector(".cps-btn--cart");
+        if (cartBtnEl) cartBtnEl.disabled = !match.available;
+      }
+    });
+  });
+
+  // --- Gemstone radio visual selection ---
+  section.querySelectorAll(".cps-gem-radio").forEach(function(radio) {
+    radio.addEventListener("change", function() {
+      section.querySelectorAll(".cps-swatch--gem").forEach(function(s) { s.classList.remove("is-selected"); });
+      var label = radio.closest(".cps-swatch--gem");
+      if (label) label.classList.add("is-selected");
+      var display = section.querySelector("#cps-gem-val-" + sid);
+      if (display) display.textContent = radio.value;
+    });
+  });
+
+  // --- Collapsible tabs ---
+  section.querySelectorAll(".cps-tab-trigger").forEach(function(trigger) {
+    trigger.addEventListener("click", function() {
+      var expanded = trigger.getAttribute("aria-expanded") === "true";
+      var bodyId   = trigger.getAttribute("aria-controls");
+      var body     = document.getElementById(bodyId);
+      if (!body) return;
+
+      if (expanded) {
+        trigger.setAttribute("aria-expanded", "false");
+        body.hidden = true;
+        body.classList.remove("is-animating");
+      } else {
+        trigger.setAttribute("aria-expanded", "true");
+        body.hidden = false;
+        body.classList.add("is-animating");
+      }
+    });
+  });
+
+  // --- Add to Cart AJAX (optional, falls back to form submit) ---
+  var form = section.querySelector("[data-type='add-to-cart-form']");
+  if (form) {
+    form.addEventListener("submit", function(e) {
+      var varId = variantInput ? variantInput.value : null;
+      if (!varId) return;
+      e.preventDefault();
+      var cartBtn = section.querySelector(".cps-btn--cart");
+      if (cartBtn) { cartBtn.disabled = true; }
+      fetch("/cart/add.js", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ id: varId, quantity: 1 })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function() {
+        if (cartBtn) {
+          cartBtn.disabled = false;
+          var span = cartBtn.querySelector("span");
+          var orig = span ? span.textContent : "";
+          if (span) span.textContent = "{{ section.settings.atc_success_label | default: 'Added!' }}";
+          setTimeout(function() { if (span) span.textContent = orig; }, 2000);
+        }
+        document.dispatchEvent(new CustomEvent("cart:refresh", { bubbles: true }));
+      })
+      .catch(function() {
+        if (cartBtn) cartBtn.disabled = false;
+      });
+    });
+  }
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "cs product info",
+  "tag": "section",
+  "class": "custom-product-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "gallery_width",
+      "label": "Gallery column width (px)",
+      "min": 300,
+      "max": 900,
+      "step": 10,
+      "default": 500
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "label": "Section max-width (px)",
+      "min": 900,
+      "max": 1600,
+      "step": 20,
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "section_gap",
+      "label": "Gap between columns (px)",
+      "min": 10,
+      "max": 100,
+      "step": 2,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "label": "Padding top (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "label": "Padding bottom (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent / highlight color",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#e5e5e5"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "label": "Title font size (px)",
+      "min": 16,
+      "max": 52,
+      "step": 1,
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "price_font_size",
+      "label": "Price font size (px)",
+      "min": 14,
+      "max": 36,
+      "step": 1,
+      "default": 22
+    },
+    {
+      "type": "header",
+      "content": "Breadcrumb"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumb",
+      "label": "Show breadcrumb",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "breadcrumb_separator",
+      "label": "Breadcrumb separator",
+      "default": "/"
+    },
+    {
+      "type": "header",
+      "content": "Wishlist"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_wishlist",
+      "label": "Show wishlist button",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Price & Rating"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_badge",
+      "label": "Show sale % badge",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "Show star rating",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "rating_value",
+      "label": "Rating value",
+      "min": 1,
+      "max": 5,
+      "step": 0.5,
+      "default": 4.5
+    },
+    {
+      "type": "number",
+      "id": "review_count",
+      "label": "Review count",
+      "default": 190
+    },
+    {
+      "type": "header",
+      "content": "Material Option"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_material",
+      "label": "Show material selector",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "material_option_name",
+      "label": "Shopify option name for material",
+      "default": "Material",
+      "info": "Must exactly match the product option name in Shopify"
+    },
+    {
+      "type": "text",
+      "id": "material_label",
+      "label": "Material label text",
+      "default": "Material"
+    },
+    {
+      "type": "header",
+      "content": "Gemstones (Metaobject)"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_gemstones",
+      "label": "Show gemstones selector",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "gemstone_metafield_namespace",
+      "label": "Gemstone metafield namespace",
+      "default": "custom",
+      "info": "e.g. 'custom'"
+    },
+    {
+      "type": "text",
+      "id": "gemstone_metafield_key",
+      "label": "Gemstone metafield key",
+      "default": "gemstones_metafield",
+      "info": "e.g. 'gemstones_metafield' — should be a comma-separated string"
+    },
+    {
+      "type": "text",
+      "id": "gemstone_label",
+      "label": "Gemstones label text",
+      "default": "Gemstones"
+    },
+    {
+      "type": "header",
+      "content": "Size Guide"
+    },
+    {
+      "type": "url",
+      "id": "size_guide_url",
+      "label": "Size guide URL",
+      "info": "Leave blank to hide the size guide link"
+    },
+    {
+      "type": "text",
+      "id": "size_guide_label",
+      "label": "Size guide link text",
+      "default": "Size Guide"
+    },
+    {
+      "type": "header",
+      "content": "Delivery Badge"
+    },
+    {
+      "type": "image_picker",
+      "id": "delivery_badge_icon",
+      "label": "Delivery badge icon image"
+    },
+    {
+      "type": "text",
+      "id": "delivery_badge_text",
+      "label": "Delivery badge text",
+      "default": "READY-TO-SHIP: DELIVERY WITHIN 5-10 WORKING DAYS"
+    },
+    {
+      "type": "header",
+      "content": "Above Button Text"
+    },
+    {
+      "type": "richtext",
+      "id": "above_btn_text",
+      "label": "Text above buttons",
+      "info": "Optional descriptive text shown above the CTA buttons"
+    },
+    {
+      "type": "header",
+      "content": "Add to Cart Button"
+    },
+    {
+      "type": "image_picker",
+      "id": "atc_icon",
+      "label": "Add to Cart icon image"
+    },
+    {
+      "type": "text",
+      "id": "atc_label",
+      "label": "Add to Cart label",
+      "default": "Add to Cart"
+    },
+    {
+      "type": "text",
+      "id": "atc_success_label",
+      "label": "After-add label",
+      "default": "Added!"
+    },
+    {
+      "type": "text",
+      "id": "sold_out_label",
+      "label": "Sold Out label",
+      "default": "Sold Out"
+    },
+    {
+      "type": "color",
+      "id": "atc_bg_color",
+      "label": "Add to Cart background",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "atc_text_color",
+      "label": "Add to Cart text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "btn_radius",
+      "label": "Button border radius (px)",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Buy Now Button"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_buy_now",
+      "label": "Show Buy Now button",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "buy_now_icon",
+      "label": "Buy Now custom icon image",
+      "info": "Upload a custom icon; leave blank to use built-in icon"
+    },
+    {
+      "type": "select",
+      "id": "buy_now_icon_type",
+      "label": "Buy Now built-in icon style",
+      "options": [
+        { "value": "card", "label": "Credit Card" },
+        { "value": "apple_pay", "label": "⌘ Pay style" }
+      ],
+      "default": "card"
+    },
+    {
+      "type": "text",
+      "id": "buy_now_label",
+      "label": "Buy Now label",
+      "default": "Buy Now"
+    },
+    {
+      "type": "color",
+      "id": "buy_now_bg_color",
+      "label": "Buy Now background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "buy_now_text_color",
+      "label": "Buy Now text color",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "buy_now_border_color",
+      "label": "Buy Now border color",
+      "default": "#111111"
+    },
+    {
+      "type": "header",
+      "content": "Pill / Swatch Radius"
+    },
+    {
+      "type": "range",
+      "id": "pill_radius",
+      "label": "Pill selector border radius (px)",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "default": 4
+    }
+  ],
+  "blocks": [
+    {
+      "type": "trust_badge",
+      "name": "Trust Badge",
+      "limit": 4,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Badge icon"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Badge text",
+          "default": "Each Gemstone is Certified"
+        }
+      ]
+    },
+    {
+      "type": "collapsible_tab",
+      "name": "Collapsible Tab",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Tab icon"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Tab title",
+          "default": "Product Description"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Tab content"
+        },
+        {
+          "type": "page",
+          "id": "page",
+          "label": "Or: pull content from page",
+          "info": "If a page is selected it overrides the content field above"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "cs product info",
+      "blocks": [
+        {
+          "type": "trust_badge",
+          "settings": {
+            "text": "Each Gemstone is checked and Certified"
+          }
+        },
+        {
+          "type": "trust_badge",
+          "settings": {
+            "text": "Feel confidence with Authentic Materials"
+          }
+        },
+        {
+          "type": "trust_badge",
+          "settings": {
+            "text": "Secure Transactions and Data Protection"
+          }
+        },
+        {
+          "type": "trust_badge",
+          "settings": {
+            "text": "Enjoy Worldwide Shipping on All Orders"
+          }
+        },
+        {
+          "type": "collapsible_tab",
+          "settings": {
+            "title": "Product Description",
+            "content": "<p>Add your product description here.</p>"
+          }
+        },
+        {
+          "type": "collapsible_tab",
+          "settings": {
+            "title": "Materials And Details",
+            "content": "<p>Add materials and details here.</p>"
+          }
+        },
+        {
+          "type": "collapsible_tab",
+          "settings": {
+            "title": "Shipping & Returns",
+            "content": "<p>Add shipping and returns information here.</p>"
+          }
+        },
+        {
+          "type": "collapsible_tab",
+          "settings": {
+            "title": "VIP Warranty 2 Years",
+            "content": "<p>Add warranty information here.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

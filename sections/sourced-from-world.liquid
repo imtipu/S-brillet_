@@ -1,0 +1,1015 @@
+{% comment %} {%- style -%}
+  /* ==================================================================
+     Sourced From Around The World - Pixel Perfect Section
+     ================================================================== */
+  .sourced-section-{{ section.id }} {
+    background-color: {{ section.settings.bg_color }};
+    padding-top: {{ section.settings.padding_top }}px; /* Figma: 80px */
+    padding-bottom: {{ section.settings.padding_bottom }}px; /* Figma: 80px */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  /* --- HEADER AREA --- */
+  .sourced-header-{{ section.id }} {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 0 20px;
+    margin-bottom: {{ section.settings.gap_after_header }}px; /* Space between text and map */
+  }
+
+  .sourced-heading-{{ section.id }} {
+    margin: 0;
+    font-family: var(--font-heading-family, serif);
+    font-size: {{ section.settings.heading_size }}px; /* Figma: 64px */
+    font-weight: 400;
+    line-height: 1.23; /* Figma: 123% */
+    color: {{ section.settings.text_color }};
+    text-transform: uppercase;
+    max-width: 1307px; /* Figma matched */
+  }
+
+  .sourced-subtext-{{ section.id }} {
+    margin: 0;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: {{ section.settings.subtext_size }}px; /* Figma: 20px */
+    font-weight: 400;
+    line-height: 1.5; /* Figma: 30px (150%) */
+    color: {{ section.settings.text_color }};
+    max-width: 1148px; /* Figma matched */
+  }
+
+  /* --- MAP IMAGE AREA --- */
+  .sourced-map-{{ section.id }} {
+    width: 100%;
+    max-width: {{ section.settings.map_max_width }}px; /* Figma: 1440px */
+    padding: 0 20px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    margin-bottom: {{ section.settings.gap_after_map }}px; /* Space between map and lists */
+  }
+
+  .sourced-map-{{ section.id }} img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* --- COLUMNS AREA (CSS COLUMNS FOR PERFECT FLOW) --- */
+  .sourced-list-container-{{ section.id }} {
+    width: 100%;
+    max-width: {{ section.settings.list_max_width }}px; /* Figma: 1680px */
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+
+  .sourced-columns-{{ section.id }} {
+    column-count: {{ section.settings.column_count }};
+    column-gap: {{ section.settings.column_gap }}px; /* Figma: 120px */
+    column-rule: 2px solid {{ section.settings.text_color }}; /* Figma: 2px Divider */
+    width: 100%;
+  }
+
+  /* Individual Location Item */
+  .sourced-item-{{ section.id }} {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px; /* Space between bullet and text */
+    margin-bottom: {{ section.settings.item_gap }}px; /* Figma: 40px gap between rows */
+    break-inside: avoid; /* Prevents item from splitting across columns */
+    page-break-inside: avoid;
+    color: {{ section.settings.text_color }};
+  }
+
+  .sourced-item-bullet-{{ section.id }} {
+    font-size: 35px;
+    line-height: 1.5;
+    font-weight: 500;
+    margin-top: 0px; /* Align bullet perfectly with title */
+  }
+
+  .sourced-item-content-{{ section.id }} {
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: {{ section.settings.subtext_size }}px; /* Figma: 20px */
+    line-height: 1.5; /* Figma: 30px */
+  }
+
+  .sourced-item-title-{{ section.id }} {
+    font-weight: 500; /* Figma: Medium */
+    margin: 0;
+  }
+
+  .sourced-item-desc-{{ section.id }} {
+    font-weight: 400; /* Figma: Regular */
+    margin: 0;
+  }
+
+  /* --- RESPONSIVE ADJUSTMENTS --- */
+  @media screen and (max-width: 1024px) {
+    .sourced-heading-{{ section.id }} {
+      font-size: calc({{ section.settings.heading_size }}px * 0.75);
+    }
+    .sourced-columns-{{ section.id }} {
+      column-count: 2; /* 2 Columns on Tablet */
+      column-gap: 60px;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .sourced-heading-{{ section.id }} {
+      font-size: calc({{ section.settings.heading_size }}px * 0.55);
+    }
+    .sourced-subtext-{{ section.id }},
+    .sourced-item-content-{{ section.id }} {
+      font-size: 16px; /* Smaller text for mobile */
+    }
+    .sourced-columns-{{ section.id }} {
+      column-count: 1; /* 1 Column on Mobile */
+      column-rule: none; /* Hide divider lines on mobile */
+    }
+    .sourced-item-{{ section.id }} {
+      margin-bottom: 25px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="sourced-section-{{ section.id }}">
+  
+  <!-- Heading & Subtext -->
+  <div class="sourced-header-{{ section.id }}">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="sourced-heading-{{ section.id }}">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+    {%- if section.settings.subtext != blank -%}
+      <p class="sourced-subtext-{{ section.id }}">{{ section.settings.subtext }}</p>
+    {%- endif -%}
+  </div>
+
+  <!-- Map Image -->
+  <div class="sourced-map-{{ section.id }}">
+    {%- if section.settings.map_image != blank -%}
+      {{ section.settings.map_image | image_url: width: 1440 | image_tag: loading: 'lazy', alt: 'Crystal Map Locations' }}
+    {%- else -%}
+      {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg' }}
+    {%- endif -%}
+  </div>
+
+  <!-- 3-Column List Grid -->
+  <div class="sourced-list-container-{{ section.id }}">
+    <div class="sourced-columns-{{ section.id }}">
+      
+      {%- for block in section.blocks -%}
+        <div class="sourced-item-{{ section.id }}" {{ block.shopify_attributes }}>
+          <div class="sourced-item-bullet-{{ section.id }}">&bull;</div>
+          <div class="sourced-item-content-{{ section.id }}">
+            {%- if block.settings.crystal_name != blank -%}
+              <span class="sourced-item-title-{{ section.id }}">{{ block.settings.crystal_name }}</span>
+            {%- endif -%}
+            
+            {%- if block.settings.region != blank or block.settings.mine != blank -%}
+              <span class="sourced-item-desc-{{ section.id }}">
+                {{ block.settings.region }}
+                {%- if block.settings.region != blank and block.settings.mine != blank -%}<br>{%- endif -%}
+                {{ block.settings.mine }}
+              </span>
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endfor -%}
+
+    </div>
+  </div>
+
+</div>
+
+{% schema %}
+{
+  "name": "Sourced From World",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Text Settings"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "SOURCED FROM AROUND THE WORLD"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 20,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading Size",
+      "default": 64
+    },
+    {
+      "type": "textarea",
+      "id": "subtext",
+      "label": "Subtext",
+      "default": "Each material is ethically sourced from its native origin, connecting nature's energy from across the globe to your personal journey."
+    },
+    {
+      "type": "range",
+      "id": "subtext_size",
+      "min": 14,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Body Text Size",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Image Map"
+    },
+    {
+      "type": "image_picker",
+      "id": "map_image",
+      "label": "Map Image"
+    },
+    {
+      "type": "range",
+      "id": "map_max_width",
+      "min": 800,
+      "max": 2000,
+      "step": 20,
+      "unit": "px",
+      "label": "Map Max Width",
+      "default": 1440
+    },
+    {
+      "type": "header",
+      "content": "List Layout (Pixel Perfect)"
+    },
+    {
+      "type": "range",
+      "id": "list_max_width",
+      "min": 1000,
+      "max": 2000,
+      "step": 10,
+      "unit": "px",
+      "label": "List Container Width",
+      "default": 1680
+    },
+    {
+      "type": "range",
+      "id": "column_count",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "label": "Number of Columns",
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "min": 20,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap between columns",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "item_gap",
+      "min": 10,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Vertical gap between items",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Colors & Spacing"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "range",
+      "id": "gap_after_header",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Space after Header",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "gap_after_map",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Space after Map",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 80
+    }
+  ],
+  "blocks": [
+    {
+      "type": "location",
+      "name": "Crystal Location",
+      "settings": [
+        {
+          "type": "text",
+          "id": "crystal_name",
+          "label": "Crystal Name & Country",
+          "default": "Green Fluorite: Mexico",
+          "info": "This will be Medium weight (500)"
+        },
+        {
+          "type": "text",
+          "id": "region",
+          "label": "Region/State",
+          "default": "Chihuahua"
+        },
+        {
+          "type": "text",
+          "id": "mine",
+          "label": "Mine Name",
+          "default": "[De La Cruz Mine]"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Sourced From World",
+      "blocks": [
+        {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Green Fluorite: Mexico",
+            "region": "Chihuahua",
+            "mine": "[De La Cruz Mine]"
+          }
+        },
+        {
+          "type": "location",
+          "settings": {
+            "crystal_name": "White Quartz: USA",
+            "region": "Arkansas",
+            "mine": "[Ron Coleman Mine]"
+          }
+        },
+        {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Amethyst: Brazil",
+            "region": "Rio Grande do Sul",
+            "mine": "[Ametista do Sul]"
+          }
+        },
+        {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Labradorite: Madagascar",
+            "region": "Andilamena",
+            "mine": "[Feldspar]"
+          }
+        },
+        {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Green Peridot: USA",
+            "region": "Arizona",
+            "mine": "[Peridot Mesa]"
+          }
+        },
+        {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Rose Quartz: USA",
+            "region": "North Carolina",
+            "mine": "[Spruce Pine]"
+          }
+        },
+        {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Citrine: Brazil",
+            "region": "Minas Gerais",
+            "mine": "[Araponga]"
+          }
+        },
+        {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Black Obsidian: USA",
+            "region": "Utah",
+            "mine": "[Fillmore Region]"
+          }
+        },
+        {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Emerald: Colombia",
+            "region": "San Pablo de Borbur",
+            "mine": "[Coscuez Mine]"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %} {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+{%- style -%}
+  /* ==================================================================
+     Sourced From Around The World - Pixel Perfect Section
+     ================================================================== */
+  .sourced-section-{{ section.id }} {
+    background-color: {{ section.settings.bg_color }};
+    padding-top: {{ section.settings.padding_top }}px; 
+    padding-bottom: {{ section.settings.padding_bottom }}px; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  /* --- HEADER AREA --- */
+  .sourced-header-{{ section.id }} {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-bottom: {{ section.settings.gap_after_header }}px; 
+  }
+
+  .sourced-heading-{{ section.id }} {
+    margin: 0;
+    font-family: var(--font-heading-family, serif);
+    font-size: {{ section.settings.heading_size }}px; 
+    font-weight: 400;
+    line-height: 1.23; 
+    color: {{ section.settings.text_color }};
+    text-transform: uppercase;
+    max-width: 1307px; 
+  }
+
+  .sourced-subtext-{{ section.id }} {
+    margin: 0;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: {{ section.settings.subtext_size }}px; 
+    font-weight: 400;
+    line-height: 1.5; 
+    color: {{ section.settings.text_color }};
+    max-width: 1148px; 
+  }
+
+  /* --- MAP IMAGE AREA --- */
+  .sourced-map-{{ section.id }} {
+    width: 100%;
+    max-width: {{ section.settings.map_max_width }}px; 
+    padding-left: 20px;
+    padding-right: 20px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    margin-bottom: {{ section.settings.gap_after_map }}px; 
+  }
+
+  .sourced-map-{{ section.id }} img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* --- COLUMNS AREA (CSS COLUMNS FOR PERFECT FLOW) --- */
+  .sourced-list-container-{{ section.id }} {
+    width: 100%;
+    max-width: {{ section.settings.list_max_width }}px; 
+    padding-left: 20px;
+    padding-right: 20px;
+    box-sizing: border-box;
+  }
+
+  .sourced-columns-{{ section.id }} {
+    column-count: {{ section.settings.column_count }};
+    column-gap: {{ section.settings.column_gap }}px; 
+    column-rule: 2px solid {{ section.settings.text_color }}; 
+    width: 100%;
+  }
+
+  /* Wrapper to prevent Shopify Editor crash (Layout Thrashing fix) */
+  .sourced-item-wrapper-{{ section.id }} {
+    display: inline-block;
+    width: 100%;
+    break-inside: avoid; 
+    page-break-inside: avoid;
+    margin-bottom: {{ section.settings.item_gap }}px; 
+  }
+
+  /* Individual Location Item */
+  .sourced-item-{{ section.id }} {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px; 
+    color: {{ section.settings.text_color }};
+  }
+
+  .sourced-item-bullet-{{ section.id }} {
+    font-size: 35px;
+    line-height: 1.5;
+    font-weight: 500;
+    margin-top: 0px; 
+  }
+
+  .sourced-item-content-{{ section.id }} {
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: {{ section.settings.subtext_size }}px; 
+    line-height: 1.5; 
+  }
+
+  .sourced-item-title-{{ section.id }} {
+    font-weight: 500; 
+    margin: 0;
+  }
+
+  .sourced-item-desc-{{ section.id }} {
+    font-weight: 400; 
+    margin: 0;
+  }
+
+  /* ==================================================================
+     RESPONSIVE ADJUSTMENTS (Macbook, Tablet, Mobile)
+     ================================================================== */
+     
+
+     /* ─── MacBook Air 15 inch M2 (1441px - 1728px) ───────────────── */
+@media screen and (min-width: 1441px) and (max-width: 1728px) {
+  .sourced-heading-{{ section.id }} {
+    font-size: 54px !important;
+  }
+  .sourced-subtext-{{ section.id }},
+  .sourced-item-content-{{ section.id }} {
+    font-size: 18px;
+  }
+  .sourced-item-bullet-{{ section.id }} {
+    font-size: 28px;
+  }
+  .sourced-header-{{ section.id }},
+  .sourced-map-{{ section.id }},
+  .sourced-list-container-{{ section.id }} {
+    padding-left: 120px;
+    padding-right: 120px;
+  }
+  .sourced-columns-{{ section.id }} {
+    column-gap: 100px;
+  }
+}
+
+  /* Laptop & Macbook (up to 1440px) */
+  @media screen and (max-width: 1440px) {
+    .sourced-heading-{{ section.id }} {
+      font-size: 46px !important; /* Forced 46px for Macbook */
+    }
+    .sourced-subtext-{{ section.id }},
+    .sourced-item-content-{{ section.id }} {
+      font-size: 16px; /* Updated text to 16px for Macbook */
+    }
+    .sourced-item-bullet-{{ section.id }} {
+      font-size: 24px; /* Scaled down bullet to match 16px text */
+    }
+    .sourced-header-{{ section.id }},
+    .sourced-map-{{ section.id }},
+    .sourced-list-container-{{ section.id }} {
+      padding-left: 120px; /* 120px padding left/right as requested */
+      padding-right: 120px;
+    }
+    .sourced-columns-{{ section.id }} {
+      column-gap: 80px; /* Scaled down gap proportionally */
+    }
+  }
+
+  /* Tablets (up to 1024px) */
+  @media screen and (max-width: 1024px) {
+    .sourced-heading-{{ section.id }} {
+      font-size: 38px !important;
+    }
+    .sourced-header-{{ section.id }},
+    .sourced-map-{{ section.id }},
+    .sourced-list-container-{{ section.id }} {
+      padding-left: 40px;
+      padding-right: 40px;
+    }
+    .sourced-columns-{{ section.id }} {
+      column-count: 2; /* 2 Columns on Tablet */
+      column-gap: 40px;
+    }
+  }
+
+  /* Mobile (up to 768px) */
+  @media screen and (max-width: 768px) {
+    .sourced-heading-{{ section.id }} {
+      font-size: 28px !important; /* Forced 28px for Mobile */
+    }
+    .sourced-subtext-{{ section.id }},
+    .sourced-item-content-{{ section.id }} {
+      font-size: 14px; /* Reduced text size slightly to fit 2 columns perfectly */
+    }
+    .sourced-item-bullet-{{ section.id }} {
+      font-size: 20px; /* Scaled down bullet point */
+    }
+    .sourced-header-{{ section.id }},
+    .sourced-map-{{ section.id }},
+    .sourced-list-container-{{ section.id }} {
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+    .sourced-columns-{{ section.id }} {
+      column-count: 2; /* Changed to 2 Columns on Mobile */
+      column-gap: 20px; /* Added appropriate gap for mobile */
+      column-rule: none; /* Hide divider lines on mobile */
+    }
+    .sourced-item-wrapper-{{ section.id }} {
+      margin-bottom: 20px; /* Updated to target the wrapper */
+    }
+  }
+{%- endstyle -%}
+
+<div class="sourced-section-{{ section.id }}">
+  
+  <!-- Heading & Subtext -->
+  <div class="sourced-header-{{ section.id }}">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="sourced-heading-{{ section.id }}">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+    {%- if section.settings.subtext != blank -%}
+      <p class="sourced-subtext-{{ section.id }}">{{ section.settings.subtext }}</p>
+    {%- endif -%}
+  </div>
+
+  <!-- Map Image -->
+  <div class="sourced-map-{{ section.id }}">
+    {%- if section.settings.map_image != blank -%}
+      {{ section.settings.map_image | image_url: width: 1440 | image_tag: loading: 'lazy', alt: 'Crystal Map Locations' }}
+    {%- else -%}
+      {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg' }}
+    {%- endif -%}
+  </div>
+
+  <!-- 3-Column List Grid -->
+  <div class="sourced-list-container-{{ section.id }}">
+    <div class="sourced-columns-{{ section.id }}">
+      
+      {%- for block in section.blocks -%}
+        <div class="sourced-item-wrapper-{{ section.id }}" {{ block.shopify_attributes }}>
+          <div class="sourced-item-{{ section.id }}">
+            <div class="sourced-item-bullet-{{ section.id }}">&bull;</div>
+            <div class="sourced-item-content-{{ section.id }}">
+              {%- if block.settings.crystal_name != blank -%}
+                <span class="sourced-item-title-{{ section.id }}">{{ block.settings.crystal_name }}</span>
+              {%- endif -%}
+              
+              {%- if block.settings.region != blank or block.settings.mine != blank -%}
+                <span class="sourced-item-desc-{{ section.id }}">
+                  {{ block.settings.region }}
+                  {%- if block.settings.region != blank and block.settings.mine != blank -%}<br>{%- endif -%}
+                  {{ block.settings.mine }}
+                </span>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      {%- endfor -%}
+
+    </div>
+  </div>
+
+</div>
+
+{% schema %}
+{
+  "name": "Sourced From World",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Text Settings"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "SOURCED FROM AROUND THE WORLD"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 20,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading Size",
+      "default": 64
+    },
+    {
+      "type": "textarea",
+      "id": "subtext",
+      "label": "Subtext",
+      "default": "Each material is ethically sourced from its native origin, connecting nature's energy from across the globe to your personal journey."
+    },
+    {
+      "type": "range",
+      "id": "subtext_size",
+      "min": 14,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Body Text Size",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Image Map"
+    },
+    {
+      "type": "image_picker",
+      "id": "map_image",
+      "label": "Map Image"
+    },
+    {
+      "type": "range",
+      "id": "map_max_width",
+      "min": 800,
+      "max": 2000,
+      "step": 20,
+      "unit": "px",
+      "label": "Map Max Width",
+      "default": 1440
+    },
+    {
+      "type": "header",
+      "content": "List Layout (Pixel Perfect)"
+    },
+    {
+      "type": "range",
+      "id": "list_max_width",
+      "min": 1000,
+      "max": 2000,
+      "step": 10,
+      "unit": "px",
+      "label": "List Container Width",
+      "default": 1680
+    },
+    {
+      "type": "range",
+      "id": "column_count",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "label": "Number of Columns",
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "min": 20,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap between columns",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "item_gap",
+      "min": 10,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Vertical gap between items",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Colors & Spacing"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "range",
+      "id": "gap_after_header",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Space after Header",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "gap_after_map",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Space after Map",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 80
+    }
+  ],
+  "blocks": [
+    {
+      "type": "location",
+      "name": "Crystal Location",
+      "settings": [
+        {
+          "type": "text",
+          "id": "crystal_name",
+          "label": "Crystal Name & Country",
+          "default": "Green Fluorite: Mexico",
+          "info": "This will be Medium weight (500)"
+        },
+        {
+          "type": "text",
+          "id": "region",
+          "label": "Region/State",
+          "default": "Chihuahua"
+        },
+        {
+          "type": "text",
+          "id": "mine",
+          "label": "Mine Name",
+          "default": "[De La Cruz Mine]"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Sourced From World",
+      "blocks": [
+        {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Green Fluorite: Mexico",
+            "region": "Chihuahua",
+            "mine": "[De La Cruz Mine]"
+          }
+        },
+        {
+          "type": "location",
+          "settings": {
+            "crystal_name": "White Quartz: USA",
+            "region": "Arkansas",
+            "mine": "[Ron Coleman Mine]"
+          }
+        },
+        {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Amethyst: Brazil",
+            "region": "Rio Grande do Sul",
+            "mine": "[Ametista do Sul]"
+          }
+        },
+        {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Labradorite: Madagascar",
+            "region": "Andilamena",
+            "mine": "[Feldspar]"
+          }
+        },
+        {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Green Peridot: USA",
+            "region": "Arizona",
+            "mine": "[Peridot Mesa]"
+          }
+        },
+        {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Rose Quartz: USA",
+            "region": "North Carolina",
+            "mine": "[Spruce Pine]"
+          }
+        },
+        {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Citrine: Brazil",
+            "region": "Minas Gerais",
+            "mine": "[Araponga]"
+          }
+        },
+        {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Black Obsidian: USA",
+            "region": "Utah",
+            "mine": "[Fillmore Region]"
+          }
+        },
+        {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Emerald: Colombia",
+            "region": "San Pablo de Borbur",
+            "mine": "[Coscuez Mine]"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

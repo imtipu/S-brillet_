@@ -1,0 +1,1746 @@
+{% comment %} {%- liquid
+  assign product_form_id = 'product-form-' | append: section.id
+  assign image_size = 100
+  assign opt_position_key = 'option' | append: option.position
+  assign option_name_clean = option.name | downcase | strip
+
+  assign is_gemstone = false
+  if option_name_clean == 'gemstone'
+    assign is_gemstone = true
+  endif
+-%}
+
+{%- for value in option.values -%}
+  {%- liquid
+    assign option_disabled = true
+    if value.available
+      assign option_disabled = false
+    endif
+
+    assign value_downcase = value | downcase | strip
+    assign product_colors = settings.product_colors | split: ','
+    assign selected_color = value_downcase | split: ' ' | last | handle
+    assign selected_image = ''
+
+    for product_color in product_colors
+      assign parts = product_color | strip | split: ':'
+      assign name = parts.first | downcase | strip
+      assign color = parts.last | strip
+      if name == value_downcase
+        assign selected_color = color
+      endif
+    endfor
+
+    for i in (1..100)
+      assign key = 'filter_color' | append: i
+      assign key_second = 'filter_color' | append: i | append: '.png'
+      assign setting_value = settings[key] | downcase | strip
+      if texture_style != '' and setting_value == value_downcase
+        assign selected_image = key_second | asset_url
+      endif
+    endfor
+
+    assign independent_variant_img = blank
+    unless is_gemstone
+      for var in product.variants
+        if var[opt_position_key] == value and var.image != blank
+          assign independent_variant_img = var.image
+          break
+        endif
+      endfor
+    endunless
+
+    assign gem_img_url = blank
+    assign gem_filename = value | handle | append: '.png'
+
+    if value.swatch.image != blank
+      assign gem_img_url = value.swatch.image | image_url: width: 132
+    elsif value.metafields.custom.swatch_image != blank
+      assign gem_img_url = value.metafields.custom.swatch_image | image_url: width: 132
+    else
+      assign gem_img_url = gem_filename | file_url
+    endif
+  -%}
+
+  {%- capture input_id -%}{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}{%- endcapture -%}
+  {%- capture input_name -%}{{ option.name }}-{{ option.position }}{%- endcapture -%}
+
+  {%- capture label_unavailable -%}
+    <span class="m:visually-hidden label-unavailable">
+      {%- render 'new-locale', key: 'products.product.variant_sold_out_or_unavailable' -%}
+    </span>
+  {%- endcapture -%}
+
+  {%- capture input_dataset -%}
+    data-product-url="{{ value.product_url }}"
+    data-option-value-id="{{ value.id }}"
+  {%- endcapture -%}
+
+  {%- if is_gemstone -%}
+    {%- comment -%} ── GEMSTONE OPTION ── {%- endcomment -%}
+    <div
+      class="m-product-option--node m-tooltip m-tooltip--top{% if option_disabled %} m-product-option--node__unavailable{% endif %}{% if value.selected %} is-selected{% endif %}"
+      data-option-type="gemstone"
+      data-option-position="{{ option.position }}"
+      data-value="{{- value | escape -}}"
+    >
+      <input type="radio" id="{{ input_id }}" name="{{ input_name }}" value="{{ value }}" form="{{ product_form_id }}" class="m-product-option__input gemstone-radio-input{% if option_disabled %} disabled{% endif %}" {% if value.selected %}checked{% endif %} {% if disabled %}disabled{% endif %} data-label="{{ value | escape }}" {{ input_dataset }}>
+
+      {{- '<!-- outer border ring -->' -}}
+      <div class="m-product-option--oct-gap">
+        {{- '<!-- inner white bg -->' -}}
+        <div class="m-product-option--oct-inner">
+          <label for="{{ input_id }}" class="m-product-option--node__label" data-option-type="gemstone">
+            {%- if gem_img_url != blank -%}
+              <img
+                src="{{ gem_img_url }}"
+                alt="{{ value | escape }}"
+                loading="lazy"
+                onerror="this.style.display='none'"
+              >
+            {%- endif -%}
+            <span class="m:visually-hidden">{{ value }}</span>
+          </label>
+        </div>
+      </div>
+
+      <span class="m-tooltip__content">{{- value -}}</span>
+    </div>
+
+  {%- else -%}
+    {%- comment -%} ── REGULAR OPTIONS (button / color / swatch_color / image) ── {%- endcomment -%}
+    {%- case picker_type -%}
+
+      {%- when 'swatch_color' -%}
+        {%- liquid
+          assign swatch_style = ''
+          if value.swatch.image
+            assign swatch_img_url = value.swatch.image | image_url: width: image_size
+            assign swatch_style = 'background-image: url(' | append: swatch_img_url | append: ');'
+          elsif value.swatch.color
+            assign swatch_style = 'background-color: rgb(' | append: value.swatch.color.rgb | append: ');'
+          else
+            assign swatch_style = 'background-color: ' | append: selected_color | append: ';'
+          endif
+        -%}
+        <div
+          class="m-product-option--node m-tooltip m-tooltip--top{% if option_disabled %} m-product-option--node__unavailable{% endif %}{% if value.selected %} is-selected{% endif %}"
+          data-option-type="swatch_color"
+          data-option-position="{{ option.position }}"
+          data-value="{{- value | escape -}}"
+        >
+          <input type="radio" id="{{ input_id }}" name="{{ input_name }}" value="{{ value }}" form="{{ product_form_id }}" class="m-product-option__input{% if option_disabled %} disabled{% endif %}" {% if value.selected %}checked{% endif %} {% if disabled %}disabled{% endif %} {{ input_dataset }}>
+          <div class="m-product-option--oct-gap">
+            <div class="m-product-option--oct-inner">
+              <label for="{{ input_id }}" class="m-product-option--node__label" data-option-type="swatch_color" style="{{ swatch_style }}">{{- value -}}{{ label_unavailable }}</label>
+            </div>
+          </div>
+          <span class="m-tooltip__content">{{- value -}}</span>
+        </div>
+
+      {%- when 'button' -%}
+        <div
+          class="m-product-option--node m-tooltip m-tooltip--top{% if option_disabled %} m-product-option--node__unavailable{% endif %}{% if value.selected %} is-selected{% endif %}"
+          data-option-type="button"
+          data-option-position="{{ option.position }}"
+          data-value="{{- value | escape -}}"
+        >
+          <input type="radio" id="{{ input_id }}" name="{{ input_name }}" value="{{ value }}" form="{{ product_form_id }}" class="m-product-option__input{% if option_disabled %} disabled{% endif %}" {% if value.selected %}checked{% endif %} {% if disabled %}disabled{% endif %} {{ input_dataset }}>
+          <div class="m-product-option--oct-gap">
+            <div class="m-product-option--oct-inner">
+              <label for="{{ input_id }}" class="m-product-option--node__label" data-option-type="button">{{ value -}}{{ label_unavailable }}</label>
+            </div>
+          </div>
+          <span class="m-tooltip__content">{{- value -}}</span>
+        </div>
+
+      {%- when 'color' -%}
+        <div
+          class="m-product-option--node m-tooltip m-tooltip--top{% if option_disabled %} m-product-option--node__unavailable{% endif %}{% if value.selected %} is-selected{% endif %}"
+          data-option-type="color"
+          data-option-position="{{ option.position }}"
+          data-value="{{- value | escape -}}"
+        >
+          <input type="radio" id="{{ input_id }}" name="{{ input_name }}" value="{{ value }}" form="{{ product_form_id }}" class="m-product-option__input{% if option_disabled %} disabled{% endif %}" {% if value.selected %}checked{% endif %} {% if disabled %}disabled{% endif %} {{ input_dataset }}>
+          <div class="m-product-option--oct-gap">
+            <div class="m-product-option--oct-inner">
+              <label for="{{ input_id }}" class="m-product-option--node__label" data-option-type="color" style="background-color: {{ selected_color }};">{{- value -}}{{ label_unavailable }}</label>
+            </div>
+          </div>
+          <span class="m-tooltip__content">{{- value -}}</span>
+        </div>
+
+      {%- when 'image' -%}
+        {%- liquid
+          assign img_style = ''
+          if independent_variant_img != blank
+            assign image_url = independent_variant_img | image_url: width: image_size
+            assign img_style = 'background-image: url(' | append: image_url | append: ');'
+          elsif value.variant.image != blank
+            assign image_url = value.variant.image | image_url: width: image_size
+            assign img_style = 'background-image: url(' | append: image_url | append: ');'
+          elsif selected_image != blank
+            assign img_style = 'background-image: url(' | append: selected_image | append: ');'
+          elsif value.swatch.image
+            assign swatch_img_url = value.swatch.image | image_url: width: image_size
+            assign img_style = 'background-image: url(' | append: swatch_img_url | append: ');'
+          elsif value.swatch.color
+            assign img_style = 'background-color: rgb(' | append: value.swatch.color.rgb | append: ');'
+          else
+            assign img_style = 'background-color: ' | append: selected_color | append: ';'
+          endif
+        -%}
+        <div
+          class="m-product-option--node m-tooltip m-tooltip--top{% if option_disabled %} m-product-option--node__unavailable{% endif %}{% if value.selected %} is-selected{% endif %}"
+          data-option-type="image"
+          data-option-position="{{ option.position }}"
+          data-value="{{- value | escape -}}"
+        >
+          <input type="radio" id="{{ input_id }}" name="{{ input_name }}" value="{{ value }}" form="{{ product_form_id }}" class="m-product-option__input{% if option_disabled %} disabled{% endif %}" {% if value.selected %}checked{% endif %} {% if disabled %}disabled{% endif %} {{ input_dataset }}>
+          <div class="m-product-option--oct-gap">
+            <div class="m-product-option--oct-inner">
+              <label for="{{ input_id }}" class="m-product-option--node__label" data-option-type="image" style="{{ img_style }}">{{- value -}}{{ label_unavailable }}</label>
+            </div>
+          </div>
+          <span class="m-tooltip__content">{{- value -}}</span>
+        </div>
+
+      {%- when 'default' -%}
+        {%- liquid
+          assign def_style = ''
+          if selected_image != blank
+            assign def_style = 'background-image: url(' | append: selected_image | append: ');'
+          else
+            assign def_style = 'background-color: ' | append: selected_color | append: ';'
+          endif
+        -%}
+        <div
+          class="m-product-option--node m-tooltip m-tooltip--top{% if option_disabled %} m-product-option--node__unavailable{% endif %}{% if value.selected %} is-selected{% endif %}"
+          data-option-type="color"
+          data-option-position="{{ option.position }}"
+          data-value="{{- value | escape -}}"
+        >
+          <input type="radio" id="{{ input_id }}" name="{{ input_name }}" value="{{ value }}" form="{{ product_form_id }}" class="m-product-option__input{% if option_disabled %} disabled{% endif %}" {% if value.selected %}checked{% endif %} {% if disabled %}disabled{% endif %} {{ input_dataset }}>
+          <div class="m-product-option--oct-gap">
+            <div class="m-product-option--oct-inner">
+              <label for="{{ input_id }}" class="m-product-option--node__label" data-option-type="color" style="{{ def_style }}">{{- value -}}{{ label_unavailable }}</label>
+            </div>
+          </div>
+          <span class="m-tooltip__content">{{- value -}}</span>
+        </div>
+
+      {%- else -%}
+        <option
+          id="{{ input_id }}"
+          class="m-product-option--node"
+          value="{{ value | escape }}"
+          {% if value.selected %}selected="selected"{% endif %}
+          {{ input_dataset }}
+        >
+          {{- value -}}
+        </option>
+
+    {%- endcase -%}
+  {%- endif -%}
+{%- endfor -%}
+
+<style>
+  /* ══════════════════════════════════════════════════════
+     RESET: STRIP ALL THEME DEFAULTS
+  ══════════════════════════════════════════════════════ */
+  .m-product-option--node::before,
+  .m-product-option--node::after,
+  .m-product-option--node label::before,
+  .m-product-option--node label::after,
+  .m-product-option--oct-gap::before,
+  .m-product-option--oct-gap::after,
+  .m-product-option--oct-inner::before,
+  .m-product-option--oct-inner::after {
+    content: none !important;
+    display: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: none !important;
+    outline: none !important;
+  }
+
+  .m-product-option--node,
+  .m-product-option--node label,
+  .m-product-option--oct-gap,
+  .m-product-option--oct-inner {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    background-color: transparent !important;
+    border-radius: 0 !important;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     SHARED NODE WRAPPER
+     The node itself is just a flex container — no visual.
+     Drop-shadow is applied here so it traces the clipped shape.
+  ══════════════════════════════════════════════════════ */
+  .m-product-option--node[data-option-type="button"],
+  .m-product-option--node[data-option-type="color"],
+  .m-product-option--node[data-option-type="swatch_color"],
+  .m-product-option--node[data-option-type="image"] {
+    position: relative;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    /* Size: outer ring + inner content. oct-gap adds 1.5px padding = 57px total visual */
+    width: 57px;
+    height: 57px;
+    cursor: pointer;
+    /* Drop-shadow traces the clipped outer octagon */
+    filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.10)) !important;
+  }
+
+  .m-product-option--node[data-option-type="color"],
+  .m-product-option--node[data-option-type="swatch_color"],
+  .m-product-option--node[data-option-type="image"] {
+    filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.12)) !important;
+  }
+
+  /* ── Gap between swatches ── */
+  .m-product-option--content {
+    gap: 6px !important;
+  }
+
+  /* ── Kill all hover zoom/scale ── */
+  .m-product-option--node:hover,
+  .m-product-option--node:hover label,
+  .m-product-option--node label,
+  .m-product-option--node:hover img,
+  .m-product-option--node img {
+    transform: none !important;
+    scale: 1 !important;
+    transition: background-color 0.2s ease !important;
+  }
+
+  /* ── Hidden radio ── */
+  .m-product-option--node input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     OUTER RING (m-product-option--oct-gap)
+     ─ This is the BORDER layer.
+     ─ transparent by default → #E8E2DC on hover/selected.
+     ─ clip-path defines the octagon OUTER edge.
+     ─ padding = border thickness (1.5px).
+  ══════════════════════════════════════════════════════ */
+  .m-product-option--node[data-option-type="button"] .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="color"] .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="swatch_color"] .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="image"] .m-product-option--oct-gap {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+
+    /* border thickness = padding on this layer */
+    padding: 1.5px !important;
+
+    background-color: transparent !important; /* no border initially */
+    transition: background-color 0.2s ease !important;
+
+    /* outer octagon clip */
+    clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+    -webkit-clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+  }
+
+  /* Show border on hover */
+  .m-product-option--node[data-option-type="button"]:hover .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="color"]:hover .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="swatch_color"]:hover .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="image"]:hover .m-product-option--oct-gap {
+    background-color: #E8E2DC !important;
+  }
+
+  /* Show border on selected */
+  .m-product-option--node[data-option-type="button"].is-selected .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="color"].is-selected .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="swatch_color"].is-selected .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="image"].is-selected .m-product-option--oct-gap {
+    background-color: #E8E2DC !important;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     INNER CONTENT (m-product-option--oct-inner)
+     ─ This is the WHITE FILL layer behind the swatch/text.
+     ─ Clips to same octagon shape, slightly inset.
+     ─ Fills remaining space after border padding.
+  ══════════════════════════════════════════════════════ */
+  .m-product-option--node[data-option-type="button"] .m-product-option--oct-inner,
+  .m-product-option--node[data-option-type="color"] .m-product-option--oct-inner,
+  .m-product-option--node[data-option-type="swatch_color"] .m-product-option--oct-inner,
+  .m-product-option--node[data-option-type="image"] .m-product-option--oct-inner {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    background-color: #ffffff !important; /* white fill — always visible */
+    transition: background-color 0.2s ease !important;
+
+    /* inner octagon — same shape, fits inside the padding gap */
+    clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+    -webkit-clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+  }
+
+  /* ── Button label ── */
+  .m-product-option--node[data-option-type="button"] label.m-product-option--node__label {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #2C2C2C;
+    cursor: pointer;
+    margin: 0;
+    text-align: center;
+    line-height: 1;
+  }
+
+  /* ── Color / swatch_color / image label fills inner ── */
+  .m-product-option--node[data-option-type="color"] label.m-product-option--node__label,
+  .m-product-option--node[data-option-type="swatch_color"] label.m-product-option--node__label,
+  .m-product-option--node[data-option-type="image"] label.m-product-option--node__label {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    font-size: 0;
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     SOLD-OUT DIAGONAL STRIKE
+     Must be on oct-inner so it respects the clip-path
+  ══════════════════════════════════════════════════════ */
+  .m-product-option--node__unavailable .m-product-option--oct-inner {
+    position: relative;
+  }
+  .m-product-option--node__unavailable .m-product-option--oct-inner::after {
+    content: '' !important;
+    display: block !important;
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top right,
+      transparent calc(50% - 0.5px),
+      rgba(0,0,0,0.3) calc(50% - 0.5px),
+      rgba(0,0,0,0.3) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    );
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     GEMSTONE — same double-layer technique, auto-width
+  ══════════════════════════════════════════════════════ */
+  .m-product-option--node[data-option-type="gemstone"] {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+    filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.10)) !important;
+  }
+
+  /* Outer ring — uses absolute pixel corners for non-square shapes */
+  .m-product-option--node[data-option-type="gemstone"] .m-product-option--oct-gap {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    background-color: transparent !important;
+    padding: 1.5px !important; /* same thickness as material/size */
+    margin: 0 !important;
+    box-sizing: content-box !important;
+    transition: background-color 0.2s ease !important;
+    clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+    -webkit-clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+  }
+
+  .m-product-option--node[data-option-type="gemstone"]:hover .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="gemstone"].is-selected .m-product-option--oct-gap {
+    background-color: #E8E2DC !important;
+  }
+
+  /* Inner white fill for gemstone */
+  .m-product-option--node[data-option-type="gemstone"] .m-product-option--oct-inner {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    background-color: transparent !important; /* transparent: let image bg show through */
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: content-box !important;
+    cursor: pointer;
+    clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+    -webkit-clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+    transition: background-color 0.2s ease !important;
+  }
+
+  .m-product-option--node[data-option-type="gemstone"]:hover .m-product-option--oct-inner,
+  .m-product-option--node[data-option-type="gemstone"].is-selected .m-product-option--oct-inner {
+    background-color: #ffffff !important;
+  }
+
+  /* Gemstone label */
+  .m-product-option--node[data-option-type="gemstone"] label.m-product-option--node__label {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    cursor: pointer !important;
+    font-size: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Gemstone image */
+  .m-product-option--node[data-option-type="gemstone"] img {
+    display: block !important;
+    min-width: 0 !important;
+    width: auto !important;
+    height: 38px !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    object-fit: contain !important;
+    flex-shrink: 0 !important;
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     RESPONSIVE
+  ══════════════════════════════════════════════════════ */
+  @media (max-width: 768px) {
+    .m-product-option--node[data-option-type="button"],
+    .m-product-option--node[data-option-type="color"],
+    .m-product-option--node[data-option-type="swatch_color"],
+    .m-product-option--node[data-option-type="image"] {
+      width: 47px !important;
+      height: 47px !important;
+    }
+    .m-product-option--node[data-option-type="gemstone"] img {
+      height: 30px !important;
+    }
+  }
+</style>  {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %} 
+{%- liquid
+  assign product_form_id = 'product-form-' | append: section.id
+  assign image_size = 100
+  assign opt_position_key = 'option' | append: option.position
+  assign option_name_clean = option.name | downcase | strip
+
+  assign is_gemstone = false
+  if option_name_clean == 'gemstone'
+    assign is_gemstone = true
+  endif
+-%}
+
+{%- for value in option.values -%}
+  {%- liquid
+    assign option_disabled = true
+    if value.available
+      assign option_disabled = false
+    endif
+
+    assign value_downcase = value | downcase | strip
+    assign product_colors = settings.product_colors | split: ','
+    assign selected_color = value_downcase | split: ' ' | last | handle
+    assign selected_image = ''
+
+    for product_color in product_colors
+      assign parts = product_color | strip | split: ':'
+      assign name = parts.first | downcase | strip
+      assign color = parts.last | strip
+      if name == value_downcase
+        assign selected_color = color
+      endif
+    endfor
+
+    for i in (1..100)
+      assign key = 'filter_color' | append: i
+      assign key_second = 'filter_color' | append: i | append: '.png'
+      assign setting_value = settings[key] | downcase | strip
+      if texture_style != '' and setting_value == value_downcase
+        assign selected_image = key_second | asset_url
+      endif
+    endfor
+
+    assign independent_variant_img = blank
+    unless is_gemstone
+      for var in product.variants
+        if var[opt_position_key] == value and var.image != blank
+          assign independent_variant_img = var.image
+          break
+        endif
+      endfor
+    endunless
+
+    assign gem_img_url = blank
+    assign gem_filename = value | handle | append: '.png'
+
+    if value.swatch.image != blank
+      assign gem_img_url = value.swatch.image | image_url: width: 132
+    elsif value.metafields.custom.swatch_image != blank
+      assign gem_img_url = value.metafields.custom.swatch_image | image_url: width: 132
+    else
+      assign gem_img_url = gem_filename | file_url
+    endif
+  -%}
+
+  {%- capture input_id -%}{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}{%- endcapture -%}
+  {%- capture input_name -%}{{ option.name }}-{{ option.position }}{%- endcapture -%}
+
+  {%- capture label_unavailable -%}
+    <span class="m:visually-hidden label-unavailable">
+      {%- render 'new-locale', key: 'products.product.variant_sold_out_or_unavailable' -%}
+    </span>
+  {%- endcapture -%}
+
+  {%- capture input_dataset -%}
+    data-product-url="{{ value.product_url }}"
+    data-option-value-id="{{ value.id }}"
+  {%- endcapture -%}
+
+  {%- if is_gemstone -%}
+    {%- comment -%} ── GEMSTONE OPTION ── {%- endcomment -%}
+    <div
+      class="m-product-option--node m-tooltip m-tooltip--top{% if option_disabled %} m-product-option--node__unavailable{% endif %}{% if value.selected %} is-selected{% endif %}"
+      data-option-type="gemstone"
+      data-option-position="{{ option.position }}"
+      data-value="{{- value | escape -}}"
+    >
+      <input type="radio" id="{{ input_id }}" name="{{ input_name }}" value="{{ value }}" form="{{ product_form_id }}" class="m-product-option__input gemstone-radio-input{% if option_disabled %} disabled{% endif %}" {% if value.selected %}checked{% endif %} {% if disabled %}disabled{% endif %} data-label="{{ value | escape }}" {{ input_dataset }}>
+
+      {{- '' -}}
+      <div class="m-product-option--oct-gap">
+        {{- '' -}}
+        <div class="m-product-option--oct-inner">
+          <label for="{{ input_id }}" class="m-product-option--node__label" data-option-type="gemstone">
+            {%- if gem_img_url != blank -%}
+              <img
+                src="{{ gem_img_url }}"
+                alt="{{ value | escape }}"
+                loading="eager"
+                fetchpriority="high"
+                decoding="sync"
+                onerror="this.style.display='none'"
+              >
+            {%- endif -%}
+            <span class="m:visually-hidden">{{ value }}</span>
+          </label>
+        </div>
+      </div>
+
+      <span class="m-tooltip__content">{{- value -}}</span>
+    </div>
+
+  {%- else -%}
+    {%- comment -%} ── REGULAR OPTIONS (button / color / swatch_color / image) ── {%- endcomment -%}
+    {%- case picker_type -%}
+
+      {%- when 'swatch_color' -%}
+        {%- liquid
+          assign swatch_style = ''
+          if value.swatch.image
+            assign swatch_img_url = value.swatch.image | image_url: width: image_size
+            assign swatch_style = 'background-image: url(' | append: swatch_img_url | append: ');'
+          elsif value.swatch.color
+            assign swatch_style = 'background-color: rgb(' | append: value.swatch.color.rgb | append: ');'
+          else
+            assign swatch_style = 'background-color: ' | append: selected_color | append: ';'
+          endif
+        -%}
+        <div
+          class="m-product-option--node m-tooltip m-tooltip--top{% if option_disabled %} m-product-option--node__unavailable{% endif %}{% if value.selected %} is-selected{% endif %}"
+          data-option-type="swatch_color"
+          data-option-position="{{ option.position }}"
+          data-value="{{- value | escape -}}"
+        >
+          <input type="radio" id="{{ input_id }}" name="{{ input_name }}" value="{{ value }}" form="{{ product_form_id }}" class="m-product-option__input{% if option_disabled %} disabled{% endif %}" {% if value.selected %}checked{% endif %} {% if disabled %}disabled{% endif %} {{ input_dataset }}>
+          <div class="m-product-option--oct-gap">
+            <div class="m-product-option--oct-inner">
+              <label for="{{ input_id }}" class="m-product-option--node__label" data-option-type="swatch_color" style="{{ swatch_style }}">{{- value -}}{{ label_unavailable }}</label>
+            </div>
+          </div>
+          <span class="m-tooltip__content">{{- value -}}</span>
+        </div>
+
+      {%- when 'button' -%}
+        <div
+          class="m-product-option--node m-tooltip m-tooltip--top{% if option_disabled %} m-product-option--node__unavailable{% endif %}{% if value.selected %} is-selected{% endif %}"
+          data-option-type="button"
+          data-option-position="{{ option.position }}"
+          data-value="{{- value | escape -}}"
+        >
+          <input type="radio" id="{{ input_id }}" name="{{ input_name }}" value="{{ value }}" form="{{ product_form_id }}" class="m-product-option__input{% if option_disabled %} disabled{% endif %}" {% if value.selected %}checked{% endif %} {% if disabled %}disabled{% endif %} {{ input_dataset }}>
+          <div class="m-product-option--oct-gap">
+            <div class="m-product-option--oct-inner">
+              <label for="{{ input_id }}" class="m-product-option--node__label" data-option-type="button">{{ value -}}{{ label_unavailable }}</label>
+            </div>
+          </div>
+          <span class="m-tooltip__content">{{- value -}}</span>
+        </div>
+
+      {%- when 'color' -%}
+        <div
+          class="m-product-option--node m-tooltip m-tooltip--top{% if option_disabled %} m-product-option--node__unavailable{% endif %}{% if value.selected %} is-selected{% endif %}"
+          data-option-type="color"
+          data-option-position="{{ option.position }}"
+          data-value="{{- value | escape -}}"
+        >
+          <input type="radio" id="{{ input_id }}" name="{{ input_name }}" value="{{ value }}" form="{{ product_form_id }}" class="m-product-option__input{% if option_disabled %} disabled{% endif %}" {% if value.selected %}checked{% endif %} {% if disabled %}disabled{% endif %} {{ input_dataset }}>
+          <div class="m-product-option--oct-gap">
+            <div class="m-product-option--oct-inner">
+              <label for="{{ input_id }}" class="m-product-option--node__label" data-option-type="color" style="background-color: {{ selected_color }};">{{- value -}}{{ label_unavailable }}</label>
+            </div>
+          </div>
+          <span class="m-tooltip__content">{{- value -}}</span>
+        </div>
+
+      {%- when 'image' -%}
+        {%- liquid
+          assign img_style = ''
+          if independent_variant_img != blank
+            assign image_url = independent_variant_img | image_url: width: image_size
+            assign img_style = 'background-image: url(' | append: image_url | append: ');'
+          elsif value.variant.image != blank
+            assign image_url = value.variant.image | image_url: width: image_size
+            assign img_style = 'background-image: url(' | append: image_url | append: ');'
+          elsif selected_image != blank
+            assign img_style = 'background-image: url(' | append: selected_image | append: ');'
+          elsif value.swatch.image
+            assign swatch_img_url = value.swatch.image | image_url: width: image_size
+            assign img_style = 'background-image: url(' | append: swatch_img_url | append: ');'
+          elsif value.swatch.color
+            assign img_style = 'background-color: rgb(' | append: value.swatch.color.rgb | append: ');'
+          else
+            assign img_style = 'background-color: ' | append: selected_color | append: ';'
+          endif
+        -%}
+        <div
+          class="m-product-option--node m-tooltip m-tooltip--top{% if option_disabled %} m-product-option--node__unavailable{% endif %}{% if value.selected %} is-selected{% endif %}"
+          data-option-type="image"
+          data-option-position="{{ option.position }}"
+          data-value="{{- value | escape -}}"
+        >
+          <input type="radio" id="{{ input_id }}" name="{{ input_name }}" value="{{ value }}" form="{{ product_form_id }}" class="m-product-option__input{% if option_disabled %} disabled{% endif %}" {% if value.selected %}checked{% endif %} {% if disabled %}disabled{% endif %} {{ input_dataset }}>
+          <div class="m-product-option--oct-gap">
+            <div class="m-product-option--oct-inner">
+              <label for="{{ input_id }}" class="m-product-option--node__label" data-option-type="image" style="{{ img_style }}">{{- value -}}{{ label_unavailable }}</label>
+            </div>
+          </div>
+          <span class="m-tooltip__content">{{- value -}}</span>
+        </div>
+
+      {%- when 'default' -%}
+        {%- liquid
+          assign def_style = ''
+          if selected_image != blank
+            assign def_style = 'background-image: url(' | append: selected_image | append: ');'
+          else
+            assign def_style = 'background-color: ' | append: selected_color | append: ';'
+          endif
+        -%}
+        <div
+          class="m-product-option--node m-tooltip m-tooltip--top{% if option_disabled %} m-product-option--node__unavailable{% endif %}{% if value.selected %} is-selected{% endif %}"
+          data-option-type="color"
+          data-option-position="{{ option.position }}"
+          data-value="{{- value | escape -}}"
+        >
+          <input type="radio" id="{{ input_id }}" name="{{ input_name }}" value="{{ value }}" form="{{ product_form_id }}" class="m-product-option__input{% if option_disabled %} disabled{% endif %}" {% if value.selected %}checked{% endif %} {% if disabled %}disabled{% endif %} {{ input_dataset }}>
+          <div class="m-product-option--oct-gap">
+            <div class="m-product-option--oct-inner">
+              <label for="{{ input_id }}" class="m-product-option--node__label" data-option-type="color" style="{{ def_style }}">{{- value -}}{{ label_unavailable }}</label>
+            </div>
+          </div>
+          <span class="m-tooltip__content">{{- value -}}</span>
+        </div>
+
+      {%- else -%}
+        <option
+          id="{{ input_id }}"
+          class="m-product-option--node"
+          value="{{ value | escape }}"
+          {% if value.selected %}selected="selected"{% endif %}
+          {{ input_dataset }}
+        >
+          {{- value -}}
+        </option>
+
+    {%- endcase -%}
+  {%- endif -%}
+{%- endfor -%}
+
+<style>
+  /* ══════════════════════════════════════════════════════
+     RESET: STRIP ALL THEME DEFAULTS
+  ══════════════════════════════════════════════════════ */
+  .m-product-option--node::before,
+  .m-product-option--node::after,
+  .m-product-option--node label::before,
+  .m-product-option--node label::after,
+  .m-product-option--oct-gap::before,
+  .m-product-option--oct-gap::after,
+  .m-product-option--oct-inner::before,
+  .m-product-option--oct-inner::after {
+    content: none !important;
+    display: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: none !important;
+    outline: none !important;
+  }
+
+  .m-product-option--node,
+  .m-product-option--node label,
+  .m-product-option--oct-gap,
+  .m-product-option--oct-inner {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    background-color: transparent !important;
+    border-radius: 0 !important;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     SHARED NODE WRAPPER
+     The node itself is just a flex container — no visual.
+     Drop-shadow is applied here so it traces the clipped shape.
+  ══════════════════════════════════════════════════════ */
+  .m-product-option--node[data-option-type="button"],
+  .m-product-option--node[data-option-type="color"],
+  .m-product-option--node[data-option-type="swatch_color"],
+  .m-product-option--node[data-option-type="image"] {
+    position: relative;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    /* Size: outer ring + inner content. oct-gap adds 1.5px padding = 57px total visual */
+    width: 57px;
+    height: 57px;
+    cursor: pointer;
+    /* Drop-shadow traces the clipped outer octagon */
+    filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.10)) !important;
+  }
+
+  .m-product-option--node[data-option-type="color"],
+  .m-product-option--node[data-option-type="swatch_color"],
+  .m-product-option--node[data-option-type="image"] {
+    filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.12)) !important;
+  }
+
+  /* ── Gap between swatches ── */
+  .m-product-option--content {
+    gap: 6px !important;
+  }
+
+  /* ── Kill all hover zoom/scale ── */
+  .m-product-option--node:hover,
+  .m-product-option--node:hover label,
+  .m-product-option--node label,
+  .m-product-option--node:hover img,
+  .m-product-option--node img {
+    transform: none !important;
+    scale: 1 !important;
+    transition: background-color 0.2s ease !important;
+  }
+
+  /* ── Hidden radio ── */
+  .m-product-option--node input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     OUTER RING (m-product-option--oct-gap)
+     ─ This is the BORDER layer.
+     ─ transparent by default → #E8E2DC on hover/selected.
+     ─ clip-path defines the octagon OUTER edge.
+     ─ padding = border thickness (1.5px).
+  ══════════════════════════════════════════════════════ */
+  .m-product-option--node[data-option-type="button"] .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="color"] .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="swatch_color"] .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="image"] .m-product-option--oct-gap {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+
+    /* border thickness = padding on this layer */
+    padding: 1.5px !important;
+
+    background-color: transparent !important; /* no border initially */
+    transition: background-color 0.2s ease !important;
+
+    /* outer octagon clip */
+    clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+    -webkit-clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+  }
+
+  /* Show border on hover */
+  .m-product-option--node[data-option-type="button"]:hover .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="color"]:hover .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="swatch_color"]:hover .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="image"]:hover .m-product-option--oct-gap {
+    background-color: #E8E2DC !important;
+  }
+
+  /* Show border on selected */
+  .m-product-option--node[data-option-type="button"].is-selected .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="color"].is-selected .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="swatch_color"].is-selected .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="image"].is-selected .m-product-option--oct-gap {
+    background-color: #E8E2DC !important;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     INNER CONTENT (m-product-option--oct-inner)
+     ─ This is the WHITE FILL layer behind the swatch/text.
+     ─ Clips to same octagon shape, slightly inset.
+     ─ Fills remaining space after border padding.
+  ══════════════════════════════════════════════════════ */
+  .m-product-option--node[data-option-type="button"] .m-product-option--oct-inner,
+  .m-product-option--node[data-option-type="color"] .m-product-option--oct-inner,
+  .m-product-option--node[data-option-type="swatch_color"] .m-product-option--oct-inner,
+  .m-product-option--node[data-option-type="image"] .m-product-option--oct-inner {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    background-color: #ffffff !important; /* white fill — always visible */
+    transition: background-color 0.2s ease !important;
+
+    /* inner octagon — same shape, fits inside the padding gap */
+    clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+    -webkit-clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+  }
+
+  /* ── Button label ── */
+  .m-product-option--node[data-option-type="button"] label.m-product-option--node__label {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #2C2C2C;
+    cursor: pointer;
+    margin: 0;
+    text-align: center;
+    line-height: 1;
+  }
+
+  /* ── Color / swatch_color / image label fills inner ── */
+  .m-product-option--node[data-option-type="color"] label.m-product-option--node__label,
+  .m-product-option--node[data-option-type="swatch_color"] label.m-product-option--node__label,
+  .m-product-option--node[data-option-type="image"] label.m-product-option--node__label {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    font-size: 0;
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     SOLD-OUT DIAGONAL STRIKE
+     Must be on oct-inner so it respects the clip-path
+  ══════════════════════════════════════════════════════ */
+  .m-product-option--node__unavailable .m-product-option--oct-inner {
+    position: relative;
+  }
+  .m-product-option--node__unavailable .m-product-option--oct-inner::after {
+    content: '' !important;
+    display: block !important;
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top right,
+      transparent calc(50% - 0.5px),
+      rgba(0,0,0,0.3) calc(50% - 0.5px),
+      rgba(0,0,0,0.3) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    );
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     GEMSTONE — same double-layer technique, auto-width
+  ══════════════════════════════════════════════════════ */
+  .m-product-option--node[data-option-type="gemstone"] {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+    filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.10)) !important;
+  }
+
+  /* Outer ring — uses absolute pixel corners for non-square shapes */
+  .m-product-option--node[data-option-type="gemstone"] .m-product-option--oct-gap {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    background-color: transparent !important;
+    padding: 1.5px !important; /* same thickness as material/size */
+    margin: 0 !important;
+    box-sizing: content-box !important;
+    transition: background-color 0.2s ease !important;
+    clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+    -webkit-clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+  }
+
+  .m-product-option--node[data-option-type="gemstone"]:hover .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="gemstone"].is-selected .m-product-option--oct-gap {
+    background-color: #E8E2DC !important;
+  }
+
+  /* Inner white fill for gemstone */
+  .m-product-option--node[data-option-type="gemstone"] .m-product-option--oct-inner {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    background-color: transparent !important; /* transparent: let image bg show through */
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: content-box !important;
+    cursor: pointer;
+    clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+    -webkit-clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+    transition: background-color 0.2s ease !important;
+  }
+
+  .m-product-option--node[data-option-type="gemstone"]:hover .m-product-option--oct-inner,
+  .m-product-option--node[data-option-type="gemstone"].is-selected .m-product-option--oct-inner {
+    background-color: #ffffff !important;
+  }
+
+  /* Gemstone label */
+  .m-product-option--node[data-option-type="gemstone"] label.m-product-option--node__label {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    cursor: pointer !important;
+    font-size: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Gemstone image */
+  .m-product-option--node[data-option-type="gemstone"] img {
+    display: block !important;
+    min-width: 0 !important;
+    width: auto !important;
+    height: 38px !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    object-fit: contain !important;
+    flex-shrink: 0 !important;
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     RESPONSIVE
+  ══════════════════════════════════════════════════════ */
+  @media (max-width: 768px) {
+    .m-product-option--node[data-option-type="button"],
+    .m-product-option--node[data-option-type="color"],
+    .m-product-option--node[data-option-type="swatch_color"],
+    .m-product-option--node[data-option-type="image"] {
+      width: 47px !important;
+      height: 47px !important;
+    }
+    .m-product-option--node[data-option-type="gemstone"] img {
+      height: 30px !important;
+    }
+  }
+</style>
+
+ {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+{%- liquid
+  assign product_form_id = 'product-form-' | append: section.id
+  assign image_size = 100
+  assign opt_position_key = 'option' | append: option.position
+  assign option_name_clean = option.name | downcase | strip
+
+  assign is_gemstone = false
+  if option_name_clean == 'gemstone'
+    assign is_gemstone = true
+  endif
+-%}
+
+{%- for value in option.values -%}
+  {%- liquid
+    assign option_disabled = true
+    if value.available
+      assign option_disabled = false
+    endif
+
+    assign value_downcase = value | downcase | strip
+    assign product_colors = settings.product_colors | split: ','
+    assign selected_color = value_downcase | split: ' ' | last | handle
+    assign selected_image = ''
+
+    for product_color in product_colors
+      assign parts = product_color | strip | split: ':'
+      assign name = parts.first | downcase | strip
+      assign color = parts.last | strip
+      if name == value_downcase
+        assign selected_color = color
+      endif
+    endfor
+
+    for i in (1..100)
+      assign key = 'filter_color' | append: i
+      assign key_second = 'filter_color' | append: i | append: '.png'
+      assign setting_value = settings[key] | downcase | strip
+      if texture_style != '' and setting_value == value_downcase
+        assign selected_image = key_second | asset_url
+      endif
+    endfor
+
+    assign independent_variant_img = blank
+    unless is_gemstone
+      for var in product.variants
+        if var[opt_position_key] == value
+          if option_name_clean == 'material' and var.metafields.custom.material_swatch.value != blank
+            assign independent_variant_img = var.metafields.custom.material_swatch.value
+            break
+          elsif option_name_clean != 'material' and var.image != blank
+            assign independent_variant_img = var.image
+            break
+          endif
+        endif
+      endfor
+
+      if option_name_clean == 'material' and independent_variant_img == blank
+        for var in product.variants
+          if var[opt_position_key] == value and var.image != blank
+            assign independent_variant_img = var.image
+            break
+          endif
+        endfor
+      endif
+    endunless
+
+    assign gem_img_url = blank
+    assign gem_filename = value | handle | append: '.png'
+
+    if value.swatch.image != blank
+      assign gem_img_url = value.swatch.image | image_url: width: 132
+    elsif value.metafields.custom.swatch_image != blank
+      assign gem_img_url = value.metafields.custom.swatch_image | image_url: width: 132
+    else
+      assign gem_img_url = gem_filename | file_url
+    endif
+  -%}
+
+  {%- capture input_id -%}{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}{%- endcapture -%}
+  {%- capture input_name -%}{{ option.name }}-{{ option.position }}{%- endcapture -%}
+
+  {%- capture label_unavailable -%}
+    <span class="m:visually-hidden label-unavailable">
+      {%- render 'new-locale', key: 'products.product.variant_sold_out_or_unavailable' -%}
+    </span>
+  {%- endcapture -%}
+
+  {%- capture input_dataset -%}
+    data-product-url="{{ value.product_url }}"
+    data-option-value-id="{{ value.id }}"
+  {%- endcapture -%}
+
+  {%- if is_gemstone -%}
+    {%- comment -%} ── GEMSTONE OPTION ── {%- endcomment -%}
+    <div
+      class="m-product-option--node m-tooltip m-tooltip--top{% if option_disabled %} m-product-option--node__unavailable{% endif %}{% if value.selected %} is-selected{% endif %}"
+      data-option-type="gemstone"
+      data-option-position="{{ option.position }}"
+      data-value="{{- value | escape -}}"
+    >
+      <input type="radio" id="{{ input_id }}" name="{{ input_name }}" value="{{ value }}" form="{{ product_form_id }}" class="m-product-option__input gemstone-radio-input{% if option_disabled %} disabled{% endif %}" {% if value.selected %}checked{% endif %} {% if disabled %}disabled{% endif %} data-label="{{ value | escape }}" {{ input_dataset }}>
+
+      {{- '' -}}
+      <div class="m-product-option--oct-gap">
+        {{- '' -}}
+        <div class="m-product-option--oct-inner">
+          <label for="{{ input_id }}" class="m-product-option--node__label" data-option-type="gemstone">
+            {%- if gem_img_url != blank -%}
+              <img
+                src="{{ gem_img_url }}"
+                alt="{{ value | escape }}"
+                loading="eager"
+                fetchpriority="high"
+                decoding="sync"
+                onerror="this.style.display='none'"
+              >
+            {%- endif -%}
+            <span class="m:visually-hidden">{{ value }}</span>
+          </label>
+        </div>
+      </div>
+
+      <span class="m-tooltip__content">{{- value -}}</span>
+    </div>
+
+  {%- else -%}
+    {%- comment -%} ── REGULAR OPTIONS (button / color / swatch_color / image) ── {%- endcomment -%}
+    {%- case picker_type -%}
+
+      {%- when 'swatch_color' -%}
+        {%- liquid
+          assign swatch_style = ''
+          if value.swatch.image
+            assign swatch_img_url = value.swatch.image | image_url: width: image_size
+            assign swatch_style = 'background-image: url(' | append: swatch_img_url | append: ');'
+          elsif value.swatch.color
+            assign swatch_style = 'background-color: rgb(' | append: value.swatch.color.rgb | append: ');'
+          else
+            assign swatch_style = 'background-color: ' | append: selected_color | append: ';'
+          endif
+        -%}
+        <div
+          class="m-product-option--node m-tooltip m-tooltip--top{% if option_disabled %} m-product-option--node__unavailable{% endif %}{% if value.selected %} is-selected{% endif %}"
+          data-option-type="swatch_color"
+          data-option-position="{{ option.position }}"
+          data-value="{{- value | escape -}}"
+        >
+          <input type="radio" id="{{ input_id }}" name="{{ input_name }}" value="{{ value }}" form="{{ product_form_id }}" class="m-product-option__input{% if option_disabled %} disabled{% endif %}" {% if value.selected %}checked{% endif %} {% if disabled %}disabled{% endif %} {{ input_dataset }}>
+          <div class="m-product-option--oct-gap">
+            <div class="m-product-option--oct-inner">
+              <label for="{{ input_id }}" class="m-product-option--node__label" data-option-type="swatch_color" style="{{ swatch_style }}">{{- value -}}{{ label_unavailable }}</label>
+            </div>
+          </div>
+          <span class="m-tooltip__content">{{- value -}}</span>
+        </div>
+
+      {%- when 'button' -%}
+        <div
+          class="m-product-option--node m-tooltip m-tooltip--top{% if option_disabled %} m-product-option--node__unavailable{% endif %}{% if value.selected %} is-selected{% endif %}"
+          data-option-type="button"
+          data-option-position="{{ option.position }}"
+          data-value="{{- value | escape -}}"
+        >
+          <input type="radio" id="{{ input_id }}" name="{{ input_name }}" value="{{ value }}" form="{{ product_form_id }}" class="m-product-option__input{% if option_disabled %} disabled{% endif %}" {% if value.selected %}checked{% endif %} {% if disabled %}disabled{% endif %} {{ input_dataset }}>
+          <div class="m-product-option--oct-gap">
+            <div class="m-product-option--oct-inner">
+              <label for="{{ input_id }}" class="m-product-option--node__label" data-option-type="button">{{ value -}}{{ label_unavailable }}</label>
+            </div>
+          </div>
+          <span class="m-tooltip__content">{{- value -}}</span>
+        </div>
+
+      {%- when 'color' -%}
+        <div
+          class="m-product-option--node m-tooltip m-tooltip--top{% if option_disabled %} m-product-option--node__unavailable{% endif %}{% if value.selected %} is-selected{% endif %}"
+          data-option-type="color"
+          data-option-position="{{ option.position }}"
+          data-value="{{- value | escape -}}"
+        >
+          <input type="radio" id="{{ input_id }}" name="{{ input_name }}" value="{{ value }}" form="{{ product_form_id }}" class="m-product-option__input{% if option_disabled %} disabled{% endif %}" {% if value.selected %}checked{% endif %} {% if disabled %}disabled{% endif %} {{ input_dataset }}>
+          <div class="m-product-option--oct-gap">
+            <div class="m-product-option--oct-inner">
+              <label for="{{ input_id }}" class="m-product-option--node__label" data-option-type="color" style="background-color: {{ selected_color }};">{{- value -}}{{ label_unavailable }}</label>
+            </div>
+          </div>
+          <span class="m-tooltip__content">{{- value -}}</span>
+        </div>
+
+      {%- when 'image' -%}
+        {%- liquid
+          assign img_style = ''
+          if independent_variant_img != blank
+            assign image_url = independent_variant_img | image_url: width: image_size
+            assign img_style = 'background-image: url(' | append: image_url | append: ');'
+          elsif value.variant.image != blank
+            assign image_url = value.variant.image | image_url: width: image_size
+            assign img_style = 'background-image: url(' | append: image_url | append: ');'
+          elsif selected_image != blank
+            assign img_style = 'background-image: url(' | append: selected_image | append: ');'
+          elsif value.swatch.image
+            assign swatch_img_url = value.swatch.image | image_url: width: image_size
+            assign img_style = 'background-image: url(' | append: swatch_img_url | append: ');'
+          elsif value.swatch.color
+            assign img_style = 'background-color: rgb(' | append: value.swatch.color.rgb | append: ');'
+          else
+            assign img_style = 'background-color: ' | append: selected_color | append: ';'
+          endif
+        -%}
+        <div
+          class="m-product-option--node m-tooltip m-tooltip--top{% if option_disabled %} m-product-option--node__unavailable{% endif %}{% if value.selected %} is-selected{% endif %}"
+          data-option-type="image"
+          data-option-position="{{ option.position }}"
+          data-value="{{- value | escape -}}"
+        >
+          <input type="radio" id="{{ input_id }}" name="{{ input_name }}" value="{{ value }}" form="{{ product_form_id }}" class="m-product-option__input{% if option_disabled %} disabled{% endif %}" {% if value.selected %}checked{% endif %} {% if disabled %}disabled{% endif %} {{ input_dataset }}>
+          <div class="m-product-option--oct-gap">
+            <div class="m-product-option--oct-inner">
+              <label for="{{ input_id }}" class="m-product-option--node__label" data-option-type="image" style="{{ img_style }}">{{- value -}}{{ label_unavailable }}</label>
+            </div>
+          </div>
+          <span class="m-tooltip__content">{{- value -}}</span>
+        </div>
+
+      {%- when 'default' -%}
+        {%- liquid
+          assign def_style = ''
+          if selected_image != blank
+            assign def_style = 'background-image: url(' | append: selected_image | append: ');'
+          else
+            assign def_style = 'background-color: ' | append: selected_color | append: ';'
+          endif
+        -%}
+        <div
+          class="m-product-option--node m-tooltip m-tooltip--top{% if option_disabled %} m-product-option--node__unavailable{% endif %}{% if value.selected %} is-selected{% endif %}"
+          data-option-type="color"
+          data-option-position="{{ option.position }}"
+          data-value="{{- value | escape -}}"
+        >
+          <input type="radio" id="{{ input_id }}" name="{{ input_name }}" value="{{ value }}" form="{{ product_form_id }}" class="m-product-option__input{% if option_disabled %} disabled{% endif %}" {% if value.selected %}checked{% endif %} {% if disabled %}disabled{% endif %} {{ input_dataset }}>
+          <div class="m-product-option--oct-gap">
+            <div class="m-product-option--oct-inner">
+              <label for="{{ input_id }}" class="m-product-option--node__label" data-option-type="color" style="{{ def_style }}">{{- value -}}{{ label_unavailable }}</label>
+            </div>
+          </div>
+          <span class="m-tooltip__content">{{- value -}}</span>
+        </div>
+
+      {%- else -%}
+        <option
+          id="{{ input_id }}"
+          class="m-product-option--node"
+          value="{{ value | escape }}"
+          {% if value.selected %}selected="selected"{% endif %}
+          {{ input_dataset }}
+        >
+          {{- value -}}
+        </option>
+
+    {%- endcase -%}
+  {%- endif -%}
+{%- endfor -%}
+
+<style>
+  /* ══════════════════════════════════════════════════════
+     RESET: STRIP ALL THEME DEFAULTS
+  ══════════════════════════════════════════════════════ */
+  .m-product-option--node::before,
+  .m-product-option--node::after,
+  .m-product-option--node label::before,
+  .m-product-option--node label::after,
+  .m-product-option--oct-gap::before,
+  .m-product-option--oct-gap::after,
+  .m-product-option--oct-inner::before,
+  .m-product-option--oct-inner::after {
+    content: none !important;
+    display: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: none !important;
+    outline: none !important;
+  }
+
+  .m-product-option--node,
+  .m-product-option--node label,
+  .m-product-option--oct-gap,
+  .m-product-option--oct-inner {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    background-color: transparent !important;
+    border-radius: 0 !important;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     SHARED NODE WRAPPER
+     The node itself is just a flex container — no visual.
+     Drop-shadow is applied here so it traces the clipped shape.
+  ══════════════════════════════════════════════════════ */
+  .m-product-option--node[data-option-type="button"],
+  .m-product-option--node[data-option-type="color"],
+  .m-product-option--node[data-option-type="swatch_color"],
+  .m-product-option--node[data-option-type="image"] {
+    position: relative;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    /* Size: outer ring + inner content. oct-gap adds 1.5px padding = 57px total visual */
+    width: 57px;
+    height: 57px;
+    cursor: pointer;
+    /* Drop-shadow traces the clipped outer octagon */
+    filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.10)) !important;
+  }
+
+  .m-product-option--node[data-option-type="color"],
+  .m-product-option--node[data-option-type="swatch_color"],
+  .m-product-option--node[data-option-type="image"] {
+    filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.12)) !important;
+  }
+
+  /* ── Gap between swatches ── */
+  .m-product-option--content {
+    gap: 6px !important;
+  }
+
+  /* ── Kill all hover zoom/scale ── */
+  .m-product-option--node:hover,
+  .m-product-option--node:hover label,
+  .m-product-option--node label,
+  .m-product-option--node:hover img,
+  .m-product-option--node img {
+    transform: none !important;
+    scale: 1 !important;
+    transition: background-color 0.2s ease !important;
+  }
+
+  /* ── Hidden radio ── */
+  .m-product-option--node input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     OUTER RING (m-product-option--oct-gap)
+     ─ This is the BORDER layer.
+     ─ transparent by default → #E8E2DC on hover/selected.
+     ─ clip-path defines the octagon OUTER edge.
+     ─ padding = border thickness (1.5px).
+  ══════════════════════════════════════════════════════ */
+  .m-product-option--node[data-option-type="button"] .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="color"] .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="swatch_color"] .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="image"] .m-product-option--oct-gap {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+
+    /* border thickness = padding on this layer */
+    padding: 1.5px !important;
+
+    background-color: transparent !important; /* no border initially */
+    transition: background-color 0.2s ease !important;
+
+    /* outer octagon clip */
+    clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+    -webkit-clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+  }
+
+  /* Show border on hover */
+  .m-product-option--node[data-option-type="button"]:hover .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="color"]:hover .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="swatch_color"]:hover .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="image"]:hover .m-product-option--oct-gap {
+    background-color: #E8E2DC !important;
+  }
+
+  /* Show border on selected */
+  .m-product-option--node[data-option-type="button"].is-selected .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="color"].is-selected .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="swatch_color"].is-selected .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="image"].is-selected .m-product-option--oct-gap {
+    background-color: #E8E2DC !important;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     INNER CONTENT (m-product-option--oct-inner)
+     ─ This is the WHITE FILL layer behind the swatch/text.
+     ─ Clips to same octagon shape, slightly inset.
+     ─ Fills remaining space after border padding.
+  ══════════════════════════════════════════════════════ */
+  .m-product-option--node[data-option-type="button"] .m-product-option--oct-inner,
+  .m-product-option--node[data-option-type="color"] .m-product-option--oct-inner,
+  .m-product-option--node[data-option-type="swatch_color"] .m-product-option--oct-inner,
+  .m-product-option--node[data-option-type="image"] .m-product-option--oct-inner {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    background-color: #ffffff !important; /* white fill — always visible */
+    transition: background-color 0.2s ease !important;
+
+    /* inner octagon — same shape, fits inside the padding gap */
+    clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+    -webkit-clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+  }
+
+  /* ── Button label ── */
+  .m-product-option--node[data-option-type="button"] label.m-product-option--node__label {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #2C2C2C;
+    cursor: pointer;
+    margin: 0;
+    text-align: center;
+    line-height: 1;
+  }
+
+  /* ── Color / swatch_color / image label fills inner ── */
+  .m-product-option--node[data-option-type="color"] label.m-product-option--node__label,
+  .m-product-option--node[data-option-type="swatch_color"] label.m-product-option--node__label,
+  .m-product-option--node[data-option-type="image"] label.m-product-option--node__label {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    font-size: 0;
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     SOLD-OUT DIAGONAL STRIKE
+     Must be on oct-inner so it respects the clip-path
+  ══════════════════════════════════════════════════════ */
+  .m-product-option--node__unavailable .m-product-option--oct-inner {
+    position: relative;
+  }
+  .m-product-option--node__unavailable .m-product-option--oct-inner::after {
+    content: '' !important;
+    display: block !important;
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top right,
+      transparent calc(50% - 0.5px),
+      rgba(0,0,0,0.3) calc(50% - 0.5px),
+      rgba(0,0,0,0.3) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    );
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     GEMSTONE — same double-layer technique, auto-width
+  ══════════════════════════════════════════════════════ */
+  .m-product-option--node[data-option-type="gemstone"] {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+    filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.10)) !important;
+  }
+
+  /* Outer ring — uses absolute pixel corners for non-square shapes */
+  .m-product-option--node[data-option-type="gemstone"] .m-product-option--oct-gap {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    background-color: transparent !important;
+    padding: 1.5px !important; /* same thickness as material/size */
+    margin: 0 !important;
+    box-sizing: content-box !important;
+    transition: background-color 0.2s ease !important;
+    clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+    -webkit-clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+  }
+
+  .m-product-option--node[data-option-type="gemstone"]:hover .m-product-option--oct-gap,
+  .m-product-option--node[data-option-type="gemstone"].is-selected .m-product-option--oct-gap {
+    background-color: #E8E2DC !important;
+  }
+
+  /* Inner white fill for gemstone */
+  .m-product-option--node[data-option-type="gemstone"] .m-product-option--oct-inner {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    background-color: transparent !important; /* transparent: let image bg show through */
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: content-box !important;
+    cursor: pointer;
+    clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+    -webkit-clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+    transition: background-color 0.2s ease !important;
+  }
+
+  .m-product-option--node[data-option-type="gemstone"]:hover .m-product-option--oct-inner,
+  .m-product-option--node[data-option-type="gemstone"].is-selected .m-product-option--oct-inner {
+    background-color: #ffffff !important;
+  }
+
+  /* Gemstone label */
+  .m-product-option--node[data-option-type="gemstone"] label.m-product-option--node__label {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    cursor: pointer !important;
+    font-size: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Gemstone image */
+  .m-product-option--node[data-option-type="gemstone"] img {
+    display: block !important;
+    min-width: 0 !important;
+    width: auto !important;
+    height: 38px !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    object-fit: contain !important;
+    flex-shrink: 0 !important;
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     RESPONSIVE
+  ══════════════════════════════════════════════════════ */
+  @media (max-width: 768px) {
+    .m-product-option--node[data-option-type="button"],
+    .m-product-option--node[data-option-type="color"],
+    .m-product-option--node[data-option-type="swatch_color"],
+    .m-product-option--node[data-option-type="image"] {
+      width: 47px !important;
+      height: 47px !important;
+    }
+    .m-product-option--node[data-option-type="gemstone"] img {
+      height: 30px !important;
+    }
+  }
+</style>
+
+
+
+
+
+
+

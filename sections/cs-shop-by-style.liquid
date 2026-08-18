@@ -1,0 +1,1257 @@
+{% liquid
+  assign section_collection = section.settings.collection
+  assign btn_label          = section.settings.button_label | default: 'Shop By Instagram'
+  assign btn_link           = section.settings.button_link  | default: '#'
+  assign heading            = section.settings.heading      | default: 'Shop By Style'
+  assign featured_image     = section.settings.featured_image
+  assign prev_icon          = section.settings.nav_prev_icon
+  assign next_icon          = section.settings.nav_next_icon
+  assign close_icon         = section.settings.modal_close_icon
+  assign carousel_prev_icon = section.settings.carousel_prev_icon
+  assign carousel_next_icon = section.settings.carousel_next_icon
+%}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Libre+Caslon+Text:wght@400&display=swap');
+
+  #shopify-section-{{ section.id }} {
+    background: {{ section.settings.bg_color | default: '#f5f5f5' }};
+  }
+
+  .sbs-wrapper-{{ section.id }} {
+    display: flex; align-items: stretch; max-width: 1920px;
+    padding: 80px 120px; margin: 0 auto; gap: 40px;
+  }
+
+  /* ── Left panel ── */
+  .sbs-left-{{ section.id }} { flex: 0 0 50%; max-width: 50%; background: #e5e5e5; }
+  .sbs-left-{{ section.id }} img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .sbs-left-placeholder-{{ section.id }} { width: 100%; height: 100%; min-height: 500px; background: #e5e5e5; display: block; }
+
+  /* ── Right panel ── */
+  .sbs-right-{{ section.id }} { flex: 1 1 0; display: flex; flex-direction: column; background: {{ section.settings.bg_color | default: '#f5f5f5' }}; min-width: 0; }
+  .sbs-heading-row-{{ section.id }} { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+  .sbs-heading-{{ section.id }} { font-size: 64px; font-weight: 500; font-family: 'Libre Caslon Text', serif; margin: 0; flex: 1; line-height: 1.1; text-transform: uppercase !important; }
+  .sbs-nav-{{ section.id }} { display: flex; gap: 10px; align-items: center; }
+  .sbs-nav-btn-{{ section.id }} { background: none; border: none; cursor: pointer; color: #555; padding: 5px; transition: opacity 0.2s; }
+  .sbs-nav-btn-{{ section.id }}:hover { opacity: 0.6; }
+
+  /* ── Product grid & Cards ── */
+  .sbs-grid-{{ section.id }} { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; }
+  .sbs-pcard-{{ section.id }} { display: flex; align-items: center; gap: 16px; background: #fff; padding: 16px; text-decoration: none; color: inherit; cursor: pointer; }
+  .sbs-img-wrap-{{ section.id }} { position: relative; flex-shrink: 0; width: 120px; height: 120px; }
+  .sbs-img-wrap-{{ section.id }} img { width: 100%; height: 100%; object-fit: cover; transition: clip-path 0.3s ease; }
+  .sbs-img-border-{{ section.id }} { position: absolute; top: 1.5px; left: 1.5px; width: calc(100% - 3px); height: calc(100% - 3px); opacity: 0; transition: opacity 0.3s ease; z-index: 2; pointer-events: none; overflow: visible; }
+  .sbs-pcard-{{ section.id }}:hover .sbs-img-border-{{ section.id }} { opacity: 1; }
+  .sbs-pcard-{{ section.id }}:hover .sbs-img-wrap-{{ section.id }} img { clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%); }
+  .sbs-pinfo-{{ section.id }} { flex: 1; min-width: 0; }
+  .sbs-ptitle-{{ section.id }} { font-size: 18px; font-weight: 600; color: #111; margin: 0 0 4px; font-family: 'inter', sans-serif; }
+  .sbs-price-{{ section.id }} { font-size: 18px; font-weight: 500; color: #111; font-family: 'inter', sans-serif; }
+
+  .sbs-cta-wrap-{{ section.id }} { padding: 32px 0 0; }
+  .sbs-cta-btn-{{ section.id }} { max-width:300px; height: 55px; background: #2C2C2C; color: #FFFFFF; font-size: 20px; font-weight: 300; text-transform: uppercase; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: background 0.3s; }
+  .sbs-cta-btn-{{ section.id }}:hover { background: linear-gradient(135deg, #947863, #E9DDD4, #947863) !important; color: #FFFF; }
+
+  /* ════════════════════════════════════════
+     MODAL & UI
+  ════════════════════════════════════════ */
+  .sbs-modal-overlay-{{ section.id }} { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; }
+  .sbs-modal-overlay-{{ section.id }}.is-open { display: flex; }
+  .sbs-modal-box-{{ section.id }} { background: #fff; max-width: 1200px; width: 95vw; display: flex; flex-direction: row; position: relative; max-height: 90vh; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.18); }
+  .sbs-modal-info-col-{{ section.id }} { flex: 1; padding: 48px 56px 40px 56px; overflow-y: auto; position: relative; display: flex; flex-direction: column; gap: 0; }
+  .sbs-modal-close-{{ section.id }} { position: absolute; top: 18px; right: 22px; background: none; border: none; cursor: pointer; z-index: 100; padding: 4px; color: #aaa; transition: color 0.2s; }
+  .sbs-modal-close-{{ section.id }}:hover { color: #111; }
+  .sbs-modal-close-{{ section.id }} img { width: 18px; height: 18px; display: block; }
+  .sbs-modal-close-{{ section.id }} svg { display: block; }
+  .sbs-modal-top-link-{{ section.id }} { font-size: 13px; color: #888; text-decoration: none; margin-bottom: 14px; display: inline-block; font-family: 'inter', sans-serif; letter-spacing: 0.01em; }
+  .sbs-modal-top-link-{{ section.id }}:hover { color: #333; text-decoration: underline; }
+  .sbs-modal-title-{{ section.id }} { font-family: 'inter', sans-serif; font-size: 36px; color: #111; margin: 0 0 16px; font-weight: 500; line-height: 1.15; padding-right: 36px; }
+  .sbs-modal-price-row-{{ section.id }} { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
+  .sbs-modal-price-{{ section.id }} { font-size: 22px; font-weight: 600; color: #111; font-family: 'inter', sans-serif; }
+  .sbs-modal-compare-{{ section.id }} { font-size: 18px; color: #aaa; text-decoration: line-through; font-family: 'inter', sans-serif; font-weight: 400; }
+  .sbs-modal-stars-{{ section.id }} { margin-left: auto; display: flex; align-items: center; gap: 3px; font-family: 'inter', sans-serif; font-size: 13px; color: #555; }
+  .sbs-modal-stars-{{ section.id }} svg { color: #111; }
+  .sbs-modal-divider-{{ section.id }} { border: none; border-top: 1px solid #e8e8e8; margin: 0 0 22px; }
+  .sbs-option-group-{{ section.id }} { margin-bottom: 22px; }
+  .sbs-option-label-{{ section.id }} { font-size: 14px; color: #555; margin-bottom: 10px; font-family: 'inter', sans-serif; display: block; line-height: 1.4; }
+  .sbs-option-label-{{ section.id }} strong { color: #111; font-weight: 600; }
+
+  /* ════════════════════════════════════════
+     VARIANT STYLES — MATCHES MAIN PRODUCT PICKER
+  ════════════════════════════════════════ */
+  .sbs-swatch-list-{{ section.id }}, .sbs-size-list-{{ section.id }} {
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+
+  .sbs-vnode {
+    position: relative; display: inline-flex !important; align-items: center; justify-content: center;
+    width: 57px !important; height: 57px !important;
+    cursor: pointer; margin: 0; flex-shrink: 0;
+    filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.10)) !important;
+    background: transparent !important; border: none !important; box-shadow: none !important; outline: none !important;
+    transform: none !important; scale: 1 !important; transition: none !important;
+  }
+  .sbs-vnode[data-option-type="gemstone"] {
+    width: auto !important; height: auto !important; min-width: 0 !important;
+    padding: 0 !important; margin: 0 !important; box-sizing: border-box;
+  }
+
+  .sbs-vgap {
+    display: inline-flex !important; align-items: center; justify-content: center;
+    width: 100%; height: 100%; box-sizing: border-box;
+    padding: 1.5px !important;
+    background-color: transparent !important;
+    transition: background-color 0.2s ease !important;
+    clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+    -webkit-clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+  }
+  .sbs-vnode:hover .sbs-vgap,
+  .sbs-vnode.is-selected .sbs-vgap {
+    background-color: #E8E2DC !important;
+  }
+
+  .sbs-vinner {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; height: 100%; box-sizing: border-box; overflow: hidden;
+    background-color: #ffffff !important;
+    transition: background-color 0.2s ease !important;
+    clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+    -webkit-clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+  }
+
+  .sbs-vnode[data-option-type="gemstone"] .sbs-vgap {
+    width: auto !important; height: auto !important; min-width: 0 !important;
+    padding: 1.5px !important; box-sizing: content-box;
+    clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+    -webkit-clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+  }
+  .sbs-vnode[data-option-type="gemstone"] .sbs-vinner {
+    width: auto !important; height: auto !important; min-width: 0 !important;
+    background-color: transparent !important;
+    padding: 0 !important; box-sizing: content-box;
+    clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+    -webkit-clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+  }
+  .sbs-vnode[data-option-type="gemstone"]:hover .sbs-vinner,
+  .sbs-vnode[data-option-type="gemstone"].is-selected .sbs-vinner {
+    background-color: #ffffff !important;
+  }
+
+  .sbs-vnode[data-option-type="button"] .sbs-vlabel {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    font-family: 'Inter', sans-serif !important; font-size: 15px !important; font-weight: 700 !important; color: #2C2C2C !important; margin: 0; text-align: center;
+  }
+
+  .sbs-vnode[data-option-type="image"] .sbs-vlabel,
+  .sbs-vnode[data-option-type="color"] .sbs-vlabel {
+    display: block; width: 100%; height: 100%; font-size: 0; margin: 0;
+    background-size: cover !important; background-position: center !important;
+  }
+
+  .sbs-vnode[data-option-type="gemstone"] .sbs-vlabel {
+    display: inline-flex !important; align-items: center !important; justify-content: center !important;
+    width: auto !important; height: auto !important; margin: 0; padding: 0; cursor: pointer; font-size: 0 !important;
+  }
+  .sbs-vnode[data-option-type="gemstone"] img {
+    display: block !important; width: auto !important; height: 38px !important; max-width: none !important;
+    margin: 0; padding: 0; object-fit: contain !important; flex-shrink: 0 !important;
+    transform: translateZ(0) !important; -webkit-transform: translateZ(0) !important;
+    backface-visibility: hidden !important; -webkit-backface-visibility: hidden !important;
+  }
+
+  .sbs-vnode.unavailable { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+
+  /* ════════════════════════════════════════
+     BOTTOM ACTIONS & MISC
+  ════════════════════════════════════════ */
+  .sbs-delivery-banner-{{ section.id }} { background: #f5f5f5; padding: 14px 20px; display: flex; align-items: center; justify-content: center; gap: 12px; font-family: 'inter', sans-serif; font-size: 12px; font-weight: 600; text-transform: uppercase; color: #444; margin-bottom: 20px; letter-spacing: 0.06em; border-radius: 2px; }
+  .sbs-modal-actions-{{ section.id }} { display: flex; gap: 12px; margin-top: auto; }
+  .sbs-atc-btn-{{ section.id }}, .sbs-pay-btn-{{ section.id }} { flex: 1; max-width: 300px; width: 100%; height: 55px; background: #2C2C2C; color: #FFFFFF; font-size: 20px; font-weight: 300; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; transition: background 0.3s, opacity 0.2s; cursor: pointer; border: none; border-radius: 0; }
+  .sbs-atc-btn-{{ section.id }}:hover, .sbs-pay-btn-{{ section.id }}:hover { background: linear-gradient(135deg, #947863, #E9DDD4, #947863) !important; color: #FFFF; }
+  .sbs-atc-btn-{{ section.id }}:hover:not(:disabled):not(.is-sold-out), .sbs-pay-btn-{{ section.id }}:hover:not(:disabled) { opacity: 0.82; }
+  .sbs-atc-btn-{{ section.id }}.is-sold-out { background: #888; color: #fff; cursor: not-allowed; }
+  .sbs-atc-btn-{{ section.id }}:disabled, .sbs-pay-btn-{{ section.id }}:disabled { cursor: not-allowed; background: #888; }
+
+  /* Minimog Wishlist */
+  .sbs-modal-wishlist-wrap-{{ section.id }} { position: absolute; top: 44px; right: 52px; z-index: 10; }
+  .sbs-wish-wrapper-{{ section.id }} { position: relative; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; }
+  .sbs-wish-wrapper-{{ section.id }} .m-wishlist-button { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; opacity: 0 !important; cursor: pointer !important; z-index: 5 !important; margin: 0 !important; padding: 0 !important; border: none !important; background: transparent !important; }
+  .sbs-wish-wrapper-{{ section.id }} .sbs-wish-icon-default, .sbs-wish-wrapper-{{ section.id }} .sbs-wish-icon-filled { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 1; transition: opacity 0.2s ease-in-out; }
+  .sbs-wish-wrapper-{{ section.id }} svg { width: 22px; height: 22px; display: block; transition: transform 0.2s ease; }
+  .sbs-wish-wrapper-{{ section.id }}:hover svg { transform: scale(1.08); }
+  .sbs-wish-wrapper-{{ section.id }} .sbs-wish-icon-default { opacity: 1; }
+  .sbs-wish-wrapper-{{ section.id }} .sbs-wish-icon-filled  { opacity: 0; }
+  .sbs-wish-wrapper-{{ section.id }}:hover .sbs-wish-icon-default { opacity: 0; }
+  .sbs-wish-wrapper-{{ section.id }}:hover .sbs-wish-icon-filled  { opacity: 1; }
+  .sbs-wish-wrapper-{{ section.id }} .m-wishlist-button.active ~ .sbs-wish-icon-default, .sbs-wish-wrapper-{{ section.id }} .m-wishlist-button.is-active ~ .sbs-wish-icon-default, .sbs-wish-wrapper-{{ section.id }} .m-wishlist-button.m-wishlist--active ~ .sbs-wish-icon-default, .sbs-wish-wrapper-{{ section.id }} .m-wishlist-button.added-to-wishlist ~ .sbs-wish-icon-default { opacity: 0 !important; }
+  .sbs-wish-wrapper-{{ section.id }} .m-wishlist-button.active ~ .sbs-wish-icon-filled, .sbs-wish-wrapper-{{ section.id }} .m-wishlist-button.is-active ~ .sbs-wish-icon-filled, .sbs-wish-wrapper-{{ section.id }} .m-wishlist-button.m-wishlist--active ~ .sbs-wish-icon-filled, .sbs-wish-wrapper-{{ section.id }} .m-wishlist-button.added-to-wishlist ~ .sbs-wish-icon-filled { opacity: 1 !important; }
+
+  @media (max-width: 1024px) {
+    .sbs-wrapper-{{ section.id }} { padding: 40px 20px; flex-direction: column; }
+    .sbs-left-{{ section.id }} { max-width: 100%; height: 300px; }
+    .sbs-grid-{{ section.id }} { grid-template-columns: 1fr 1fr; }
+    .sbs-cta-btn-{{ section.id }} { display: block; width: 100%; text-align: center; box-sizing: border-box; }
+    .sbs-modal-actions-{{ section.id }} { flex-direction: column; }
+    .sbs-atc-btn-{{ section.id }}, .sbs-pay-btn-{{ section.id }} { width: 100%; max-width: 100%;padding: 10px; }
+    .sbs-modal-box-{{ section.id }} { flex-direction: column; max-height: 80vh; overflow-y: auto; }
+    .sbs-modal-info-col-{{ section.id }} { padding: 28px 20px 24px; }
+    .sbs-modal-wishlist-wrap-{{ section.id }} { top: 24px; right: 16px; }
+  }
+  @media (min-width: 1024px) and  (max-width: 1710px) {
+    .sbs-ptitle-{{ section.id }}{ font-size: 15px; font-weight:600; color: #2c2c2c; }
+    .sbs-heading-{{ section.id }} { font-size: 54px !important; }
+  }
+  @media (max-width: 768px){
+    .sbs-heading-{{ section.id }} { font-size: 28px !important; }
+    .sbs-cta-btn-{{ section.id }} { max-width: 100%; width: 100%; display: flex; align-content: space-around; }
+    .sbs-grid-{{ section.id }} { gap: 10px; }
+    .sbs-pcard-{{ section.id }} { padding: 10px; gap: 10px;display:flex; flex-direction: column;}
+    .sbs-img-wrap-{{ section.id }} { width: 90px; height: 90px; }
+    .sbs-ptitle-{{ section.id }} { font-size: 18px; }
+    .sbs-price-{{ section.id }} { font-size: 16px; }
+    .sbs-pinfo-{{ section.id }} { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+
+    .sbs-vnode { width: 47px !important; height: 47px !important; }
+    .sbs-vnode[data-option-type="gemstone"] { width: auto !important; height: auto !important; }
+    .sbs-vnode[data-option-type="gemstone"] img { height: 30px !important; }
+  }
+
+  /* ════════════════════════════════════════
+     MODAL IMAGE CAROUSEL
+  ════════════════════════════════════════ */
+  .sbs-modal-img-col-{{ section.id }} {
+    flex: 0 0 50%; background: #f4f4f4;
+    overflow: hidden; min-height: 500px; position: relative;
+  }
+  .sbs-carousel-{{ section.id }} {
+    position: relative; width: 100%; height: 100%; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .sbs-carousel-track-{{ section.id }} {
+    display: flex; flex: 1;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform;
+  }
+  .sbs-carousel-slide-{{ section.id }} {
+    flex: 0 0 100%; width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .sbs-carousel-slide-{{ section.id }} img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    pointer-events: none; user-select: none;
+  }
+  .sbs-carousel-nav-{{ section.id }} {
+    position: absolute; bottom: 14px; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; z-index: 10; pointer-events: none;
+  }
+  .sbs-carousel-prev-{{ section.id }},
+  .sbs-carousel-next-{{ section.id }} {
+    pointer-events: all;
+    background: transparent; 
+    border: none; cursor: pointer;
+    width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+    color: #2c2c2c; flex-shrink: 0;
+    transition: background 0.2s, opacity 0.2s;
+    border-radius: 50%; padding: 0;
+    {% comment %} box-shadow: 0 1px 4px rgba(0,0,0,0.15); {% endcomment %}
+  }
+  .sbs-carousel-prev-{{ section.id }} img,
+  .sbs-carousel-next-{{ section.id }} img {
+    width: 18px; height: 18px; object-fit: contain; display: block;
+  }
+  .sbs-carousel-prev-{{ section.id }}:hover,
+  .sbs-carousel-next-{{ section.id }}:hover { background:transparent; }
+  .sbs-carousel-prev-{{ section.id }}.sbs-carousel-hidden-{{ section.id }},
+  .sbs-carousel-next-{{ section.id }}.sbs-carousel-hidden-{{ section.id }} { opacity: 0; pointer-events: none; }
+  .sbs-carousel-dots-{{ section.id }} {
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px; pointer-events: all;
+  }
+  .sbs-carousel-dot-{{ section.id }} {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: rgba(44,44,44,0.28); border: none; padding: 0; cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .sbs-carousel-dot-{{ section.id }}.is-active {
+    background: #2c2c2c; transform: scale(1.3);
+  }
+  @media (max-width: 1024px) {
+    .sbs-modal-img-col-{{ section.id }} { flex: none; min-height: 300px; height: 45vw; }
+  }
+
+
+
+
+
+  {% comment %} new  {% endcomment %}
+   /* ── Product Card Price Row ── */
+  .sbs-price-row-{{ section.id }} { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    margin-top: 4px;
+    flex-wrap: wrap;
+  }
+  .sbs-price-{{ section.id }} {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111111;
+    font-family: 'Inter', sans-serif;
+  }
+  .sbs-compare-{{ section.id }} { 
+    font-size: 14px; 
+    color: #b5b5b5; 
+    text-decoration: line-through; 
+    font-family: 'Inter', sans-serif;
+  }
+  .sbs-save-badge-{{ section.id }} { 
+    background-color: #f5eae4; /* Light tint pill background color */
+    color: #c59b85; /* Soft contrasting text color */
+    font-size: 11px; 
+    font-weight: 700; 
+    text-transform: uppercase;
+    padding: 3px 8px; 
+    border-radius: 12px; /* Capsule shape */
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+  }
+
+</style>
+
+<div class="sbs-wrapper-{{ section.id }}">
+  <div class="sbs-left-{{ section.id }}">
+    {%- if featured_image != blank -%}
+      <img src="{{ featured_image | image_url: width: 1000 }}" alt="{{ featured_image.alt }}" loading="lazy">
+    {%- else -%}
+      <span class="sbs-left-placeholder-{{ section.id }}"></span>
+    {%- endif -%}
+  </div>
+  <div class="sbs-right-{{ section.id }}">
+    <div class="sbs-heading-row-{{ section.id }}">
+      <h2 class="sbs-heading-{{ section.id }}">{{ heading }}</h2>
+      <div class="sbs-nav-{{ section.id }}">
+        <button class="sbs-nav-btn-{{ section.id }}" data-sbs-prev="{{ section.id }}">
+          {% if prev_icon != blank %} <img src="{{ prev_icon | image_url: width: 40 }}" width="20"> {% else %}&larr;{% endif %}
+        </button>
+        <button class="sbs-nav-btn-{{ section.id }}" data-sbs-next="{{ section.id }}">
+          {% if next_icon != blank %} <img src="{{ next_icon | image_url: width: 40 }}" width="20"> {% else %}&rarr;{% endif %}
+        </button>
+      </div>
+    </div>
+    <div class="sbs-grid-{{ section.id }}" id="sbs-grid-{{ section.id }}"></div>
+    <div class="sbs-cta-wrap-{{ section.id }}">
+      <a href="{{ btn_link }}" class="sbs-cta-btn-{{ section.id }}">{{ btn_label }}</a>
+    </div>
+  </div>
+</div>
+
+<div class="sbs-modal-overlay-{{ section.id }}" id="sbs-modal-overlay-{{ section.id }}">
+  <div class="sbs-modal-box-{{ section.id }}">
+    <button class="sbs-modal-close-{{ section.id }}" id="sbs-modal-close-{{ section.id }}">
+      {% if close_icon != blank %}
+        <img src="{{ close_icon | image_url: width: 40 }}" alt="Close">
+      {% else %}
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      {% endif %}
+    </button>
+    <div class="sbs-modal-img-col-{{ section.id }}" id="sbs-modal-img-col-{{ section.id }}">
+      <div class="sbs-carousel-{{ section.id }}">
+        <div class="sbs-carousel-track-{{ section.id }}" id="sbs-carousel-track-{{ section.id }}"></div>
+        <div class="sbs-carousel-nav-{{ section.id }}">
+          <button class="sbs-carousel-prev-{{ section.id }}" id="sbs-carousel-prev-{{ section.id }}" aria-label="Previous image">
+            {%- if carousel_prev_icon != blank -%}
+              <img src="{{ carousel_prev_icon | image_url: width: 40 }}" alt="Previous">
+            {%- else -%}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            {%- endif -%}
+          </button>
+          <div class="sbs-carousel-dots-{{ section.id }}" id="sbs-carousel-dots-{{ section.id }}"></div>
+          <button class="sbs-carousel-next-{{ section.id }}" id="sbs-carousel-next-{{ section.id }}" aria-label="Next image">
+            {%- if carousel_next_icon != blank -%}
+              <img src="{{ carousel_next_icon | image_url: width: 40 }}" alt="Next">
+            {%- else -%}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            {%- endif -%}
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="sbs-modal-info-col-{{ section.id }}" id="sbs-modal-info-{{ section.id }}"></div>
+  </div>
+</div>
+
+{%- comment -%}
+  ── GEMSTONE FILE URL MAP ──────────────────────────────────────────────
+  Mirrors the Liquid gem_img_url fallback logic used in the cart drawer.
+{%- endcomment -%}
+
+{%- liquid
+  assign _sbs_gem_handles_seen = ''
+  assign _sbs_gem_handle_list  = ''
+-%}
+
+{%- if section_collection != blank -%}
+  {%- for product in section_collection.products -%}
+    {%- for opt in product.options_with_values -%}
+      {%- assign _sbs_opt_name_lc = opt.name | downcase | strip -%}
+      {%- if _sbs_opt_name_lc == 'gemstone' -%}
+        {%- for val in opt.values -%}
+          {%- assign _sbs_val_handle = val | handle -%}
+          {%- unless _sbs_gem_handles_seen contains _sbs_val_handle -%}
+            {%- assign _sbs_gem_handles_seen = _sbs_gem_handles_seen | append: _sbs_val_handle | append: ',' -%}
+            {%- assign _sbs_gem_handle_list  = _sbs_gem_handle_list  | append: _sbs_val_handle | append: ',' -%}
+          {%- endunless -%}
+        {%- endfor -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endfor -%}
+{%- endif -%}
+
+<script>
+window.__gemFileUrls = window.__gemFileUrls || {};
+{%- assign _sbs_gem_parts = _sbs_gem_handle_list | split: ',' -%}
+{%- for _sgh in _sbs_gem_parts -%}
+  {%- if _sgh != '' -%}
+    {%- assign _sbs_gem_file_name = _sgh | append: '.png' -%}
+    window.__gemFileUrls[{{ _sgh | json }}] = {{ _sbs_gem_file_name | file_url | json }};
+  {%- endif -%}
+{%- endfor -%}
+</script>
+
+<script>
+(function () {
+  'use strict';
+  var sid = '{{ section.id }}';
+
+  {% comment %} var allProducts = [
+    {% if section_collection != blank %}
+      {% for product in section_collection.products %}
+      {
+        handle  : {{ product.handle | json }},
+        id      : {{ product.id | json }},
+        title   : {{ product.title | json }},
+        price   : {{ product.price | money | json }},
+        compare : {{ product.compare_at_price | money | json }},
+        onSale  : {% if product.compare_at_price > product.price %}true{% else %}false{% endif %},
+        img     : {{ product.featured_image | image_url: width: 800 | json }},
+        imgSm   : {{ product.featured_image | image_url: width: 300 | json }},
+        url     : {{ product.url | json }}
+      }{% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    {% else %}
+      { handle:'', id:0, title:'Sample Product', price:'$100.99', compare:'$120.99', onSale:true, img:'', imgSm:'', url:'#' }
+    {% endif %}
+  ]; {% endcomment %}
+
+  var allProducts = [
+    {% if section_collection != blank %}
+      {% for product in section_collection.products %}
+      
+      {%- comment -%} Calculate the unique discount for each individual product {%- endcomment -%}
+      {% assign discount_pct = 0 %}
+      {% if product.compare_at_price > product.price %}
+        {% assign dynamic_diff = product.compare_at_price | minus: product.price %}
+        {% assign discount_pct = dynamic_diff | times: 100.0 | divided_by: product.compare_at_price | round %}
+      {% endif %}
+
+      {
+        handle  : {{ product.handle | json }},
+        id      : {{ product.id | json }},
+        title   : {{ product.title | json }},
+        price   : {{ product.price | money | json }},
+        compare : {{ product.compare_at_price | money | json }},
+        onSale  : {% if product.compare_at_price > product.price %}true{% else %}false{% endif %},
+        discount: {{ discount_pct | json }},
+        img     : {{ product.featured_image | image_url: width: 800 | json }},
+        imgSm   : {{ product.featured_image | image_url: width: 300 | json }},
+        url     : {{ product.url | json }}
+      }{% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    {% else %}
+      { handle:'', id:0, title:'Sample Product', price:'€50.00', compare:'€60.00', onSale:true, discount: 17, img:'', imgSm:'', url:'#' }
+    {% endif %}
+  ];
+
+  var sbsGemstones = {};
+  {% if section_collection != blank %}
+    {% for product in section_collection.products %}
+      {% assign gm = product.metafields.custom.gemstones_metafield %}
+      {% if gm != blank %}
+        sbsGemstones[{{ product.handle | json }}] = [];
+        {% if gm.type contains 'list' %}
+          {% for item in gm.value %}
+            {% assign g_name = item.name | default: item.title | default: item %}
+            {% assign g_img = '' %}
+            {% if item.image != blank %}{% assign g_img = item.image | image_url: width: 100 %}
+            {% elsif item.image_url != blank %}{% assign g_img = item.image_url %}{% endif %}
+            sbsGemstones[{{ product.handle | json }}].push({ name: {{ g_name | json }}, image_url: {{ g_img | json }} });
+          {% endfor %}
+        {% else %}
+          {% assign g_name = gm.value.name | default: gm.value.title | default: gm.value %}
+          {% assign g_img = '' %}
+          {% if gm.value.image != blank %}{% assign g_img = gm.value.image | image_url: width: 100 %}
+          {% elsif gm.value.image_url != blank %}{% assign g_img = gm.value.image_url %}{% endif %}
+          sbsGemstones[{{ product.handle | json }}].push({ name: {{ g_name | json }}, image_url: {{ g_img | json }} });
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  var routes = window.Shopify && window.Shopify.routes ? window.Shopify.routes.root : '/';
+  function formatPrice(cents) { var n = parseInt(cents, 10); if (isNaN(n)) return String(cents); return (n / 100).toLocaleString('en-US', { style: 'currency', currency: '{{ cart.currency.iso_code | default: "USD" }}' }); }
+  function getImg(imgObj) { if (!imgObj) return ''; if (typeof imgObj === 'string') return imgObj; return imgObj.src || imgObj.url || ''; }
+
+  function shopifyHandleize(str) {
+    return String(str)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  function getGemFileUrl(val) {
+    var handle = shopifyHandleize(val);
+    var gemMap = window.__gemFileUrls || {};
+    if (gemMap[handle]) return gemMap[handle];
+    return '/files/' + handle + '.png';
+  }
+
+  var mql = window.matchMedia('(max-width: 1024px)');
+  var PAGE_SIZE  = mql.matches ? 4 : 6;
+  var curPage    = 0;
+  var totalPages = Math.max(1, Math.ceil(allProducts.length / PAGE_SIZE));
+  var grid       = document.getElementById('sbs-grid-' + sid);
+
+  mql.addEventListener('change', function(e) {
+    PAGE_SIZE = e.matches ? 4 : 6;
+    totalPages = Math.max(1, Math.ceil(allProducts.length / PAGE_SIZE));
+    curPage = 0; renderGrid(curPage);
+  });
+
+  var hoverPolygonSvg = '<svg class="sbs-img-border-' + sid + '" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    '<defs><linearGradient id="pcard-border-grad-' + sid + '" x1="0%" y1="50%" x2="100%" y2="50%"><stop offset="0%" stop-color="#E6D7CB"/><stop offset="50%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#E6D7CB"/></linearGradient></defs>' +
+    '<polygon points="18,0 82,0 100,18 100,82 82,100 18,100 0,82 0,18" fill="none" stroke="url(#pcard-border-grad-' + sid + ')" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="miter" stroke-alignment="outer"/></svg>';
+
+  {% comment %} function renderGrid(page) {
+    if (!grid) return;
+    var slice = allProducts.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
+    if (!slice.length) { grid.innerHTML = '<p style="color:#bbb;font-size:13px;font-family:inter,sans-serif;">No products found.</p>'; return; }
+    grid.innerHTML = slice.map(function (p) {
+
+      return [
+        '<div class="sbs-pcard-' + sid + '" data-handle="' + p.handle + '" data-product-id="' + p.id + '" data-img="' + p.img + '" data-url="' + p.url + '" tabindex="0" role="button" aria-label="' + p.title + '">',
+        '<div class="sbs-img-wrap-' + sid + '">',
+        p.imgSm ? '<img src="' + p.imgSm + '" alt="' + p.title + '" loading="lazy">' : '<div style="width:100%;height:100%;background:#eee;"></div>',
+        hoverPolygonSvg,
+        '</div><div class="sbs-pinfo-' + sid + '"><p class="sbs-ptitle-' + sid + '">' + p.title + '</p><span class="sbs-price-' + sid + '">' + p.price + '</span> <span class="sbs-price-' + sid + '">' + p.compare + '</span> </div></div>'
+      ].join('');
+    }).join('');
+
+    grid.querySelectorAll('.sbs-pcard-' + sid).forEach(function (card) {
+      function doOpen() { openModal(card.getAttribute('data-handle'), card.getAttribute('data-product-id'), card.getAttribute('data-img'), card.getAttribute('data-url')); }
+      card.addEventListener('click', doOpen);
+      card.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); doOpen(); } });
+    });
+  } {% endcomment %}
+
+  function renderGrid(page) {
+    if (!grid) return;
+    var slice = allProducts.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
+    if (!slice.length) { grid.innerHTML = '<p style="color:#bbb;font-size:13px;font-family:inter,sans-serif;">No products found.</p>'; return; }
+    
+    grid.innerHTML = slice.map(function (p) {
+      
+      // Generate individual dynamic price structures per product item
+      var priceHtml = '<div class="sbs-price-row-' + sid + '">';
+      
+      if (p.onSale && p.compare) {
+        priceHtml += '<span class="sbs-price-' + sid + '">' + p.price + '</span>'; 
+        priceHtml += '<span class="sbs-compare-' + sid + '">' + p.compare + '</span>'; 
+        priceHtml += '<span class="sbs-save-badge-' + sid + '">SAVE ' + p.discount + '%</span>'; 
+      } else {
+        priceHtml += '<span class="sbs-price-' + sid + '">' + p.price + '</span>'; 
+      }
+      
+      priceHtml += '</div>';
+
+      return [
+        '<div class="sbs-pcard-' + sid + '" data-handle="' + p.handle + '" data-product-id="' + p.id + '" data-img="' + p.img + '" data-url="' + p.url + '" tabindex="0" role="button" aria-label="' + p.title + '">',
+        '<div class="sbs-img-wrap-' + sid + '">',
+        p.imgSm ? '<img src="' + p.imgSm + '" alt="' + p.title + '" loading="lazy">' : '<div style="width:100%;height:100%;background:#eee;"></div>',
+        hoverPolygonSvg,
+        '</div><div class="sbs-pinfo-' + sid + '"><p class="sbs-ptitle-' + sid + '">' + p.title + '</p>' + priceHtml + '</div></div>'
+      ].join('');
+    }).join('');
+
+    grid.querySelectorAll('.sbs-pcard-' + sid).forEach(function (card) {
+      function doOpen() { openModal(card.getAttribute('data-handle'), card.getAttribute('data-product-id'), card.getAttribute('data-img'), card.getAttribute('data-url')); }
+      card.addEventListener('click', doOpen);
+      card.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); doOpen(); } });
+    });
+  }
+
+  var prevBtn = document.querySelector('[data-sbs-prev="' + sid + '"]');
+  var nextBtn = document.querySelector('[data-sbs-next="' + sid + '"]');
+  if (prevBtn) prevBtn.onclick = function () { curPage = (curPage - 1 + totalPages) % totalPages; renderGrid(curPage); };
+  if (nextBtn) nextBtn.onclick = function () { curPage = (curPage + 1) % totalPages; renderGrid(curPage); };
+
+  var overlay  = document.getElementById('sbs-modal-overlay-' + sid);
+  var infoBox  = document.getElementById('sbs-modal-info-' + sid);
+  var closeBtn = document.getElementById('sbs-modal-close-' + sid);
+
+  var activeVariantId        = null;
+  var activeVariantAvailable = true;
+  var currentProductId       = null;
+
+  /* ── Carousel state ──────────────────────────────────────────────── */
+  var carouselImages  = [];   // array of full-size image URLs currently shown
+  var carouselCurrent = 0;
+
+  /* ── Full media list w/ alt text, for alt-tag based matching ───────
+     This mirrors the main product page's mediaAltMap + filterMedia()
+     logic: each media item carries its (lowercased) alt tags, and we
+     only show media whose alt tags are ALL present among the
+     currently selected option values (material / size / shape / gemstone).
+  ─────────────────────────────────────────────────────────────────── */
+  var modalAllMedia = []; // [{ altTags: ['18k gold','emerald'], src: '...' }, ...]
+
+  /* ── Exclude variant swatch/icon media ──────────────────────────────
+     Shopify stores each variant's dedicated "swatch" image as
+     variant.featured_media (e.g. the little octagon material icon).
+     The main PDP explicitly skips these from the gallery unless they
+     happen to sit at position 1 (see product-media.liquid:
+     "if variant_image_ids contains media.id and media.position != 1 → skip").
+     Without this exclusion, those swatch icons leak into the modal
+     carousel as if they were real product photos. */
+  function buildMediaAltList(product) {
+    var mediaArr = product.media || [];
+    var variants = product.variants || [];
+    var variantFeaturedMediaIds = variants
+      .map(function (v) { return v.featured_media && v.featured_media.id; })
+      .filter(Boolean);
+
+    return mediaArr.map(function (m) {
+      var altRaw = (m.alt || '').toLowerCase().trim();
+      var altTags = altRaw === '' ? [] : altRaw.split(',').map(function (t) { return t.trim(); }).filter(Boolean);
+      var src = '';
+      if (m.preview_image && m.preview_image.src) src = m.preview_image.src;
+      else if (m.src) src = m.src;
+      var isVariantSwatchIcon = variantFeaturedMediaIds.indexOf(m.id) !== -1 && m.position !== 1;
+      return { altTags: altTags, src: src, mediaType: m.media_type || 'image', excluded: isVariantSwatchIcon };
+    }).filter(function (m) { return m.src && m.mediaType === 'image' && !m.excluded; });
+  }
+
+  function filterMediaForTags(activeTags) {
+    if (!modalAllMedia.length) return [];
+
+    var untagged = modalAllMedia.filter(function (m) { return !m.altTags.length; }).map(function (m) { return m.src; });
+
+    // Pass 1: strict exact match — every alt tag on the media must be
+    // among the currently selected values. Untagged media always shows
+    // alongside these (same as the main PDP: blank alt = always visible).
+    var exactTagged = modalAllMedia.filter(function (m) {
+      return m.altTags.length && m.altTags.every(function (tag) { return activeTags.indexOf(tag) !== -1; });
+    }).map(function (m) { return m.src; });
+    if (exactTagged.length) return exactTagged.concat(untagged);
+
+    // Pass 2: best partial match. Real stores sometimes have alt text
+    // that doesn't line up 100% with the option value strings (extra
+    // words, different casing/spacing, etc.), so a strict match can
+    // fail even though the image is clearly "for" this material or
+    // this gemstone. Instead of silently falling back to every image
+    // (which can surface a completely unrelated variant's photo first),
+    // score each tagged media item by how many of its tags are found
+    // in the current selection and keep only the highest-scoring ones.
+    var scored = modalAllMedia
+      .filter(function (m) { return m.altTags.length; })
+      .map(function (m) {
+        var matches = m.altTags.filter(function (tag) { return activeTags.indexOf(tag) !== -1; }).length;
+        return { src: m.src, score: matches };
+      })
+      .filter(function (m) { return m.score > 0; });
+
+    if (scored.length) {
+      var maxScore = Math.max.apply(null, scored.map(function (m) { return m.score; }));
+      var best = scored.filter(function (m) { return m.score === maxScore; }).map(function (m) { return m.src; });
+      return best.concat(untagged);
+    }
+
+    // Pass 3: nothing tagged at all relates to the current selection —
+    // fall back to untagged media if any exist, otherwise show
+    // everything so the modal never goes blank.
+    if (untagged.length) return untagged;
+    return modalAllMedia.map(function (m) { return m.src; });
+  }
+
+  function getCurrentActiveTags(options) {
+    var tags = [];
+    options.forEach(function (o) {
+      var lbl = document.getElementById('sbsOL_' + o.position + '_' + sid);
+      var val = lbl ? lbl.textContent : '';
+      if (val) tags.push(String(val).toLowerCase().trim());
+    });
+    // Separate metafield-based gemstone group (not a real variant option)
+    var gemLbl = document.getElementById('sbsGemLabel_' + sid);
+    if (gemLbl && gemLbl.textContent) tags.push(String(gemLbl.textContent).toLowerCase().trim());
+    return tags;
+  }
+
+  function refreshCarouselForCurrentSelection(options) {
+    var tags = getCurrentActiveTags(options);
+    var imgs = filterMediaForTags(tags);
+    initCarousel(imgs);
+    // keep the cart "_image" property input in sync with the first matching image
+    var imgInp = document.getElementById('sbsImgInput_' + sid);
+    if (imgInp && imgs[0]) imgInp.value = imgs[0];
+  }
+
+  function initCarousel(images) {
+    carouselImages  = images;
+    carouselCurrent = 0;
+    var track = document.getElementById('sbs-carousel-track-' + sid);
+    var dots  = document.getElementById('sbs-carousel-dots-' + sid);
+    var prevB = document.getElementById('sbs-carousel-prev-' + sid);
+    var nextB = document.getElementById('sbs-carousel-next-' + sid);
+    if (!track) return;
+
+    track.innerHTML = images.map(function (src, i) {
+      return '<div class="sbs-carousel-slide-' + sid + '"><img src="' + src + '" alt="Product image ' + (i + 1) + '" loading="' + (i === 0 ? 'eager' : 'lazy') + '"></div>';
+    }).join('');
+
+    if (dots) {
+      dots.innerHTML = images.length > 1 ? images.map(function (_, i) {
+        return '<button class="sbs-carousel-dot-' + sid + (i === 0 ? ' is-active' : '') + '" data-idx="' + i + '" aria-label="Image ' + (i + 1) + '"></button>';
+      }).join('') : '';
+
+      dots.querySelectorAll('.sbs-carousel-dot-' + sid).forEach(function (dot) {
+        dot.onclick = function () { goToSlide(parseInt(dot.getAttribute('data-idx'), 10)); };
+      });
+    }
+
+    if (prevB) prevB.onclick = function (e) { e.preventDefault(); goToSlide((carouselCurrent - 1 + carouselImages.length) % carouselImages.length); };
+    if (nextB) nextB.onclick = function (e) { e.preventDefault(); goToSlide((carouselCurrent + 1) % carouselImages.length); };
+
+    goToSlide(0);
+  }
+
+  function goToSlide(idx) {
+    if (!carouselImages.length) return;
+    carouselCurrent = Math.max(0, Math.min(idx, carouselImages.length - 1));
+    var track = document.getElementById('sbs-carousel-track-' + sid);
+    var dots  = document.getElementById('sbs-carousel-dots-' + sid);
+    var prevB = document.getElementById('sbs-carousel-prev-' + sid);
+    var nextB = document.getElementById('sbs-carousel-next-' + sid);
+    if (track) track.style.transform = 'translateX(-' + (carouselCurrent * 100) + '%)';
+    if (dots) dots.querySelectorAll('.sbs-carousel-dot-' + sid).forEach(function (d, i) {
+      d.classList.toggle('is-active', i === carouselCurrent);
+    });
+    var hidden = 'sbs-carousel-hidden-' + sid;
+    if (prevB) { if (carouselImages.length <= 1) { prevB.classList.add(hidden); } else { prevB.classList.remove(hidden); } }
+    if (nextB) { if (carouselImages.length <= 1) { nextB.classList.add(hidden); } else { nextB.classList.remove(hidden); } }
+  }
+
+  function buildWishlistHTML(productId, productHandle) {
+    return '<div class="sbs-modal-wishlist-wrap-' + sid + '">'
+      + '<div class="sbs-wish-wrapper-' + sid + '">'
+      + '<button class="m-tooltip m-wishlist-button m-button--icon" data-product-id="' + productId + '" data-product-handle="' + productHandle + '" data-action="add-wishlist" aria-label="Add to wishlist"></button>'
+      + '<span class="sbs-wish-icon-default" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></span>'
+      + '<span class="sbs-wish-icon-filled" aria-hidden="true"><svg viewBox="0 0 24 24" fill="#111" stroke="#111" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></span>'
+      + '</div></div>';
+  }
+
+  function initWishlistInModal(productId) {
+    var btn = document.querySelector('.sbs-wish-wrapper-' + sid + ' .m-wishlist-button');
+    if (!btn) return;
+    var pid = String(productId);
+    var storageKey = localStorage.getItem('minimog-wishlist') ? 'minimog-wishlist' : 'm-wishlist';
+    try {
+      var list = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      var isWishlisted = list.some(function(item) { return String(item) === pid || String(item.id) === pid || String(item.product_id) === pid; });
+      if (isWishlisted) { btn.classList.add('m-wishlist--active', 'is-active'); }
+    } catch(e){}
+    document.dispatchEvent(new CustomEvent('minimog:wishlist:init'));
+    document.dispatchEvent(new CustomEvent('wishlist:reinit'));
+  }
+
+  function openModal(handle, productId, cardImg, url) {
+    currentProductId = productId;
+    overlay.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+
+    // Show card image immediately as first slide while loading
+    modalAllMedia = [];
+    initCarousel(cardImg ? [cardImg] : []);
+    infoBox.innerHTML = spinner();
+
+    if (!handle) { infoBox.innerHTML = '<p style="padding:30px;font-family:inter,sans-serif;color:#aaa;">No product handle.</p>'; return; }
+
+    fetch(routes + 'products/' + handle + '.js')
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (json) {
+        var product = json.product || json;
+        // Build the alt-tagged media list (mirrors the main PDP's mediaAltMap)
+        modalAllMedia = buildMediaAltList(product);
+        buildModal(product, url, productId);
+      })
+      .catch(function () { infoBox.innerHTML = '<p style="padding:30px;font-family:inter,sans-serif;color:#aaa;">Could not load product.</p>'; });
+  }
+
+  function buildModal(product, url, productId) {
+    var variants = product.variants || [];
+    if (!variants.length) return;
+
+    var firstV = variants.find(function (v) { return v.available; }) || variants[0];
+    activeVariantId        = firstV.id;
+    activeVariantAvailable = !!firstV.available;
+
+    var priceStr   = formatPrice(firstV.price);
+    var onSale     = firstV.compare_at_price && parseInt(firstV.compare_at_price, 10) > parseInt(firstV.price, 10);
+    var compareStr = onSale ? formatPrice(firstV.compare_at_price) : '';
+
+    var options = normaliseOptions(product);
+    var availIn = firstV.available;
+    var h = '';
+
+    h += buildWishlistHTML(productId || product.id, product.handle);
+    h += '<a href="' + url + '" class="sbs-modal-top-link-' + sid + '" target="_blank">View More Details</a>';
+    h += '<h2 class="sbs-modal-title-' + sid + '">' + product.title + '</h2>';
+    {% comment %} h += '<div class="sbs-modal-price-row-' + sid + '"><span id="sbsPrice_' + sid + '" class="sbs-modal-price-' + sid + '">' + priceStr + '</span>' {% endcomment %}
+     // Calculate the initial variant discount percentage
+    var discountPct = 0;
+    if (onSale && firstV.compare_at_price) {
+      discountPct = Math.round(((parseInt(firstV.compare_at_price, 10) - parseInt(firstV.price, 10)) * 100) / parseInt(firstV.compare_at_price, 10));
+    }
+
+    var priceStr   = formatPrice(firstV.price);
+    var onSale     = firstV.compare_at_price && parseInt(firstV.compare_at_price, 10) > parseInt(firstV.price, 10);
+    var compareStr = onSale ? formatPrice(firstV.compare_at_price) : '';
+
+    var options = normaliseOptions(product);
+    var availIn = firstV.available;
+    var h = '';
+
+    h += buildWishlistHTML(productId || product.id, product.handle);
+    h += '<a href="' + url + '" class="sbs-modal-top-link-' + sid + '" target="_blank">View More Details</a>';
+    h += '<h2 class="sbs-modal-title-' + sid + '">' + product.title + '</h2>';
+    
+    // Updated price row with the placeholder for the modal save badge
+    h += '<div class="sbs-modal-price-row-' + sid + '">'
+      + '<span id="sbsPrice_' + sid + '" class="sbs-modal-price-' + sid + '">' + priceStr + '</span>'
+      + '<span id="sbsCompare_' + sid + '" class="sbs-modal-compare-' + sid + '"' + (onSale ? '' : ' style="display:none;"') + '>' + compareStr + '</span>'
+      + '<span id="sbsModalBadge_' + sid + '" class="sbs-save-badge-' + sid + '"' + (onSale ? '' : ' style="display:none;"') + '">SAVE ' + discountPct + '%</span>'
+      + '<div class="sbs-modal-stars-' + sid + '" id="sbsStars_' + sid + '"></div></div><hr class="sbs-modal-divider-' + sid + '">';
+
+      + '<span id="sbsCompare_' + sid + '" class="sbs-modal-compare-' + sid + '"' + (onSale ? '' : ' style="display:none;"') + '>' + compareStr + '</span>'
+      + '<div class="sbs-modal-stars-' + sid + '" id="sbsStars_' + sid + '"></div></div><hr class="sbs-modal-divider-' + sid + '">';
+
+    var materialImgMap = {};
+    var materialOptPos = -1;
+    options.forEach(function (o) { if (/material|metal|finish|plat/i.test(o.name)) materialOptPos = o.position; });
+    if (materialOptPos > 0) {
+      variants.forEach(function (v) {
+        var matVal = getVariantOption(v, materialOptPos);
+        var vImg = getImg(v.featured_image);
+        if (matVal && !materialImgMap[matVal] && vImg) materialImgMap[matVal] = vImg;
+      });
+    }
+
+    var gemstoneData = (sbsGemstones && sbsGemstones[product.handle]) || null;
+    var gemstoneList = [];
+    if (gemstoneData) { gemstoneData.forEach(function (item) { if (item && item.name) gemstoneList.push({ name: item.name, image_url: item.image_url || '' }); }); }
+
+    var hasMaterial = options.some(function (o) { return /material|metal|finish|plat/i.test(o.name); });
+    var hasShape    = options.some(function (o) { return /shape/i.test(o.name); });
+
+    var orderedOptions = options.slice().sort(function (a, b) {
+      function getRank(name) {
+        var n = name.toLowerCase();
+        if (hasMaterial) {
+          if (/material|metal|finish|plat/i.test(n)) return 1; if (/gem|stone/i.test(n)) return 2; if (/size/i.test(n)) return 3; return 4;
+        } else if (hasShape) {
+          if (/gem|stone/i.test(n)) return 1; if (/shape/i.test(n)) return 2; if (/quantity/i.test(n)) return 3; return 4;
+        }
+        return 5;
+      }
+      var diff = getRank(a.name) - getRank(b.name);
+      if (diff !== 0) return diff; return a.position - b.position;
+    });
+
+    orderedOptions.forEach(function (opt) {
+      var currentVal = getVariantOption(firstV, opt.position);
+      var isMaterial = /material|metal|finish|plat/i.test(opt.name);
+      var isGemOpt   = /gem|stone/i.test(opt.name);
+      var isShape    = /shape/i.test(opt.name);
+      var renderAsSwatches = false;
+
+      if (isMaterial) renderAsSwatches = true;
+      else if (isGemOpt) {
+        renderAsSwatches = true;
+      } else if (isShape) {
+        var hasAnyShapeImg = opt.values.some(function (val) { var matchV = findBestVariant(variants, options, opt.position, val, firstV); return matchV && getImg(matchV.featured_image); });
+        if (hasAnyShapeImg) renderAsSwatches = true;
+      }
+
+      h += '<div class="sbs-option-group-' + sid + '" data-opt-pos="' + opt.position + '">'
+        + '<label class="sbs-option-label-' + sid + '">' + opt.name + ': <strong id="sbsOL_' + opt.position + '_' + sid + '">' + currentVal + '</strong></label>';
+
+      if (renderAsSwatches) {
+        h += '<div class="sbs-swatch-list-' + sid + '">';
+        opt.values.forEach(function (val) {
+          var matchV  = findBestVariant(variants, options, opt.position, val, firstV);
+          var avail   = matchV ? !!matchV.available : true;
+          var active  = val === currentVal ? ' is-selected' : '';
+          var unavCls = !avail ? ' unavailable' : '';
+          var optType = isGemOpt ? 'gemstone' : 'image';
+
+          var imgSrc = '';
+          if (isMaterial) {
+            imgSrc = materialImgMap[val] || (matchV ? getImg(matchV.featured_image) : '');
+          } else if (isGemOpt) {
+            gemstoneList.forEach(function (g) { if (g.name.toLowerCase() === val.toLowerCase() && g.image_url) imgSrc = g.image_url; });
+            if (!imgSrc) imgSrc = getGemFileUrl(val);
+          } else if (isShape) {
+            if (matchV) imgSrc = getImg(matchV.featured_image);
+          }
+
+          var bgColor = nameToHex(val);
+          var bgStyle = imgSrc ? 'background-image: url(' + imgSrc + ');' : 'background-color: ' + bgColor + ';';
+
+          h += '<div class="sbs-vnode' + active + unavCls + '" data-option-type="' + optType + '" data-opt="' + opt.position + '" data-val="' + esc(val) + '" title="' + esc(val) + '">';
+          h += '<div class="sbs-vgap"><div class="sbs-vinner"><label class="sbs-vlabel"';
+          if (!isGemOpt) h += ' style="' + bgStyle + '"';
+          h += '>';
+          if (isGemOpt && imgSrc) h += '<img src="' + imgSrc + '" alt="' + esc(val) + '" onerror="this.style.display=\'none\'">';
+          if (isGemOpt && !imgSrc) h += '<span style="display:block;width:100%;height:100%;background-color:' + bgColor + ';"></span>';
+          h += '</label></div></div>';
+          h += '</div>';
+        });
+        h += '</div>';
+      } else {
+        h += '<div class="sbs-size-list-' + sid + '">';
+        opt.values.forEach(function (val) {
+          var matchV  = findBestVariant(variants, options, opt.position, val, firstV);
+          var avail   = matchV ? !!matchV.available : true;
+          var active  = val === currentVal ? ' is-selected' : '';
+          var unavCls = !avail ? ' unavailable' : '';
+
+          h += '<div class="sbs-vnode' + active + unavCls + '" data-option-type="button" data-opt="' + opt.position + '" data-val="' + esc(val) + '" title="' + esc(val) + (avail ? '' : ' (Sold Out)') + '">';
+          h += '<div class="sbs-vgap"><div class="sbs-vinner"><label class="sbs-vlabel">' + val + '</label></div></div>';
+          h += '</div>';
+        });
+        h += '</div>';
+      }
+      h += '</div>';
+    });
+
+    var hasGemVariantOpt = options.some(function (o) { return /gem|stone/i.test(o.name); });
+    if (gemstoneList.length > 0 && !hasGemVariantOpt) {
+      var firstGem = gemstoneList[0].name;
+      h += '<div class="sbs-option-group-' + sid + '" id="sbsGemGroup_' + sid + '">'
+        + '<label class="sbs-option-label-' + sid + '">Gemstones: <strong id="sbsGemLabel_' + sid + '">' + firstGem + '</strong></label>'
+        + '<div class="sbs-swatch-list-' + sid + '">';
+      gemstoneList.forEach(function (gem, idx) {
+        var active = idx === 0 ? ' is-selected' : '';
+        h += '<div class="sbs-vnode sbs-gem-swatch' + active + '" data-option-type="gemstone" data-gem-name="' + esc(gem.name) + '" title="' + esc(gem.name) + '">';
+        h += '<div class="sbs-vgap"><div class="sbs-vinner"><label class="sbs-vlabel">';
+        if (gem.image_url) { h += '<img src="' + gem.image_url + '" alt="' + esc(gem.name) + '">'; }
+        else { h += '<span style="display:block;width:100%;height:100%;background-color:' + nameToHex(gem.name) + ';"></span>'; }
+        h += '</label></div></div>';
+        h += '</div>';
+      });
+      h += '</div></div>';
+    }
+
+    h += '<form action="' + routes + 'cart/add" method="post" id="sbsForm_' + sid + '" class="m-product-form product-form" data-type="add-to-cart-form" style="display:contents;">';
+    h += '<input type="hidden" name="id" id="sbsVarInput_' + sid + '" value="' + activeVariantId + '">';
+    h += '<input type="hidden" name="quantity" value="1">';
+    h += '<input type="hidden" name="properties[_image]" id="sbsImgInput_' + sid + '" value="">';
+    h += '<input type="hidden" name="properties[Gemstone]" id="sbsGemInput_' + sid + '" disabled>';
+    h += '<div class="sbs-delivery-banner-' + sid + '">' + truckSVG() + 'READY-TO-SHIP: DELIVERY WITHIN 5–10 WORKING DAYS</div>';
+    h += '<div class="sbs-modal-actions-' + sid + '">'
+      + '<button type="submit" name="add" id="sbsATC_' + sid + '" class="sbs-atc-btn-' + sid + (availIn ? '' : ' is-sold-out') + '"' + (availIn ? '' : ' disabled') + '><span id="sbsATCText_' + sid + '">' + (availIn ? 'ADD TO CART' : 'SOLD OUT') + '</span></button>'
+      + '<button type="button" id="sbsPay_' + sid + '" class="sbs-pay-btn-' + sid + '"' + (availIn ? '' : ' disabled') + '>' + checkoutSVG() + '<span>BUY IT NOW</span></button></div>';
+    h += '</form>';
+
+    infoBox.innerHTML = h;
+
+    initWishlistInModal(productId || product.id);
+    bindInteractions(variants, options);
+
+    // Initial carousel render based on the default variant's selections (alt-tag matched)
+    refreshCarouselForCurrentSelection(options);
+  }
+
+  function bindInteractions(variants, options) {
+    var gemInput = document.getElementById('sbsGemInput_' + sid);
+    var gemLabelEl = document.getElementById('sbsGemLabel_' + sid);
+    if (gemInput && gemLabelEl && gemLabelEl.textContent) { gemInput.value = gemLabelEl.textContent.trim(); gemInput.disabled = false; }
+
+    infoBox.querySelectorAll('[data-opt]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (btn.classList.contains('unavailable')) return;
+
+        var pos = parseInt(btn.getAttribute('data-opt'), 10);
+        var val = btn.getAttribute('data-val');
+
+        infoBox.querySelectorAll('[data-opt="' + pos + '"]').forEach(function (b) { b.classList.remove('is-selected'); });
+        btn.classList.add('is-selected');
+
+        var lbl = document.getElementById('sbsOL_' + pos + '_' + sid);
+        if (lbl) lbl.textContent = val;
+
+        var selected = options.map(function (o) { var l = document.getElementById('sbsOL_' + o.position + '_' + sid); return l ? l.textContent : o.values[0]; });
+        var match = variants.find(function (v) { return options.every(function (o, i) { return getVariantOption(v, o.position) === selected[i]; }); });
+
+        if (!match) return;
+        activeVariantId = match.id;
+        activeVariantAvailable = !!match.available;
+
+        var varInput = document.getElementById('sbsVarInput_' + sid);
+        if (varInput) varInput.value = match.id;
+
+        {% comment %} var priceEl   = document.getElementById('sbsPrice_' + sid);
+        var compareEl = document.getElementById('sbsCompare_' + sid);
+        if (priceEl) priceEl.textContent = formatPrice(match.price);
+        if (compareEl) {
+          var cp = parseInt(match.compare_at_price, 10) || 0;
+          var pp = parseInt(match.price, 10);
+          if (cp > pp) { compareEl.textContent = formatPrice(match.compare_at_price); compareEl.style.display = ''; }
+          else { compareEl.style.display = 'none'; }
+        } {% endcomment %}
+
+
+        var priceEl   = document.getElementById('sbsPrice_' + sid);
+        var compareEl = document.getElementById('sbsCompare_' + sid);
+        
+        // 1. Target the new badge we created in Step 1
+        var badgeEl   = document.getElementById('sbsModalBadge_' + sid); 
+        
+        if (priceEl) priceEl.textContent = formatPrice(match.price);
+        
+        if (compareEl) {
+          var cp = parseInt(match.compare_at_price, 10) || 0; // cp = Compare Price
+          var pp = parseInt(match.price, 10);                 // pp = Product Price
+          
+          if (cp > pp) { 
+            // The product is on sale!
+            compareEl.textContent = formatPrice(match.compare_at_price); 
+            compareEl.style.display = ''; 
+            
+            // 2. Calculate the discount math and show the badge
+            if (badgeEl) {
+              var pct = Math.round(((cp - pp) * 100) / cp);
+              badgeEl.textContent = 'SAVE ' + pct + '%';
+              badgeEl.style.display = ''; // This makes the badge visible
+            }
+
+          } else { 
+            // The product is NOT on sale. Hide the compare price.
+            compareEl.style.display = 'none'; 
+            
+            // 3. Hide the badge too
+            if (badgeEl) {
+              badgeEl.style.display = 'none'; // This hides the badge
+            }
+          }
+        }
+
+        var atcBtn    = document.getElementById('sbsATC_' + sid);
+        var atcTextEl = document.getElementById('sbsATCText_' + sid);
+        var payBtn    = document.getElementById('sbsPay_' + sid);
+        if (atcBtn) {
+          if (match.available) {
+            atcBtn.disabled = false; atcBtn.classList.remove('is-sold-out');
+            if (atcTextEl) atcTextEl.textContent = 'ADD TO CART';
+          } else {
+            atcBtn.disabled = true; atcBtn.classList.add('is-sold-out');
+            if (atcTextEl) atcTextEl.textContent = 'SOLD OUT';
+          }
+        }
+        if (payBtn) payBtn.disabled = !match.available;
+
+        updateUnavailableStates(variants, options, selected);
+
+        // ── Alt-tag based image refresh (same behavior as main PDP) ──
+        refreshCarouselForCurrentSelection(options);
+      });
+    });
+
+    infoBox.querySelectorAll('.sbs-gem-swatch').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (btn.classList.contains('unavailable')) return;
+        infoBox.querySelectorAll('.sbs-gem-swatch').forEach(function (b) { b.classList.remove('is-selected'); });
+        btn.classList.add('is-selected');
+
+        var gemName = btn.getAttribute('data-gem-name');
+        var lbl = document.getElementById('sbsGemLabel_' + sid);
+        if (lbl) lbl.textContent = gemName;
+
+        var gInp = document.getElementById('sbsGemInput_' + sid);
+        if (gInp) { gInp.value = gemName; gInp.disabled = false; }
+
+        // ── Alt-tag based image refresh when gemstone (metafield group) changes ──
+        refreshCarouselForCurrentSelection(options);
+      });
+    });
+
+    var sbsForm = document.getElementById('sbsForm_' + sid);
+    if (sbsForm) {
+      sbsForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var atcBtn = document.getElementById('sbsATC_' + sid);
+        var atcTextEl = document.getElementById('sbsATCText_' + sid);
+        if (!activeVariantId || atcBtn.disabled || !activeVariantAvailable) return;
+
+        atcBtn.disabled = true;
+        if (atcTextEl) atcTextEl.textContent = 'ADDING...';
+
+        var formData = new FormData(sbsForm);
+
+        fetch(routes + 'cart/add.js', { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(function (r) { if (!r.ok) throw new Error('Failed'); return r.json(); })
+        .then(function (data) {
+          if (atcTextEl) atcTextEl.textContent = 'ADDED ✓';
+          refreshCartCount(); openCartDrawer();
+          setTimeout(function () { closeModal(); atcBtn.disabled = false; if (atcTextEl) atcTextEl.textContent = 'ADD TO CART'; }, 800);
+        })
+        .catch(function () { atcBtn.disabled = false; if (atcTextEl) atcTextEl.textContent = 'ADD TO CART'; });
+      });
+    }
+
+    var payBtn = document.getElementById('sbsPay_' + sid);
+    if (payBtn) {
+      payBtn.addEventListener('click', function () {
+        if (!activeVariantId || payBtn.disabled || !activeVariantAvailable) return;
+        payBtn.disabled = true; payBtn.style.opacity = '0.6';
+
+        var payload = { items: [{ id: activeVariantId, quantity: 1, properties: {} }] };
+        var gInp = document.getElementById('sbsGemInput_' + sid);
+        if (gInp && !gInp.disabled && gInp.value) { payload.items[0].properties['Gemstone'] = gInp.value; }
+        var imgInp2 = document.getElementById('sbsImgInput_' + sid);
+        if (imgInp2 && imgInp2.value) { payload.items[0].properties['_image'] = imgInp2.value; }
+
+        fetch(routes + 'cart/add.js', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(payload) })
+        .then(function (r) { return r.json(); }).then(function () { window.location.href = routes + 'checkout'; })
+        .catch(function () { payBtn.disabled = false; payBtn.style.opacity = ''; });
+      });
+    }
+  }
+
+  function updateUnavailableStates(variants, options, selected) {
+    options.forEach(function (opt, idx) {
+      infoBox.querySelectorAll('[data-opt="' + opt.position + '"]').forEach(function (btn) {
+        var val  = btn.getAttribute('data-val');
+        var hypo = selected.slice(); hypo[idx] = val;
+        var matchV = variants.find(function (v) { return options.every(function (o, i) { return getVariantOption(v, o.position) === hypo[i]; }); });
+        var unavailable = !matchV || !matchV.available;
+        if (unavailable) { btn.classList.add('unavailable'); } else { btn.classList.remove('unavailable'); }
+      });
+    });
+  }
+
+  function refreshCartCount() {
+    fetch(routes + 'cart.js').then(function (r) { return r.json(); }).then(function (cart) {
+      document.querySelectorAll('[data-cart-count],[data-header-cart-count],.js-cart-count,.cart-count,.cart-item-count,.m-badge').forEach(function (el) { el.textContent = cart.item_count; });
+    }).catch(function () {});
+  }
+
+  function openCartDrawer() {
+    ['cart:updated', 'cart:refresh', 'minimog:cart:refresh'].forEach(function(evt) { document.dispatchEvent(new CustomEvent(evt, { bubbles: true })); });
+    setTimeout(function() {
+      var cartIcon = document.querySelector('.m-cart-icon, .m-header__cart, a[href="/cart"], .header__icon--cart, [data-cart-drawer-trigger]');
+      if (cartIcon) { cartIcon.click(); } else {
+        var drawer = document.querySelector('.m-cart-drawer') || document.querySelector('#cart-drawer');
+        if (drawer) { drawer.classList.add('is-open', 'active'); drawer.removeAttribute('hidden'); drawer.setAttribute('aria-hidden', 'false'); }
+        var overlay = document.querySelector('.m-sidebar-overlay');
+        if (overlay) overlay.classList.add('is-active');
+        document.body.classList.add('cart-drawer-open', 'm-cart-drawer-open');
+        document.documentElement.classList.add('prevent-scroll');
+      }
+    }, 100);
+  }
+
+  function closeModal() {
+    if (!overlay) return;
+    overlay.classList.remove('is-open'); document.body.style.overflow = '';
+    activeVariantId = null; activeVariantAvailable = true; currentProductId = null;
+  }
+
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (overlay)  overlay.addEventListener('click', function (e) { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && overlay && overlay.classList.contains('is-open')) closeModal(); });
+
+  function normaliseOptions(product) {
+    var opts = product.options_with_values || product.options || [];
+    return opts.map(function (o, idx) {
+      if (typeof o === 'string') {
+        var vals = [];
+        (product.variants || []).forEach(function (v) { var ov = v['option' + (idx + 1)]; if (ov != null && vals.indexOf(ov) === -1) vals.push(ov); });
+        return { name: o, position: idx + 1, values: vals };
+      }
+      return { name: o.name, position: o.position || idx + 1, values: o.values || [] };
+    });
+  }
+
+  function getVariantOption(variant, pos) {
+    if (variant['option' + pos] != null) return variant['option' + pos];
+    if (variant.options && variant.options[pos - 1] != null) return variant.options[pos - 1];
+    return '';
+  }
+
+  function findBestVariant(variants, options, targetPos, targetVal, referenceVariant) {
+    var exact = variants.find(function (v) { return options.every(function (o) { if (o.position === targetPos) return getVariantOption(v, o.position) === targetVal; return getVariantOption(v, o.position) === getVariantOption(referenceVariant, o.position); }); });
+    if (exact) return exact;
+    return variants.find(function (v) { return getVariantOption(v, targetPos) === targetVal; }) || null;
+  }
+
+  function esc(str) { return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function nameToHex(name) {
+    var n = String(name).toLowerCase();
+    if (n.indexOf('citrine') !== -1) return '#e49b0f';
+    if (n.indexOf('moissanite') !== -1 || n.indexOf('diamond') !== -1) return '#e8f4fc';
+    if (n.indexOf('ruby') !== -1) return '#c0392b';
+    if (n.indexOf('emerald') !== -1) return '#1e8449';
+    if (n.indexOf('sapphire') !== -1) return '#1a5276';
+    if (n.indexOf('rose gold') !== -1 || n.indexOf('rose') !== -1) return '#E6A389';
+    if (n.indexOf('yellow gold') !== -1 || n.indexOf('gold') !== -1) return '#D4A843';
+    if (n.indexOf('silver') !== -1 || n.indexOf('rhodium') !== -1 || n.indexOf('platinum') !== -1) return '#E2E2E2';
+    var map = { 'black':'#1a1a1a','white':'#f0f0f0','red':'#cc2200','blue':'#3355bb','green':'#336633','pink':'#f4b8c8','purple':'#7733aa','yellow':'#f5c800','amethyst':'#9b59b6','opal':'#f0e6d3' };
+    return map[n.trim()] || '#e0e0e0';
+  }
+
+  function spinner() { return '<div style="display:flex;align-items:center;justify-content:center;min-height:260px;gap:12px;font-family:inter,sans-serif;font-size:14px;color:#aaa;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="animation:sbsSpin_' + sid + ' .7s linear infinite;flex-shrink:0;"><circle cx="12" cy="12" r="10" stroke="#e0e0e0" stroke-width="3"/><path d="M12 2a10 10 0 0 1 10 10" stroke="#666" stroke-width="3" stroke-linecap="round"/></svg>Loading…</div><style>@keyframes sbsSpin_' + sid + '{to{transform:rotate(360deg)}}</style>'; }
+  function truckSVG() { return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'; }
+  function checkoutSVG() { return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>'; }
+
+  renderGrid(0);
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Shop By Style",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Shop By Style" },
+    { "type": "image_picker", "id": "featured_image", "label": "Left Featured Image" },
+    { "type": "collection", "id": "collection", "label": "Product Collection" },
+    { "type": "text", "id": "button_label", "label": "Button Label", "default": "Shop By Instagram" },
+    { "type": "url", "id": "button_link", "label": "Button Link" },
+    { "type": "header", "content": "Modal Settings" },
+    { "type": "image_picker", "id": "modal_close_icon", "label": "Modal Close Image Icon" },
+    { "type": "header", "content": "Navigation Icons" },
+    { "type": "image_picker", "id": "nav_prev_icon", "label": "Prev Button Icon" },
+    { "type": "image_picker", "id": "nav_next_icon", "label": "Next Button Icon" },
+    { "type": "header", "content": "Carousel Icons" },
+    { "type": "image_picker", "id": "carousel_prev_icon", "label": "Carousel Prev Icon" },
+    { "type": "image_picker", "id": "carousel_next_icon", "label": "Carousel Next Icon" },
+    { "type": "color", "id": "bg_color", "label": "Background Color", "default": "#f5f5f5" }
+  ],
+  "presets": [ { "name": "Shop By Style" } ]
+}
+{% endschema %}
+

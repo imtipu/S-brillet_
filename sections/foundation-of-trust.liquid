@@ -1,0 +1,1634 @@
+{% comment %} {%- style -%}
+  /* =========================================================
+     Foundation of Trust - Pixel Perfect Auto Slider CSS
+     ========================================================= */
+  .custom-fot-{{ section.id }} {
+    --bg-color: {{ section.settings.bg_color }};
+    --title-color: {{ section.settings.title_color }};
+    --text-color: {{ section.settings.text_color }};
+    --card-bg: {{ section.settings.card_bg_color }};
+    --card-text-color: {{ section.settings.card_text_color }};
+    --divider-color: {{ section.settings.divider_color }};
+    
+    background-color: var(--bg-color);
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+    overflow: hidden;
+    max-width: 100vw;
+  }
+
+  .custom-fot-{{ section.id }} * {
+    box-sizing: border-box;
+  }
+
+  /* Using CSS Grid for STRICT 50/50 layout */
+  .custom-fot-{{ section.id }} .fot-container {
+    max-width: 1920px;
+    margin: 0 auto;
+    padding-left: {{ section.settings.padding_sides }}px;
+    padding-right: {{ section.settings.padding_sides }}px;
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Exactly equal halves */
+    align-items: stretch; /* THIS FORCES BOTH COLUMNS TO BE THE EXACT SAME HEIGHT */
+    gap: {{ section.settings.layout_gap }}px; /* Figma: 80px */
+  }
+
+  /* --- LEFT COLUMN CONTENT --- */
+  .custom-fot-{{ section.id }} .fot-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .custom-fot-{{ section.id }} .fot-title {
+    font-family: var(--font-heading-family, 'Libre Caslon Text', serif);
+    font-size: {{ section.settings.title_size }}px; /* Figma: 74px */
+    font-weight: 400;
+    line-height: 1.23; /* Figma: 123% */
+    color: var(--title-color);
+    margin: 0 0 20px 0;
+    text-transform: uppercase;
+  }
+
+  .custom-fot-{{ section.id }} .fot-desc-top {
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: {{ section.settings.desc_top_size }}px; /* Figma: 20px */
+    font-weight: 400;
+    line-height: 1.5; 
+    color: var(--text-color);
+    margin: 0 0 30px 0;
+  }
+
+  .custom-fot-{{ section.id }} .fot-divider {
+    border: none;
+    border-top: 1px solid var(--divider-color);
+    margin: 0 0 40px 0;
+    width: 100%;
+  }
+
+  /* Grid Layout for Features */
+  .custom-fot-{{ section.id }} .fot-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 40px; /* Row gap: 24px, Col gap: 40px */
+    margin-bottom: 40px;
+    width: 100%;
+    max-width: 800px;
+  }
+
+  /* Feature Card (Slide Trigger) */
+  .custom-fot-{{ section.id }} .fot-card {
+    background-color: var(--card-bg);
+    border-radius: 4px;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.06); 
+    display: flex;
+    align-items: center;
+    padding: 20px 24px; 
+    gap: 18px; 
+    width: 100%;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .custom-fot-{{ section.id }} .fot-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .custom-fot-{{ section.id }} .fot-icon-wrapper {
+    width: 84px; 
+    height: 84px; 
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .custom-fot-{{ section.id }} .fot-icon-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  /* Active/Inactive Icon Swap Logic */
+  .custom-fot-{{ section.id }} .icon-active { opacity: 0; visibility: hidden; }
+  .custom-fot-{{ section.id }} .icon-normal { opacity: 1; visibility: visible; }
+  
+  .custom-fot-{{ section.id }} .fot-card.active .icon-active { opacity: 1; visibility: visible; }
+  .custom-fot-{{ section.id }} .fot-card.active .icon-normal { opacity: 0; visibility: hidden; }
+
+  .custom-fot-{{ section.id }} .fot-card-title {
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: {{ section.settings.card_title_size }}px; /* Figma: 20px */
+    font-weight: 400;
+    line-height: 1.5; 
+    color: var(--card-text-color);
+    margin: 0;
+    text-transform: uppercase; 
+    max-width: 160px; 
+    text-decoration: underline;
+    text-decoration-color: transparent; /* Hidden by default */
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    transition: text-decoration-color 0.3s ease;
+  }
+
+  /* Active State (Underline from Figma) */
+  .custom-fot-{{ section.id }} .fot-card.active .fot-card-title {
+    text-decoration-color: var(--card-text-color);
+  }
+
+  /* Bottom Description Area (Stacked for Crossfade) */
+  .custom-fot-{{ section.id }} .fot-desc-bottom-wrapper {
+    display: grid;
+    width: 100%;
+    max-width: 800px;
+  }
+
+  .custom-fot-{{ section.id }} .fot-bottom-box {
+    grid-area: 1 / 1;
+    background-color: var(--card-bg);
+    border-radius: 4px;
+    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.04); 
+    padding: 20px 24px; 
+    width: 100%;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+  }
+
+  .custom-fot-{{ section.id }} .fot-bottom-box.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .custom-fot-{{ section.id }} .fot-desc-bottom {
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: {{ section.settings.desc_bottom_size }}px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-color);
+    margin: 0;
+  }
+
+  /* --- RIGHT COLUMN (IMAGES & SLIDER DASHES) --- */
+  .custom-fot-{{ section.id }} .fot-right {
+    position: relative;
+    /* border-radius: 4px; */
+    overflow: hidden;
+    width: 100%;
+    /* Intrinsic height removed so it strictly matches the Left Column's height */
+  }
+
+  .custom-fot-{{ section.id }} .fot-main-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures image fills the space without distortion */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+  }
+
+  .custom-fot-{{ section.id }} .fot-main-image.active {
+    opacity: 1;
+    visibility: visible;
+    z-index: 2;
+  }
+
+  /* Slider Dash Control Container */
+  .custom-fot-{{ section.id }} .fot-dashes {
+    position: absolute;
+    bottom: 30px; 
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 10;
+  }
+
+  .custom-fot-{{ section.id }} .dash-item {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .custom-fot-{{ section.id }} .dash-inactive,
+  .custom-fot-{{ section.id }} .dash-active {
+    height: auto;
+    object-fit: contain;
+    transition: opacity 0.3s ease;
+  }
+
+  .custom-fot-{{ section.id }} .dash-active { display: none; }
+  .custom-fot-{{ section.id }} .dash-item.active .dash-active { display: block; }
+  .custom-fot-{{ section.id }} .dash-item.active .dash-inactive { display: none; }
+
+  /* Fallback dashes if images aren't uploaded */
+  .custom-fot-{{ section.id }} .fallback-dash {
+    width: 40px;
+    height: 4px;
+    background-color: rgba(255,255,255,0.4);
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  .custom-fot-{{ section.id }} .dash-item.active .fallback-dash {
+    background-color: #FFFFFF;
+  }
+
+  /* --- RESPONSIVE DESIGN (Pixel Perfect Scaling) --- */
+  
+  /* MacBook & Laptops (1025px - 1440px) */
+  @media (max-width: 1440px) {
+    .custom-fot-{{ section.id }} .fot-container { gap: 50px; padding: 60px 80px; }
+    
+    /* Scaled down cleanly for MacBook */
+    .custom-fot-{{ section.id }} .fot-title { font-size: 48px; margin-bottom: 15px; }
+    .custom-fot-{{ section.id }} .fot-desc-top { font-size: 16px; margin-bottom: 20px; line-height: 1.5; }
+    .custom-fot-{{ section.id }} .fot-divider { margin-bottom: 25px; }
+    
+    .custom-fot-{{ section.id }} .fot-grid { gap: 16px 20px; margin-bottom: 25px; }
+    .custom-fot-{{ section.id }} .fot-card { padding: 15px 20px; gap: 12px; }
+    .custom-fot-{{ section.id }} .fot-icon-wrapper { width: 60px; height: 60px; }
+    .custom-fot-{{ section.id }} .fot-card-title { font-size: 15px; max-width: 140px; }
+    
+    .custom-fot-{{ section.id }} .fot-bottom-box { padding: 18px 22px; }
+    .custom-fot-{{ section.id }} .fot-desc-bottom { font-size: 15px; }
+  }
+
+  /* Tablets (769px - 1024px) */
+  @media (max-width: 1024px) {
+    .custom-fot-{{ section.id }} .fot-container { 
+      grid-template-columns: 1fr; /* Switch to single column */
+      padding: 60px 40px;
+      gap: 40px;
+      align-items: start; /* Disable stretch for stacked view */
+    }
+    .custom-fot-{{ section.id }} .fot-left {
+      order: 2; /* Text moves to bottom */
+    }
+    .custom-fot-{{ section.id }} .fot-right {
+      order: 1; /* Image moves to top */
+      height: 500px; /* Specific height since we lost the left-column reference */
+    }
+  }
+
+  /* Mobile Phones (up to 768px) */
+  @media (max-width: 768px) {
+
+    
+
+    .custom-fot-{{ section.id }} .fot-card.active .fot-card-title{ 
+    text-decoration-thickness:1px;
+  }
+
+
+    .custom-fot-{{ section.id }} { padding-top: 40px; padding-bottom: 40px; overflow: hidden; width: 100vw; max-width: 100%; }
+    
+    .custom-fot-{{ section.id }} .fot-container { 
+      grid-template-columns: 1fr; /* Keeps single column */
+      padding: 20px !important; 
+      /* padding-right: 20px !important;  */
+      gap: 30px; 
+      align-items: start;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+    
+    .custom-fot-{{ section.id }} .fot-left {
+      order: 2; /* Text bottom */
+      width: 100%;
+    }
+    
+    .custom-fot-{{ section.id }} .fot-right {
+      order: 1; /* Image Top */
+      height: 350px; 
+      /* border-radius: 8px; */
+      width: 100%;
+    }
+
+    .custom-fot-{{ section.id }} .fot-dashes { bottom: 15px; }
+    .custom-fot-{{ section.id }} .fallback-dash { width: 25px; height: 3px; }
+
+    .custom-fot-{{ section.id }} .fot-title { font-size: 28px; margin-bottom: 15px; }
+    .custom-fot-{{ section.id }} .fot-desc-top { font-size: 14px; line-height: 1.5; margin-bottom: 20px; }
+    .custom-fot-{{ section.id }} .fot-divider { margin-bottom: 25px; }
+    
+    .custom-fot-{{ section.id }} .fot-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important; /* minmax forces grid to shrink on small screens without blowing out */
+      gap: 10px;
+      margin-bottom: 25px;
+      width: 100%;
+    }
+    
+    .custom-fot-{{ section.id }} .fot-card { 
+      padding: 10px; 
+      gap: 8px;
+      width: 100%;
+    }
+    .custom-fot-{{ section.id }} .fot-icon-wrapper { width: 40px; height: 40px; }
+    .custom-fot-{{ section.id }} .fot-card-title { 
+      font-size: 12px; 
+      max-width: 100%; 
+      line-height: 1.3;
+      word-wrap: break-word; /* Helps wrap long words */
+    }
+    
+    .custom-fot-{{ section.id }} .fot-bottom-box { padding: 15px; width: 100%; box-sizing: border-box; }
+    .custom-fot-{{ section.id }} .fot-desc-bottom { font-size: 13px; line-height: 1.5; }
+  }
+{%- endstyle -%}
+
+<section class="custom-fot-{{ section.id }}" data-section-id="{{ section.id }}">
+  <div class="fot-container">
+    
+    <!-- LEFT COLUMN: Content & Grid Features -->
+    <div class="fot-left">
+      {%- if section.settings.title != blank -%}
+        <h2 class="fot-title">{{ section.settings.title }}</h2>
+      {%- endif -%}
+
+      {%- if section.settings.desc_top != blank -%}
+        <p class="fot-desc-top">{{ section.settings.desc_top }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.show_divider -%}
+        <hr class="fot-divider">
+      {%- endif -%}
+
+      <!-- Feature Grid (Clickable Slider Controls) -->
+      <div class="fot-grid" id="fot-grid-{{ section.id }}">
+        {%- for block in section.blocks -%}
+          <div class="fot-card {% if forloop.first %}active{% endif %}" data-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
+            <div class="fot-icon-wrapper">
+              
+              <!-- Normal Icon -->
+              {%- if block.settings.icon != blank -%}
+                <img src="{{ block.settings.icon | image_url: width: 168 }}" alt="{{ block.settings.title | escape }}" class="icon-normal" loading="lazy">
+              {%- else -%}
+                {{ 'image' | placeholder_svg_tag: 'placeholder-svg icon-normal' }}
+              {%- endif -%}
+
+              <!-- Active Icon -->
+              {%- if block.settings.icon_active != blank -%}
+                <img src="{{ block.settings.icon_active | image_url: width: 168 }}" alt="{{ block.settings.title | escape }} Active" class="icon-active" loading="lazy">
+              {%- else -%}
+                <!-- Fallback to normal icon if active icon is not provided -->
+                {%- if block.settings.icon != blank -%}
+                  <img src="{{ block.settings.icon | image_url: width: 168 }}" alt="{{ block.settings.title | escape }}" class="icon-active" loading="lazy">
+                {%- else -%}
+                   {{ 'image' | placeholder_svg_tag: 'placeholder-svg icon-active' }}
+                {%- endif -%}
+              {%- endif -%}
+
+            </div>
+            {%- if block.settings.title != blank -%}
+              <h3 class="fot-card-title">{{ block.settings.title }}</h3>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      </div>
+
+      <!-- Bottom Dynamic Description Box -->
+      <div class="fot-desc-bottom-wrapper" id="fot-desc-wrapper-{{ section.id }}">
+        {%- for block in section.blocks -%}
+          <div class="fot-bottom-box {% if forloop.first %}active{% endif %}" data-index="{{ forloop.index0 }}">
+            <p class="fot-desc-bottom">{{ block.settings.desc_bottom }}</p>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Auto-Sliding Images & Dashes -->
+    <div class="fot-right" id="fot-right-{{ section.id }}">
+      
+      <!-- Crossfading Images -->
+      {%- for block in section.blocks -%}
+        {%- if block.settings.main_image != blank -%}
+          <img src="{{ block.settings.main_image | image_url: width: 1600 }}" alt="{{ block.settings.title | escape }}" class="fot-main-image {% if forloop.first %}active{% endif %}" data-index="{{ forloop.index0 }}" loading="lazy">
+        {%- else -%}
+          {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg fot-main-image' | replace: '<svg', '<svg class="fot-main-image' | replace: '>', ' data-index="' | append: forloop.index0 | append: '">' }}
+        {%- endif -%}
+      {%- endfor -%}
+
+      <!-- Overlay Slider Dashes -->
+      <div class="fot-dashes" id="fot-dashes-{{ section.id }}">
+        {%- for block in section.blocks -%}
+          <div class="dash-item {% if forloop.first %}active{% endif %}" data-index="{{ forloop.index0 }}">
+            {%- if section.settings.dash_active_image != blank and section.settings.dash_inactive_image != blank -%}
+              <img class="dash-active" src="{{ section.settings.dash_active_image | image_url: width: 80 }}" alt="Active Slide" style="width: {{ section.settings.dash_width }}px;">
+              <img class="dash-inactive" src="{{ section.settings.dash_inactive_image | image_url: width: 80 }}" alt="Inactive Slide" style="width: {{ section.settings.dash_width }}px;">
+            {%- else -%}
+              <span class="fallback-dash" style="width: {{ section.settings.dash_width }}px;"></span>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- Advanced Slider Auto-Play & Click Logic -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const sectionId = '{{ section.id }}';
+    const gridCards = document.querySelectorAll(`#fot-grid-${sectionId} .fot-card`);
+    const mainImages = document.querySelectorAll(`#fot-right-${sectionId} .fot-main-image`);
+    const bottomDescs = document.querySelectorAll(`#fot-desc-wrapper-${sectionId} .fot-bottom-box`);
+    const dashes = document.querySelectorAll(`#fot-dashes-${sectionId} .dash-item`);
+    
+    if (gridCards.length === 0) return;
+
+    let currentIndex = 0;
+    const totalSlides = gridCards.length;
+    let autoSlideInterval;
+    const isAutoPlay = {{ section.settings.enable_auto_slide | json }};
+    const intervalTime = {{ section.settings.slide_interval }} * 1000;
+
+    // Function to update UI Elements (Crossfade effect)
+    function changeSlide(index) {
+      // 1. Remove active class from all elements
+      gridCards.forEach(card => card.classList.remove('active'));
+      mainImages.forEach(img => img.classList.remove('active'));
+      bottomDescs.forEach(desc => desc.classList.remove('active'));
+      dashes.forEach(dash => dash.classList.remove('active'));
+
+      // 2. Safeguard Index
+      if (index >= totalSlides) index = 0;
+      if (index < 0) index = totalSlides - 1;
+      
+      // 3. Apply active class to the current target index
+      if(gridCards[index]) gridCards[index].classList.add('active');
+      if(mainImages[index]) mainImages[index].classList.add('active');
+      if(bottomDescs[index]) bottomDescs[index].classList.add('active');
+      if(dashes[index]) dashes[index].classList.add('active');
+
+      currentIndex = index;
+    }
+
+    // Function for Auto Slide
+    function nextSlide() {
+      changeSlide(currentIndex + 1);
+    }
+
+    // Start Timer
+    function startAutoSlide() {
+      if (isAutoPlay) {
+        clearInterval(autoSlideInterval);
+        autoSlideInterval = setInterval(nextSlide, intervalTime);
+      }
+    }
+
+    // Grid Card Clicks
+    gridCards.forEach((card, index) => {
+      card.addEventListener('click', () => {
+        changeSlide(index);
+        startAutoSlide(); // Reset timer on manual click
+      });
+    });
+
+    // Dash Line Clicks
+    dashes.forEach((dash, index) => {
+      dash.addEventListener('click', () => {
+        changeSlide(index);
+        startAutoSlide(); // Reset timer on manual click
+      });
+    });
+
+    // Initialize Slider
+    changeSlide(0);
+    startAutoSlide();
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Foundation of Trust",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Layout & Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_sides",
+      "label": "Side Padding (Desktop)",
+      "default": 120,
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding",
+      "default": 80,
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding",
+      "default": 80,
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "layout_gap",
+      "label": "Gap between Left & Right Column",
+      "default": 80,
+      "min": 20,
+      "max": 150,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Section Background Color",
+      "default": "#FAFAFA"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Main Title Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Paragraph Text Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Grid Item / Bottom Box Background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "card_text_color",
+      "label": "Grid Item Title Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "divider_color",
+      "label": "Divider Line Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "header",
+      "content": "Text Content (Left Side)"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Main Title",
+      "default": "OUR FOUNDATION OF TRUST"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Title Font Size (Desktop)",
+      "default": 74,
+      "min": 30,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "textarea",
+      "id": "desc_top",
+      "label": "Top Description",
+      "default": "Trust is earned through honesty, exceptional quality, and a deep dedication to our production."
+    },
+    {
+      "type": "range",
+      "id": "desc_top_size",
+      "label": "Top Description Font Size",
+      "default": 20,
+      "min": 14,
+      "max": 30,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_divider",
+      "label": "Show Divider Line",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "card_title_size",
+      "label": "Grid Title Font Size",
+      "default": 20,
+      "min": 12,
+      "max": 30,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "desc_bottom_size",
+      "label": "Bottom Description Font Size",
+      "default": 20,
+      "min": 12,
+      "max": 30,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Slider & Dashboard Dash Controls"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_auto_slide",
+      "label": "Enable Auto Slide",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "slide_interval",
+      "label": "Slide Interval Time (Seconds)",
+      "default": 5,
+      "min": 2,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "type": "image_picker",
+      "id": "dash_active_image",
+      "label": "Active Dash Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "dash_inactive_image",
+      "label": "Inactive Dash Image"
+    },
+    {
+      "type": "range",
+      "id": "dash_width",
+      "label": "Dash Width",
+      "default": 64,
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "Feature Slide Element",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Feature Title",
+          "default": "MINING CRYSTAL"
+        },
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Normal Icon"
+        },
+        {
+          "type": "image_picker",
+          "id": "icon_active",
+          "label": "Active Icon"
+        },
+        {
+          "type": "image_picker",
+          "id": "main_image",
+          "label": "Right Side Main Image"
+        },
+        {
+          "type": "textarea",
+          "id": "desc_bottom",
+          "label": "Bottom Description",
+          "default": "Each crystal is mindfully mined with care for the earth."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Foundation of Trust",
+      "blocks": [
+        { "type": "feature", "settings": { "title": "MINING CRYSTAL" } },
+        { "type": "feature", "settings": { "title": "AUTHENTIC CRYSTALS" } },
+        { "type": "feature", "settings": { "title": "PRECISION IN EVERY CUT" } },
+        { "type": "feature", "settings": { "title": "HANDMADE JEWELLERY" } },
+        { "type": "feature", "settings": { "title": "CUSTOMISE SIZING" } },
+        { "type": "feature", "settings": { "title": "QUALITY 18K METAL PLATED" } }
+      ]
+    }
+  ]
+}
+{% endschema %} {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{%- style -%}
+  /* =========================================================
+     Foundation of Trust - Pixel Perfect Auto Slider CSS
+     ========================================================= */
+  .custom-fot-{{ section.id }} {
+    --bg-color: {{ section.settings.bg_color }};
+    --title-color: {{ section.settings.title_color }};
+    --text-color: {{ section.settings.text_color }};
+    --card-bg: {{ section.settings.card_bg_color }};
+    --card-text-color: {{ section.settings.card_text_color }};
+    --divider-color: {{ section.settings.divider_color }};
+    
+    background-color: var(--bg-color);
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+    overflow: hidden;
+    max-width: 100vw;
+  }
+
+  .custom-fot-{{ section.id }} * {
+    box-sizing: border-box;
+  }
+
+  /* Using CSS Grid for STRICT 50/50 layout */
+  .custom-fot-{{ section.id }} .fot-container {
+    max-width: 1920px;
+    margin: 0 auto;
+    padding-left: {{ section.settings.padding_sides }}px;
+    padding-right: {{ section.settings.padding_sides }}px;
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Exactly equal halves */
+    align-items: stretch; /* THIS FORCES BOTH COLUMNS TO BE THE EXACT SAME HEIGHT */
+    gap: {{ section.settings.layout_gap }}px; /* Figma: 80px */
+  }
+
+  /* --- LEFT COLUMN CONTENT --- */
+  .custom-fot-{{ section.id }} .fot-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .custom-fot-{{ section.id }} .fot-title {
+    font-family: var(--font-heading-family, 'Libre Caslon Text', serif);
+    font-size: {{ section.settings.title_size }}px; /* Figma: 74px */
+    font-weight: 400;
+    line-height: 1.23; /* Figma: 123% */
+    color: var(--title-color);
+    margin: 0 0 20px 0;
+    text-transform: uppercase;
+  }
+
+  .custom-fot-{{ section.id }} .fot-desc-top {
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: {{ section.settings.desc_top_size }}px; /* Figma: 20px */
+    font-weight: 400;
+    line-height: 1.5; 
+    color: var(--text-color);
+    margin: 0 0 30px 0;
+  }
+
+  .custom-fot-{{ section.id }} .fot-divider {
+    border: none;
+    border-top: 1px solid var(--divider-color);
+    margin: 0 0 40px 0;
+    width: 100%;
+  }
+
+  /* Grid Layout for Features */
+  .custom-fot-{{ section.id }} .fot-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 40px; /* Row gap: 24px, Col gap: 40px */
+    margin-bottom: 40px;
+    width: 100%;
+    max-width: 800px;
+  }
+
+  /* Feature Card (Slide Trigger) */
+  .custom-fot-{{ section.id }} .fot-card {
+    background-color: var(--card-bg);
+    border-radius: 4px;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.06); 
+    display: flex;
+    align-items: center;
+    padding: 20px 24px; 
+    gap: 18px; 
+    width: 100%;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .custom-fot-{{ section.id }} .fot-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .custom-fot-{{ section.id }} .fot-icon-wrapper {
+    width: 84px; 
+    height: 84px; 
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  /* SVG & Image common styles */
+  .custom-fot-{{ section.id }} .fot-icon-wrapper img,
+  .custom-fot-{{ section.id }} .fot-icon-wrapper .custom-svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .custom-fot-{{ section.id }} .fot-icon-wrapper .custom-svg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .custom-fot-{{ section.id }} .fot-icon-wrapper .custom-svg svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Active/Inactive Icon Swap Logic */
+  .custom-fot-{{ section.id }} .icon-active { opacity: 0; visibility: hidden; }
+  .custom-fot-{{ section.id }} .icon-normal { opacity: 1; visibility: visible; }
+  
+  .custom-fot-{{ section.id }} .fot-card.active .icon-active { opacity: 1; visibility: visible; }
+  .custom-fot-{{ section.id }} .fot-card.active .icon-normal { opacity: 0; visibility: hidden; }
+
+  .custom-fot-{{ section.id }} .fot-card-title {
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: {{ section.settings.card_title_size }}px; /* Figma: 20px */
+    font-weight: 400;
+    line-height: 1.5; 
+    color: var(--card-text-color);
+    margin: 0;
+    text-transform: uppercase; 
+    max-width: 160px; 
+    text-decoration: underline;
+    text-decoration-color: transparent; /* Hidden by default */
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    transition: text-decoration-color 0.3s ease;
+  }
+
+  /* Active State (Underline from Figma) */
+  .custom-fot-{{ section.id }} .fot-card.active .fot-card-title {
+    text-decoration-color: var(--card-text-color);
+  }
+
+  /* Bottom Description Area (Stacked for Crossfade) */
+  .custom-fot-{{ section.id }} .fot-desc-bottom-wrapper {
+    display: grid;
+    width: 100%;
+    max-width: 800px;
+  }
+
+  .custom-fot-{{ section.id }} .fot-bottom-box {
+    grid-area: 1 / 1;
+    background-color: var(--card-bg);
+    border-radius: 4px;
+    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.04); 
+    padding: 20px 24px; 
+    width: 100%;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+  }
+
+  .custom-fot-{{ section.id }} .fot-bottom-box.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .custom-fot-{{ section.id }} .fot-desc-bottom {
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: {{ section.settings.desc_bottom_size }}px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-color);
+    margin: 0;
+  }
+
+  /* --- RIGHT COLUMN (MEDIA & DASHES) --- */
+  .custom-fot-{{ section.id }} .fot-right {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  /* Shared class for both image and video */
+  .custom-fot-{{ section.id }} .fot-main-media {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures media fills the space without distortion */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+  }
+
+  .custom-fot-{{ section.id }} .fot-main-media.active {
+    opacity: 1;
+    visibility: visible;
+    z-index: 2;
+  }
+
+  /* Slider Dash Controls with Progress Animation */
+  .custom-fot-{{ section.id }} .fot-dashes {
+    position: absolute;
+    bottom: 30px; 
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px; /* Figma gap */
+    width: 100%;
+    max-width: 800px;
+    padding: 0 40px; 
+    z-index: 10;
+  }
+
+  .custom-fot-{{ section.id }} .dash-item {
+    cursor: pointer;
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .custom-fot-{{ section.id }} .dash-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background: #FFFFFF;
+    border-radius: 4px;
+  }
+
+
+
+
+/* ─── MacBook Air 15 inch M2 (1441px - 1728px) ───────────────── */
+@media (min-width: 1441px) and (max-width: 1728px) {
+  .custom-fot-{{ section.id }} .fot-container { gap: 60px; }
+
+  .custom-fot-{{ section.id }} .fot-title { font-size: 58px; margin-bottom: 18px; }
+  .custom-fot-{{ section.id }} .fot-desc-top { font-size: 18px; margin-bottom: 25px; }
+  .custom-fot-{{ section.id }} .fot-divider { margin-bottom: 32px; }
+
+  .custom-fot-{{ section.id }} .fot-grid { gap: 20px 30px; margin-bottom: 32px; }
+  .custom-fot-{{ section.id }} .fot-card { padding: 18px 22px; gap: 15px; }
+  .custom-fot-{{ section.id }} .fot-icon-wrapper { width: 72px; height: 72px; }
+  .custom-fot-{{ section.id }} .fot-card-title { font-size: 17px; max-width: 150px; }
+
+  .custom-fot-{{ section.id }} .fot-bottom-box { padding: 20px 24px; }
+  .custom-fot-{{ section.id }} .fot-desc-bottom { font-size: 17px; }
+}
+
+  /* --- RESPONSIVE DESIGN (Pixel Perfect Scaling) --- */
+  
+  @media (max-width: 1440px) {
+    .custom-fot-{{ section.id }} .fot-container { gap: 50px; padding: 60px 80px; }
+    
+    .custom-fot-{{ section.id }} .fot-title { font-size: 48px; margin-bottom: 15px; }
+    .custom-fot-{{ section.id }} .fot-desc-top { font-size: 16px; margin-bottom: 20px; line-height: 1.5; }
+    .custom-fot-{{ section.id }} .fot-divider { margin-bottom: 25px; }
+    
+    .custom-fot-{{ section.id }} .fot-grid { gap: 16px 20px; margin-bottom: 25px; }
+    .custom-fot-{{ section.id }} .fot-card { padding: 15px 20px; gap: 12px; }
+    .custom-fot-{{ section.id }} .fot-icon-wrapper { width: 60px; height: 60px; }
+    .custom-fot-{{ section.id }} .fot-card-title { font-size: 15px; max-width: 140px; }
+    
+    .custom-fot-{{ section.id }} .fot-bottom-box { padding: 18px 22px; }
+    .custom-fot-{{ section.id }} .fot-desc-bottom { font-size: 15px; }
+  }
+  @media screen and (min-width: 769px) and (max-width: 1024px) {
+    
+  }
+
+  @media (max-width: 1024px) {
+    .custom-fot-{{ section.id }} .fot-container { 
+      grid-template-columns: 1fr; /* Switch to single column */
+      padding: 60px 40px;
+      gap: 40px;
+      align-items: start; /* Disable stretch for stacked view */
+    }
+    .custom-fot-{{ section.id }} .fot-left {
+      order: 2; /* Text moves to bottom */
+    }
+    .custom-fot-{{ section.id }} .fot-right {
+      order: 1; /* Image moves to top */
+      height: 700px; /* Specific height since we lost the left-column reference */
+    }
+  }
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .custom-fot-{{ section.id }} .fot-container {
+    padding: 60px 40px !important;
+  }
+  .custom-fot-{{ section.id }} .fot-right {
+      order: 1; /* Image moves to top */
+      height: 700px; /* Specific height since we lost the left-column reference */
+    }
+}
+  /* >>> MOBILE EXCLUSIVE FIX (Divider -> Media -> Grid) <<< */
+  @media (max-width: 768px) {
+
+    .custom-fot-{{ section.id }} .fot-card.active .fot-card-title{ 
+      text-decoration-thickness:1px;
+    }
+
+    .custom-fot-{{ section.id }} { padding-top: 40px; padding-bottom: 40px; overflow: hidden; width: 100vw; max-width: 100%; }
+    
+    /* Change container to Flex for exact reordering */
+    .custom-fot-{{ section.id }} .fot-container { 
+      display: flex !important;
+      flex-direction: column !important;
+      padding: 20px !important; 
+      gap: 0 !important; 
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+    
+    /* Open the left wrapper so its children can flow into the main flex column */
+    .custom-fot-{{ section.id }} .fot-left {
+      display: contents !important; 
+    }
+    
+    /* === EXACT SEQUENCE AS YOU REQUESTED === */
+    .custom-fot-{{ section.id }} .fot-title { order: 1 !important; margin-bottom: 15px; font-size: 28px; }
+    
+    .custom-fot-{{ section.id }} .fot-desc-top { order: 2 !important; margin-bottom: 20px; font-size: 14px; line-height: 1.5; }
+    
+    .custom-fot-{{ section.id }} .fot-divider { order: 3 !important; margin-bottom: 25px; }
+    
+    /* Media exactly BELOW the divider */
+    .custom-fot-{{ section.id }} .fot-right { 
+      order: 4 !important; 
+      height: 350px !important; 
+      width: 100% !important; 
+      margin-bottom: 25px !important; 
+    } 
+
+    /* Item Cards below Media */
+    .custom-fot-{{ section.id }} .fot-grid { 
+      order: 5 !important; 
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important; 
+      gap: 10px !important; 
+      margin-bottom: 25px !important; 
+      width: 100% !important; 
+    }
+    
+    /* Bottom Text */
+    .custom-fot-{{ section.id }} .fot-desc-bottom-wrapper { order: 6 !important; width: 100% !important; }
+
+    .custom-fot-{{ section.id }} .fot-dashes { bottom: 15px; padding: 0 20px; gap: 8px; }
+
+    .custom-fot-{{ section.id }} .fot-card { 
+      padding: 10px; 
+      gap: 8px;
+      width: 100%;
+    }
+    .custom-fot-{{ section.id }} .fot-icon-wrapper { width: 40px; height: 40px; }
+    .custom-fot-{{ section.id }} .fot-card-title { 
+      font-size: 12px; 
+      max-width: 100%; 
+      line-height: 1.3;
+      word-wrap: break-word; 
+    }
+    
+    .custom-fot-{{ section.id }} .fot-bottom-box { padding: 15px; width: 100%; box-sizing: border-box; }
+    .custom-fot-{{ section.id }} .fot-desc-bottom { font-size: 13px; line-height: 1.5; }
+  }
+{%- endstyle -%}
+
+<section class="custom-fot-{{ section.id }}" data-section-id="{{ section.id }}">
+  <div class="fot-container">
+    
+    <div class="fot-left">
+      {%- if section.settings.title != blank -%}
+        <h2 class="fot-title">{{ section.settings.title }}</h2>
+      {%- endif -%}
+
+      {%- if section.settings.desc_top != blank -%}
+        <p class="fot-desc-top">{{ section.settings.desc_top }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.show_divider -%}
+        <hr class="fot-divider">
+      {%- endif -%}
+
+      <div class="fot-grid" id="fot-grid-{{ section.id }}">
+        {%- for block in section.blocks -%}
+          <div class="fot-card {% if forloop.first %}active{% endif %}" data-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
+            <div class="fot-icon-wrapper">
+              
+              {%- if block.settings.icon_svg != blank -%}
+                <div class="custom-svg icon-normal">
+                  {{ block.settings.icon_svg }}
+                </div>
+              {%- elsif block.settings.icon != blank -%}
+                <img src="{{ block.settings.icon | image_url: width: 168 }}" alt="{{ block.settings.title | escape }}" class="icon-normal" loading="lazy">
+              {%- else -%}
+                {{ 'image' | placeholder_svg_tag: 'placeholder-svg icon-normal' }}
+              {%- endif -%}
+
+              {%- if block.settings.icon_active_svg != blank -%}
+                <div class="custom-svg icon-active">
+                  {{ block.settings.icon_active_svg }}
+                </div>
+              {%- elsif block.settings.icon_active != blank -%}
+                <img src="{{ block.settings.icon_active | image_url: width: 168 }}" alt="{{ block.settings.title | escape }} Active" class="icon-active" loading="lazy">
+              {%- elsif block.settings.icon_svg != blank -%}
+                <div class="custom-svg icon-active">
+                  {{ block.settings.icon_svg }}
+                </div>
+              {%- elsif block.settings.icon != blank -%}
+                <img src="{{ block.settings.icon | image_url: width: 168 }}" alt="{{ block.settings.title | escape }}" class="icon-active" loading="lazy">
+              {%- else -%}
+                 {{ 'image' | placeholder_svg_tag: 'placeholder-svg icon-active' }}
+              {%- endif -%}
+
+            </div>
+            {%- if block.settings.title != blank -%}
+              <h3 class="fot-card-title">{{ block.settings.title }}</h3>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      </div>
+
+      <div class="fot-desc-bottom-wrapper" id="fot-desc-wrapper-{{ section.id }}">
+        {%- for block in section.blocks -%}
+          <div class="fot-bottom-box {% if forloop.first %}active{% endif %}" data-index="{{ forloop.index0 }}">
+            <p class="fot-desc-bottom">{{ block.settings.desc_bottom }}</p>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+
+    <div class="fot-right" id="fot-right-{{ section.id }}">
+      
+      {%- for block in section.blocks -%}
+        {%- if block.settings.main_video != blank -%}
+          {%- capture video_replace_string -%}<video playsinline data-index="{{ forloop.index0 }}"{%- endcapture -%}
+          {{ block.settings.main_video | video_tag: class: 'fot-main-media fot-main-video', autoplay: false, loop: false, muted: true, controls: false, image_size: '1600x' | replace: '<video', video_replace_string }}
+        {%- elsif block.settings.main_image != blank -%}
+          <img src="{{ block.settings.main_image | image_url: width: 1600 }}" alt="{{ block.settings.title | escape }}" class="fot-main-media fot-main-image {% if forloop.first %}active{% endif %}" data-index="{{ forloop.index0 }}" loading="lazy">
+        {%- else -%}
+          {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg fot-main-media fot-main-image' | replace: '<svg', '<svg class="fot-main-media fot-main-image' | replace: '>', ' data-index="' | append: forloop.index0 | append: '">' }}
+        {%- endif -%}
+      {%- endfor -%}
+
+      <div class="fot-dashes" id="fot-dashes-{{ section.id }}">
+        {%- for block in section.blocks -%}
+          <div class="dash-item {% if forloop.first %}active{% endif %}" data-index="{{ forloop.index0 }}">
+             <div class="dash-progress"></div>
+          </div>
+        {%- endfor -%}
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const sectionId = '{{ section.id }}';
+    const gridCards = document.querySelectorAll(`#fot-grid-${sectionId} .fot-card`);
+    const mainMedia = document.querySelectorAll(`#fot-right-${sectionId} .fot-main-media`);
+    const bottomDescs = document.querySelectorAll(`#fot-desc-wrapper-${sectionId} .fot-bottom-box`);
+    const dashes = document.querySelectorAll(`#fot-dashes-${sectionId} .dash-item`);
+    
+    if (gridCards.length === 0) return;
+
+    let currentIndex = 0;
+    const totalSlides = gridCards.length;
+    let autoSlideTimeout; 
+    const isAutoPlay = {{ section.settings.enable_auto_slide | json }};
+    const intervalTime = {{ section.settings.slide_interval }} * 1000;
+
+    function changeSlide(index) {
+      clearTimeout(autoSlideTimeout);
+
+      gridCards.forEach(card => card.classList.remove('active'));
+      bottomDescs.forEach(desc => desc.classList.remove('active'));
+      dashes.forEach(dash => {
+        dash.classList.remove('active');
+        const progress = dash.querySelector('.dash-progress');
+        if (progress) {
+          progress.style.transition = 'none'; 
+          progress.style.width = '0%'; 
+        }
+      });
+      
+      mainMedia.forEach(media => {
+        media.classList.remove('active');
+        if (media.tagName === 'VIDEO') {
+          media.pause(); 
+        }
+      });
+
+      if (index >= totalSlides) index = 0;
+      if (index < 0) index = totalSlides - 1;
+      
+      if(gridCards[index]) gridCards[index].classList.add('active');
+      if(bottomDescs[index]) bottomDescs[index].classList.add('active');
+      if(dashes[index]) dashes[index].classList.add('active');
+
+      const activeMedia = mainMedia[index];
+      const activeProgress = dashes[index] ? dashes[index].querySelector('.dash-progress') : null;
+
+      if (activeProgress) void activeProgress.offsetWidth;
+
+      if (activeMedia) {
+        activeMedia.classList.add('active');
+
+        if (activeMedia.tagName === 'VIDEO') {
+          activeMedia.currentTime = 0; 
+          
+          activeMedia.play().then(() => {
+            let duration = (activeMedia.duration && !isNaN(activeMedia.duration)) ? activeMedia.duration * 1000 : intervalTime;
+            
+            if (activeProgress && isAutoPlay) {
+              activeProgress.style.transition = `width ${duration}ms linear`;
+              activeProgress.style.width = '100%';
+            }
+
+            if (isAutoPlay) {
+              activeMedia.onended = nextSlide;
+            }
+          }).catch((error) => {
+            if (isAutoPlay) {
+              if (activeProgress) {
+                 activeProgress.style.transition = `width ${intervalTime}ms linear`;
+                 activeProgress.style.width = '100%';
+              }
+              autoSlideTimeout = setTimeout(nextSlide, intervalTime);
+            }
+          });
+        } else {
+          if (isAutoPlay) {
+            if (activeProgress) {
+              activeProgress.style.transition = `width ${intervalTime}ms linear`;
+              activeProgress.style.width = '100%';
+            }
+            autoSlideTimeout = setTimeout(nextSlide, intervalTime);
+          }
+        }
+      }
+
+      currentIndex = index;
+    }
+
+    function nextSlide() {
+      changeSlide(currentIndex + 1);
+    }
+
+    gridCards.forEach((card, index) => {
+      card.addEventListener('click', () => {
+        changeSlide(index);
+      });
+    });
+
+    dashes.forEach((dash, index) => {
+      dash.addEventListener('click', () => {
+        changeSlide(index);
+      });
+    });
+
+    const firstMedia = mainMedia[0];
+    const firstProgress = dashes[0] ? dashes[0].querySelector('.dash-progress') : null;
+    if (firstProgress) void firstProgress.offsetWidth;
+
+    if (firstMedia && firstMedia.tagName === 'VIDEO') {
+        firstMedia.classList.add('active');
+        firstMedia.play().then(() => {
+            let duration = (firstMedia.duration && !isNaN(firstMedia.duration)) ? firstMedia.duration * 1000 : intervalTime;
+            if (firstProgress && isAutoPlay) {
+                firstProgress.style.transition = `width ${duration}ms linear`;
+                firstProgress.style.width = '100%';
+            }
+            if (isAutoPlay) firstMedia.onended = nextSlide;
+        }).catch(() => {
+            if (firstProgress && isAutoPlay) {
+                firstProgress.style.transition = `width ${intervalTime}ms linear`;
+                firstProgress.style.width = '100%';
+            }
+            if (isAutoPlay) autoSlideTimeout = setTimeout(nextSlide, intervalTime);
+        });
+    } else {
+        if (firstProgress && isAutoPlay) {
+            firstProgress.style.transition = `width ${intervalTime}ms linear`;
+            firstProgress.style.width = '100%';
+        }
+        if (isAutoPlay) {
+            autoSlideTimeout = setTimeout(nextSlide, intervalTime);
+        }
+    }
+
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Foundation of Trust",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Layout & Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_sides",
+      "label": "Side Padding (Desktop)",
+      "default": 120,
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding",
+      "default": 80,
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding",
+      "default": 80,
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "layout_gap",
+      "label": "Gap between Left & Right Column",
+      "default": 80,
+      "min": 20,
+      "max": 150,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Section Background Color",
+      "default": "#FAFAFA"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Main Title Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Paragraph Text Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Grid Item / Bottom Box Background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "card_text_color",
+      "label": "Grid Item Title Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "divider_color",
+      "label": "Divider Line Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "header",
+      "content": "Text Content (Left Side)"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Main Title",
+      "default": "OUR FOUNDATION OF TRUST"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Title Font Size (Desktop)",
+      "default": 74,
+      "min": 30,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "textarea",
+      "id": "desc_top",
+      "label": "Top Description",
+      "default": "Trust is earned through honesty, exceptional quality, and a deep dedication to our production."
+    },
+    {
+      "type": "range",
+      "id": "desc_top_size",
+      "label": "Top Description Font Size",
+      "default": 20,
+      "min": 14,
+      "max": 30,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_divider",
+      "label": "Show Divider Line",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "card_title_size",
+      "label": "Grid Title Font Size",
+      "default": 20,
+      "min": 12,
+      "max": 30,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "desc_bottom_size",
+      "label": "Bottom Description Font Size",
+      "default": 20,
+      "min": 12,
+      "max": 30,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Slider Controls"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_auto_slide",
+      "label": "Enable Auto Slide",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "slide_interval",
+      "label": "Slide Interval Time (Seconds - For Images)",
+      "default": 5,
+      "min": 2,
+      "max": 10,
+      "step": 1
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "Feature Slide Element",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Feature Title",
+          "default": "MINING CRYSTAL"
+        },
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Normal Icon (Image)"
+        },
+        {
+          "type": "html",
+          "id": "icon_svg",
+          "label": "Normal Icon (Custom SVG Code)",
+          "info": "Overrides normal image if provided"
+        },
+        {
+          "type": "image_picker",
+          "id": "icon_active",
+          "label": "Active Icon (Image)"
+        },
+        {
+          "type": "html",
+          "id": "icon_active_svg",
+          "label": "Active Icon (Custom SVG Code)",
+          "info": "Overrides active image if provided"
+        },
+        {
+          "type": "video",
+          "id": "main_video",
+          "label": "Right Side Main Video (Overrides Image)"
+        },
+        {
+          "type": "image_picker",
+          "id": "main_image",
+          "label": "Right Side Main Image"
+        },
+        {
+          "type": "textarea",
+          "id": "desc_bottom",
+          "label": "Bottom Description",
+          "default": "Each crystal is mindfully mined with care for the earth."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Foundation of Trust",
+      "blocks": [
+        { "type": "feature", "settings": { "title": "MINING CRYSTAL" } },
+        { "type": "feature", "settings": { "title": "AUTHENTIC CRYSTALS" } },
+        { "type": "feature", "settings": { "title": "PRECISION IN EVERY CUT" } },
+        { "type": "feature", "settings": { "title": "HANDMADE JEWELLERY" } },
+        { "type": "feature", "settings": { "title": "CUSTOMISE SIZING" } },
+        { "type": "feature", "settings": { "title": "QUALITY 18K METAL PLATED" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

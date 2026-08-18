@@ -1,0 +1,1343 @@
+
+
+
+
+{%- style -%}
+      @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Jost:wght@300;400;500;600&display=swap');
+
+      .cr-section-{{ section.id }} {
+        padding: 60px 120px;
+        max-width: 1920px;
+        margin: 0 auto;
+      }
+
+      /* ─── Heading ─── */
+      .cr-heading {
+        text-align: center;
+        font-family: 'Libre Caslon Text', serif;
+        font-size: 56px;
+        font-weight: 500;
+        text-transform: uppercase;
+        color: #111;
+        margin: 0 0 40px;
+      }
+
+      /* ─── Summary Bar ─── */
+      .cr-summary-bar {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 0;
+        border: none; /* Removed outer border */
+        border-radius: 0;
+        background: transparent; /* Removed white background */
+        margin-bottom: 40px;
+        overflow: visible;
+      }
+
+      .cr-summary-bar > div {
+        padding: 28px 30px;
+        background: #fff; /* Added white background to individual blocks */
+      }
+
+      .cr-summary-bar > div + div {
+        border-left: 2px solid #2c2c2c;
+      }
+
+      /* Block 1 – Rating stats */
+      .cr-stat-block {}
+
+      .cr-stat-top {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .cr-avg-score {
+        font-size: 20px;
+        font-weight: 500;
+        color: #2c2c2c;
+        line-height: 1;
+      }
+
+      .cr-stars-inline {
+        display: flex;
+        gap: 2px;
+        color: #2c2c2c;
+        align-items: center;
+      }
+
+      /* ── Summary star wrapper – supports full / half / empty ── */
+      .cr-sum-star {
+        position: relative;
+        width: 18px;
+        height: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      /* Base (empty) layer */
+      .cr-sum-star .cr-sum-star-base,
+      .cr-sum-star .cr-sum-star-fill {
+        position: absolute;
+        top: 0; left: 0;
+        width: 18px;
+        height: 18px;
+        object-fit: contain;
+        display: block;
+      }
+      .cr-sum-star svg {
+        position: absolute;
+        top: 0; left: 0;
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+      }
+
+      /* Empty layer – dimmed */
+      .cr-sum-star .cr-sum-star-base { opacity: 0.18; }
+
+      /* Full fill */
+      .cr-sum-star.full .cr-sum-star-fill  { opacity: 1; clip-path: none; }
+      .cr-sum-star.full .cr-sum-star-base  { display: none; }
+
+      /* Half fill – clip left 50% */
+      .cr-sum-star.half .cr-sum-star-fill  { opacity: 1; clip-path: inset(0 50% 0 0); }
+
+      /* Empty – only base shows */
+      .cr-sum-star.empty .cr-sum-star-fill { display: none; }
+
+      /* SVG variants */
+      .cr-sum-star.full  .cr-sum-star-svg-fill { opacity: 1; clip-path: none; }
+      .cr-sum-star.full  .cr-sum-star-svg-base { opacity: 0.18; display: none; }
+      .cr-sum-star.half  .cr-sum-star-svg-fill { opacity: 1; clip-path: inset(0 50% 0 0); }
+      .cr-sum-star.half  .cr-sum-star-svg-base { opacity: 0.18; }
+      .cr-sum-star.empty .cr-sum-star-svg-fill { display: none; }
+      .cr-sum-star.empty .cr-sum-star-svg-base { opacity: 0.18; }
+
+      .cr-stars-inline svg { width: 18px; height: 18px; fill: currentColor; }
+
+      .cr-stat-label {
+        font-size: 20px;
+        font-weight: 500;
+        color: #2c2c2c;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 16px;
+      }
+
+      /* Rating bars */
+      .cr-bars { display: flex; flex-direction: column; gap: 6px; }
+      .cr-bar-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        color: #555;
+      }
+      .cr-bar-label { width: 8px; text-align: right; font-weight: 500; }
+      .cr-bar-track {
+        flex: 1;
+        height: 2px;
+        background: #e0e0e0;
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .cr-bar-fill {
+        height: 100%;
+        background: #111;
+        border-radius: 2px;
+        transition: width 0.6s ease;
+      }
+      .cr-bar-pct { width: 32px; text-align: right; font-size: 12px; }
+
+      /* Block 2 – Search + Sort + Filters */
+      .cr-filter-block {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        justify-content: space-between;
+      }
+
+      .cr-search-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 18px;
+        margin-bottom: 18px;
+      }
+      .cr-search-row svg { width: 16px; height: 16px; color: #999; flex-shrink: 0; }
+      .cr-search-input {
+        border: none;
+        outline: none;
+        background: transparent;
+        font-size: 14px;
+        color: #333;
+        width: 100%;
+        letter-spacing: 0.5px;
+      }
+      .cr-search-input::placeholder { color: #bbb; }
+
+      /* ─── Custom Sort Dropdown ─── */
+      .cr-sort-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 18px;
+        margin-bottom: 18px;
+        position: relative;
+        cursor: pointer;
+        user-select: none;
+      }
+      .cr-sort-row svg { width: 16px; height: 16px; color: #2c2c2c; flex-shrink: 0; }
+
+      .cr-sort-label {
+        font-size: 16px;
+        font-weight:400;
+        color: #2c2c2c;
+        text-transform:uppercase;
+        flex: 1;
+      }
+
+      .cr-sort-dropdown {
+        position: absolute;
+        top: calc(100% + 1px);
+        left: -30px;
+        right: -30px;
+        background: #fff;
+        border: 1px solid #eee;
+        border-top: none;
+        z-index: 99999;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+        overflow: hidden;
+        max-height: 0;
+        opacity: 0;
+        pointer-events: none;
+        transition: max-height 0.28s ease, opacity 0.2s ease;
+      }
+
+      .cr-sort-dropdown.open {
+        max-height: 300px;
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .cr-sort-option {
+        padding: 8px 16px;
+        font-size: 16px;
+        color: #2c2c2c;
+        cursor: pointer;
+        text-transform:uppercase;
+        background: #fff;
+        transition: background 0.15s, color 0.15s;
+        border-bottom: 1px solid #f5f5f5;
+      }
+
+      .cr-sort-option:last-child {
+        border-bottom: none;
+      }
+
+      .cr-sort-option:hover {
+        background: #f5f5f5;
+        color: #111;
+      }
+
+      .cr-sort-option.selected {
+        color: #111;
+        font-weight: 600;
+        background: #fafafa;
+      }
+
+      .cr-filter-pills {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .cr-filter-pills-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #555;
+        letter-spacing: 0.5px;
+        margin-right: 4px;
+      }
+      .cr-pill {
+        padding: 6px 14px;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        font-size: 13px;
+        color: #444;
+        cursor: pointer;
+        background: transparent;
+        letter-spacing: 0.3px;
+        transition: all 0.2s;
+      }
+      .cr-pill:hover, .cr-pill.active {
+        background: #111;
+        color: #fff;
+        border-color: #111;
+      }
+
+      /* Block 3 – Premium Featured Review Carousel */
+      .cr-premium-block {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        background: #fff; /* Changed from #fafaf9 to #fff */
+        border: none; /* Removed border */
+        padding: 28px 30px; /* Adjusted padding to match other blocks */
+      }
+
+      .cr-premium-label {
+        
+        font-size: 16px;
+        text-transform: uppercase;
+       
+        color: #2c2c2c;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      .cr-premium-label::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: #e9ddd4;
+      }
+
+      .cr-premium-carousel {
+        position: relative;
+        height: 120px; /* Fixed height to prevent jumping */
+      }
+
+      .cr-premium-slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+        pointer-events: none;
+      }
+
+      .cr-premium-slide.active {
+        opacity: 1;
+        pointer-events: auto;
+        position: relative;
+      }
+
+      .cr-premium-stars {
+        display: flex;
+        gap: 2px;
+        color: #111;
+        margin-bottom: 8px;
+      }
+      .cr-premium-stars svg { width: 14px; height: 14px; fill: currentColor; }
+
+      .cr-premium-text {
+       
+        font-size: 18px;
+        font-style: italic;
+        color: #2c2c2c;
+        
+        margin-bottom: 12px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .cr-premium-author {
+        font-size: 12px;
+        font-weight: 500;
+        color: #555;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      /* ─── Review Grid ─── */
+      .cr-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+
+      .cr-card {
+        display: flex;
+        gap: 20px;
+        background: #fafaf9;
+        padding: 28px;
+        align-items: center;
+        border: 1px solid #eee;
+        min-height: 200px;
+      }
+
+      /* Octagon avatar */
+      .cr-avatar-wrap {
+        flex-shrink: 0;
+        width: 150px;
+        display: flex;
+        align-items: flex-start;
+      }
+      .cr-avatar-img {
+        width:100%;
+        height: 150px;
+        object-fit: cover;
+        clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+        background: #222;
+        display: block;
+      }
+      .cr-avatar-initial {
+        width: 150px;
+        height: 150px;
+        clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+        background: #2c2c2c;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 72px;
+        text-transform:uppercase;
+        font-weight: 400;
+        color: #fff;
+        letter-spacing: 0;
+      }
+
+      .cr-card-right {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .cr-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .cr-card-stars {
+        display: flex;
+        gap: 2px;
+        color: #111;
+        align-items: center;
+      }
+      .cr-card-stars svg { width: 16px; height: 16px; fill: currentColor; }
+      .cr-card-stars .cr-card-star-icon {
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+        display: block;
+      }
+
+      .cr-card-date {
+        font-size: 14px;
+        color: #2c2c2c;
+        font-weight:400;
+        letter-spacing: 0.5px;
+      }
+
+      .cr-card-title {
+        font-size: 17px;
+        font-weight: 500;
+        color: #111;
+        margin: 0 0 8px;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        display:none;
+      }
+
+      .cr-card-body {
+        font-size: 15px;
+        font-weight:400;
+        line-height: 1.7;
+        text-transform:uppercase;
+        color: #2c2c2c;
+        margin: 25px 0;
+        letter-spacing: 0.2px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .cr-card-footer {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .cr-diamond-icon {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        color: #555;
+      }
+
+      .cr-author {
+        font-size: 15px;
+        font-weight: 500;
+        color: #2c2c2c;
+        text-transform: uppercase;
+      }
+
+      .cr-verified {
+        font-size: 11px;
+        color: #947863;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-weight: 400;
+      }
+      .cr-verified svg { width: 11px; height: 11px; }
+
+      .cr-card-product {
+        margin-top: 12px;
+        font-size: 12px;
+        color: #888;
+        border-top: 1px solid #f0f0f0;
+        padding-top: 10px;
+        letter-spacing: 0.3px;
+        display:none;
+      }
+      .cr-card-product a { color: #111; font-weight: 600; text-decoration: none; }
+
+      /* ─── Empty / Loading states ─── */
+      .cr-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 80px 20px;
+        color: #999;
+      }
+      .cr-state-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 16px;
+        opacity: 0.3;
+      }
+      .cr-state-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #555;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+      .cr-state-sub {
+        font-size: 14px;
+        color: #aaa;
+        letter-spacing: 0.5px;
+      }
+
+      /* ─── Pagination ─── */
+      .cr-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        margin-top: 40px;
+      }
+
+      .cr-page-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 4px;
+        color: #111;
+        font-size: 20px;
+        cursor: pointer;
+        border-radius: 0;
+        transition: all 0.2s;
+        text-decoration: none;
+        line-height: 1;
+        user-select: none;
+        background: transparent;
+        border: none;
+      }
+
+      .cr-page-btn:hover:not(:disabled):not(.cr-page-ellipsis) {
+        color: #111;
+      }
+
+      .cr-page-btn.active {
+        text-decoration:underline;
+        color: #111;
+      }
+
+      .cr-page-ellipsis {
+        border-color: transparent;
+        background: transparent;
+        cursor: default;
+        color: #111;
+      }
+
+      .cr-page-arrow {
+        font-size: 16px;
+        line-height: 1;
+      }
+
+      .cr-page-arrow-img {
+        width: 16px;
+        height: 16px;
+        object-fit: contain;
+        display: block;
+      }
+
+      /* ─── Responsive ─── */
+      @media (min-width: 1440px) and (max-width: 1710px){
+        .cr-heading { font-size: 46px;  }
+      }
+      @media (max-width: 1100px) {
+        .cr-section-{{ section.id }} { padding: 40px 30px; }
+        .cr-summary-bar { grid-template-columns: 1fr; }
+        .cr-summary-bar > div + div { border-left: none; border-top: 1px solid #ddd; }
+      }
+
+     @media (max-width: 768px) {
+        .cr-heading { font-size: 28px;  }
+        .cr-grid { grid-template-columns: 1fr; }
+
+        .cr-card {
+           flex-direction: column;
+          align-items: center;
+          padding: 20px;
+          gap: 0;
+          text-align: center;
+        }
+
+
+        
+
+        .cr-card-right {
+          width: 100%;
+          order: 1;
+        }
+       .cr-card-top {
+          flex-direction: column-reverse;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+                  margin: 12px 0;
+        }
+
+        .cr-card-date {
+          order: -1;
+        }
+
+        .cr-card-stars {
+          order: 1;
+        }
+
+        .cr-card-body {
+          margin: 12px 0;
+        }
+
+       .cr-card-footer {
+          margin-bottom: 0;
+          justify-content: center;
+        }
+
+       
+
+       /* Octagon avatar */
+      .cr-avatar-wrap {
+        flex-shrink: 0;
+        width: 150px;
+        display: flex;
+        align-items: flex-start;
+        
+      .cr-avatar-img {
+        width:100%;
+        height: 150px;
+        object-fit: cover;
+        clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+        background: #222;
+        display: block;
+      }
+      .cr-avatar-initial {
+        width: 150px;
+        height: 150px;
+        clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+        background: #2c2c2c;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 72px;
+        font-weight: 400;
+        color: #fff;
+        letter-spacing: 0;
+      }
+
+        .cr-pagination { gap: 3px; }
+        .cr-page-btn { min-width: 32px; height: 32px; font-size: 13px; }
+      }
+{%- endstyle -%}
+
+{%- liquid
+  assign diamond_svg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 9 12 22 2 9 12 2"/></svg>'
+
+  assign default_star_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 0L10.1607 5.83927L16 8L10.1607 10.1607L8 16L5.83927 10.1607L0 8L5.83927 5.83927L8 0Z" fill="#2C2C2C"/></svg>'
+
+  assign summary_star_image = section.settings.summary_star_icon
+  assign card_star_image = section.settings.card_star_icon
+
+  assign prev_nav_image = section.settings.prev_nav_icon
+  assign next_nav_image = section.settings.next_nav_icon
+-%}
+
+<section class="cr-section-{{ section.id }}">
+  <h2 class="cr-heading">{{ section.settings.heading }}</h2>
+
+  <!-- Summary Bar -->
+  <div class="cr-summary-bar">
+    <!-- Block 1: Rating Stats -->
+    <div class="cr-stat-block">
+      <div class="cr-stat-top">
+        <div class="cr-stars-inline" id="cr-summary-stars-{{ section.id }}">
+          <!-- populated by JS after avg is calculated -->
+        </div>
+        <span class="cr-avg-score" id="cr-avg-{{ section.id }}">--</span>
+
+        <span style="font-size:20px;font-weight:500;color:#2c2c2c;margin-left:4px;" id="cr-out-{{ section.id }}"
+          >out of 5</span
+        >
+      </div>
+      <div class="cr-stat-label">Based on <span id="cr-count-{{ section.id }}">0</span> Reviews</div>
+      <div class="cr-bars" id="cr-bars-{{ section.id }}">
+        {%- for i in (1..5) -%}
+          {%- assign rev_num = 6 | minus: i -%}
+          <div class="cr-bar-row">
+            <span class="cr-bar-label">{{ rev_num }}</span>
+            <div class="cr-bar-track">
+              <div class="cr-bar-fill" id="cr-bar-{{ section.id }}-{{ rev_num }}" style="width:0%"></div>
+            </div>
+            <span class="cr-bar-pct" id="cr-pct-{{ section.id }}-{{ rev_num }}">0%</span>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+
+    <!-- Block 2: Search + Sort + Filter -->
+    <div class="cr-filter-block">
+      <div class="cr-search-row">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input class="cr-search-input" type="text" placeholder="Search reviews" id="cr-search-{{ section.id }}">
+      </div>
+
+      <!-- Custom Sort Dropdown -->
+      <div class="cr-sort-row" id="cr-sort-wrap-{{ section.id }}">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          width="20"
+          height="16"
+          viewBox="0 0 20 16"
+          fill="none"
+        >
+          <rect x="20" width="16" height="20" transform="rotate(90 20 0)" fill="url(#pattern0_8419_20770)"/>
+          <defs>
+          <pattern id="pattern0_8419_20770" patternContentUnits="objectBoundingBox" width="1" height="1">
+          <use xlink:href="#image0_8419_20770" transform="matrix(0.00477099 0 0 0.00381679 -0.0271947 0)"/>
+          </pattern>
+          <image id="image0_8419_20770" width="221" height="262" preserveAspectRatio="none" xlink:href="data:image/png;base64,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s5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOlaoPk8gLdG52jBs5wZcOlaIPk8gLdG52jBs5wZcOla"/>
+          </defs>
+        </svg>
+        <span class="cr-sort-label" id="cr-sort-label-{{ section.id }}">Sort: Highest Rating</span>
+        <div class="cr-sort-dropdown" id="cr-sort-dropdown-{{ section.id }}">
+          <div class="cr-sort-option selected" data-value="highest">Sort: Highest Rating</div>
+          <div class="cr-sort-option" data-value="lowest">Sort: Lowest Rating</div>
+          <div class="cr-sort-option" data-value="newest">Sort: Newest First</div>
+          <div class="cr-sort-option" data-value="oldest">Sort: Oldest First</div>
+        </div>
+      </div>
+
+      <div class="cr-filter-pills">
+        <span class="cr-filter-pills-label">Filters:</span>
+        <button class="cr-pill active" data-rating="all" id="cr-pill-all-{{ section.id }}">All</button>
+        <button class="cr-pill" data-rating="5">5 Stars</button>
+        <button class="cr-pill" data-rating="4">4 Stars</button>
+        <button class="cr-pill" data-rating="3">3 Stars</button>
+        <button class="cr-pill" data-rating="2">2 Stars</button>
+        <button class="cr-pill" data-rating="1">1 Star</button>
+      </div>
+    </div>
+
+    <!-- Block 3: Premium Feature (Replaced CTA/Write Review) -->
+    <div class="cr-premium-block">
+      <div class="cr-premium-label">Community Favorites</div>
+      <div class="cr-premium-carousel" id="cr-premium-carousel-{{ section.id }}">
+        <!-- Injected via JS from top 5-star reviews -->
+        <div class="cr-premium-slide active">
+           <div class="cr-premium-stars">
+             <svg viewBox="0 0 16 16"><path d="M8 0L10.1607 5.83927L16 8L10.1607 10.1607L8 16L5.83927 10.1607L0 8L5.83927 5.83927L8 0Z" fill="#111"/></svg>
+             <svg viewBox="0 0 16 16"><path d="M8 0L10.1607 5.83927L16 8L10.1607 10.1607L8 16L5.83927 10.1607L0 8L5.83927 5.83927L8 0Z" fill="#111"/></svg>
+             <svg viewBox="0 0 16 16"><path d="M8 0L10.1607 5.83927L16 8L10.1607 10.1607L8 16L5.83927 10.1607L0 8L5.83927 5.83927L8 0Z" fill="#111"/></svg>
+             <svg viewBox="0 0 16 16"><path d="M8 0L10.1607 5.83927L16 8L10.1607 10.1607L8 16L5.83927 10.1607L0 8L5.83927 5.83927L8 0Z" fill="#111"/></svg>
+             <svg viewBox="0 0 16 16"><path d="M8 0L10.1607 5.83927L16 8L10.1607 10.1607L8 16L5.83927 10.1607L0 8L5.83927 5.83927L8 0Z" fill="#111"/></svg>
+           </div>
+           <div class="cr-premium-text">"Loading community highlights..."</div>
+           <div class="cr-premium-author">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /summary bar -->
+
+  <!-- Review Grid -->
+  <div class="cr-grid" id="cr-grid-{{ section.id }}">
+    <div class="cr-state">
+      <div class="cr-state-title" style="font-size:18px;color:#bbb;">Loading reviews…</div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="cr-pagination" id="cr-pagination-{{ section.id }}" style="display:none;"></div>
+</section>
+
+<script>
+  (function () {
+    var SID = '{{ section.id }}';
+    var SHOP = 't2wxuv-tm.myshopify.com';
+    var API = 'https://s-brillet.proud-glade-d7b6.workers.dev/?shop_domain=' + SHOP;
+
+    var PER_PAGE = 6;
+    var currentPage = 1;
+    var filteredReviews = [];
+
+    var grid = document.getElementById('cr-grid-' + SID);
+    var paginationEl = document.getElementById('cr-pagination-' + SID);
+    var searchInput = document.getElementById('cr-search-' + SID);
+    var avgEl = document.getElementById('cr-avg-' + SID);
+    var countEl = document.getElementById('cr-count-' + SID);
+    var pills = document.querySelectorAll('.cr-section-' + SID + ' .cr-pill');
+    var premiumCarousel = document.getElementById('cr-premium-carousel-' + SID);
+
+    var allReviews = [];
+    var activeRating = 'all';
+    var activeSearch = '';
+    var activeSort = 'highest';
+    var premiumCarouselTimer = null;
+
+    // ── Icon config passed from Liquid ──
+    var CARD_STAR_IMG_URL    = '{{ card_star_image | image_url: width: 32 }}';
+    var USE_CARD_STAR_IMG    = {{ card_star_image  | json }};
+    var SUMMARY_STAR_IMG_URL = '{{ summary_star_image | image_url: width: 36 }}';
+    var USE_SUMMARY_STAR_IMG = {{ summary_star_image  | json }};
+
+    var PREV_NAV_IMG_URL = '{{ prev_nav_image | image_url: width: 32 }}';
+    var USE_PREV_NAV_IMG = {{ prev_nav_image | json }};
+    var NEXT_NAV_IMG_URL = '{{ next_nav_image | image_url: width: 32 }}';
+    var USE_NEXT_NAV_IMG = {{ next_nav_image | json }};
+
+    var DEFAULT_STAR_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
+    var FOUR_POINT_STAR = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 0L10.1607 5.83927L16 8L10.1607 10.1607L8 16L5.83927 10.1607L0 8L5.83927 5.83927L8 0Z" fill="#111"/></svg>';
+
+    function buildSummaryStars(avg) {
+      var starsEl = document.getElementById('cr-summary-stars-' + SID);
+      if (!starsEl) return;
+      var html = '';
+      for (var i = 1; i <= 5; i++) {
+        var type = 'empty';
+        if (avg >= i) {
+          type = 'full';
+        } else if (avg >= i - 0.5) {
+          type = 'half';
+        }
+        if (USE_SUMMARY_STAR_IMG && SUMMARY_STAR_IMG_URL) {
+          html +=
+            '<span class="cr-sum-star ' + type + '">' +
+            '<img src="' + SUMMARY_STAR_IMG_URL + '" alt="" class="cr-sum-star-base" width="18" height="18">' +
+            '<img src="' + SUMMARY_STAR_IMG_URL + '" alt="" class="cr-sum-star-fill" width="18" height="18">' +
+            '</span>';
+        } else {
+          html +=
+            '<span class="cr-sum-star ' + type + '">' +
+            '<svg class="cr-sum-star-svg-base" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>' +
+            '<svg class="cr-sum-star-svg-fill" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>' +
+            '</span>';
+        }
+      }
+      starsEl.innerHTML = html;
+    }
+
+    var DIAMOND_SVG =
+              `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="24" viewBox="0 0 28 24" fill="none">
+                  <path d="M18.7637 0.5L25.5 7.23633L25.5 16.7637L18.7637 23.5L9.23633 23.5L2.5 16.7637L2.5 7.23633L9.23633 0.5L18.7637 0.5Z" fill="white" stroke="url(#paint0_linear_8384_14850)"/>
+                  <path d="M14 7.74902C14.7533 9.69674 16.3024 11.2465 18.25 12C16.3027 12.7534 14.7534 14.3027 14 16.25C13.2465 14.3024 11.6967 12.7533 9.74902 12C11.697 11.2466 13.2466 9.69703 14 7.74902Z" stroke="url(#paint1_linear_8384_14850)"/>
+                  <defs>
+                    <linearGradient id="paint0_linear_8384_14850" x1="14" y1="0" x2="14" y2="24" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#947863"/>
+                      <stop offset="0.5" stop-color="#E9DDD4"/>
+                      <stop offset="1" stop-color="#947863"/>
+                    </linearGradient>
+                    <linearGradient id="paint1_linear_8384_14850" x1="14" y1="4.5" x2="14" y2="19.5" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#947863"/>
+                      <stop offset="0.5" stop-color="#E9DDD4"/>
+                      <stop offset="1" stop-color="#947863"/>
+                    </linearGradient>
+                  </defs>
+              </svg>`;
+    var CHECK_SVG =     
+             `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 22C12 22 4 18 4 11V5L12 2L20 5V11C20 18 12 22 12 22Z" 
+                      stroke="currentColor" 
+                      stroke-width="1.5" 
+                      stroke-linecap="round" 
+                      stroke-linejoin="round"/>
+                <path d="M8 12L11 15L16 9" 
+                      stroke="currentColor" 
+                      stroke-width="2" 
+                      stroke-linecap="round" 
+                      stroke-linejoin="round"/>
+              </svg>`;
+
+    function buildCardStar(active) {
+      if (USE_CARD_STAR_IMG && CARD_STAR_IMG_URL) {
+        return '<img src="' + CARD_STAR_IMG_URL + '" alt="star" class="cr-card-star-icon" style="opacity:' + (active ? '1' : '0.2') + '" width="16" height="16">';
+      }
+      return '<span style="opacity:' + (active ? '1' : '0.2') + '">' + DEFAULT_STAR_SVG + '</span>';
+    }
+
+    function buildStats(reviews) {
+      if (!reviews.length) return;
+      var sum = 0,
+        counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+      reviews.forEach(function (r) {
+        var s = r.rating || 5;
+        sum += s;
+        counts[s] = (counts[s] || 0) + 1;
+      });
+      var avg = sum / reviews.length;
+      avgEl.textContent = avg.toFixed(1);
+      countEl.textContent = reviews.length;
+      buildSummaryStars(avg);
+      [1, 2, 3, 4, 5].forEach(function (n) {
+        var pct = Math.round(((counts[n] || 0) / reviews.length) * 100);
+        var fill = document.getElementById('cr-bar-' + SID + '-' + n);
+        var pctEl = document.getElementById('cr-pct-' + SID + '-' + n);
+        if (fill) fill.style.width = pct + '%';
+        if (pctEl) pctEl.textContent = pct + '%';
+      });
+    }
+
+    // Function to populate the premium block with top reviews
+    function initPremiumCarousel(reviews) {
+      if (!premiumCarousel) return;
+      
+      // Filter for 5-star reviews with text
+      var topReviews = reviews.filter(function(r) {
+        return (r.rating === 5) && r.body && r.body.length > 20;
+      });
+      
+      // Fallback if no 5-star with text, just get ones with text
+      if (topReviews.length === 0) {
+          topReviews = reviews.filter(function(r) { return r.body && r.body.length > 10; });
+      }
+
+      if (topReviews.length === 0) {
+          premiumCarousel.innerHTML = '<div class="cr-premium-slide active"><div class="cr-premium-text">No highlights available yet.</div></div>';
+          return;
+      }
+
+      // Pick up to 5 random good reviews
+      var shuffled = topReviews.sort(() => 0.5 - Math.random());
+      var selected = shuffled.slice(0, 5);
+
+      var html = '';
+      selected.forEach(function(r, index) {
+        var activeClass = index === 0 ? ' active' : '';
+        var stars = FOUR_POINT_STAR + FOUR_POINT_STAR + FOUR_POINT_STAR + FOUR_POINT_STAR + FOUR_POINT_STAR;
+        var author = r.reviewer ? r.reviewer.name : 'Verified Customer';
+        
+        // Truncate if too long to fit nicely
+        var bodyText = r.body;
+        if(bodyText.length > 120) { bodyText = bodyText.substring(0, 117) + '...'; }
+
+        html += '<div class="cr-premium-slide' + activeClass + '">' +
+                  '<div class="cr-premium-stars">' + stars + '</div>' +
+                  '<div class="cr-premium-text">"' + bodyText + '"</div>' +
+                  '<div class="cr-premium-author">— ' + author + '</div>' +
+                '</div>';
+      });
+
+      premiumCarousel.innerHTML = html;
+
+      // Setup rotation interval
+      if(selected.length > 1) {
+          var slides = premiumCarousel.querySelectorAll('.cr-premium-slide');
+          var currentIndex = 0;
+          
+          if(premiumCarouselTimer) clearInterval(premiumCarouselTimer);
+          
+          premiumCarouselTimer = setInterval(function() {
+              slides[currentIndex].classList.remove('active');
+              currentIndex = (currentIndex + 1) % slides.length;
+              slides[currentIndex].classList.add('active');
+          }, 5000); // Rotate every 5 seconds
+      }
+    }
+
+    function render(reviews) {
+      if (!reviews.length) {
+        grid.innerHTML =
+          '<div class="cr-state">' +
+          '<svg class="cr-state-icon" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' +
+          '<div class="cr-state-title">No Reviews Yet</div>' +
+          '<div class="cr-state-sub">Be the first to share your experience.</div>' +
+          '</div>';
+        paginationEl.style.display = 'none';
+        return;
+      }
+
+      var totalPages = Math.ceil(reviews.length / PER_PAGE);
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      var start = (currentPage - 1) * PER_PAGE;
+      var pageItems = reviews.slice(start, start + PER_PAGE);
+
+      var html = '';
+      pageItems.forEach(function (r) {
+        var imgSrc =
+          r.pictures && r.pictures[0] && r.pictures[0].urls && r.pictures[0].urls.original
+            ? r.pictures[0].urls.original
+            : '';
+
+        var avatarHtml = imgSrc
+          ? '<img src="' + imgSrc + '" alt="" class="cr-avatar-img" loading="lazy">'
+          : '<div class="cr-avatar-initial">' +
+            (r.reviewer && r.reviewer.name ? r.reviewer.name.charAt(0).toUpperCase() : 'A') +
+            '</div>';
+
+        var rating = r.rating || 5;
+        var starsHtml = '';
+        for (var i = 0; i < 5; i++) {
+          starsHtml += buildCardStar(i < rating);
+        }
+
+        var dateStr = r.created_at ? r.created_at.split('T')[0].replace(/-/g, '/') : '';
+        var titleHtml = r.title ? '<div class="cr-card-title">' + r.title + '</div>' : '';
+        var verifiedHtml =
+          r.verified && r.verified !== 'nothing'
+            ? '<span class="cr-verified">' + CHECK_SVG + ' Verified buyer</span>'
+            : '';
+        var productHtml = r.product_title
+          ? '<div class="cr-card-product">Reviewed on: <a href="/products/' +
+            (r.product_handle || '') +
+            '">' +
+            r.product_title +
+            '</a></div>'
+          : '';
+
+        html +=
+          '<div class="cr-card">' +
+          '<div class="cr-avatar-wrap">' +
+          avatarHtml +
+          '</div>' +
+          '<div class="cr-card-right">' +
+          '<div class="cr-card-top">' +
+          '<div class="cr-card-stars">' +
+          starsHtml +
+          '</div>' +
+          '<span class="cr-card-date">' +
+          dateStr +
+          '</span>' +
+          '</div>' +
+          titleHtml +
+          '<p class="cr-card-body">' +
+          (r.body || '') +
+          '</p>' +
+          '<div class="cr-card-footer">' +
+          DIAMOND_SVG +
+          '<span class="cr-author">' +
+          (r.reviewer ? r.reviewer.name : 'Anonymous') +
+          '</span>' +
+          verifiedHtml +
+          '</div>' +
+          productHtml +
+          '</div>' +
+          '</div>';
+      });
+      grid.innerHTML = html;
+
+      renderPagination(totalPages);
+    }
+
+    function buildPrevArrow() {
+      if (USE_PREV_NAV_IMG && PREV_NAV_IMG_URL) {
+        return '<img src="' + PREV_NAV_IMG_URL + '" alt="Previous" class="cr-page-arrow-img">';
+      }
+      return '<span class="cr-page-arrow">&#8249;</span>';
+    }
+
+    function buildNextArrow() {
+      if (USE_NEXT_NAV_IMG && NEXT_NAV_IMG_URL) {
+        return '<img src="' + NEXT_NAV_IMG_URL + '" alt="Next" class="cr-page-arrow-img">';
+      }
+      return '<span class="cr-page-arrow">&#8250;</span>';
+    }
+
+    function renderPagination(totalPages) {
+      if (totalPages <= 1) {
+        paginationEl.style.display = 'none';
+        return;
+      }
+      paginationEl.style.display = 'flex';
+
+      var html = '';
+
+      html += '<button class="cr-page-btn cr-page-prev" ' +
+        (currentPage === 1 ? 'disabled' : '') +
+        ' data-page="' + (currentPage - 1) + '">' +
+        buildPrevArrow() +
+        '</button>';
+
+      var tokens = buildPageTokens(totalPages, currentPage);
+
+      tokens.forEach(function(token) {
+        if (token === '…') {
+          html += '<button class="cr-page-btn cr-page-ellipsis" disabled>…</button>';
+        } else {
+          html += '<button class="cr-page-btn' + (token === currentPage ? ' active' : '') + '" data-page="' + token + '">' + token + '</button>';
+        }
+      });
+
+      html += '<button class="cr-page-btn cr-page-next" ' +
+        (currentPage === totalPages ? 'disabled' : '') +
+        ' data-page="' + (currentPage + 1) + '">' +
+        buildNextArrow() +
+        '</button>';
+
+      paginationEl.innerHTML = html;
+
+      paginationEl.querySelectorAll('.cr-page-btn[data-page]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          if (btn.disabled || btn.classList.contains('cr-page-ellipsis')) return;
+          var page = parseInt(btn.getAttribute('data-page'), 10);
+          if (!isNaN(page) && page !== currentPage) {
+            currentPage = page;
+            render(filteredReviews);
+            grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+    }
+
+    function buildPageTokens(total, current) {
+      if (total <= 7) {
+        var all = [];
+        for (var i = 1; i <= total; i++) all.push(i);
+        return all;
+      }
+
+      var tokens = [];
+      var showSet = {};
+
+      [1, total, current, current - 1, current + 1].forEach(function(p) {
+        if (p >= 1 && p <= total) showSet[p] = true;
+      });
+
+      var pages = Object.keys(showSet).map(Number).sort(function(a, b) { return a - b; });
+
+      for (var idx = 0; idx < pages.length; idx++) {
+        if (idx > 0 && pages[idx] - pages[idx - 1] > 1) {
+          tokens.push('…');
+        }
+        tokens.push(pages[idx]);
+      }
+
+      return tokens;
+    }
+
+    function applyFilters() {
+      var list = allReviews.slice();
+
+      if (activeRating !== 'all') {
+        list = list.filter(function (r) {
+          return r.rating == activeRating;
+        });
+      }
+      if (activeSearch) {
+        var q = activeSearch.toLowerCase();
+        list = list.filter(function (r) {
+          return (
+            ((r.body || '') + ' ' + (r.title || '') + ' ' + (r.reviewer ? r.reviewer.name : ''))
+              .toLowerCase()
+              .indexOf(q) > -1
+          );
+        });
+      }
+
+      list.sort(function (a, b) {
+        if (activeSort === 'highest') return (b.rating || 5) - (a.rating || 5);
+        if (activeSort === 'lowest') return (a.rating || 5) - (b.rating || 5);
+        if (activeSort === 'newest') return new Date(b.created_at) - new Date(a.created_at);
+        if (activeSort === 'oldest') return new Date(a.created_at) - new Date(b.created_at);
+        return 0;
+      });
+
+      currentPage = 1;
+      filteredReviews = list;
+      render(filteredReviews);
+    }
+
+    // Custom Sort Dropdown Logic
+    (function() {
+      var wrap = document.getElementById('cr-sort-wrap-' + SID);
+      var label = document.getElementById('cr-sort-label-' + SID);
+      var dropdown = document.getElementById('cr-sort-dropdown-' + SID);
+      if (!wrap || !label || !dropdown) return;
+
+      var options = dropdown.querySelectorAll('.cr-sort-option');
+
+      wrap.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dropdown.classList.toggle('open');
+      });
+
+      options.forEach(function(opt) {
+        opt.addEventListener('click', function(e) {
+          e.stopPropagation();
+          options.forEach(function(o) { o.classList.remove('selected'); });
+          opt.classList.add('selected');
+          activeSort = opt.getAttribute('data-value');
+          label.textContent = opt.textContent;
+          dropdown.classList.remove('open');
+          applyFilters();
+        });
+      });
+
+      document.addEventListener('click', function() {
+        dropdown.classList.remove('open');
+      });
+    })();
+
+    // Pills
+    pills.forEach(function (pill) {
+      pill.addEventListener('click', function () {
+        pills.forEach(function (p) {
+          p.classList.remove('active');
+        });
+        pill.classList.add('active');
+        activeRating = pill.dataset.rating;
+        applyFilters();
+      });
+    });
+
+    // Search
+    if (searchInput) {
+      searchInput.addEventListener('input', function () {
+        activeSearch = searchInput.value.trim();
+        applyFilters();
+      });
+    }
+
+    // Fetch all shop reviews
+    fetch(API)
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (data) {
+        var reviews = [];
+        if (data && Array.isArray(data.reviews) && data.reviews.length > 0) {
+          reviews = data.reviews;
+        } else if (Array.isArray(data) && data.length > 0) {
+          reviews = data;
+        }
+
+        if (reviews.length > 0) {
+          allReviews = reviews;
+          buildStats(allReviews);
+          initPremiumCarousel(allReviews);
+          applyFilters();
+        } else {
+          grid.innerHTML =
+            '<div class="cr-state">' +
+            '<svg class="cr-state-icon" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' +
+            '<div class="cr-state-title">No Reviews Yet</div>' +
+            '<div class="cr-state-sub">Be the first to share your experience.</div>' +
+            '</div>';
+        }
+      })
+      .catch(function () {
+        grid.innerHTML =
+          '<div class="cr-state"><div class="cr-state-title">Unable to load reviews</div><div class="cr-state-sub">Please try again later.</div></div>';
+      });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "All Reviews (Shop-Wide)",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section Heading",
+      "default": "All Customer Reviews"
+    },
+    {
+      "type": "header",
+      "content": "Star Icons"
+    },
+    {
+      "type": "paragraph",
+      "content": "Upload custom star icons below. If left empty, the default built-in star SVG will be used."
+    },
+    {
+      "type": "image_picker",
+      "id": "summary_star_icon",
+      "label": "Summary Bar Star Icon",
+      "info": "Used next to the average score (e.g. '4.7 ★ out of 5'). Recommended size: 36×36px."
+    },
+    {
+      "type": "image_picker",
+      "id": "card_star_icon",
+      "label": "Review Card Star Icon",
+      "info": "Used on each individual review card for the star rating. Recommended size: 32×32px."
+    },
+    {
+      "type": "header",
+      "content": "Pagination Icons"
+    },
+    {
+      "type": "paragraph",
+      "content": "Upload custom icons for the Previous and Next pagination buttons. If left empty, the default arrow characters (‹ ›) will be used."
+    },
+    {
+      "type": "image_picker",
+      "id": "prev_nav_icon",
+      "label": "Previous Page Icon",
+      "info": "Icon for the ‹ (previous page) button. Recommended size: 32×32px."
+    },
+    {
+      "type": "image_picker",
+      "id": "next_nav_icon",
+      "label": "Next Page Icon",
+      "info": "Icon for the › (next page) button. Recommended size: 32×32px."
+    }
+  ],
+  "presets": [
+    {
+      "name": "All Reviews (Shop-Wide)"
+    }
+  ]
+}
+{% endschema %}

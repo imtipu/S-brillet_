@@ -1,0 +1,234 @@
+{% liquid
+  assign enable_rtl = settings.enable_rtl
+  assign language_support_rtl = settings.language_support_rtl
+  if enable_rtl and language_support_rtl != blank
+    assign shop_locale = localization.language.iso_code
+    assign language_support_rtl_list = language_support_rtl | split: ','
+    assign is_rtl = language_support_rtl_list | where: shop_locale
+    if is_rtl.size > 0
+      assign enable_rtl = true
+    else
+      assign enable_rtl = false
+    endif
+  endif
+
+  assign body_classes = 'template-' | append: template.name | append: ' ' | append: template.suffix | append: ' m-gradient m-color-' | append: settings.default_color_scheme
+  if settings.page_transition
+    assign body_classes = body_classes | append: ' m:overflow-hidden'
+  endif
+  if template.suffix == 'about-us'
+    assign body_classes = body_classes | append: ' sf__page-about'
+  endif
+%}
+<!doctype html>
+<html
+  class="no-js {% if settings.page_transition %} m:overflow-hidden{% endif %}"
+  lang="{{ request.locale.iso_code }}"
+  data-template="{{ template.name }}"
+  {% if enable_rtl %}
+    dir="rtl"
+  {% endif %}
+>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0">
+    <meta name="theme-color" content="{{ settings.color_primary }}">
+    <link rel="canonical" href="{{ canonical_url }}">
+    <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+
+    {%- if settings.use_favicon == true and settings.favicon != blank -%}
+      <link rel="shortcut icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+    {%- endif -%}
+
+    <title>
+      {{- page_title -}}
+      {%- if current_tags -%}
+        {%- assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags -}}
+      {%- endif -%}
+      {%- if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif -%}
+      {%- if template == 'password' -%}
+        {{- shop.name -}}
+      {%- else -%}
+        {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
+      {%- endif -%}
+    </title>
+
+    {%- if page_description -%}
+      <meta name="description" content="{{ page_description | escape }}">
+    {%- endif -%}
+
+    {%- liquid
+      render 'social-meta-tags'
+      render 'font-face'
+      render 'critical-css'
+
+      echo 'main.css' | asset_url | stylesheet_tag: preload: true
+
+      render 'style-tags'
+    -%}
+
+    <script src="{{ 'vendor.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'theme-global.js' | asset_url }}" defer="defer"></script>
+    {%- if settings.animations != 'none' -%}
+      <script src="{{ 'animations.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+    {%- if request.design_mode -%}
+      <script src="{{ 'theme-editor.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+
+    {{ content_for_header }}
+
+    <script>
+      document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+      if (Shopify.designMode) {
+        document.documentElement.classList.add('shopify-design-mode');
+      }
+    </script>
+    {% render 'theme-data' %}
+    {% render 'custom-code-head' %}
+  </head>
+
+  <body
+    id="m-theme"
+    class="{{ body_classes }}"
+    {% if template.name == 'product' %}
+      data-product-id="{{ product.id }}"
+    {% endif %}
+  >
+    {%- liquid
+      render 'page-transition'
+      render 'scroll-top-button'
+      sections 'header-group'
+    -%}
+
+    <main role="main" id="MainContent">
+      {{ content_for_layout }}
+    </main>
+
+    {%- liquid
+      sections 'footer-group'
+      render 'script-tags'
+      render 'cookie-banner'
+      render 'custom-code-body'
+    -%}
+
+    <script src="{{ 'product-quick-view.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'wishlist.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'compare-product.js' | asset_url }}" defer="defer"></script>
+
+    {%- if settings.enable_predictive_search -%}
+      <script src="{{ 'predictive-search.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+
+    {%- if linklists['gift-wrapping'].links != blank
+      and linklists['gift-wrapping'].links.first.type == 'product_link'
+    -%}
+      <script src="{{ 'gift-wrapping.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+
+    {%- if settings.show_swatch_option -%}
+      <script src="{{ 'product-card-swatch.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+
+    {%- if settings.enable_cart_drawer and template != 'cart' -%}
+      {% render 'cart-drawer' %}
+    {%- endif -%}
+
+    {% render 'custom-country-popup' %}
+
+
+
+    <!-- Custom Product Card Swatch Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (!window.customPcardScriptLoaded) {
+    window.customPcardScriptLoaded = true;
+
+    function formatMoney(cents, currency) {
+      if (!cents && cents !== 0) return '';
+      var amount = (parseInt(cents, 10) / 100).toFixed(2);
+      if (window.Shopify && window.Shopify.formatMoney) {
+        return window.Shopify.formatMoney(cents, window.theme && window.theme.moneyFormat ? window.theme.moneyFormat : '{{amount}}');
+      }
+      var symbols = { USD: '$', EUR: '€', GBP: '£', CAD: 'CA$', AUD: 'A$' };
+      var sym = symbols[currency] || (currency + ' ');
+      return sym + amount;
+    }
+
+    document.addEventListener('click', function(e) {
+      var sw = e.target.closest('.m-pcard-swatch-wrap');
+      if (!sw) return; 
+
+      e.preventDefault();
+
+      var swatchWrap = sw.closest('[data-pcard-swatches]');
+      var card = sw.closest('[data-product-id]');
+      if (!swatchWrap || !card) return;
+
+      var swatches = swatchWrap.querySelectorAll('.m-pcard-swatch-wrap');
+      swatches.forEach(function(s) { s.classList.remove('is-selected'); });
+      sw.classList.add('is-selected');
+
+      var idx = parseInt(sw.getAttribute('data-swatch-index'), 10);
+      var metaUrls = [];
+      var hoverMetaUrls = [];
+      
+      try {
+        metaUrls = JSON.parse(swatchWrap.getAttribute('data-meta-imgs') || '[]');
+        hoverMetaUrls = JSON.parse(swatchWrap.getAttribute('data-meta-hover-imgs') || '[]');
+      } catch (err) {}
+
+      var metaUrl = metaUrls[idx] || '';
+      var hoverMetaUrl = hoverMetaUrls[idx] || '';
+      
+      var swatchImg = sw.querySelector('.m-pcard-swatch-img');
+      var mainImgWrap = card.querySelector('[data-pcard-main-img]');
+      var originalHoverSrc = mainImgWrap ? mainImgWrap.querySelector('img').src : '';
+
+      var hoverImgEl = card.querySelector('[data-pcard-hover-img-el]');
+      var secondImgEl = card.querySelector('[data-pcard-second-img-el]');
+
+      if (hoverImgEl) {
+        hoverImgEl.src = metaUrl || (swatchImg ? swatchImg.src : originalHoverSrc);
+        hoverImgEl.srcset = '';
+      }
+      if (secondImgEl) {
+        secondImgEl.src = hoverMetaUrl || originalHoverSrc;
+        secondImgEl.srcset = '';
+      }
+
+      var priceEl = card.querySelector('[data-pcard-price]');
+      if (priceEl) {
+        var price = sw.getAttribute('data-price');
+        var comparePrice = sw.getAttribute('data-compare-price');
+        var currency = sw.getAttribute('data-currency') || '';
+
+        if (price) {
+          var priceFormatted = formatMoney(price, currency);
+          var comparePriceFormatted = (comparePrice && parseInt(comparePrice, 10) > parseInt(price, 10)) 
+                                      ? formatMoney(comparePrice, currency) : '';
+          
+          var discountBadgeHTML = '';
+          if (comparePriceFormatted) {
+            var discountPct = Math.round((parseInt(comparePrice, 10) - parseInt(price, 10)) / parseInt(comparePrice, 10) * 100);
+            discountBadgeHTML = '<span class="m-pcard-discount-badge" data-pcard-discount-badge>SAVE ' + discountPct + '%</span>';
+          }
+
+          if (comparePriceFormatted) {
+            priceEl.innerHTML = '<span class="m-price">' + priceFormatted + '</span>' +
+                                '<span class="m-price m-price-item--regular">' + comparePriceFormatted + '</span>' +
+                                discountBadgeHTML;
+          } else {
+            priceEl.innerHTML = '<span class="m-price">' + priceFormatted + '</span>';
+          }
+        }
+      }
+    });
+  }
+});
+</script>
+
+  </body>
+</html>

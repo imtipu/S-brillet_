@@ -1,0 +1,2308 @@
+<script src="{{ 'cart.js' | asset_url }}" defer="defer"></script>
+
+{{ 'component-quantity-popover.css' | asset_url | stylesheet_tag }}
+
+<script src="{{ 'quantity-popover.js' | asset_url }}" defer="defer"></script>
+
+{% liquid
+  if linklists['gift-wrapping'].links != blank and linklists['gift-wrapping'].links.first.type == 'product_link'
+    assign gift_wrapping = linklists['gift-wrapping'].links.first
+
+    assign gift_wrap_id = gift_wrapping.object.variants.first.id
+
+    assign gift_wraps_in_cart = 0
+
+    for item in cart.items
+      if item.id == gift_wrap_id
+        assign gift_wraps_in_cart = item.quantity
+
+        break
+      endif
+    endfor
+
+    assign items_in_cart = cart.item_count | minus: gift_wraps_in_cart
+  endif
+%}
+
+<style>
+    /* Ensure the form takes up the full height of its flexible parent */
+#cart-drawer-form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1;
+}
+
+/* Center the contents of the empty cart container */
+.empty-cart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 40vh;
+  width: 100%;
+  text-align: center;
+  color: #2c2c2c;
+  font-size:16px;
+  font-weight:300;
+  text-transform:uppercase;
+}
+
+.empty-cart p {
+}
+    /* Ensure the wrapper handles borders correctly */
+  .m-cart-item--drawer__wrapper.m\:flex.m\:items-start.cs-responsive-gap {
+      border: 1px solid transparent !important;
+      padding: 10px;
+      border-radius: 8px;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+  }
+
+  .m-cart-item--drawer__wrapper.m\:flex.m\:items-start.cs-responsive-gap:hover {
+      border: 1px solid #f0f0f0 !important;
+  }
+    /* =========================================
+       SPLIT CART DRAWER LAYOUT
+    ========================================= */
+    .m-cart-drawer__text{
+      max-width:500px;
+      font-size:16px;
+      font-weight:500;
+      color: #7c7c7cff;
+      font-family: 'Inter', sans-serif;
+    }
+  .m-cart-drawer__text-content{
+       color: #151515ff !important;
+    }
+    #MinimogCartDrawer {
+      --drawer-width: 50vw;
+      --drawer-max-width: 100vw;
+    }
+    .custom-split-cart-layout {
+      display: flex;
+      height: 100%;
+      width: 100%;
+      background: #ffffff;
+      box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+    }
+    .m-cart__overlay {
+      backdrop-filter: blur(8px);
+      background-color: rgba(0, 0, 0, 0.3);
+      transition: opacity 0.4s ease;
+    }
+
+    /* LEFT COLUMN */
+    .custom-cart-left {
+      width: 40%;
+      min-width: 300px !important;
+      background-color: #FDFBF7;
+      padding: 10px;
+      border-right: 1px dashed #E5E7EB;
+      overflow-y: auto;
+    }
+    .custom-cart-left-header {
+      position: sticky;
+      top: -10px;
+      margin: -10px -10px 0 -10px;
+      padding: 10px 10px 0 10px;
+      background-color: #FDFBF7;
+      z-index: 20;
+    }
+    .custom-cart-left-title {
+      font-family: 'Libre Caslon Text', Georgia, Times, serif;
+      font-size: 24px;
+      line-height: 1.2;
+      color: #2C2C2C;
+      margin: 0 0 15px;
+      text-transform: uppercase;
+      font-weight: 400;
+    }
+    .custom-cart-left-subtitle {
+      position: relative;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #4A4A4A;
+      margin-bottom: 0px;
+      padding-bottom: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .custom-hamburger-icon path {
+      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .custom-cart-left-subtitle:hover .custom-hamburger-icon .line-top { transform: translateY(4px); opacity: 0; }
+    .custom-cart-left-subtitle:hover .custom-hamburger-icon .line-middle { transform: scaleX(0.7); }
+    .custom-cart-left-subtitle:hover .custom-hamburger-icon .line-bottom { transform: translateY(-4px); opacity: 0; }
+    .custom-subtitle-text {
+      display: inline-block;
+      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .custom-cart-left-subtitle:hover .custom-subtitle-text { transform: translateX(16px); }
+    .custom-collection-dropdown {
+      display: none;
+      position: absolute;
+      top: 46px;
+      left: 0px;
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid #E5E7EB;
+      box-shadow: 0px 10px 30px rgba(0,0,0,0.1);
+      z-index: 999;
+      min-width: 220px;
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
+      border-radius: 4px;
+    }
+    .custom-cart-left-subtitle:hover .custom-collection-dropdown { display: block; }
+    .custom-collection-list { min-height: 100vh; margin: 0; padding: 0 0 12px 0; list-style: none; }
+    .custom-menu-category {
+      font-family: 'Inter', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: #2c2c2c;
+      padding: 32px 16px 1px 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      pointer-events: none;
+    }
+    .custom-collection-list .custom-menu-category:first-child { padding-top: 16px; }
+    .custom-collection-list li {
+      font-family: 'Inter', sans-serif;
+      font-size: 18px;
+      font-weight: 400;
+      color: #2c2c2c;
+      padding: 2px 10px;
+      margin: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out, transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      cursor: pointer;
+    }
+    .custom-collection-list li:hover { background-color: #f1efed; color: #2c2c2c; transform: translateX(16px); }
+    .custom-cart-recs { display: flex; flex-direction: column; gap: 24px; background: #fff; box-shadow: 2px -2px 14px -3px #e5e4e3; padding: 20px; }
+
+    /* RIGHT COLUMN */
+    .custom-cart-right {
+      width: 60%;
+      min-width: 550px !important;
+      position: relative;
+      padding: 0px;
+      overflow: hidden;
+    }
+
+    /* =========================================
+       RIGHT SIDE LOADING OVERLAY
+    ========================================= */
+    .cs-right-loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* =========================================
+       BRAND SPINNER
+    ========================================= */
+    @keyframes pageTransitionSpinner {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .cs-brand-spinner {
+      position: relative;
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .cs-brand-spinner--sm {
+      width: 32px;
+      height: 32px;
+    }
+
+    .cs-brand-spinner__ring {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      animation: pageTransitionSpinner 1.5s linear infinite;
+      transform-origin: center center;
+    }
+    .cs-brand-spinner__ring svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .cs-brand-spinner__logo {
+      position: absolute;
+      width: 55%;
+      height: 55%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cs-brand-spinner__logo svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .cs-checkout-button {
+      height: 44px;
+      background: #2C2C2C;
+      color: #FFFFFF;
+      font-size: 14px;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: opacity 0.3s;
+      border: none !important;
+      box-shadow: none !important;
+      outline: none !important;
+      cursor: pointer;
+    }
+    .cs-checkout-button:hover{
+      background: linear-gradient(135deg, #947863, #E9DDD4, #947863) !important;
+      color: #FFFF;
+  }
+    .cs-cart-heading {
+      font-family: 'Libre Caslon Text', Georgia, Times, serif;
+      font-size: 40px;
+      line-height: 1.2;
+      color: #2C2C2C;
+      margin: 0 0 15px;
+      text-transform: uppercase;
+      font-weight: 400;
+    }
+    .m-cart-drawer__close {
+      position: absolute;
+      top: 23px !important;
+      right: 5px;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    /* MOBILE */
+    @media screen and (max-width: 768px) {
+      #MinimogCartDrawer { --drawer-width: 100vw; }
+      .custom-split-cart-layout { box-shadow: none; }
+      .custom-cart-left { display: none !important; }
+      .custom-cart-right { width: 100% !important; min-width: 100% !important; padding: 5px; }
+      .cs-cart-heading { font-size: 28px; }
+    }
+
+    /* =========================================
+       INLINE EDIT PANEL
+    ========================================= */
+    .cs-inline-edit-panel {
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+      overflow: hidden;
+    }
+    .cs-inline-edit-panel.is-open { transform: translateX(0); }
+    .cs-iep-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 18px 12px 0 20px;
+      flex-shrink: 0;
+    }
+    .cs-iep-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      color: rgba(44,44,44,0.5);
+      display: flex;
+      align-items: center;
+    }
+    .cs-iep-close:hover { color: #2c2c2c; }
+    .cs-iep-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 24px 20px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      flex-shrink: 0;
+    }
+    .cs-iep-header-img {
+      width: 72px;
+      height: 72px;
+      flex-shrink: 0;
+      object-fit: contain;
+      background: #fcfcfc;
+      border: 1px solid #f0f0f0;
+      border-radius: 4px;
+      padding: 4px;
+    }
+    .cs-iep-header-info { display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+    .cs-iep-title { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 500; color: #2c2c2c; margin: 0; line-height: 1.3; }
+    .cs-iep-price-row { display: flex; align-items: center; gap: 8px; }
+    .cs-iep-price { font-size: 15px; font-weight: 500; color: #2c2c2c; }
+    .cs-iep-compare { font-size: 13px; color: #999; text-decoration: line-through; }
+    .cs-iep-link { font-size: 13px; color: #2c2c2c; text-decoration: underline; text-underline-offset: 2px; }
+    .cs-iep-body { flex: 1; overflow-y: auto; padding: 24px 24px 16px 24px; }
+    .cs-iep-option-group { margin-bottom: 24px; }
+    .cs-iep-option-label { font-family: 'Inter', sans-serif; font-size: 14px; color: #4a4a4a; margin-bottom: 12px; line-height: 1; }
+    .cs-iep-option-label strong { color: #2c2c2c; font-weight: 500; }
+    .cs-iep-footer { flex-shrink: 0; padding: 14px 24px 20px 24px; border-top: 1px solid #f0f0f0; background: #fff; }
+    .cs-iep-delivery {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* =========================================
+       PREMIUM SBS-VNODE VARIANT UI
+    ========================================= */
+    .m-edit-swatch-list,
+    .m-edit-size-list { display: flex; gap: 10px; flex-wrap: wrap; }
+    .m-edit-vnode {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px !important;
+      height: 38px !important;
+      filter: drop-shadow(0px 0px 2px rgba(0,0,0,0.10)) !important;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      outline: none !important;
+      cursor: pointer;
+      margin: 0;
+      flex-shrink: 0;
+      transform: none !important;
+      scale: 1 !important;
+      transition: none !important;
+    }
+    .m-edit-vnode[data-option-type="gemstone"] { width: 66px !important; height: 38px !important; }
+    .m-edit-vgap {
+      background: #FFFFFF !important;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      clip-path: polygon(6px 1px, 32px 1px, 37px 6px, 37px 32px, 32px 37px, 6px 37px, 1px 32px, 1px 6px) !important;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+    .m-edit-vnode[data-option-type="gemstone"] .m-edit-vgap {
+      clip-path: polygon(6px 1px, 60px 1px, 65px 6px, 65px 32px, 60px 37px, 6px 37px, 1px 32px, 1px 6px) !important;
+    }
+    .m-edit-vsvg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 4;
+      overflow: visible;
+      opacity: 0 !important;
+      transition: opacity 0.2s ease !important;
+    }
+    .m-edit-vsvg polygon { stroke: #E8E2DC !important; stroke-width: 1.25px !important; }
+    .m-edit-vnode:hover .m-edit-vsvg,
+    .m-edit-vnode.is-selected .m-edit-vsvg { opacity: 1 !important; }
+    .m-edit-vnode[data-option-type="button"] .m-edit-vlabel {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Inter', sans-serif !important;
+      font-size: 12px !important; font-weight: 700 !important; color: #2C2C2C !important;
+      margin: 0; text-align: center;
+    }
+    .m-edit-vnode[data-option-type="image"] .m-edit-vlabel,
+    .m-edit-vnode[data-option-type="color"] .m-edit-vlabel {
+      display: block; width: 100%; height: 100%; font-size: 0; margin: 0;
+      background-size: 22px 22px !important;
+      background-repeat: no-repeat !important;
+      background-position: center !important;
+    }
+    .m-edit-vnode[data-option-type="gemstone"] .m-edit-vlabel {
+      display: block; width: 100%; height: 100%; margin: 0; padding: 0;
+    }
+    .m-edit-vnode[data-option-type="gemstone"] img {
+      width: 100%; height: 100%; object-fit: cover; pointer-events: none; transform: none !important;
+    }
+    .m-edit-vnode.unavailable { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+
+    /* =========================================
+       INLINE REMOVE CONFIRMATION CARD
+    ========================================= */
+    .m-cart-item { position: relative; }
+
+    .cs-remove-inline-overlay {
+      position: absolute;
+      inset: -5px;
+      background: #ffffff;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 16px;
+      border: 1.5px solid #e8e2dc;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+      border-radius: 4px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .cs-remove-inline-overlay.is-visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .cs-rm-close {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: none; border: none; cursor: pointer;
+      color: #b3b3b3; padding: 2px; line-height: 1;
+      display: flex; align-items: center;
+    }
+    .cs-rm-close:hover { color: #2c2c2c; }
+
+    .cs-rm-content {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .cs-rm-img-wrap {
+      width: 68px; height: 68px;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .cs-rm-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: contain; display: block;
+      clip-path: polygon(
+        18% 0%, 82% 0%,
+        100% 18%, 100% 82%,
+        82% 100%, 18% 100%,
+        0% 82%, 0% 18%
+      );
+    }
+    .cs-rm-oct-border {
+      position: absolute;
+      inset: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 2;
+    }
+
+    .cs-rm-text h3 {
+      margin: 0 0 4px;
+      font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; color: #2c2c2c; line-height: 1.3;
+    }
+    .cs-rm-text p {
+      margin: 0;
+      font-family: 'Inter', sans-serif; font-size: 12px; color: #888; line-height: 1.4;
+    }
+
+    .cs-rm-actions { display: flex; gap: 8px; }
+    .cs-rm-btn {
+      flex: 1;
+      padding: 9px 0;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      cursor: pointer;
+      border: 1px solid #2c2c2c;
+      text-align: center;
+      transition: all 0.2s ease;
+      border-radius: 2px;
+      background: none;
+    }
+    .cs-rm-btn-primary { background: #2c2c2c; color: #fff; }
+    .cs-rm-btn-primary:hover { background: #444; }
+    .cs-rm-btn-secondary { background: #fff; color: #2c2c2c; }
+    .cs-rm-btn-secondary:hover { background: #f5f5f5; }
+
+    /* =========================================
+       WISHLIST FEEDBACK TOAST
+    ========================================= */
+    .cs-wishlist-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #2c2c2c;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.3px;
+      padding: 12px 20px;
+      border-radius: 4px;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cs-wishlist-toast.is-visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .cs-wishlist-toast svg { flex-shrink: 0; }
+
+    .cs-wishlist-item-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      border-bottom: 1px dashed #E5E7EB;
+      padding-bottom: 14px;
+      margin-bottom: 4px;
+    }
+    .cs-wishlist-item-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .cs-rm-wishlist-btn[data-wishlisted="true"] {
+      background: #444;
+      opacity: 0.7;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    {% comment %} cart popup {% endcomment %}
+     .cart-info-wrapper {
+      position: relative;
+      display: inline-flex;
+      margin-left: 6px;
+    }
+
+    .cart-info-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #2c2c2c;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 500;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .cart-info-popup {
+      display: none;
+      position: absolute;
+      top: 172px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 450px;
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 8px;
+      padding: 20px;
+      z-index: 999;
+      color: #2c2c2c;
+    }
+
+    .cart-info-wrapper:hover .cart-info-popup {
+      display: block;
+    }
+
+    .popup-section {
+      margin-bottom: 12px;
+    }
+
+    .popup-section-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #111;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .popup-section-num {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid #111;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .popup-section p {
+      font-size: 16px;
+      color: #333;
+      margin: 0 0 3px 0;
+      line-height: 1.5;
+    }
+
+    .popup-section p em {
+      color: #2c2c2c;
+    }
+
+    .popup-section p strong {
+      font-weight: 500;
+      color: #111;
+    }
+
+    .popup-section ul {
+      margin: 4px 0 0 0;
+      padding-left: 16px;
+      font-size: 16px;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .popup-divider {
+      border: none;
+      border-top: 1px solid rgba(0,0,0,0.07);
+      margin: 10px 0;
+    }
+
+    @media screen and (min-width: 769px) and (max-width: 1024px) {
+     .custom-cart-right {
+      min-width: 500px !important;
+    }
+}
+
+    @media (max-width: 600px) {
+      .cart-info-popup {
+        position: fixed;
+        top: 60px;
+        left: 12px;
+        right: 12px;
+        width: auto;
+        transform: none;
+        border-radius: 8px;
+        padding: 16px;
+        max-height: calc(100vh - 80px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .popup-section p,
+      .popup-section ul {
+        font-size: 14px;
+      }
+
+      .popup-section-title {
+        font-size: 14px;
+      }
+    }
+
+ 
+.cs-msg-summary {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 6px;
+  margin-bottom: 8px;
+  padding: 10px 0px !important;
+  background: #ffffff;
+  border: none !important;
+  border-radius: 6px;
+  clear: both;
+}
+.cs-msg-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 6px;
+}
+.cs-msg-row:last-child {
+  margin-bottom: 0;
+}
+.cs-msg-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 400;
+  color: #b0b0b0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+.cs-msg-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: #2c2c2c;
+  line-height: 1.45;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+</style>
+
+{%- liquid
+  assign _gem_handles_seen = ''
+  assign _gem_handle_list = ''
+-%}
+
+{%- for item in cart.items -%}
+  {%- for opt in item.product.options_with_values -%}
+    {%- assign _opt_name_lc = opt.name | downcase | strip -%}
+    {%- if _opt_name_lc == 'gemstone' -%}
+      {%- for val in opt.values -%}
+        {%- assign _val_handle = val | handle -%}
+        {%- unless _gem_handles_seen contains _val_handle -%}
+          {%- assign _gem_handles_seen = _gem_handles_seen | append: _val_handle | append: ',' -%}
+          {%- assign _gem_handle_list = _gem_handle_list | append: _val_handle | append: ',' -%}
+        {%- endunless -%}
+      {%- endfor -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endfor -%}
+
+<script>
+  window.__gemFileUrls = window.__gemFileUrls || {};
+  {%- assign _gem_parts = _gem_handle_list | split: ',' -%}
+  {%- for _gh in _gem_parts -%}
+    {%- if _gh != '' -%}
+      {%- assign _gem_file_name = _gh | append: '.png' -%}
+      window.__gemFileUrls[{{ _gh | json }}] = {{ _gem_file_name | file_url | json }};
+    {%- endif -%}
+  {%- endfor -%}
+</script>
+
+<template id="cs-brand-spinner-tpl">
+  <div class="cs-brand-spinner">
+    <div class="cs-brand-spinner__ring">
+      <svg xmlns="http://www.w3.org/2000/svg" width="167" height="160" viewBox="0 0 167 160" fill="none">
+<g clip-path="url(#paint0_angular_3762_100663_clip_path)" data-figma-skip-parse="true"><g transform="matrix(3.97575e-05 -0.08 -0.08 -3.97575e-05 87 80)"><foreignObject x="-1013" y="-1013" width="2026.01" height="2026.01"><div xmlns="http://www.w3.org/1999/xhtml" style="background:conic-gradient(from 90deg,rgba(255, 255, 255, 1) 0deg,rgba(44, 44, 44, 1) 90.2893deg,rgba(254, 254, 254, 1) 360deg);height:100%;width:100%;opacity:1"></div></foreignObject></g></g><path d="M87 1C87 0.447708 87.448 -0.000656128 88.0002 0.0062561C103.474 0.199646 118.567 4.87724 131.446 13.4824C144.602 22.2729 154.855 34.7672 160.91 49.3853C166.965 64.0034 168.55 80.0887 165.463 95.6072C162.376 111.126 154.757 125.38 143.569 136.569C132.38 147.757 118.126 155.376 102.607 158.463C87.0887 161.55 71.0034 159.965 56.3853 153.91C41.7672 147.855 29.2729 137.602 20.4824 124.446C11.8772 111.567 7.19965 96.4736 7.00626 81.0002C6.99934 80.448 7.44771 80 8 80C8.55229 80 8.99933 80.448 9.00641 81.0002C9.19969 96.078 13.7599 110.785 22.1454 123.334C30.7161 136.162 42.8981 146.159 57.1507 152.063C71.4033 157.966 87.0865 159.511 102.217 156.501C117.348 153.492 131.246 146.063 142.154 135.154C153.063 124.246 160.492 110.348 163.501 95.217C166.511 80.0865 164.966 64.4033 159.063 50.1507C153.159 35.8981 143.162 23.7161 130.334 15.1454C117.785 6.75993 103.078 2.19969 88.0002 2.00641C87.448 1.99933 87 1.55229 87 1Z" data-figma-gradient-fill="{&quot;type&quot;:&quot;GRADIENT_ANGULAR&quot;,&quot;stops&quot;:[{&quot;color&quot;:{&quot;r&quot;:1.0,&quot;g&quot;:1.0,&quot;b&quot;:1.0,&quot;a&quot;:1.0},&quot;position&quot;:0.0},{&quot;color&quot;:{&quot;r&quot;:0.17254902422428131,&quot;g&quot;:0.17254902422428131,&quot;b&quot;:0.17254902422428131,&quot;a&quot;:1.0},&quot;position&quot;:0.25080361962318420}],&quot;stopsVar&quot;:[{&quot;color&quot;:{&quot;r&quot;:1.0,&quot;g&quot;:1.0,&quot;b&quot;:1.0,&quot;a&quot;:1.0},&quot;position&quot;:0.0},{&quot;color&quot;:{&quot;r&quot;:0.17254902422428131,&quot;g&quot;:0.17254902422428131,&quot;b&quot;:0.17254902422428131,&quot;a&quot;:1.0},&quot;position&quot;:0.25080361962318420}],&quot;transform&quot;:{&quot;m00&quot;:0.079514950513839722,&quot;m01&quot;:-159.99998474121094,&quot;m02&quot;:166.96023559570312,&quot;m10&quot;:-159.99998474121094,&quot;m11&quot;:-0.079514950513839722,&quot;m12&quot;:160.03974914550781},&quot;opacity&quot;:1.0,&quot;blendMode&quot;:&quot;NORMAL&quot;,&quot;visible&quot;:true}"/>
+<path d="M14.5571 125.551C14.9398 125.551 15.25 125.861 15.25 126.244C15.25 125.861 15.5602 125.551 15.9429 125.551C15.5602 125.551 15.25 125.241 15.25 124.858C15.25 125.241 14.9398 125.551 14.5571 125.551Z" fill="#2C2C2C"/>
+<path d="M14.283 122.4C14.8442 122.4 15.2992 122.855 15.2992 123.416C15.2992 122.855 15.7542 122.4 16.3155 122.4C15.7542 122.4 15.2992 121.945 15.2992 121.384C15.2992 121.945 14.8442 122.4 14.283 122.4Z" fill="#2C2C2C"/>
+<path d="M12.8134 119C13.5788 119 14.1992 119.62 14.1992 120.386C14.1992 119.62 14.8197 119 15.585 119C14.8197 119 14.1992 118.38 14.1992 117.614C14.1992 118.38 13.5788 119 12.8134 119Z" fill="#2C2C2C"/>
+<path d="M12.6522 115C13.6727 115 14.5 115.827 14.5 116.848C14.5 115.827 15.3273 115 16.3478 115C15.3273 115 14.5 114.173 14.5 113.152C14.5 114.173 13.6727 115 12.6522 115Z" fill="#2C2C2C"/>
+<path d="M9.90855 110.75C11.3117 110.75 12.4492 111.887 12.4492 113.291C12.4492 111.887 13.5867 110.75 14.9899 110.75C13.5867 110.75 12.4492 109.613 12.4492 108.209C12.4492 109.613 11.3117 110.75 9.90855 110.75Z" fill="#2C2C2C"/>
+<path d="M0.608964 78C4.69092 78 8 81.3091 8 85.391C8 81.3091 11.3091 78 15.391 78C11.3091 78 8 74.6909 8 70.609C8 74.6909 4.69092 78 0.608964 78Z" fill="#2C2C2C"/>
+<path d="M0.608964 78C4.69092 78 8 81.3091 8 85.391C8 81.3091 11.3091 78 15.391 78C11.3091 78 8 74.6909 8 70.609C8 74.6909 4.69092 78 0.608964 78Z" fill="#2C2C2C"/>
+<path d="M0.608964 78C4.69092 78 8 81.3091 8 85.391C8 81.3091 11.3091 78 15.391 78C11.3091 78 8 74.6909 8 70.609C8 74.6909 4.69092 78 0.608964 78Z" fill="#2C2C2C"/>
+<path d="M0.608964 78C4.69092 78 8 81.3091 8 85.391C8 81.3091 11.3091 78 15.391 78C11.3091 78 8 74.6909 8 70.609C8 74.6909 4.69092 78 0.608964 78Z" fill="#2C2C2C"/>
+<path d="M0.608964 78C4.69092 78 8 81.3091 8 85.391C8 81.3091 11.3091 78 15.391 78C11.3091 78 8 74.6909 8 70.609C8 74.6909 4.69092 78 0.608964 78Z" fill="#2C2C2C"/>
+<path d="M0.608964 78C4.69092 78 8 81.3091 8 85.391C8 81.3091 11.3091 78 15.391 78C11.3091 78 8 74.6909 8 70.609C8 74.6909 4.69092 78 0.608964 78Z" fill="#2C2C2C"/>
+<path d="M6.45672 89C9.51819 89 12 91.4818 12 94.5433C12 91.4818 14.4818 89 17.5433 89C14.4818 89 12 86.5182 12 83.4567C12 86.5182 9.51819 89 6.45672 89Z" fill="#2C2C2C"/>
+<path d="M6.34254 98C8.63864 98 10.5 99.8614 10.5 102.157C10.5 99.8614 12.3614 98 14.6575 98C12.3614 98 10.5 96.1386 10.5 93.8425C10.5 96.1386 8.63864 98 6.34254 98Z" fill="#2C2C2C"/>
+<path d="M10.4656 105C12.2515 105 13.6992 106.448 13.6992 108.234C13.6992 106.448 15.1469 105 16.9328 105C15.1469 105 13.6992 103.552 13.6992 101.766C13.6992 103.552 12.2515 105 10.4656 105Z" fill="#2C2C2C"/>
+<path d="M0.608964 78C4.69092 78 8 81.3091 8 85.391C8 81.3091 11.3091 78 15.391 78C11.3091 78 8 74.6909 8 70.609C8 74.6909 4.69092 78 0.608964 78Z" fill="#2C2C2C"/>
+<defs>
+<clipPath id="paint0_angular_3762_100663_clip_path"><path d="M87 1C87 0.447708 87.448 -0.000656128 88.0002 0.0062561C103.474 0.199646 118.567 4.87724 131.446 13.4824C144.602 22.2729 154.855 34.7672 160.91 49.3853C166.965 64.0034 168.55 80.0887 165.463 95.6072C162.376 111.126 154.757 125.38 143.569 136.569C132.38 147.757 118.126 155.376 102.607 158.463C87.0887 161.55 71.0034 159.965 56.3853 153.91C41.7672 147.855 29.2729 137.602 20.4824 124.446C11.8772 111.567 7.19965 96.4736 7.00626 81.0002C6.99934 80.448 7.44771 80 8 80C8.55229 80 8.99933 80.448 9.00641 81.0002C9.19969 96.078 13.7599 110.785 22.1454 123.334C30.7161 136.162 42.8981 146.159 57.1507 152.063C71.4033 157.966 87.0865 159.511 102.217 156.501C117.348 153.492 131.246 146.063 142.154 135.154C153.063 124.246 160.492 110.348 163.501 95.217C166.511 80.0865 164.966 64.4033 159.063 50.1507C153.159 35.8981 143.162 23.7161 130.334 15.1454C117.785 6.75993 103.078 2.19969 88.0002 2.00641C87.448 1.99933 87 1.55229 87 1Z"/></clipPath></defs>
+</svg>
+    </div>
+    <div class="cs-brand-spinner__logo">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="120" height="120" viewBox="0 0 120 120" fill="none">
+        <circle cx="60" cy="60" r="60" fill="#2C2C2C"/>
+        <rect x="49" y="40" width="24" height="40" fill="url(#pattern0_3812_106376_cart)"/>
+        <defs>
+          <pattern id="pattern0_3812_106376_cart" patternContentUnits="objectBoundingBox" width="1" height="1">
+            <use xlink:href="#image0_3812_106376_cart" transform="matrix(0.00178571 0 0 0.00107143 0 0.00928571)"/>
+          </pattern>
+          <image id="image0_3812_106376_cart" width="560" height="916" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAjAAAAOUCAYAAAC8CwkjAAAKSWlDQ1BzUkdCIElFQzYxOTY2LTIuMQAASImdU3dYk/cWPt/3ZQ9WQtjwsZdsgQAiI6wIyBBZohCSAGGEEBJAxYWIClYUFRGcSFXEgtUKSJ2I4qAouGdBiohai1VcOO4f3Ke1fXrv7e371/u855zn/M55zw+AERImkeaiagA5UoU8Otgfj09IxMm9gAIVSOAEIBDmy8JnBcUAAPADeXh+dLA//AGvbwACAHDVLiQSx+H/g7pQJlcAIJEA4CIS5wsBkFIAyC5UyBQAyBgAsFOzZAoAlAAAbHl8QiIAqg0A7PRJPgUA2KmT3BcA2KIcqQgAjQEAmShHJAJAuwBgVYFSLALAwgCgrEAiLgTArgGAWbYyRwKAvQUAdo5YkA9AYACAmUIszAAgOAIAQx4TzQMgTAOgMNK/4KlfcIW4SAEAwMuVzZdL0jMUuJXQGnfy8ODiIeLCbLFCYRcpEGYJ5CKcl5sjE0jnA0zODAAAGvnRwf44P5Dn5uTh5mbnbO/0xaL+a/BvIj4h8d/+vIwCBAAQTs/v2l/l5dYDcMcBsHW/a6lbANpWAGjf+V0z2wmgWgrQevmLeTj8QB6eoVDIPB0cCgsL7SViob0w44s+/zPhb+CLfvb8QB7+23rwAHGaQJmtwKOD/XFhbnauUo7nywRCMW735yP+x4V//Y4p0eI0sVwsFYrxWIm4UCJNx3m5UpFEIcmV4hLpfzLxH5b9CZN3DQCshk/ATrYHtctswH7uAQKLDljSdgBAfvMtjBoLkQAQZzQyefcAAJO/+Y9AKwEAzZek4wAAvOgYXKiUF0zGCAAARKCBKrBBBwzBFKzADpzBHbzAFwJhBkRADCTAPBBCBuSAHAqhGJZBGVTAOtgEtbADGqARmuEQtMExOA3n4BJcgetwFwZgGJ7CGLyGCQRByAgTYSE6iBFijtgizggXmY4EImFINJKApCDpiBRRIsXIcqQCqUJqkV1II/ItchQ5jVxA+pDbyCAyivyKvEcxlIGyUQPUAnVAuagfGorGoHPRdDQPXYCWomvRGrQePYC2oqfRS+h1dAB9io5jgNExDmaM2WFcjIdFYIlYGibHFmPlWDVWjzVjHVg3dhUbwJ5h7wgkAouAE+wIXoQQwmyCkJBHWExYQ6gl7CO0EroIVwmDhDHCJyKTqE+0JXoS+cR4YjqxkFhGrCbuIR4hniVeJw4TX5NIJA7JkuROCiElkDJJC0lrSNtILaRTpD7SEGmcTCbrkG3J3uQIsoCsIJeRt5APkE+S+8nD5LcUOsWI4kwJoiRSpJQSSjVlP+UEpZ8yQpmgqlHNqZ7UCKqIOp9aSW2gdlAvU4epEzR1miXNmxZDy6Qto9XQmmlnafdoL+l0ugndgx5Fl9CX0mvoB+nn6YP0dwwNhg2Dx0hiKBlrGXsZpxi3GS+ZTKYF05eZyFQw1zIbmWeYD5hvVVgq9ip8FZHKEpU6lVaVfpXnqlRVc1U/1XmqC1SrVQ+rXlZ9pkZVs1DjqQnUFqvVqR1Vu6k2rs5Sd1KPUM9RX6O+X/2C+mMNsoaFRqCGSKNUY7fGGY0hFsYyZfFYQtZyVgPrLGuYTWJbsvnsTHYF+xt2L3tMU0NzqmasZpFmneZxzQEOxrHg8DnZnErOIc4NzvstAy0/LbHWaq1mrX6tN9p62r7aYu1y7Rbt69rvdXCdQJ0snfU6bTr3dQm6NrpRuoW263XP6j7TY+t56Qn1yvUO6d3RR/Vt9KP1F+rv1u/RHzcwNAg2kBlsMThj8MyQY+hrmGm40fCE4agRy2i6kcRoo9FJoye4Ju6HZ+M1eBc+ZqxvHGKsNN5l3Gs8YWJpMtukxKTF5L4pzZRrmma60bTTdMzMyCzcrNisyeyOOdWca55hvtm82/yNhaVFnMVKizaLx5balnzLBZZNlvesmFY+VnlW9VbXrEnWXOss263WV2xQG1ebDJM6m8u2qK2brcR2m23fFOIUjynSKfVTbtox7PzsCuya7AbtOfZh9iX2bfbPHcwcEh3WO3Q7fHJ0dcx2bHC846ThNMOpxKnD6VdnG2ehc53zNRemS5DLEpd2lxdTbaeKp26fesuV5RruutK10/Wjm7ub3K3ZbdTdzD3Ffav7TS6bG8ldgz3vQfTw91jicczjnaebp8LzkOcvXnZeWV77vR5Ps5wmntYwbcjbxFvgvct7YDo+PWX6zukDPsY+Ap96n4e+pr4i3z2+I37Wfpl+B/ye+zv6y/2P+L/hewIiBAAQTs/v2l/l5dYDcMcBsHW/a6lbANpWAGjf+V0z2wmgWgrQevmLeTj8QB6eoVDIPB0cCgsL7SViob0w44s+/zPhb+CLfvb8QB7+23rwAHGaQJmtwKOD/XFhbnauUo7nywRCMW735yP+x4V//Y4p0eI0sVwsFYrxWIm4UCJNx3m5UpFEIcmV4hLpfzLxH5b9CZN3DQCshk/ATrYHtctswH7uAQKLDljSdgBAfvMtjBoLkQAQZzQyefcAAJO/+Y9AKwEAzZek4wAAvOgYXKiUF0zGCAAARKCBKrBBBwzBFKzADpzBHbzAFwJhBkRADCTAPBBCBuSAHAqhGJZBGVTAOtgEtbADGqARmuEQtMExOA3n4BJcgetwFwZgGJ7CGLyGCQRByAgTYSE6iBFijtgizggXmY4EImFINJKApCDpiBRRIsXIcqQCqUJqkV1II"/>
+        </defs>
+      </svg>
+    </div>
+  </div>
+</template>
+
+<m-cart-drawer id="MinimogCartDrawer" class="m-cart-drawer">
+  <div class="m-cart__overlay"></div>
+
+  <div class="custom-split-cart-layout m-cart-drawer__inner">
+    <div class="custom-cart-left m-scrollbar--vertical">
+      <div class="custom-cart-left-header">
+        <h2 class="custom-cart-left-title">
+          Add More<br>
+          Glow with
+        </h2>
+
+        <div class="custom-cart-left-subtitle">
+          <svg
+            class="custom-hamburger-icon"
+            width="14"
+            height="10"
+            viewBox="0 0 14 10"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path class="line-top"    d="M1 1H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path class="line-middle" d="M1 5H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path class="line-bottom" d="M1 9H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+
+          <span class="custom-subtitle-text">
+            {% if settings.cart_recommendation_collection != blank %}
+              {{ collections[settings.cart_recommendation_collection].title | default: 'RECENT VIEW' | upcase }}
+            {% else %}
+              RECENT VIEW
+            {% endif %}
+          </span>
+
+          <div class="custom-collection-dropdown m-scrollbar--vertical">
+            <ul class="custom-collection-list">
+              <div class="custom-menu-category">For You</div>
+              <li data-handle="default-recs">
+                {% if settings.cart_recommendation_collection != blank %}
+                  {{ collections[settings.cart_recommendation_collection].title | default: 'RECENT VIEW' | upcase }}
+                {% else %}
+                  RECENT VIEW
+                {% endif %}
+              </li>
+              <li data-handle="wishlist-recs">WISHLIST</li>
+              {%- assign drawer_menu = linklists['cart'] | default: linklists['cart-drawer-menu'] -%}
+              {%- if drawer_menu != blank -%}
+                {%- for link in drawer_menu.links -%}
+                  <div class="custom-menu-category">{{ link.title }}</div>
+                  {%- if link.links != blank -%}
+                    {%- for childlink in link.links -%}
+                      {%- assign c_handle = childlink.url | split: '/' | last | split: '?' | first -%}
+                      <li data-handle="{{ c_handle }}">{{ childlink.title | upcase }}</li>
+                    {%- endfor -%}
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endif -%}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="custom-cart-recs">
+        <div
+          class="custom-cart-recs-tab"
+          data-handle="default-recs"
+          style="display: flex; flex-direction: column; gap: 24px;"
+        >
+          {%- liquid
+            assign rec_count = 0
+            if settings.cart_recommendation_collection != blank
+              assign related_collection = collections[settings.cart_recommendation_collection]
+            else
+              assign related_collection = collections['all']
+              if cart.items.size > 0
+                for collection in cart.items.first.product.collections
+                  if collection.handle != 'all' and collection.handle != 'frontpage'
+                    assign related_collection = collection
+                    break
+                  endif
+                endfor
+              endif
+            endif
+          -%}
+
+          {%- for product in related_collection.products -%}
+            {%- assign in_cart = false -%}
+            {%- for item in cart.items -%}
+              {%- if item.product.id == product.id -%}
+                {%- assign in_cart = true -%}
+                {%- break -%}
+              {%- endif -%}
+            {%- endfor -%}
+
+            {%- if in_cart == false and product.available -%}
+              {% render 'product-card-3', product: product %}
+              {%- assign rec_count = rec_count | plus: 1 -%}
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- if rec_count < 2 and settings.cart_recommendation_collection == blank -%}
+            {%- for product in collections['all'].products -%}
+              {%- assign in_cart = false -%}
+              {%- for item in cart.items -%}
+                {%- if item.product.id == product.id -%}
+                  {%- assign in_cart = true -%}
+                  {%- break -%}
+                {%- endif -%}
+              {%- endfor -%}
+
+              {%- if in_cart == false and product.available -%}
+                {% render 'product-card-3', product: product %}
+                {%- assign rec_count = rec_count | plus: 1 -%}
+              {%- endif -%}
+
+              {%- if rec_count == 2 -%}{%- break -%}{%- endif -%}
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+
+        <div
+          class="custom-cart-recs-tab"
+          data-handle="wishlist-recs"
+          style="display: none; flex-direction: column; gap: 24px;"
+        ></div>
+
+        {%- if drawer_menu != blank -%}
+          {%- for link in drawer_menu.links -%}
+            {%- if link.links != blank -%}
+              {%- for childlink in link.links -%}
+                {%- assign c_handle = childlink.url | split: '/' | last | split: '?' | first -%}
+                {%- assign c = collections[c_handle] -%}
+                {%- if c != blank and c.products.size > 0 -%}
+                  <div
+                    class="custom-cart-recs-tab"
+                    data-handle="{{ c.handle }}"
+                    style="display: none; flex-direction: column; gap: 24px;"
+                  >
+                    {%- for product in c.products limit: 12 -%}
+                      {%- assign in_cart = false -%}
+                      {%- for item in cart.items -%}
+                        {%- if item.product.id == product.id -%}
+                          {%- assign in_cart = true -%}
+                          {%- break -%}
+                        {%- endif -%}
+                      {%- endfor -%}
+
+                      {%- if in_cart == false and product.available -%}
+                        {% render 'product-card-3', product: product %}
+                      {%- endif -%}
+                    {%- endfor -%}
+                  </div>
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div class="custom-cart-right m:h-full m-gradient m-color-{{ settings.drawer_popup_color_scheme }}">
+      <div class="cs-inline-edit-panel" id="CsInlineEditPanel">
+        <div class="cs-iep-topbar">
+          <button type="button" class="cs-iep-close" onclick="closeEditPanel()" aria-label="Close edit">
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25" fill="none">
+              <path d="M0.0442995 0.0442707C0.844312 -0.75544 9.5443 9.54427 12.0443 9.54427C14.5443 9.54427 23.2443 -0.75544 24.0443 0.0442707C24.8443 0.843945 14.5443 9.54427 14.5443 12.0443C14.5443 14.5443 24.8443 23.2439 24.0443 24.0443C23.2443 24.8439 14.5443 14.5443 12.0443 14.5443C9.5443 14.5443 0.842969 24.8439 0.0442995 24.0443C-0.755688 23.2439 9.5443 14.5443 9.5443 12.0443C9.5443 9.54427 -0.755688 0.84456 0.0442995 0.0442707Z" fill="#2C2C2C" fill-opacity="0.5"/>
+            </svg>
+          </button>
+        </div>
+
+        <div
+          id="cs-iep-inner"
+          style="display:flex;flex:1;flex-direction:column;justify-content:center;align-items:center;"
+        >
+          <div class="cs-brand-spinner">
+            <div class="cs-brand-spinner__ring">
+              <svg xmlns="http://www.w3.org/2000/svg" width="160" height="167" viewBox="0 0 160 167" fill="none">
+                <g clip-path="url(#iep_clip)">
+                  <g transform="matrix(-0.08 -3.97575e-05 -3.97575e-05 0.08 80 80)">
+                    <foreignObject x="-1013" y="-1013" width="2026.01" height="2026.01">
+                      <div xmlns="http://www.w3.org/1999/xhtml" style="background:conic-gradient(from 90deg,rgba(249,246,243,1) 0deg,rgba(44,44,44,1) 91.7308deg,rgba(44,44,44,1) 180deg,rgba(249,246,243,1) 360deg);height:100%;width:100%;opacity:1"></div>
+                    </foreignObject>
+                  </g>
+                </g>
+                <path d="M1 80C0.447708 80 -0.000656128 79.552 0.0062561 78.9998C0.199646 63.5264 4.87724 48.433 13.4824 35.5544C22.2729 22.3984 34.7672 12.1446 49.3853 6.08964C64.0034 0.0346267 80.0887 -1.54964 95.6072 1.53718C111.126 4.624 125.38 12.2433 136.569 23.4315C147.757 34.6197 155.376 48.8743 158.463 64.3928C161.55 79.9113 159.965 95.9966 153.91 110.615C147.855 125.233 137.602 137.727 124.446 146.518C111.567 155.123 96.4736 159.8 81.0002 159.994C80.448 160.001 80 159.552 80 159C80 158.448 80.448 158.001 81.0002 157.994C96.078 157.8 110.785 153.24 123.334 144.855C136.162 136.284 146.159 124.102 152.063 109.849C157.966 95.5967 159.511 79.9135 156.501 64.783C153.492 49.6524 146.063 35.7542 135.154 24.8457C124.246 13.9372 110.348 6.5084 95.217 3.49875C80.0865 0.489101 64.4033 2.03376 50.1507 7.9374C35.8981 13.841 23.7161 23.8385 15.1454 36.6655C6.75993 49.2152 2.19969 63.922 2.00641 78.9998C1.99933 79.552 1.55229 80 1 80Z" fill="#2C2C2C"/>
+                <defs><clipPath id="iep_clip"><path d="M1 80C0.447708 80 -0.000656128 79.552 0.0062561 78.9998C0.199646 63.5264 4.87724 48.433 13.4824 35.5544C22.2729 22.3984 34.7672 12.1446 49.3853 6.08964C64.0034 0.0346267 80.0887 -1.54964 95.6072 1.53718C111.126 4.624 125.38 12.2433 136.569 23.4315C147.757 34.6197 155.376 48.8743 158.463 64.3928C161.55 79.9113 159.965 95.9966 153.91 110.615C147.855 125.233 137.602 137.727 124.446 146.518C111.567 155.123 96.4736 159.8 81.0002 159.994C80.448 160.001 80 159.552 80 159C80 158.448 80.448 158.001 81.0002 157.994C96.078 157.8 110.785 153.24 123.334 144.855C136.162 136.284 146.159 124.102 152.063 109.849C157.966 95.5967 159.511 79.9135 156.501 64.783C153.492 49.6524 146.063 35.7542 135.154 24.8457C124.246 13.9372 110.348 6.5084 95.217 3.49875C80.0865 0.489101 64.4033 2.03376 50.1507 7.9374C35.8981 13.841 23.7161 23.8385 15.1454 36.6655C6.75993 49.2152 2.19969 63.922 2.00641 78.9998C1.99933 79.552 1.55229 80 1 80Z"/></clipPath></defs>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="m-cart-drawer__close" aria-label="Close" style="background:none; border:none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25" fill="none">
+          <path d="M0.0442995 0.0442707C0.844312 -0.75544 9.5443 9.54427 12.0443 9.54427C14.5443 9.54427 23.2443 -0.75544 24.0443 0.0442707C24.8443 0.843945 14.5443 9.54427 14.5443 12.0443C14.5443 14.5443 24.8443 23.2439 24.0443 24.0443C23.2443 24.8439 14.5443 14.5443 12.0443 14.5443C9.5443 14.5443 0.842969 24.8439 0.0442995 24.0443C-0.755688 23.2439 9.5443 14.5443 9.5443 12.0443C9.5443 9.54427 -0.755688 0.84456 0.0442995 0.0442707Z" fill="#2C2C2C" fill-opacity="0.5"/>
+        </svg>
+      </button>
+
+      <div class="m:flex m:flex-col m:h-full" id="MinimogCartDrawerHeader">
+        <div class="m-cart-drawer__header">
+          <div style="display:flex; padding-left:10px;">
+            <h3 class="m-cart-drawer__title m:text-xl md:m:text-2xl m:font-medium cs-cart-heading">
+              {{ 'cart.general.title' | t }}
+            </h3>
+
+            <span
+              style="
+                background-color: #111111;
+                color: #ffffff;
+                font-size: 13px;
+                font-weight: 600;
+                width: 24px;
+                height: 24px;
+                clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                margin-left: 6px;
+                line-height: 1;
+                position: relative;
+              "
+            >
+              {{- cart.item_count -}}
+              <span
+                style="
+                  position: absolute;
+                  top: -2px;
+                  right: -2px;
+                  width: 7px;
+                  height: 7px;
+                  background-color: #111111;
+                  border-radius: 50%;
+                  border: 1.5px solid white;
+                "
+              ></span>
+            </span>
+
+            <div class="cart-info-wrapper">
+              <div class="cart-info-icon">i</div>
+
+              <div class="cart-info-popup">
+                <div class="popup-section">
+                  <div class="popup-section-title">
+                    <span class="popup-section-num">1</span>
+                    Bundle Types
+                  </div>
+                  <p><strong>Non-VIP Set Deal</strong></p>
+                  <p>Save instantly on any 2 or 3-piece set.</p>
+                  <p><em>Cannot be combined with Welcome Gift or other offers.</em></p>
+                  <br>
+                  <p><strong>VIP Bundle Benefits (Starlight &amp; Galaxy Tier)</strong></p>
+                  <p>Get tier-based discounts when buying 3+ items.</p>
+                  <p>Enjoy free gifts with qualifying bundle orders.</p>
+                </div>
+
+                <hr class="popup-divider">
+
+                <div class="popup-section">
+                  <div class="popup-section-title">
+                    <span class="popup-section-num">2</span>
+                    Limitations
+                  </div>
+                  <ul>
+                    <li>Not valid on Final Sale, Limited-Time Offers, or if Welcome Gift is applied</li>
+                    <li>Cannot combine with other discounts or bundles</li>
+                    <li>Welcome Gift only applies to full-priced items</li>
+                  </ul>
+                </div>
+
+                <hr class="popup-divider">
+
+                <div class="popup-section">
+                  <div class="popup-section-title">
+                    <span class="popup-section-num">3</span>
+                    Automatic Application
+                  </div>
+                  <ul>
+                    <li>No codes needed. Discounts and gifts apply automatically based on your tier and items in cart.</li>
+                    <li>Some Rewards like (Welcome Gift, Birthday Gift, or Galaxy cash credits) must be selected manually before checkout.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p class="m-cart-drawer__text">
+            <span class="m-cart-drawer__text-content">Enjoy FREE Shipping to
+              {% if localization.country.name != blank %}
+                {{ localization.country.name }}
+              {% else %}
+                your location
+              {% endif -%}
+              !
+            </span>
+            Discounts Applied. Enjoy a free 1 + 1 Any jewellery, plus Crystal on next order!
+          </p>
+
+          {% if template.name != 'cart' %}
+            <foxkit-cart-countdown></foxkit-cart-countdown>
+          {% endif %}
+
+          <foxkit-cart-goal></foxkit-cart-goal>
+        </div>
+
+        <m-cart-items
+          class="m-cart-drawer__body m-scrollbar--vertical m:flex m:flex-col m:flex-1"
+          id="MinimogCartDrawerBody"
+          data-section-name="cart-drawer"
+        >
+          <form
+            is="m-cart-form"
+            action="{{ routes.cart_url }}"
+            method="post"
+            id="cart-drawer-form"
+            class="m:w-full"
+            novalidate
+          >
+            {%- if cart.items.size > 0 -%}
+              <div class="m-cart-drawer__items">
+                {% for item in cart.items %}
+                  {% render 'cart-drawer-item',
+                    item: item,
+                    gift_wrap_id: gift_wrap_id,
+                    gift_wraps_in_cart: gift_wraps_in_cart,
+                    items_in_cart: items_in_cart
+                  %}
+                {% endfor %}
+              </div>
+
+            {%- else -%}
+              <div class="empty-cart">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="100">
+                    <path d="M 46 45 V 30 C 46 16, 74 16, 74 30 V 45" fill="none" stroke="#2A2A2A" stroke-width="3" stroke-linecap="round" />
+                  <path d="M 36 42
+                             L 28 92
+                             C 27.5 96.5, 30 99, 34 99
+                             L 86 99
+                             C 90 99, 92.5 96.5, 92 92
+                             L 84 42
+                             Z"
+                          fill="none" stroke="#2A2A2A" stroke-width="3" stroke-linejoin="round" />
+                    <circle cx="46" cy="46" r="4.5" fill="#2A2A2A" />
+                    <circle cx="74" cy="46" r="4.5" fill="#2A2A2A" />
+                    <text x="60" y="83" font-family="'Georgia', serif" font-size="36" font-weight="normal" text-anchor="middle" fill="#2A2A2A">S</text>
+                </svg>
+                <p>{{ 'cart.general.empty' | t }}</p>
+              </div>
+            {%- endif -%}
+          </form>
+        </m-cart-items>
+
+        <div class="m-cart-drawer__footer" id="MinimogCartDrawerFooter">
+          <div class="m-cart-drawer__footer--wrapper{% if cart == empty %} m:hidden{% else %} m:block{% endif %}">
+            {% render 'cart-addons', form_id: 'cart-drawer-form' %}
+
+            <div class="m-cart-drawer__gift-wrapping">
+              <div class="m:hidden">{{ gift_wrapping.object.variants.first | json }}</div>
+
+              {%- if gift_wrapping != null -%}
+                <m-gift-wrapping-component
+                  class="m-gift-wrapping"
+                  data-gift-wrap-id="{{ gift_wrap_id }}"
+                  data-gift-wrapping="{{ cart.attributes.gift-wrapping | escape }}"
+                  cart-items-size="{{ cart.items.size }}"
+                  gift-wraps-in-cart="{{ gift_wraps_in_cart }}"
+                  items-in-cart="{{ items_in_cart }}"
+                >
+                  <input
+                    id="m-gift-wrapping"
+                    type="checkbox"
+                    name="attributes[gift-wrapping]"
+                    value="yes"
+                    {% if gift_wraps_in_cart > 0 %}
+                      checked="checked"
+                    {% endif %}
+                    class="m:visually-hidden"
+                  >
+
+                  <label for="m-gift-wrapping" class="m-gift-wrapping--label">
+                    {%- capture gift_price -%}<strong class="m-gift-wrapping--price">{{ gift_wrapping.object.price | money }}</strong>{%- endcapture -%}
+                    <span class="m-gift-wrapping--text">
+                      {{- 'cart.general.gift_wrapping_html' | t: price: gift_price -}}
+                    </span>
+
+                    <div class="m-gift-wrapping--loading">
+                      <div class="cs-brand-spinner cs-brand-spinner--sm">
+                        <div class="cs-brand-spinner__ring">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 167" fill="none">
+                            <g clip-path="url(#gw_clip)">
+                              <g transform="matrix(-0.08 -3.97575e-05 -3.97575e-05 0.08 80 80)">
+                                <foreignObject x="-1013" y="-1013" width="2026.01" height="2026.01">
+                                  <div xmlns="http://www.w3.org/1999/xhtml" style="background:conic-gradient(from 90deg,rgba(249,246,243,1) 0deg,rgba(44,44,44,1) 91.7308deg,rgba(44,44,44,1) 180deg,rgba(249,246,243,1) 360deg);height:100%;width:100%;opacity:1"></div>
+                                </foreignObject>
+                              </g>
+                            </g>
+                            <path d="M1 80C0.447708 80 -0.000656128 79.552 0.0062561 78.9998C0.199646 63.5264 4.87724 48.433 13.4824 35.5544C22.2729 22.3984 34.7672 12.1446 49.3853 6.08964C64.0034 0.0346267 80.0887 -1.54964 95.6072 1.53718C111.126 4.624 125.38 12.2433 136.569 23.4315C147.757 34.6197 155.376 48.8743 158.463 64.3928C161.55 79.9113 159.965 95.9966 153.91 110.615C147.855 125.233 137.602 137.727 124.446 146.518C111.567 155.123 96.4736 159.8 81.0002 159.994C80.448 160.001 80 159.552 80 159C80 158.448 80.448 158.001 81.0002 157.994C96.078 157.8 110.785 153.24 123.334 144.855C136.162 136.284 146.159 124.102 152.063 109.849C157.966 95.5967 159.511 79.9135 156.501 64.783C153.492 49.6524 146.063 35.7542 135.154 24.8457C124.246 13.9372 110.348 6.5084 95.217 3.49875C80.0865 0.489101 64.4033 2.03376 50.1507 7.9374C35.8981 13.841 23.7161 23.8385 15.1454 36.6655C6.75993 49.2152 2.19969 63.922 2.00641 78.9998C1.99933 79.552 1.55229 80 1 80Z" fill="#2C2C2C"/>
+                            <defs><clipPath id="gw_clip"><path d="M1 80C0.447708 80 -0.000656128 79.552 0.0062561 78.9998C0.199646 63.5264 4.87724 48.433 13.4824 35.5544C22.2729 22.3984 34.7672 12.1446 49.3853 6.08964C64.0034 0.0346267 80.0887 -1.54964 95.6072 1.53718C111.126 4.624 125.38 12.2433 136.569 23.4315C147.757 34.6197 155.376 48.8743 158.463 64.3928C161.55 79.9113 159.965 95.9966 153.91 110.615C147.855 125.233 137.602 137.727 124.446 146.518C111.567 155.123 96.4736 159.8 81.0002 159.994C80.448 160.001 80 159.552 80 159C80 158.448 80.448 158.001 81.0002 157.994C96.078 157.8 110.785 153.24 123.334 144.855C136.162 136.284 146.159 124.102 152.063 109.849C157.966 95.5967 159.511 79.9135 156.501 64.783C153.492 49.6524 146.063 35.7542 135.154 24.8457C124.246 13.9372 110.348 6.5084 95.217 3.49875C80.0865 0.489101 64.4033 2.03376 50.1507 7.9374C35.8981 13.841 23.7161 23.8385 15.1454 36.6655C6.75993 49.2152 2.19969 63.922 2.00641 78.9998C1.99933 79.552 1.55229 80 1 80Z"/></clipPath></defs>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+
+                    <svg
+                      class="m-gift-wrapping--icon"
+                      viewBox="0 0 14 14"
+                      with="16"
+                      height="16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <rect x="0.5" y="0.5" width="13" height="13" stroke="currentColor"/>
+                      <path d="M3.5625 7.625L5.75 9.8125L10.75 4.8125" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </label>
+
+                  {%- if gift_wraps_in_cart > 0 -%}
+                    <m-gift-note-component class="m-gift-wrapping--note">
+                      <textarea
+                        class="form-field"
+                        name="attributes[gift-note]"
+                        placeholder="{{ 'cart.general.gift_note_placeholder' | t }}"
+                      >{{ cart.attributes.gift-note }}</textarea>
+                    </m-gift-note-component>
+                  {%- endif -%}
+                </m-gift-wrapping-component>
+              {%- endif -%}
+            </div>
+
+            <div class="m-cart__summary m-cart-drawer__summary">
+              <div data-foxkit-cart-summary></div>
+
+              <div data-minimog-cart-discounts>
+                {%- liquid
+                  assign discount_codes = cart.cart_level_discount_applications | where: 'type', 'discount_code' | map: 'title'
+                  assign cart_items_has_discount = false
+                  for item in cart.items
+                    for allocation in item.line_level_discount_allocations
+                      if allocation.discount_application.type == 'discount_code'
+                        assign cart_items_has_discount = true
+                      endif
+                    endfor
+                  endfor
+                -%}
+
+                {%- if cart.cart_level_discount_applications.size > 0 or cart_items_has_discount -%}
+                  <ul class="m-cart__discount m:flex m:flex-wrap m:justify-end m:items-center" role="list">
+                    {%- for discount in cart.cart_level_discount_applications -%}
+                      {% render 'cart-discount-item', discount: discount %}
+                    {%- endfor -%}
+
+                    {%- if cart_items_has_discount -%}
+                      {%- for item in cart.items -%}
+                        {%- for allocation in item.line_level_discount_allocations -%}
+                          {%- liquid
+                            unless allocation.discount_application.type == 'discount_code'
+                              continue
+                            endunless
+                            assign discount = allocation.discount_application
+                            assign is_displayed = discount_codes | has: discount.title
+                            if is_displayed
+                              continue
+                            endif
+                            assign discount_codes = item.line_level_discount_allocations | slice: forloop.index0 | map: 'discount_application' | map: 'title' | concat: discount_codes
+                          -%}
+                          {% render 'cart-discount-item', discount: discount %}
+                        {%- endfor -%}
+                      {%- endfor -%}
+                    {%- endif -%}
+                  </ul>
+                {%- endif -%}
+              </div>
+
+              <div class="m-cart__subtotal m:flex m:justify-between" data-cart-subtotal>
+                <span class="m-cart__subtotal--label m:font-medium">{{ 'cart.general.subtotal' | t }}</span>
+                <span class="m-cart__subtotal--price m:font-medium" data-cart-subtotal-price>
+                  {% if settings.currency_code_enabled %}
+                    {{ cart.total_price | money_with_currency }}
+                  {% else %}
+                    {{ cart.total_price | money }}
+                  {% endif %}
+                </span>
+              </div>
+            </div>
+
+            <div class="m:flex m:flex-col m:items-center">
+              {% assign show_terms = false %}
+
+              {% if settings.agree_text != blank and settings.show_agree_on_cart %}
+                <div class="m-terms-conditons">
+                  <label class="form-field--checkbox">
+                    <input type="checkbox" name="agree_terms" value="yes" required>
+                    <span class="form-field--checkbox__label">{{ settings.agree_text }}</span>
+                    <span class="form-field--checkbox__icon">
+                      <svg class="m-svg-icon--medium" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" fill="none" viewBox="0 0 20 20">
+                        <path d="M18.5 1.5H1.5L1.5 18.5H18.5V1.5ZM1.5 0.5C0.947715 0.5 0.5 0.947715 0.5 1.5V18.5C0.5 19.0523 0.947715 19.5 1.5 19.5H18.5C19.0523 19.5 19.5 19.0523 19.5 18.5V1.5C19.5 0.947715 19.0523 0.5 18.5 0.5H1.5Z" fill-rule="evenodd" fill="currentColor"/>
+                        <path d="M14.9975 6.09084C15.201 6.27746 15.2147 6.59375 15.0281 6.79728L8.91631 13.4627C8.82231 13.5652 8.68987 13.6239 8.55079 13.6247C8.41172 13.6256 8.27857 13.5684 8.18335 13.4671L4.99513 10.0731C4.80606 9.87179 4.81596 9.55536 5.01723 9.3663C5.21849 9.17723 5.53492 9.18713 5.72399 9.3884L8.54335 12.3897L14.291 6.12145C14.4776 5.91791 14.7939 5.90421 14.9975 6.09084Z" fill="currentColor"/>
+                      </svg>
+                    </span>
+                  </label>
+                </div>
+                {% assign show_terms = true %}
+              {% endif %}
+
+              <button
+                type="submit"
+                form="cart-drawer-form"
+                class="cs-checkout-button m:w-full"
+                name="checkout"
+                {% if show_terms %}
+                  data-terms-action disabled
+                {% endif %}
+              >
+                <span>{{ 'cart.general.checkout' | t }}</span>
+              </button>
+
+              {%- if settings.cart_drawer_show_accelerated_button and additional_checkout_buttons -%}
+                <div class="additional-checkout-buttons m:w-full">
+                  {{ content_for_additional_checkout_buttons }}
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</m-cart-drawer>
+
+<div class="cs-wishlist-toast" id="CsWishlistToast">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+  </svg>
+  <span id="CsWishlistToastMsg">Saved to wishlist</span>
+</div>
+
+<script>
+  (function () {
+    'use strict';
+
+    /* ─────────────────────────────────────────────────────────────
+       MESSAGE SUMMARY INJECTION
+    ───────────────────────────────────────────────────────────── */
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+function injectMessageSummaries() {
+  fetch('/cart.js')
+    .then(function(r) { return r.json(); })
+    .then(function(cart) {
+      cart.items.forEach(function(item) {
+        var props = item.properties || {};
+        var msg  = (props['Message'] || '').trim();
+        var from = (props['From']    || '').trim();
+
+        if (!msg && !from) return;
+
+        var lineEl =
+          document.querySelector('[data-id="' + item.key + '"]') ||
+          document.querySelector('[data-line-item-key="' + item.key + '"]') ||
+          document.querySelector('.m-cart-item[data-variant-id="' + item.variant_id + '"]');
+
+        if (!lineEl) return;
+        if (lineEl.querySelector('.cs-msg-summary')) return;
+
+        var isMessageCard = item.product_title &&
+          item.product_title.toLowerCase().indexOf('message card') !== -1;
+
+        if (isMessageCard) {
+
+          /* ── HIDE variant lines ── */
+          [
+            '.m-cart-item__variant',
+            '.m-cart-item__option',
+            '.m-cart-item__options',
+            '.m-cart-item__properties',
+            '.m-cart-item__property',
+            '[class*="variant"]',
+            '[class*="option"]',
+            '[class*="property"]'
+          ].forEach(function(sel) {
+            lineEl.querySelectorAll(sel).forEach(function(el) {
+              el.style.display = 'none';
+            });
+          });
+
+          /* ── HIDE edit button ── */
+          [
+            '.m-cart-item__edit',
+            '.m-cart-item__edit-btn',
+            '.m-cart-item__action--edit',
+            '.cs-edit-btn',
+            'button[onclick*="openEditModal"]',
+            'button[onclick*="openEdit"]',
+            'a[onclick*="openEditModal"]',
+            'a[onclick*="openEdit"]'
+          ].forEach(function(sel) {
+            lineEl.querySelectorAll(sel).forEach(function(el) {
+              el.style.display = 'none';
+            });
+          });
+
+          /* ── Hide edit icon by checking for openEdit in onclick ── */
+          lineEl.querySelectorAll('[class*="edit"]').forEach(function(el) {
+            if (el.tagName === 'BUTTON' || el.tagName === 'A' ||
+                el.querySelector('svg') ||
+                (el.getAttribute('onclick') || '').indexOf('openEdit') !== -1) {
+              el.style.display = 'none';
+            }
+          });
+        }
+
+        /* ── Build Message/From HTML ── */
+        var html = '<div class="cs-msg-summary">';
+        if (msg) {
+          html += '<div class="cs-msg-row">'
+            + '<span class="cs-msg-label">MESSAGE</span>'
+            + '<span class="cs-msg-value">' + escHtml(msg) + '</span>'
+            + '</div>';
+        }
+        if (from) {
+          html += '<div class="cs-msg-row">'
+            + '<span class="cs-msg-label">FROM</span>'
+            + '<span class="cs-msg-value">' + escHtml(from) + '</span>'
+            + '</div>';
+        }
+        html += '</div>';
+
+        /* ── Inject after product title inside info column ── */
+        var infoCol =
+          lineEl.querySelector('.m-cart-item__info') ||
+          lineEl.querySelector('.m-cart-item__details') ||
+          lineEl.querySelector('.m-cart-item__content') ||
+          lineEl.querySelector('[class*="cart-item__info"]') ||
+          lineEl.querySelector('[class*="cart-item__detail"]');
+
+        var titleEl = infoCol
+          ? (
+              infoCol.querySelector('.m-cart-item__title') ||
+              infoCol.querySelector('.m-cart-item__name') ||
+              infoCol.querySelector('a[href*="/products/"]') ||
+              infoCol.querySelector('p, h4, h3, h2')
+            )
+          : (
+              lineEl.querySelector('.m-cart-item__title') ||
+              lineEl.querySelector('.m-cart-item__name') ||
+              lineEl.querySelector('a[href*="/products/"]')
+            );
+
+        if (titleEl) {
+          titleEl.insertAdjacentHTML('afterend', html);
+        } else if (infoCol) {
+          infoCol.insertAdjacentHTML('afterbegin', html);
+        } else {
+          lineEl.insertAdjacentHTML('beforeend', html);
+        }
+      });
+    })
+    .catch(function() {});
+}
+
+    /* Run on load */
+    document.addEventListener('DOMContentLoaded', injectMessageSummaries);
+
+    /* Re-run after every cart update/re-render */
+    ['cart:updated', 'cart:refresh', 'cart:rendered'].forEach(function(ev) {
+      document.documentElement.addEventListener(ev, function() {
+        setTimeout(injectMessageSummaries, 400);
+      });
+    });
+
+    /* Watch for DOM mutations inside the drawer body */
+    var _msgObserver = new MutationObserver(function(mutations) {
+      var relevant = mutations.some(function(m) {
+        return m.target && m.target.closest && (
+          m.target.closest('#MinimogCartDrawerBody') ||
+          m.target.closest('.m-cart-drawer__items')
+        );
+      });
+      if (relevant) setTimeout(injectMessageSummaries, 300);
+    });
+
+    function initMsgObserver() {
+      var body = document.getElementById('MinimogCartDrawerBody');
+      if (body) _msgObserver.observe(body, { childList: true, subtree: true });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initMsgObserver);
+    } else {
+      initMsgObserver();
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       BRAND SPINNER HTML HELPER
+    ───────────────────────────────────────────────────────────── */
+    var _spinnerCounter = 0;
+
+    function brandSpinnerHTML(size) {
+      var id = 'cs_spin_clip_' + (++_spinnerCounter);
+      var wrapSize = size === 'sm' ? 'width:32px;height:32px;' : 'width:56px;height:56px;';
+      return (
+        '<div class="cs-brand-spinner" style="' + wrapSize + 'position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
+          '<div class="cs-brand-spinner__ring" style="position:absolute;top:0;left:0;width:100%;height:100%;animation:pageTransitionSpinner 1.5s linear infinite;transform-origin:center center;">' +
+            '<svg xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;" viewBox="0 0 160 167" fill="none">' +
+              '<g clip-path="url(#' + id + ')" data-figma-skip-parse="true">' +
+                '<g transform="matrix(-0.08 -3.97575e-05 -3.97575e-05 0.08 80 80)">' +
+                  '<foreignObject x="-1013" y="-1013" width="2026.01" height="2026.01">' +
+                    '<div xmlns="http://www.w3.org/1999/xhtml" style="background:conic-gradient(from 90deg,rgba(249, 246, 243, 1) 0deg,rgba(44, 44, 44, 1) 91.7308deg,rgba(44, 44, 44, 1) 180deg,rgba(249, 246, 243, 1) 360deg);height:100%;width:100%;opacity:1"></div>' +
+                  '</foreignObject>' +
+                '</g>' +
+              '</g>' +
+              '<path d="M1 80C0.447708 80 -0.000656128 79.552 0.0062561 78.9998C0.199646 63.5264 4.87724 48.433 13.4824 35.5544C22.2729 22.3984 34.7672 12.1446 49.3853 6.08964C64.0034 0.0346267 80.0887 -1.54964 95.6072 1.53718C111.126 4.624 125.38 12.2433 136.569 23.4315C147.757 34.6197 155.376 48.8743 158.463 64.3928C161.55 79.9113 159.965 95.9966 153.91 110.615C147.855 125.233 137.602 137.727 124.446 146.518C111.567 155.123 96.4736 159.8 81.0002 159.994C80.448 160.001 80 159.552 80 159C80 158.448 80.448 158.001 81.0002 157.994C96.078 157.8 110.785 153.24 123.334 144.855C136.162 136.284 146.159 124.102 152.063 109.849C157.966 95.5967 159.511 79.9135 156.501 64.783C153.492 49.6524 146.063 35.7542 135.154 24.8457C124.246 13.9372 110.348 6.5084 95.217 3.49875C80.0865 0.489101 64.4033 2.03376 50.1507 7.9374C35.8981 13.841 23.7161 23.8385 15.1454 36.6655C6.75993 49.2152 2.19969 63.922 2.00641 78.9998C1.99933 79.552 1.55229 80 1 80Z" fill="#2C2C2C"/>' +
+              '<defs><clipPath id="' + id + '"><path d="M1 80C0.447708 80 -0.000656128 79.552 0.0062561 78.9998C0.199646 63.5264 4.87724 48.433 13.4824 35.5544C22.2729 22.3984 34.7672 12.1446 49.3853 6.08964C64.0034 0.0346267 80.0887 -1.54964 95.6072 1.53718C111.126 4.624 125.38 12.2433 136.569 23.4315C147.757 34.6197 155.376 48.8743 158.463 64.3928C161.55 79.9113 159.965 95.9966 153.91 110.615C147.855 125.233 137.602 137.727 124.446 146.518C111.567 155.123 96.4736 159.8 81.0002 159.994C80.448 160.001 80 159.552 80 159C80 158.448 80.448 158.001 81.0002 157.994C96.078 157.8 110.785 153.24 123.334 144.855C136.162 136.284 146.159 124.102 152.063 109.849C157.966 95.5967 159.511 79.9135 156.501 64.783C153.492 49.6524 146.063 35.7542 135.154 24.8457C124.246 13.9372 110.348 6.5084 95.217 3.49875C80.0865 0.489101 64.4033 2.03376 50.1507 7.9374C35.8981 13.841 23.7161 23.8385 15.1454 36.6655C6.75993 49.2152 2.19969 63.922 2.00641 78.9998C1.99933 79.552 1.55229 80 1 80Z"/></clipPath></defs>' +
+            '</svg>' +
+          '</div>' +
+        '</div>'
+      );
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       RIGHT SIDEBAR LOADING OVERLAY HELPER
+    ───────────────────────────────────────────────────────────── */
+    function showRightSideLoading() {
+      var rightSide = document.querySelector('.custom-cart-right');
+      if (!rightSide) return;
+      if (document.querySelector('.cs-right-loading-overlay')) return;
+      var overlay = document.createElement('div');
+      overlay.className = 'cs-right-loading-overlay';
+      overlay.innerHTML = brandSpinnerHTML('normal');
+      rightSide.appendChild(overlay);
+    }
+
+    function hideRightSideLoading() {
+      document.querySelectorAll('.cs-right-loading-overlay').forEach(function(el) { el.remove(); });
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       WISHLIST TOAST HELPER
+    ───────────────────────────────────────────────────────────── */
+    function showWishlistToast(msg) {
+      var toast = document.getElementById('CsWishlistToast');
+      var msgEl = document.getElementById('CsWishlistToastMsg');
+      if (!toast) return;
+      if (msgEl) msgEl.textContent = msg || 'Saved to wishlist';
+      toast.classList.add('is-visible');
+      setTimeout(function() { toast.classList.remove('is-visible'); }, 3000);
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       SHARED WISHLIST STORAGE
+    ───────────────────────────────────────────────────────────── */
+    function getWishlistStorageKey() {
+      return localStorage.getItem('minimog-wishlist') ? 'minimog-wishlist' : 'm-wishlist';
+    }
+
+    function getWishlistProductHandles() {
+      try {
+        var raw = localStorage.getItem('m-wishlist-products');
+        var list = JSON.parse(raw);
+        if (Array.isArray(list)) return list.filter(Boolean);
+      } catch(_) {}
+      return [];
+    }
+
+    function isProductWishlisted(productId, productHandle) {
+      try {
+        var idKey = getWishlistStorageKey();
+        var idList = JSON.parse(localStorage.getItem(idKey) || '[]');
+        var pid = String(productId || '');
+        if (pid) {
+          var byId = idList.some(function(item) {
+            return String(item) === pid || String(item.id) === pid || String(item.product_id) === pid;
+          });
+          if (byId) return true;
+        }
+        if (productHandle) {
+          var handleList = getWishlistProductHandles();
+          return handleList.indexOf(productHandle) !== -1;
+        }
+      } catch(_) {}
+      return false;
+    }
+
+    function triggerMinimogWishlistLiveRender(handle, action) {
+      try {
+        var wl = window.MinimogTheme && window.MinimogTheme.Wishlist;
+        if (wl) {
+          if (action === 'add') {
+            if (wl.products instanceof Set) wl.products.add(handle);
+            else if (Array.isArray(wl.products)) { if (wl.products.indexOf(handle) === -1) wl.products.push(handle); }
+            if (typeof wl.saveToStorage === 'function') wl.saveToStorage(handle);
+          } else {
+            if (wl.products instanceof Set) wl.products.delete(handle);
+            else if (Array.isArray(wl.products)) wl.products = wl.products.filter(function(h) { return h !== handle; });
+          }
+          if (typeof wl.render === 'function') wl.render();
+          if (typeof wl.loadProducts === 'function') wl.loadProducts();
+          if (typeof wl.renderProducts === 'function') wl.renderProducts();
+          if (typeof wl.updateWishlistCount === 'function') wl.updateWishlistCount();
+          if (typeof wl.setWishlistButtonsState === 'function') wl.setWishlistButtonsState();
+          if (typeof wl.addEventToWishlistButtons === 'function') wl.addEventToWishlistButtons();
+          if (typeof wl.init === 'function') wl.init();
+        }
+      } catch(_) {}
+      try {
+        var wishlistPageEl = document.querySelector('m-wishlist-page, [data-section-type="wishlist"], .m-wishlist-page');
+        if (wishlistPageEl) {
+          if (typeof wishlistPageEl.render === 'function') wishlistPageEl.render();
+          if (typeof wishlistPageEl.loadProducts === 'function') wishlistPageEl.loadProducts();
+          if (typeof wishlistPageEl.renderProducts === 'function') wishlistPageEl.renderProducts();
+          if (typeof wishlistPageEl.init === 'function') wishlistPageEl.init();
+        }
+      } catch(_) {}
+      try {
+        var foxkitEl = document.querySelector('foxkit-wishlist, foxkit-wishlist-page');
+        if (foxkitEl) {
+          ['render','loadProducts','renderProducts','init','refresh'].forEach(function(m) {
+            if (typeof foxkitEl[m] === 'function') try { foxkitEl[m](); } catch(_) {}
+          });
+        }
+      } catch(_) {}
+      try {
+        var allHeartBtns = document.querySelectorAll('.m-wishlist-button[data-product-handle="' + handle + '"]');
+        allHeartBtns.forEach(function(btn) {
+          var isActive = btn.classList.contains('is-active') || btn.classList.contains('active') || btn.classList.contains('m-wishlist--active') || btn.classList.contains('added-to-wishlist');
+          if (action === 'add' && !isActive) btn.click();
+          if (action === 'remove' && isActive) btn.click();
+        });
+      } catch(_) {}
+      try {
+        var storageKey = getWishlistStorageKey();
+        var storageVal = localStorage.getItem(storageKey);
+        try {
+          window.dispatchEvent(new StorageEvent('storage', { key: storageKey, newValue: storageVal, oldValue: storageVal, storageArea: localStorage, url: window.location.href }));
+        } catch(_) { window.dispatchEvent(new Event('storage')); }
+        try {
+          var handleVal = localStorage.getItem('m-wishlist-products');
+          window.dispatchEvent(new StorageEvent('storage', { key: 'm-wishlist-products', newValue: handleVal, oldValue: handleVal, storageArea: localStorage, url: window.location.href }));
+        } catch(_) {}
+      } catch(_) {}
+      var eventsToFire = [
+        ['wishlist:updated',             { bubbles: true, detail: { handle: handle, action: action } }],
+        ['wishlist:changed',             { bubbles: true, detail: { handle: handle, action: action } }],
+        ['wishlist:reinit',              { bubbles: true }],
+        ['minimog:wishlist:init',        { bubbles: true }],
+        ['minimog:wishlist:updated',     { bubbles: true, detail: { handle: handle } }],
+        ['foxkit:wishlist:updated',      { bubbles: true, detail: { handle: handle } }],
+        ['ajaxProduct:addedToWishlist',  { bubbles: true, detail: { handle: handle } }],
+        ['theme:wishlist:updated',       { bubbles: true }],
+      ];
+      eventsToFire.forEach(function(pair) {
+        try { document.dispatchEvent(new CustomEvent(pair[0], pair[1])); } catch(_) {}
+        try { window.dispatchEvent(new CustomEvent(pair[0], pair[1])); } catch(_) {}
+        try { document.documentElement.dispatchEvent(new CustomEvent(pair[0], pair[1])); } catch(_) {}
+      });
+      try {
+        var wishlistSection = document.querySelector('[id^="shopify-section-"][id*="wishlist"]');
+        if (wishlistSection) {
+          var sectionId = wishlistSection.id.replace('shopify-section-', '');
+          fetch(window.location.pathname + '?section_id=' + sectionId)
+            .then(function(r) { return r.text(); })
+            .then(function(html) {
+              var tmp = document.createElement('div');
+              tmp.innerHTML = html;
+              var newGrid = tmp.querySelector('.m-wishlist__products, .m-wishlist-page__products, [data-wishlist-grid], .m-product-list');
+              var curGrid = wishlistSection.querySelector('.m-wishlist__products, .m-wishlist-page__products, [data-wishlist-grid], .m-product-list');
+              if (newGrid && curGrid) {
+                curGrid.innerHTML = newGrid.innerHTML;
+                try {
+                  var wl2 = window.MinimogTheme && window.MinimogTheme.Wishlist;
+                  if (wl2 && typeof wl2.updateWishlistCount === 'function') wl2.updateWishlistCount();
+                  if (wl2 && typeof wl2.setWishlistButtonsState === 'function') wl2.setWishlistButtonsState();
+                } catch(_) {}
+              }
+            }).catch(function() {});
+        }
+      } catch(_) {}
+    }
+
+    function addToWishlistNative(handle, productId) {
+      if (!handle) return false;
+      if (isProductWishlisted(productId, handle)) return false;
+      try {
+        var HANDLE_KEY = 'm-wishlist-products';
+        var raw = localStorage.getItem(HANDLE_KEY);
+        var list = [];
+        try { list = JSON.parse(raw); } catch(_) {}
+        if (!Array.isArray(list)) list = [];
+        if (list.indexOf(handle) === -1) { list.push(handle); localStorage.setItem(HANDLE_KEY, JSON.stringify(list)); }
+      } catch(_) {}
+      if (productId) {
+        try {
+          var idKey = getWishlistStorageKey();
+          var idRaw = localStorage.getItem(idKey);
+          var idList = [];
+          try { idList = JSON.parse(idRaw); } catch(_) {}
+          if (!Array.isArray(idList)) idList = [];
+          var pid = String(productId);
+          var exists = idList.some(function(item) { return String(item) === pid || String(item.id) === pid || String(item.product_id) === pid; });
+          if (!exists) { idList.push(pid); localStorage.setItem(idKey, JSON.stringify(idList)); }
+        } catch(_) {}
+      }
+      triggerMinimogWishlistLiveRender(handle, 'add');
+      return true;
+    }
+
+    function removeFromWishlistNative(handle, productId) {
+      if (!handle) return;
+      try {
+        var HANDLE_KEY = 'm-wishlist-products';
+        var list = JSON.parse(localStorage.getItem(HANDLE_KEY) || '[]');
+        list = list.filter(function(h) { return h !== handle; });
+        localStorage.setItem(HANDLE_KEY, JSON.stringify(list));
+      } catch(_) {}
+      if (productId) {
+        try {
+          var idKey = getWishlistStorageKey();
+          var pid = String(productId);
+          var idList = JSON.parse(localStorage.getItem(idKey) || '[]');
+          idList = idList.filter(function(item) { return String(item) !== pid && String(item.id) !== pid && String(item.product_id) !== pid; });
+          localStorage.setItem(idKey, JSON.stringify(idList));
+        } catch(_) {}
+      }
+      triggerMinimogWishlistLiveRender(handle, 'remove');
+      var drawerEl = document.getElementById('MinimogCartDrawer');
+      if (drawerEl) fetchAndRenderWishlist(drawerEl);
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       LIVE DYNAMIC WISHLIST TAB RENDER
+    ───────────────────────────────────────────────────────────── */
+    function fetchAndRenderWishlist(drawer) {
+      var wishlistTab = drawer.querySelector('.custom-cart-recs-tab[data-handle="wishlist-recs"]');
+      if (!wishlistTab) return;
+      var list = getWishlistProductHandles();
+      if (list.length === 0) {
+        wishlistTab.innerHTML = '<div style="text-align:center; padding:32px 10px; color:#888; font-family:Inter,sans-serif; font-size:13px; line-height:1.4;">Your wishlist is empty.</div>';
+        return;
+      }
+      wishlistTab.innerHTML = '<div style="display:flex; justify-content:center; padding:30px;">' + brandSpinnerHTML('sm') + '</div>';
+      var promises = list.map(function(handle) {
+        return fetch('/products/' + handle + '.js').then(function(res) { if (res.ok) return res.json(); return null; }).catch(function() { return null; });
+      });
+      Promise.all(promises).then(function(products) {
+        var html = '';
+        products.forEach(function(p) {
+          if (!p) return;
+          var featuredImg = p.featured_image || (p.images && p.images[0]) || '';
+          var price = formatPrice(p.price);
+          var _addVariant = null;
+          if (p.variants && p.options) {
+            _addVariant = p.variants.find(function(v) {
+              if (!v.available) return false;
+              return p.options.every(function(opt, i) { var val = v['option' + (i + 1)]; return val && String(val).trim() !== ''; });
+            });
+          }
+          if (!_addVariant && p.variants) _addVariant = p.variants.find(function(v) { return v.available; });
+          if (!_addVariant && p.variants && p.variants.length > 0) _addVariant = p.variants[0];
+          html += '<div class="cs-wishlist-item-row">';
+          if (featuredImg) html += '<img src="' + featuredImg + '" style="width:68px; height:68px; object-fit:contain; background:#fcfcfc; border:1px solid #f0f0f0; padding:4px; border-radius:4px;" alt="' + escHtml(p.title) + '">';
+          html += '<div style="flex:1; display:flex; flex-direction:column; gap:2px; min-width:0;">';
+          html += '<h4 style="margin:0; font-family:Inter,sans-serif; font-size:13px; font-weight:500; color:#2c2c2c; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + p.title + '</h4>';
+          html += '<span style="font-family:Inter,sans-serif; font-size:13px; font-weight:600; color:#2c2c2c;">' + price + '</span>';
+          html += '</div>';
+          if (p.available && _addVariant) {
+            html += '<button type="button" class="cs-rm-btn cs-rm-btn-primary" style="padding:7px 10px; font-size:10px; flex-shrink:0; max-width:fit-content; height:auto; min-height:0;" onclick="window.addWishlistItemToCart(' + _addVariant.id + ', this)">ADD TO BAG</button>';
+          } else {
+            html += '<span style="font-size:10px; color:#999; text-transform:uppercase; font-weight:500; padding-right:4px;">SOLD OUT</span>';
+          }
+          html += '</div>';
+        });
+        wishlistTab.innerHTML = html || '<div style="text-align:center; padding:32px 10px; color:#888; font-family:Inter,sans-serif; font-size:13px;">Your wishlist items are currently unavailable.</div>';
+      });
+    }
+
+    window.addWishlistItemToCart = function(variantId, button) {
+      if (!variantId) return;
+      var originalText = button.textContent;
+      button.textContent = 'ADDING…';
+      button.style.pointerEvents = 'none';
+      button.style.opacity = '0.6';
+      showRightSideLoading();
+      fetch('/cart/add.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: variantId, quantity: 1 }) })
+        .then(function() {
+          button.textContent = 'ADDED';
+          document.documentElement.dispatchEvent(new CustomEvent('cart:updated', { bubbles: true }));
+          document.documentElement.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true }));
+          return fetch(window.location.pathname + '?section_id=cart-drawer');
+        })
+        .then(function(res) { return res.text(); })
+        .then(function(text) {
+          var tmp = document.createElement('div');
+          tmp.innerHTML = text;
+          var currentRight = document.querySelector('.custom-cart-right');
+          var newRight = tmp.querySelector('.custom-cart-right');
+          if (currentRight && newRight) currentRight.innerHTML = newRight.innerHTML;
+          button.textContent = originalText;
+          button.style.pointerEvents = 'auto';
+          button.style.opacity = '1';
+          hideRightSideLoading();
+        })
+        .catch(function() {
+          button.textContent = originalText;
+          button.style.pointerEvents = 'auto';
+          button.style.opacity = '1';
+          hideRightSideLoading();
+        });
+    };
+
+    /* ─────────────────────────────────────────────────────────────
+       RECOMMENDATION TAB SWITCHING
+    ───────────────────────────────────────────────────────────── */
+    document.addEventListener('click', function(e) {
+      var listItem = e.target.closest('.custom-collection-list li');
+      if (!listItem) return;
+      var drawer = listItem.closest('#MinimogCartDrawer');
+      if (!drawer) return;
+      var handle = listItem.getAttribute('data-handle');
+      var title = listItem.innerText;
+      var dropdown = drawer.querySelector('.custom-collection-dropdown');
+      if (dropdown) { dropdown.style.display = 'none'; setTimeout(function() { dropdown.style.display = ''; }, 300); }
+      var subtitleText = drawer.querySelector('.custom-subtitle-text');
+      if (subtitleText) subtitleText.innerText = title;
+      drawer.querySelectorAll('.custom-cart-recs-tab').forEach(function(tab) {
+        tab.style.display = tab.getAttribute('data-handle') === handle ? 'flex' : 'none';
+      });
+      if (handle === 'wishlist-recs') fetchAndRenderWishlist(drawer);
+    });
+
+    /* ─────────────────────────────────────────────────────────────
+       SVG BORDERS FOR EDIT PANEL VNODES
+    ───────────────────────────────────────────────────────────── */
+    var octSvgNormal = '<svg class="m-edit-vsvg" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polygon points="6,1 32,1 37,6 37,32 32,37 6,37 1,32 1,6" fill="none" stroke-linejoin="miter"/></svg>';
+    var octSvgGemstone = '<svg class="m-edit-vsvg" viewBox="0 0 66 38" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polygon points="6,1 60,1 65,6 65,32 60,37 6,37 1,32 1,6" fill="none" stroke-linejoin="miter"/></svg>';
+
+    /* ─────────────────────────────────────────────────────────────
+       EDIT PANEL STATE
+    ───────────────────────────────────────────────────────────── */
+    var currentEditKey = '';
+    var currentEditQty = 1;
+    var fetchedProduct = null;
+    var activeVariantId = null;
+    var activeVariantAvailable = true;
+
+    /* ─────────────────────────────────────────────────────────────
+       HELPERS
+    ───────────────────────────────────────────────────────────── */
+    function formatPrice(cents) {
+      var n = parseInt(cents, 10);
+      if (isNaN(n)) return String(cents);
+      return '$' + (n / 100).toFixed(2);
+    }
+
+    function getImg(imgObj) {
+      if (!imgObj) return '';
+      if (typeof imgObj === 'string') return imgObj;
+      return imgObj.src || imgObj.url || '';
+    }
+
+    function nameToHex(name) {
+      var n = String(name).toLowerCase();
+      if (n.indexOf('citrine') !== -1) return '#e49b0f';
+      if (n.indexOf('moissanite') !== -1 || n.indexOf('diamond') !== -1) return '#e8f4fc';
+      if (n.indexOf('ruby') !== -1) return '#c0392b';
+      if (n.indexOf('emerald') !== -1) return '#1e8449';
+      if (n.indexOf('sapphire') !== -1) return '#1a5276';
+      if (n.indexOf('rose gold') !== -1 || n.indexOf('rose') !== -1) return '#E6A389';
+      if (n.indexOf('yellow gold') !== -1 || n.indexOf('gold') !== -1) return '#D4A843';
+      if (n.indexOf('silver') !== -1 || n.indexOf('rhodium') !== -1 || n.indexOf('platinum') !== -1) return '#E2E2E2';
+      var map = { black:'#1a1a1a', white:'#f0f0f0', red:'#cc2200', blue:'#3355bb', green:'#336633', pink:'#f4b8c8', purple:'#7733aa', yellow:'#f5c800', amethyst:'#9b59b6', opal:'#f0e6d3' };
+      return map[n.trim()] || '#e0e0e0';
+    }
+
+    function shopifyHandleize(str) {
+      return String(str).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    }
+
+    function getGemFileUrl(val) {
+      var handle = shopifyHandleize(val);
+      var gemMap = window.__gemFileUrls || {};
+      if (gemMap[handle]) return gemMap[handle];
+      return '/files/' + handle + '.png';
+    }
+
+    function normaliseOptions(product) {
+      var opts = product.options_with_values || product.options || [];
+      return opts.map(function(o, idx) {
+        if (typeof o === 'string') {
+          var vals = [];
+          (product.variants || []).forEach(function(v) { var ov = v['option' + (idx + 1)]; if (ov != null && vals.indexOf(ov) === -1) vals.push(ov); });
+          return { name: o, position: idx + 1, values: vals };
+        }
+        return { name: o.name, position: o.position || idx + 1, values: o.values || [] };
+      });
+    }
+
+    function getVariantOption(variant, pos) {
+      if (variant['option' + pos] != null) return variant['option' + pos];
+      if (variant.options && variant.options[pos - 1] != null) return variant.options[pos - 1];
+      return '';
+    }
+
+    function findBestVariant(variants, options, targetPos, targetVal, refV) {
+      var exact = variants.find(function(v) {
+        return options.every(function(o) {
+          if (o.position === targetPos) return getVariantOption(v, o.position) === targetVal;
+          return getVariantOption(v, o.position) === getVariantOption(refV, o.position);
+        });
+      });
+      if (exact) return exact;
+      return variants.find(function(v) { return getVariantOption(v, targetPos) === targetVal; }) || null;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       REMOVE BUTTON — intercept in capture phase
+    ───────────────────────────────────────────────────────────── */
+    document.addEventListener('click', function(e) {
+      var removeBtn = e.target.closest('.m-cart-item__remove');
+      if (!removeBtn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      var lineItem = removeBtn.closest('.m-cart-item');
+      if (!lineItem) return;
+      document.querySelectorAll('.cs-remove-inline-overlay').forEach(function(el) { el.remove(); });
+      var itemKey = lineItem.getAttribute('data-id') || removeBtn.getAttribute('data-id') || (removeBtn.closest('[data-id]') && removeBtn.closest('[data-id]').getAttribute('data-id')) || '';
+      var itemLink = lineItem.querySelector('a[href*="/products/"]');
+      var productHandle = '';
+      if (itemLink) { var parts = itemLink.getAttribute('href').split('?')[0].split('/'); productHandle = parts[parts.length - 1]; }
+      var productId = lineItem.getAttribute('data-product-id') || lineItem.getAttribute('data-id') || '';
+      var productImgEl = lineItem.querySelector('.m-cart-item__image img') || lineItem.querySelector('img');
+      var productImgSrc = productImgEl ? productImgEl.src : '';
+      var alreadyWishlisted = isProductWishlisted(productId, productHandle);
+      var wishlistBtnLabel = alreadyWishlisted ? 'ALREADY IN WISHLIST' : 'ADD TO WISHLIST';
+      var wishlistBtnDisabled = alreadyWishlisted ? ' data-wishlisted="true"' : '';
+      var overlay = document.createElement('div');
+      overlay.className = 'cs-remove-inline-overlay';
+      overlay.innerHTML =
+        '<button class="cs-rm-close" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>' +
+        '<div class="cs-rm-content">' +
+          '<div class="cs-rm-img-wrap"><img src="' + productImgSrc + '" alt="Product">' +
+            '<svg class="cs-rm-oct-border" viewBox="0 0 68 68" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polygon points="12.24,0 55.76,0 68,12.24 68,55.76 55.76,68 12.24,68 0,55.76 0,12.24" fill="none" stroke="#E8E2DC" stroke-width="1.5" stroke-linejoin="miter"/></svg>' +
+          '</div>' +
+          '<div class="cs-rm-text"><h3>Remove Item From Bag?</h3><p>Would you like to save this<br>item for later?</p></div>' +
+        '</div>' +
+        '<div class="cs-rm-actions">' +
+          '<button type="button" class="cs-rm-btn cs-rm-btn-primary cs-rm-wishlist-btn"' + wishlistBtnDisabled + ' data-key="' + itemKey + '" data-handle="' + productHandle + '" data-product-id="' + productId + '">' + wishlistBtnLabel + '</button>' +
+          '<button type="button" class="cs-rm-btn cs-rm-btn-secondary cs-rm-nothanks-btn" data-key="' + itemKey + '">NO THANKS</button>' +
+        '</div>';
+      lineItem.appendChild(overlay);
+      requestAnimationFrame(function() { requestAnimationFrame(function() { overlay.classList.add('is-visible'); }); });
+    }, true);
+
+    /* ─────────────────────────────────────────────────────────────
+       REMOVE OVERLAY ACTIONS
+    ───────────────────────────────────────────────────────────── */
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('.cs-remove-inline-overlay')) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); }
+
+      if (e.target.closest('.cs-rm-close')) {
+        var overlay = e.target.closest('.cs-remove-inline-overlay');
+        if (overlay) { overlay.classList.remove('is-visible'); setTimeout(function() { overlay.remove(); }, 300); }
+        return;
+      }
+
+      var noThanksBtn = e.target.closest('.cs-rm-nothanks-btn');
+      if (noThanksBtn) {
+        var key = noThanksBtn.getAttribute('data-key');
+        if (!key) return;
+        noThanksBtn.textContent = 'REMOVING…';
+        noThanksBtn.style.opacity = '0.5';
+        noThanksBtn.style.pointerEvents = 'none';
+        fetch('/cart/change.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: key, quantity: 0 }) }).then(function() {
+          document.documentElement.dispatchEvent(new CustomEvent('cart:updated', { bubbles: true }));
+          document.documentElement.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true }));
+        });
+        return;
+      }
+
+      var wishlistBtn = e.target.closest('.cs-rm-wishlist-btn');
+      if (wishlistBtn) {
+        if (wishlistBtn.getAttribute('data-wishlisted') === 'true') return;
+        var key = wishlistBtn.getAttribute('data-key');
+        var handle = wishlistBtn.getAttribute('data-handle');
+        var productId = wishlistBtn.getAttribute('data-product-id');
+        if (!key) return;
+        if (isProductWishlisted(productId, handle)) { wishlistBtn.textContent = 'ALREADY IN WISHLIST'; wishlistBtn.setAttribute('data-wishlisted', 'true'); return; }
+        wishlistBtn.textContent = 'SAVING…';
+        wishlistBtn.style.opacity = '0.5';
+        wishlistBtn.style.pointerEvents = 'none';
+        addToWishlistNative(handle, productId);
+        fetch('/cart/change.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: key, quantity: 0 }) })
+          .then(function(res) { return res.json(); })
+          .then(function() {
+            showWishlistToast('Saved to wishlist ♥');
+            document.documentElement.dispatchEvent(new CustomEvent('cart:updated', { bubbles: true }));
+            document.documentElement.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true }));
+            var drawerElement = document.getElementById('MinimogCartDrawer');
+            if (drawerElement) fetchAndRenderWishlist(drawerElement);
+          })
+          .catch(function() {
+            showWishlistToast('Saved to wishlist ♥');
+            document.documentElement.dispatchEvent(new CustomEvent('cart:updated', { bubbles: true }));
+            document.documentElement.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true }));
+          });
+        return;
+      }
+    });
+
+    /* ─────────────────────────────────────────────────────────────
+       OPEN INLINE EDIT PANEL
+    ───────────────────────────────────────────────────────────── */
+    window.openEditModal = function(productHandle, lineItemKey, variantId, qty) {
+      var panel = document.getElementById('CsInlineEditPanel');
+      if (!panel) return;
+      currentEditKey = lineItemKey;
+      currentEditQty = qty;
+      document.getElementById('cs-iep-inner').innerHTML = brandSpinnerHTML('normal');
+      document.getElementById('cs-iep-inner').style.cssText = 'display:flex;flex:1;flex-direction:column;justify-content:center;align-items:center;';
+      panel.classList.add('is-open');
+      fetch('/products/' + productHandle + '.js')
+        .then(function(r) { return r.json(); })
+        .then(function(json) {
+          fetchedProduct = json.product || json;
+          var variants = fetchedProduct.variants || [];
+          var currentV = variants.find(function(v) { return v.id === variantId; }) || variants[0];
+          activeVariantId = currentV.id;
+          activeVariantAvailable = !!currentV.available;
+          renderPanelUI(currentV);
+        })
+        .catch(function() {
+          document.getElementById('cs-iep-inner').innerHTML = '<p style="color:red;text-align:center;padding:20px;">Failed to load product.</p>';
+        });
+    };
+
+    function renderPanelUI(selectedVariant) {
+      var product = fetchedProduct;
+      var variants = product.variants || [];
+      var options = normaliseOptions(product);
+      var firstV = selectedVariant || variants[0];
+      var imgUrl = getImg(firstV.featured_image) || (product.media && product.media[0] && getImg(product.media[0].preview_image)) || (product.images && product.images[0]) || '';
+      var priceStr = formatPrice(firstV.price);
+      var onSale = firstV.compare_at_price && parseInt(firstV.compare_at_price, 10) > parseInt(firstV.price, 10);
+      var compareStr = onSale ? '<span class="cs-iep-compare">$' + (parseInt(firstV.compare_at_price, 10) / 100).toFixed(2) + '</span>' : '';
+      var selectedOptions = options.map(function(o) { return getVariantOption(firstV, o.position); });
+      var materialImgMap = {};
+      var materialOptPos = -1;
+      options.forEach(function(o) { if (/material|metal|finish|plat/i.test(o.name)) materialOptPos = o.position; });
+      if (materialOptPos > 0) {
+        variants.forEach(function(v) {
+          var matVal = getVariantOption(v, materialOptPos);
+          var vImg = getImg(v.featured_image);
+          if (matVal && !materialImgMap[matVal] && vImg) materialImgMap[matVal] = vImg;
+        });
+      }
+      var hasMaterial = options.some(function(o) { return /material|metal|finish|plat/i.test(o.name); });
+      var hasShape = options.some(function(o) { return /shape/i.test(o.name); });
+      var orderedOptions = options.slice().sort(function(a, b) {
+        function getRank(name) {
+          var n = name.toLowerCase();
+          if (hasMaterial) {
+            if (/material|metal|finish|plat/i.test(n)) return 1;
+            if (/gem|stone/i.test(n)) return 2;
+            if (/size/i.test(n)) return 3;
+            return 4;
+          } else if (hasShape) {
+            if (/gem|stone/i.test(n)) return 1;
+            if (/shape/i.test(n)) return 2;
+            if (/quantity/i.test(n)) return 3;
+            return 4;
+          }
+          return 5;
+        }
+        return getRank(a.name) - getRank(b.name) || a.position - b.position;
+      });
+      var h = '';
+      h += '<div class="cs-iep-header">';
+      if (imgUrl) h += '<img class="cs-iep-header-img" id="cs-iep-img" src="' + imgUrl + '" alt="' + escHtml(product.title) + '">';
+      h += '<div class="cs-iep-header-info">';
+      h += '<h4 class="cs-iep-title">' + product.title + '</h4>';
+      h += '<div class="cs-iep-price-row"><span class="cs-iep-price" id="cs-iep-price">' + priceStr + '</span>' + compareStr + '</div>';
+      h += '<a href="' + (product.url || '/products/' + product.handle) + '" class="cs-iep-link" target="_blank">View Details</a>';
+      h += '</div></div>';
+      h += '<div class="cs-iep-body">';
+      orderedOptions.forEach(function(opt) {
+        var currentVal = selectedOptions[opt.position - 1];
+        var isMaterial = /material|metal|finish|plat/i.test(opt.name);
+        var isGemOpt = /gem|stone/i.test(opt.name);
+        var isShape = /shape/i.test(opt.name);
+        var renderAsSwatches = isMaterial || isGemOpt || (isShape && opt.values.some(function(val) { var mV = findBestVariant(variants, options, opt.position, val, firstV); return mV && getImg(mV.featured_image); }));
+        h += '<div class="cs-iep-option-group" data-opt-pos="' + opt.position + '">';
+        h += '<div class="cs-iep-option-label">' + opt.name + ': <strong id="cs-iep-ol-' + opt.position + '">' + currentVal + '</strong></div>';
+        if (renderAsSwatches) {
+          h += '<div class="m-edit-swatch-list">';
+          opt.values.forEach(function(val) {
+            var matchV = findBestVariant(variants, options, opt.position, val, firstV);
+            var avail = matchV ? !!matchV.available : true;
+            var active = val === currentVal ? ' is-selected' : '';
+            var unavCls = !avail ? ' unavailable' : '';
+            var optType = isGemOpt ? 'gemstone' : 'image';
+            var imgSrc = '';
+            if (isMaterial) imgSrc = materialImgMap[val] || (matchV ? getImg(matchV.featured_image) : '');
+            else if (isGemOpt) imgSrc = getGemFileUrl(val);
+            else if (isShape) imgSrc = matchV ? getImg(matchV.featured_image) : '';
+            var bgStyle = imgSrc ? 'background-image: url(' + imgSrc + ');' : 'background-color: ' + nameToHex(val) + ';';
+            h += '<div class="m-edit-vnode' + active + unavCls + '" data-option-type="' + optType + '" data-opt="' + opt.position + '" data-val="' + escHtml(val) + '" title="' + escHtml(val) + '">';
+            h += '<div class="m-edit-vgap"><label class="m-edit-vlabel"';
+            if (!isGemOpt) h += ' style="' + bgStyle + '"';
+            h += '>';
+            if (isGemOpt && imgSrc) h += '<img src="' + imgSrc + '" alt="' + escHtml(val) + '" onerror="this.style.display=\'none\'">';
+            if (isGemOpt && !imgSrc) h += '<span style="display:block;width:100%;height:100%;background-color:' + nameToHex(val) + ';"></span>';
+            h += '</label></div>';
+            h += isGemOpt ? octSvgGemstone : octSvgNormal;
+            h += '</div>';
+          });
+          h += '</div>';
+        } else {
+          h += '<div class="m-edit-size-list">';
+          opt.values.forEach(function(val) {
+            var matchV = findBestVariant(variants, options, opt.position, val, firstV);
+            var avail = matchV ? !!matchV.available : true;
+            var active = val === currentVal ? ' is-selected' : '';
+            var unavCls = !avail ? ' unavailable' : '';
+            h += '<div class="m-edit-vnode' + active + unavCls + '" data-option-type="button" data-opt="' + opt.position + '" data-val="' + escHtml(val) + '" title="' + escHtml(val) + (avail ? '' : ' (Sold Out)') + '">';
+            h += '<div class="m-edit-vgap"><label class="m-edit-vlabel">' + val + '</label></div>';
+            h += octSvgNormal;
+            h += '</div>';
+          });
+          h += '</div>';
+        }
+        h += '</div>';
+      });
+      h += '</div>';
+      h += '<div class="cs-iep-footer">';
+      h += '<div class="cs-iep-delivery"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 18H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.19M15 6h2a2 2 0 0 1 2 2l4 4v6h-4M18 18h-4M5 18a2 2 0 1 0 4 0 2 2 0 0 0-4 0zm9 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0z"/></svg>READY-TO-SHIP: DELIVERY WITHIN 7–14 WORKING DAYS</div>';
+      h += '<button type="button" id="CsIepSaveBtn" class="cs-checkout-button" style="width:100%;" onclick="saveVariantUpdate()">UPDATE CART</button>';
+      h += '</div>';
+      var inner = document.getElementById('cs-iep-inner');
+      inner.style.cssText = 'display:contents;';
+      inner.innerHTML = h;
+      bindPanelInteractions(variants, options, selectedOptions);
+    }
+
+    function bindPanelInteractions(variants, options, selectedOptions) {
+      var panel = document.getElementById('CsInlineEditPanel');
+      panel.querySelectorAll('[data-opt]').forEach(function(node) {
+        node.addEventListener('click', function() {
+          if (node.classList.contains('unavailable')) return;
+          var pos = parseInt(node.getAttribute('data-opt'), 10);
+          var val = node.getAttribute('data-val');
+          panel.querySelectorAll('[data-opt="' + pos + '"]').forEach(function(b) { b.classList.remove('is-selected'); });
+          node.classList.add('is-selected');
+          var lbl = document.getElementById('cs-iep-ol-' + pos);
+          if (lbl) lbl.textContent = val;
+          selectedOptions[pos - 1] = val;
+          var match = (fetchedProduct.variants || []).find(function(v) {
+            return options.every(function(o, i) { return getVariantOption(v, o.position) === selectedOptions[i]; });
+          });
+          if (match) {
+            activeVariantId = match.id;
+            activeVariantAvailable = !!match.available;
+            var priceEl = document.getElementById('cs-iep-price');
+            if (priceEl) priceEl.textContent = formatPrice(match.price);
+            var imgEl = document.getElementById('cs-iep-img');
+            if (imgEl) { var matchImg = getImg(match.featured_image) || (fetchedProduct.media && fetchedProduct.media[0] && getImg(fetchedProduct.media[0].preview_image)) || ''; if (matchImg) imgEl.src = matchImg; }
+          }
+          updateUnavailableStates(panel, variants, options, selectedOptions);
+        });
+      });
+    }
+
+    function updateUnavailableStates(panel, variants, options, selected) {
+      options.forEach(function(opt, idx) {
+        panel.querySelectorAll('[data-opt="' + opt.position + '"]').forEach(function(node) {
+          var val = node.getAttribute('data-val');
+          var hypo = selected.slice();
+          hypo[idx] = val;
+          var matchV = variants.find(function(v) { return options.every(function(o, i) { return getVariantOption(v, o.position) === hypo[i]; }); });
+          if (!matchV || !matchV.available) node.classList.add('unavailable');
+          else node.classList.remove('unavailable');
+        });
+      });
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       SAVE VARIANT UPDATE
+    ───────────────────────────────────────────────────────────── */
+    window.saveVariantUpdate = function() {
+      var btn = document.getElementById('CsIepSaveBtn');
+      if (!btn) return;
+      if (!activeVariantId || !activeVariantAvailable) { alert('This combination is currently unavailable.'); return; }
+      btn.textContent = 'UPDATING…';
+      btn.style.opacity = '0.7';
+      btn.style.pointerEvents = 'none';
+      fetch('/cart/add.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: activeVariantId, quantity: currentEditQty }) })
+        .then(function() {
+          return fetch('/cart/change.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: currentEditKey, quantity: 0 }) });
+        })
+        .then(function() { return fetch(window.location.pathname + '?section_id=cart-drawer'); })
+        .then(function(res) { return res.text(); })
+        .then(function(text) {
+          var tmp = document.createElement('div');
+          tmp.innerHTML = text;
+          var newInner = tmp.querySelector('.m-cart-drawer__inner');
+          if (newInner) document.querySelector('.m-cart-drawer__inner').innerHTML = newInner.innerHTML;
+          closeEditPanel();
+          document.documentElement.dispatchEvent(new CustomEvent('cart:updated', { bubbles: true }));
+          document.documentElement.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true }));
+        })
+        .catch(function() {
+          alert('Something went wrong. Please try again.');
+          if (btn) { btn.textContent = 'UPDATE CART'; btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; }
+        });
+    };
+
+    /* ─────────────────────────────────────────────────────────────
+       CLOSE EDIT PANEL
+    ───────────────────────────────────────────────────────────── */
+    window.closeEditPanel = window.closeEditModal = function() {
+      var panel = document.getElementById('CsInlineEditPanel');
+      if (panel) panel.classList.remove('is-open');
+    };
+
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') window.closeEditPanel(); });
+
+    /* ─────────────────────────────────────────────────────────────
+       LEFT SIDEBAR ADD TO CART LOADING
+    ───────────────────────────────────────────────────────────── */
+    function setLeftSidebarLoading(btn) {
+      if (!btn || btn.getAttribute('data-loading') === 'true') return;
+      btn.setAttribute('data-loading', 'true');
+      var originalHtml = btn.innerHTML;
+      btn.setAttribute('data-original-html', originalHtml);
+      var textSpan = btn.querySelector('span:not(.m-spinner-icon)') || btn;
+      textSpan.textContent = 'ADDING...';
+      btn.style.opacity = '0.6';
+      btn.style.pointerEvents = 'none';
+      showRightSideLoading();
+      var resetBtn = function() {
+        if (btn) { btn.innerHTML = btn.getAttribute('data-original-html'); btn.style.opacity = ''; btn.style.pointerEvents = ''; btn.removeAttribute('data-loading'); }
+        hideRightSideLoading();
+        document.documentElement.removeEventListener('cart:updated', resetBtn);
+        document.documentElement.removeEventListener('cart:refresh', resetBtn);
+      };
+      document.documentElement.addEventListener('cart:updated', resetBtn);
+      document.documentElement.addEventListener('cart:refresh', resetBtn);
+      setTimeout(resetBtn, 3000);
+    }
+
+    document.addEventListener('click', function(e) {
+      var btn = e.target.closest('.custom-cart-left .m-add-to-cart, .custom-cart-left .m-product-card__add-to-cart, .custom-cart-left button[name="add"]');
+      if (btn) setLeftSidebarLoading(btn);
+    }, true);
+
+    document.addEventListener('submit', function(e) {
+      var form = e.target;
+      if (form.closest('.custom-cart-left') && form.action && form.action.indexOf('/cart/add') !== -1) {
+        var btn = form.querySelector('button[type="submit"], button[name="add"]');
+        if (btn) setLeftSidebarLoading(btn);
+      }
+    }, true);
+
+  })();
+</script>

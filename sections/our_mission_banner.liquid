@@ -1,0 +1,447 @@
+{%- style -%}
+  /* =========================================================
+     Our Mission Banner - Pixel Perfect Custom CSS
+     ========================================================= */
+  .custom-mission-{{ section.id }} {
+    --bg-color: {{ section.settings.bg_color }};
+    --padding-top: {{ section.settings.padding_top }}px;
+    --padding-bottom: {{ section.settings.padding_bottom }}px;
+    --padding-sides: {{ section.settings.padding_sides }}px;
+    
+    --corner-cut: {{ section.settings.corner_cut }}px;
+    --corner-cut-mobile: {{ section.settings.corner_cut_mobile }}px;
+
+    --text-color: {{ section.settings.text_color }};
+    --btn-border: {{ section.settings.btn_border_color }};
+    --btn-text: {{ section.settings.btn_text_color }};
+    --btn-bg: {{ section.settings.btn_bg_color }};
+    --btn-grad-1: {{ section.settings.btn_grad_1 }};
+    --btn-grad-2: {{ section.settings.btn_grad_2 }};
+    --btn-grad-3: {{ section.settings.btn_grad_3 }};
+    --btn-hover-text: {{ section.settings.btn_hover_text }};
+    
+    background-color: var(--bg-color);
+    padding-top: var(--padding-top);
+    padding-bottom: var(--padding-bottom);
+    padding-left: var(--padding-sides);
+    padding-right: var(--padding-sides);
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+  }
+
+  .custom-mission-{{ section.id }} .mission-container {
+    max-width: 1920px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px; /* Gap between Image and Text area */
+  }
+
+  /* --- IMAGE SHAPE AREA --- */
+  .custom-mission-{{ section.id }} .mission-image-area {
+    position: relative;
+    width: 100%;
+    max-width: 1680px;
+    aspect-ratio: 1680 / 617; /* Keeps exact Figma proportion */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Inner Image Box with Polygon Clip-Path */
+  .custom-mission-{{ section.id }} .mission-image-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    clip-path: polygon(
+      var(--corner-cut) 0, 
+      calc(100% - var(--corner-cut)) 0, 
+      100% var(--corner-cut), 
+      100% calc(100% - var(--corner-cut)), 
+      calc(100% - var(--corner-cut)) 100%, 
+      var(--corner-cut) 100%, 
+      0 calc(100% - var(--corner-cut)), 
+      0 var(--corner-cut)
+    );
+  }
+
+  .custom-mission-{{ section.id }} .mission-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .custom-mission-{{ section.id }} .mission-image-wrapper svg {
+    width: 100%;
+    height: 100%;
+    background-color: #f0f0f0;
+    fill: #ccc;
+  }
+
+  /* Overlay Logo */
+  .custom-mission-{{ section.id }} .logo-overlay {
+    position: absolute;
+    top: {{ section.settings.logo_top_pos }}%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    pointer-events: none; /* Lets clicks pass through to the image */
+    width: {{ section.settings.logo_width }}px;
+    max-width: 90%;
+  }
+
+  .custom-mission-{{ section.id }} .logo-overlay img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* --- TEXT & BUTTON AREA --- */
+  .custom-mission-{{ section.id }} .mission-content-area {
+    width: 100%;
+    max-width: 1534px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px; /* Gap between text and button */
+  }
+
+  .custom-mission-{{ section.id }} .mission-desc {
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-size: {{ section.settings.desc_size }}px;
+    font-weight: 300; /* Light 300 */
+    line-height: 38px;
+    color: var(--text-color);
+    text-align: center;
+    margin: 0;
+    width: 100%;
+  }
+
+  .custom-mission-{{ section.id }} .mission-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 350px;
+    height: 55px;
+    background-color: var(--btn-bg);
+    color: var(--btn-text);
+    border: 1px solid var(--btn-border);
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+
+    font-size: 20px;
+    font-weight: 300;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: 0px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+  }
+
+  .custom-mission-{{ section.id }} .mission-btn:hover {
+    background: linear-gradient(135deg, var(--btn-grad-1), var(--btn-grad-2), var(--btn-grad-3));
+    color: var(--btn-hover-text);
+    border-color: transparent; /* Hover e border hide korar jonno */
+    border:none;
+  }
+
+
+  /* ─── MacBook Air 15" M2 ─────────────────────────────────────── */
+@media (min-width: 1441px) and (max-width: 1728px) {
+  .custom-mission-{{ section.id }} .mission-btn,
+  .custom-mission-{{ section.id }} .mission-desc {
+    font-size: 18px;
+  }
+
+  .custom-mission-{{ section.id }} .mission-btn {
+    width: 320px;
+  }
+}
+
+
+    @media screen and (max-width: 1440px) {
+        .custom-mission-{{ section.id }} .mission-btn,.custom-mission-{{ section.id }} .mission-desc {
+          font-size : 16px;
+        }
+    }
+
+  /* --- RESPONSIVE DESIGN --- */
+  @media (max-width: 1024px) {
+    .custom-mission-{{ section.id }} {
+      --corner-cut: var(--corner-cut-mobile);
+      padding-left: 40px;
+      padding-right: 40px;
+    }
+    .custom-mission-{{ section.id }} .mission-image-area {
+      aspect-ratio: auto;
+      /* height: 450px; */
+    }
+    .custom-mission-{{ section.id }} .mission-desc {
+      font-size: 18px;
+      line-height: 30px;
+    }
+  }
+
+  @media (max-width: 768px) {
+
+     .custom-mission-{{ section.id }} .mission-container {
+    gap: 20px; 
+  }
+    .custom-mission-{{ section.id }} {
+      padding-top: 40px;
+      padding-bottom: 40px;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+    .custom-mission-{{ section.id }} .mission-image-area {
+      /* height: 300px; */
+    }
+    .custom-mission-{{ section.id }} .logo-overlay {
+      width: 150px; /* Smaller logo on mobile */
+      top: 15%;
+    }
+    .custom-mission-{{ section.id }} .mission-desc {
+      font-size: 16px;
+      line-height: 26px;
+    }
+    .custom-mission-{{ section.id }} .mission-btn {
+      width: 100%;
+      /* max-width: 350px; */
+    }
+  }
+{%- endstyle -%}
+
+<section class="custom-mission-{{ section.id }}">
+  <div class="mission-container">
+    
+    <!-- TOP: IMAGE SHAPE -->
+    <div class="mission-image-area">
+      <!-- Image Wrapper without Border -->
+      <div class="mission-image-wrapper">
+        {%- if section.settings.main_image != blank -%}
+          <img src="{{ section.settings.main_image | image_url: width: 1680 }}" alt="Our Mission" loading="lazy">
+        {%- else -%}
+          {{ 'lifestyle-1' | placeholder_svg_tag }}
+        {%- endif -%}
+      </div>
+
+      <!-- Overlay Logo -->
+      {%- if section.settings.overlay_logo != blank -%}
+        <div class="logo-overlay">
+          <img src="{{ section.settings.overlay_logo | image_url: width: 600 }}" alt="Logo" loading="lazy">
+        </div>
+      {%- endif -%}
+    </div>
+
+    <!-- BOTTOM: TEXT AND BUTTON -->
+    <div class="mission-content-area">
+      <p class="mission-desc">{{ section.settings.description | newline_to_br }}</p>
+      
+      {%- if section.settings.btn_text != blank -%}
+        <a href="{{ section.settings.btn_link | default: '#' }}" class="mission-btn">{{ section.settings.btn_text }}</a>
+      {%- endif -%}
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Mission Banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Layout & Spacing"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Section Background",
+      "default": "#FFF9F5"
+    },
+    {
+      "type": "range",
+      "id": "padding_sides",
+      "label": "Side Padding (Desktop)",
+      "default": 120,
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding",
+      "default": 80,
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding",
+      "default": 80,
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Image & Shape Settings"
+    },
+    {
+      "type": "image_picker",
+      "id": "main_image",
+      "label": "Main Team/Banner Image"
+    },
+    {
+      "type": "range",
+      "id": "corner_cut",
+      "label": "Corner Cut Size (Desktop)",
+      "default": 100,
+      "min": 0,
+      "max": 300,
+      "step": 5,
+      "unit": "px",
+      "info": "How much of the corner is cut off to make the octagon shape."
+    },
+    {
+      "type": "range",
+      "id": "corner_cut_mobile",
+      "label": "Corner Cut Size (Mobile)",
+      "default": 40,
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Overlay Logo"
+    },
+    {
+      "type": "image_picker",
+      "id": "overlay_logo",
+      "label": "Overlay Logo Image (e.g. S BRILLET)"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "label": "Logo Max Width",
+      "default": 200,
+      "min": 100,
+      "max": 600,
+      "step": 10,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "logo_top_pos",
+      "label": "Logo Position (Top %)",
+      "default": 15,
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "%",
+      "info": "Adjust how far down from the top the logo sits."
+    },
+    {
+      "type": "header",
+      "content": "Text Content"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description Text",
+      "default": "Team is a dedicated group of creatives and artisans passionate about crafting jewelry pieces that inspire and empower."
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "range",
+      "id": "desc_size",
+      "label": "Description Font Size",
+      "default": 20,
+      "min": 14,
+      "max": 30,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Button Settings"
+    },
+    {
+      "type": "text",
+      "id": "btn_text",
+      "label": "Button Text",
+      "default": "OUR MISSION"
+    },
+    {
+      "type": "url",
+      "id": "btn_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "color",
+      "id": "btn_bg_color",
+      "label": "Button Background Color",
+      "default": "transparent"
+    },
+    {
+      "type": "color",
+      "id": "btn_text_color",
+      "label": "Button Text Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "btn_border_color",
+      "label": "Button Border Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "btn_grad_1",
+      "label": "Button Hover Gradient 1",
+      "default": "#947863"
+    },
+    {
+      "type": "color",
+      "id": "btn_grad_2",
+      "label": "Button Hover Gradient 2",
+      "default": "#E9DDD4"
+    },
+    {
+      "type": "color",
+      "id": "btn_grad_3",
+      "label": "Button Hover Gradient 3",
+      "default": "#947863"
+    },
+    {
+      "type": "color",
+      "id": "btn_hover_text",
+      "label": "Button Hover Text Color",
+      "default": "#FFFFFF"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Mission Banner",
+      "category": "Custom Elements"
+    }
+  ]
+}
+{% endschema %}

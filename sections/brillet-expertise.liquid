@@ -1,0 +1,881 @@
+{% comment %} {% comment %}
+  Jewelry Excellence Section - Pixel Perfect Update
+  Following Figma: 1920px Full Width, 80px/120px Padding, 80px Gap.
+{% endcomment %}
+
+{%- style -%}
+  /* Section Scoped Variables */
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top_mb }}px;
+    padding-bottom: {{ section.settings.padding_bottom_mb }}px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background-color: {{ section.settings.bg_color }};
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+      padding-left: {{ section.settings.padding_left }}px;
+      padding-right: {{ section.settings.padding_right }}px;
+    }
+  }
+
+  .shining-wrapper-{{ section.id }} {
+    max-width: {{ section.settings.container_max_width }}px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: {{ section.settings.gap_mobile }}px;
+    align-items: center;
+  }
+
+  @media screen and (min-width: 990px) {
+    .shining-wrapper-{{ section.id }} {
+      flex-direction: {% if section.settings.image_position == 'left' %}row{% else %}row-reverse{% endif %};
+      gap: {{ section.settings.gap_desktop }}px;
+    }
+  }
+
+  /* Typography Styles - EXACT FIGMA MATCH */
+  .shining-title-{{ section.id }} {
+    font-family: var(--font-heading-family, serif);
+    font-size: {{ section.settings.title_size_mb }}px;
+    font-weight: 400;
+    line-height: {{ section.settings.title_lh }};
+    color: {{ section.settings.title_color }};
+    margin: 0;
+    text-transform: {{ section.settings.title_transform }};
+    max-width: {{ section.settings.title_max_width }}px;
+    text-align: {{ section.settings.text_align_mb }};
+  }
+
+  .shining-subtitle-{{ section.id }} {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: {{ section.settings.subtitle_size_mb }}px;
+    font-weight: 400;
+    line-height: {{ section.settings.subtitle_lh }}px;
+    color: {{ section.settings.text_color }};
+    margin: 0;
+    max-width: {{ section.settings.subtitle_max_width }}px;
+    text-align: {{ section.settings.text_align_mb }};
+  }
+
+  @media screen and (min-width: 750px) {
+    .shining-title-{{ section.id }} {
+      font-size: {{ section.settings.title_size }}px;
+      text-align: {{ section.settings.text_align }};
+    }
+    .shining-subtitle-{{ section.id }} {
+      font-size: {{ section.settings.subtitle_size }}px;
+      text-align: {{ section.settings.text_align }};
+    }
+  }
+
+  .shining-content-box-{{ section.id }} {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: {{ section.settings.content_gap }}px;
+  }
+
+  /* Image Box Styles */
+  .shining-image-box-{{ section.id }} {
+    flex: 1;
+    width: 100%;
+    max-width: {{ section.settings.image_max_width }}px;
+    height: auto;
+    overflow: hidden;
+    line-height: 0;
+  }
+
+  .shining-image-box-{{ section.id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    {% if section.settings.image_height_fix %}
+      aspect-ratio: 840 / 770;
+    {% endif %}
+  }
+{%- endstyle -%}
+
+<section class="section-{{ section.id }}-padding">
+  <div class="shining-wrapper-{{ section.id }}">
+    
+    <!-- Content Column -->
+    <div class="shining-content-box-{{ section.id }}">
+      {% if section.settings.heading != blank %}
+        <h2 class="shining-title-{{ section.id }}">
+          {{ section.settings.heading }}
+        </h2>
+      {% endif %}
+      
+      {% if section.settings.description != blank %}
+        <div class="shining-subtitle-{{ section.id }}">
+          {{ section.settings.description }}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Image Column -->
+    <div class="shining-image-box-{{ section.id }}">
+      {% if section.settings.image != blank %}
+        {{ section.settings.image | image_url: width: 1680 | image_tag: 
+          loading: 'lazy',
+          sizes: "(min-width: 990px) 50vw, 100vw",
+          class: "shining-img"
+        }}
+      {% else %}
+        {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+      {% endif %}
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Jewelry Excellence Pro",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "number",
+      "id": "container_max_width",
+      "label": "Inner Container Width (px)",
+      "default": 1680
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#FFF9F5"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image Position",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "right"
+    },
+    {
+      "type": "range",
+      "id": "gap_desktop",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap between Image & Text (Desktop)",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap (Mobile)",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Image Customization"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Select Image"
+    },
+    {
+      "type": "number",
+      "id": "image_max_width",
+      "label": "Image Max Width (px)",
+      "default": 840
+    },
+    {
+      "type": "checkbox",
+      "id": "image_height_fix",
+      "label": "Force Figma Aspect Ratio (840:770)",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Heading Customization"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Title Text",
+      "default": "EXCELLENCE SMELTING METALS"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 20,
+      "max": 120,
+      "step": 1,
+      "unit": "px",
+      "label": "Title Font Size (Desktop)",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "title_size_mb",
+      "min": 16,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "label": "Title Font Size (Mobile)",
+      "default": 32
+    },
+    {
+      "type": "text",
+      "id": "title_lh",
+      "label": "Title Line Height",
+      "default": "1.23",
+      "info": "e.g. 1.23 or 123%"
+    },
+    {
+      "type": "select",
+      "id": "title_transform",
+      "label": "Text Transform",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "uppercase", "label": "UPPERCASE" },
+        { "value": "capitalize", "label": "Capitalize" }
+      ],
+      "default": "uppercase"
+    },
+    {
+      "type": "number",
+      "id": "title_max_width",
+      "label": "Title Max Width (px)",
+      "default": 782
+    },
+    {
+      "type": "header",
+      "content": "Subtitle Customization"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Subtitle Text",
+      "default": "<p>Our metals go through careful smelting and alloying processes, ensuring they are pure, durable, and ready to shine in every piece of jewelry.</p>"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Subtitle Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "min": 12,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Subtitle Font Size (Desktop)",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size_mb",
+      "min": 10,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Subtitle Font Size (Mobile)",
+      "default": 16
+    },
+    {
+      "type": "number",
+      "id": "subtitle_lh",
+      "label": "Subtitle Line Height (px)",
+      "default": 37
+    },
+    {
+      "type": "number",
+      "id": "subtitle_max_width",
+      "label": "Subtitle Max Width (px)",
+      "default": 867
+    },
+    {
+      "type": "range",
+      "id": "content_gap",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Gap between Title & Subtitle",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Section Spacing (Desktop)"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_left",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Left",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_right",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Right",
+      "default": 120
+    },
+    {
+      "type": "header",
+      "content": "Section Spacing (Mobile)"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mb",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding Top (Mobile)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mb",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding Bottom (Mobile)",
+      "default": 40
+    }
+  ],
+  "presets": [
+    {
+      "name": "Jewelry Excellence Pro"
+    }
+  ]
+}
+{% endschema %} {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %}
+  Jewelry Excellence Section - Pixel Perfect Update
+  Following Figma: 1920px Full Width, 80px/120px Padding, 80px Gap.
+{% endcomment %}
+
+{%- style -%}
+  /* Section Scoped Variables */
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top_mb }}px;
+    padding-bottom: {{ section.settings.padding_bottom_mb }}px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background-color: {{ section.settings.bg_color }};
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+      padding-left: {{ section.settings.padding_left }}px;
+      padding-right: {{ section.settings.padding_right }}px;
+    }
+  }
+
+  .shining-wrapper-{{ section.id }} {
+    max-width: {{ section.settings.container_max_width }}px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: {{ section.settings.gap_mobile }}px;
+    align-items: center;
+  }
+
+  /* --- MOBILE SPECIFIC ORDERING --- */
+  @media screen and (max-width: 989px) {
+    .shining-image-box-{{ section.id }} {
+      order: -1; /* Forces Image to be on top */
+    }
+    .shining-content-box-{{ section.id }} {
+      order: 1; /* Forces Content to be at the bottom */
+    }
+  }
+
+  /* --- DESKTOP SETUP --- */
+  @media screen and (min-width: 990px) {
+    .shining-wrapper-{{ section.id }} {
+      flex-direction: {% if section.settings.image_position == 'left' %}row-reverse{% else %}row{% endif %};
+      gap: {{ section.settings.gap_desktop }}px;
+    }
+    .shining-image-box-{{ section.id }},
+    .shining-content-box-{{ section.id }} {
+      order: 0; /* Resets order back to normal for desktop */
+    }
+  }
+
+  /* Typography Styles - EXACT FIGMA MATCH */
+  .shining-title-{{ section.id }} {
+    font-family: var(--font-heading-family, serif);
+    font-size: {{ section.settings.title_size_mb }}px;
+    font-weight: 400;
+    line-height: {{ section.settings.title_lh }};
+    color: {{ section.settings.title_color }};
+    margin: 0;
+    text-transform: {{ section.settings.title_transform }};
+    max-width: {{ section.settings.title_max_width }}px;
+    text-align: {{ section.settings.text_align_mb }};
+  }
+
+  .shining-subtitle-{{ section.id }},
+  .shining-subtitle-{{ section.id }} p {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: {{ section.settings.subtitle_size_mb }}px;
+    font-weight: 400;
+    line-height: {{ section.settings.subtitle_lh }}px;
+    color: {{ section.settings.text_color }};
+    margin: 0;
+    max-width: {{ section.settings.subtitle_max_width }}px;
+    text-align: {{ section.settings.text_align_mb }};
+  }
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+   .section-{{ section.id }}-padding {
+   
+    padding-left: 40px;
+    padding-right: 40px;
+   
+  }
+}
+  @media screen and (min-width: 750px) {
+    .shining-title-{{ section.id }} {
+      font-size: {{ section.settings.title_size }}px;
+      text-align: {{ section.settings.text_align }};
+    }
+    .shining-subtitle-{{ section.id }},
+    .shining-subtitle-{{ section.id }} p {
+      font-size: {{ section.settings.subtitle_size }}px;
+      text-align: {{ section.settings.text_align }};
+    }
+  }
+
+  /* ==================================================================
+     RESPONSIVE ADJUSTMENTS (Macbook & Mobile Overrides)
+     ================================================================== */
+     
+
+/* ─── MacBook Air 15 inch M2 (1441px - 1728px) ───────────────── */
+@media screen and (min-width: 1441px) and (max-width: 1728px) {
+  .shining-title-{{ section.id }} {
+    font-size: 54px !important;
+  }
+  .shining-subtitle-{{ section.id }},
+  .shining-subtitle-{{ section.id }} p {
+    font-size: 18px !important;
+    line-height: 1.5 !important;
+  }
+}
+
+
+  /* Laptop & Macbook (up to 1440px) */
+  @media screen and (max-width: 1440px) {
+    .shining-title-{{ section.id }} {
+      font-size: 46px !important; /* Forced 46px for Macbook */
+    }
+    .shining-subtitle-{{ section.id }},
+    .shining-subtitle-{{ section.id }} p {
+      font-size: 16px !important; /* Forced 16px for Macbook description */
+      line-height: 1.5 !important;
+    }
+  }
+
+  /* Mobile (up to 768px) */
+  @media screen and (max-width: 768px) {
+    .shining-title-{{ section.id }} {
+      font-size: 28px !important; /* Forced 28px for Mobile */
+    }
+    .shining-subtitle-{{ section.id }},
+    .shining-subtitle-{{ section.id }} p {
+      font-size: 14px !important; /* Adjusted gracefully for mobile based on 16px desktop */
+    }
+  }
+
+  .shining-content-box-{{ section.id }} {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: {{ section.settings.content_gap }}px;
+  }
+
+  /* Image Box Styles */
+  .shining-image-box-{{ section.id }} {
+    flex: 1;
+    width: 100%;
+    max-width: {{ section.settings.image_max_width }}px;
+    height: auto;
+    overflow: hidden;
+    line-height: 0;
+  }
+
+  .shining-image-box-{{ section.id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    {% if section.settings.image_height_fix %}
+      aspect-ratio: 840 / 770;
+    {% endif %}
+  }
+{%- endstyle -%}
+
+<section class="section-{{ section.id }}-padding">
+  <div class="shining-wrapper-{{ section.id }}">
+    
+    <!-- Content Column -->
+    <div class="shining-content-box-{{ section.id }}">
+      {% if section.settings.heading != blank %}
+        <h2 class="shining-title-{{ section.id }}">
+          {{ section.settings.heading }}
+        </h2>
+      {% endif %}
+      
+      {% if section.settings.description != blank %}
+        <div class="shining-subtitle-{{ section.id }}">
+          {{ section.settings.description }}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Image Column -->
+    <div class="shining-image-box-{{ section.id }}">
+      {% if section.settings.image != blank %}
+        {{ section.settings.image | image_url: width: 1680 | image_tag: 
+          loading: 'lazy',
+          sizes: "(min-width: 990px) 50vw, 100vw",
+          class: "shining-img"
+        }}
+      {% else %}
+        {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+      {% endif %}
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Jewelry Excellence Pro",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "number",
+      "id": "container_max_width",
+      "label": "Inner Container Width (px)",
+      "default": 1680
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#FFF9F5"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image Position",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "right"
+    },
+    {
+      "type": "range",
+      "id": "gap_desktop",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap between Image & Text (Desktop)",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap (Mobile)",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Image Customization"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Select Image"
+    },
+    {
+      "type": "number",
+      "id": "image_max_width",
+      "label": "Image Max Width (px)",
+      "default": 840
+    },
+    {
+      "type": "checkbox",
+      "id": "image_height_fix",
+      "label": "Force Figma Aspect Ratio (840:770)",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Heading Customization"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Title Text",
+      "default": "EXCELLENCE SMELTING METALS"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 20,
+      "max": 120,
+      "step": 1,
+      "unit": "px",
+      "label": "Title Font Size (Desktop)",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "title_size_mb",
+      "min": 16,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "label": "Title Font Size (Mobile)",
+      "default": 32
+    },
+    {
+      "type": "text",
+      "id": "title_lh",
+      "label": "Title Line Height",
+      "default": "1.23",
+      "info": "e.g. 1.23 or 123%"
+    },
+    {
+      "type": "select",
+      "id": "title_transform",
+      "label": "Text Transform",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "uppercase", "label": "UPPERCASE" },
+        { "value": "capitalize", "label": "Capitalize" }
+      ],
+      "default": "uppercase"
+    },
+    {
+      "type": "number",
+      "id": "title_max_width",
+      "label": "Title Max Width (px)",
+      "default": 782
+    },
+    {
+      "type": "header",
+      "content": "Subtitle Customization"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Subtitle Text",
+      "default": "<p>Our metals go through careful smelting and alloying processes, ensuring they are pure, durable, and ready to shine in every piece of jewelry.</p>"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Subtitle Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "min": 12,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Subtitle Font Size (Desktop)",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size_mb",
+      "min": 10,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Subtitle Font Size (Mobile)",
+      "default": 16
+    },
+    {
+      "type": "number",
+      "id": "subtitle_lh",
+      "label": "Subtitle Line Height (px)",
+      "default": 37
+    },
+    {
+      "type": "number",
+      "id": "subtitle_max_width",
+      "label": "Subtitle Max Width (px)",
+      "default": 867
+    },
+    {
+      "type": "range",
+      "id": "content_gap",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Gap between Title & Subtitle",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Section Spacing (Desktop)"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_left",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Left",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_right",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Right",
+      "default": 120
+    },
+    {
+      "type": "header",
+      "content": "Section Spacing (Mobile)"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mb",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding Top (Mobile)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mb",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Padding Bottom (Mobile)",
+      "default": 40
+    }
+  ],
+  "presets": [
+    {
+      "name": "Jewelry Excellence Pro"
+    }
+  ]
+}
+{% endschema %}

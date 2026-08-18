@@ -1,0 +1,681 @@
+{% comment %} {% comment %}
+  VIP Banner with fading gradients, floating sparkles, 
+  and highly responsive text that prevents overflow on laptops/tablets.
+{% endcomment %}
+
+{%- style -%}
+  @import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400&display=swap');
+
+  /* 1. Main Container */
+  .vip-banner-{{ section.id }} {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; 
+    background: {{ section.settings.gradient_1 }};
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    padding-left: 20px;
+    padding-right: 20px;
+    width: 100%;
+    box-sizing: border-box; /* Ensures padding doesn't push the width out */
+  }
+
+  /* 2. Secondary Overlay */
+  .vip-banner__overlay-{{ section.id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: {{ section.settings.gradient_2 }};
+    z-index: 1;
+    animation: fadeGradient {{ section.settings.fade_time }}s ease-in-out infinite alternate;
+  }
+
+  /* 3. Sparkle Image Overlay */
+  {%- if section.settings.bg_image != blank -%}
+  .vip-banner__sparkles-{{ section.id }} {
+    position: absolute;
+    top: -15%;
+    left: -15%;
+    width: 130%;
+    height: 130%;
+    background-image: url('{{ section.settings.bg_image | image_url: width: 2500 }}');
+    background-size: cover;
+    background-position: center;
+    z-index: 2;
+    mix-blend-mode: screen; 
+    opacity: {{ section.settings.image_opacity | divided_by: 100.0 }};
+    animation: complexSparkleMove-{{ section.id }} {{ section.settings.anim_duration }}s ease-in-out infinite;
+  }
+
+  @keyframes complexSparkleMove-{{ section.id }} {
+    0% { transform: scale(1) translate(0px, 0px); }
+    30% { transform: scale({{ section.settings.zoom_out }}) translate({{ section.settings.pan_distance }}px, 10px); }
+    60% { transform: scale({{ section.settings.zoom_in }}) translate(-{{ section.settings.pan_distance }}px, -10px); }
+    85% { transform: scale(1.02) translate(10px, 5px); }
+    100% { transform: scale(1) translate(0px, 0px); }
+  }
+  {%- endif -%}
+
+  /* 4. Base Text Styling (Desktop 1441px and above) */
+  .vip-banner__text-{{ section.id }} {
+    font-family: var(--font-heading-family, 'Libre Caslon Text', serif);
+    font-weight: 400;
+    line-height: 1.23;
+    text-transform: uppercase;
+    text-align: center;
+    color: {{ section.settings.text_color }};
+    text-shadow: 0px 0px {{ section.settings.shadow_blur }}px {{ section.settings.shadow_color }};
+    margin: 0;
+    position: relative;
+    z-index: 3;
+    white-space: nowrap; /* Forces ONE line always */
+    font-size: {{ section.settings.font_size }}px;
+    max-width: 100%; /* Prevents text from pushing past the screen edges */
+  }
+
+  @keyframes fadeGradient {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  /* --- DEVICE RESPONSIVENESS (Fixes the cut-off text issue) --- */
+
+  /* Laptop & Small Desktop (1025px to 1440px) */
+  @media screen and (max-width: 1440px) {
+    .vip-banner__text-{{ section.id }} {
+      /* Uses 4.5% of the screen width, but never larger than the desktop setting */
+      font-size: clamp(36px, 4.5vw, {{ section.settings.font_size }}px);
+    }
+  }
+
+  /* Tablet & iPad (769px to 1024px) */
+  @media screen and (max-width: 1024px) {
+    .vip-banner__text-{{ section.id }} {
+      /* Smoothly shrinks down for tablet screens */
+      font-size: clamp(24px, 4.2vw, 46px);
+    }
+  }
+
+  /* Mobile Devices (768px and below) */
+  @media screen and (max-width: 768px) {
+    .vip-banner-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top_mobile }}px;
+      padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    .vip-banner__text-{{ section.id }} {
+      /* Very small phones will use 4.5vw to ensure it stays on one line */
+      font-size: clamp(12px, 4.5vw, {{ section.settings.font_size_mobile }}px);
+    }
+  }
+{%- endstyle -%}
+
+<div class="vip-banner-{{ section.id }}">
+  <div class="vip-banner__overlay-{{ section.id }}"></div>
+  
+  {%- if section.settings.bg_image != blank -%}
+    <div class="vip-banner__sparkles-{{ section.id }}"></div>
+  {%- endif -%}
+
+  <h2 class="vip-banner__text-{{ section.id }}">
+    {{ section.settings.banner_text }}
+  </h2>
+</div>
+
+{% schema %}
+{
+  "name": "VIP Banner (Floating)",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Text Settings"
+    },
+    {
+      "type": "text",
+      "id": "banner_text",
+      "label": "Banner Text",
+      "default": "UNLOCK THE UNIVERSAL VIP EXPERIENCE"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "min": 24,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop Font Size",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "font_size_mobile",
+      "min": 10,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile Max Font Size",
+      "default": 24
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "shadow_color",
+      "label": "Text Glow Color",
+      "default": "#FFFAF4"
+    },
+    {
+      "type": "range",
+      "id": "shadow_blur",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Text Glow Amount",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Background Settings"
+    },
+    {
+      "type": "color_background",
+      "id": "gradient_1",
+      "label": "Gradient 1",
+      "default": "linear-gradient(90deg, #947863 0%, #E9DDD4 50%, #947863 100%)"
+    },
+    {
+      "type": "color_background",
+      "id": "gradient_2",
+      "label": "Gradient 2",
+      "default": "linear-gradient(90deg, #3A2B42 0%, #634C73 50%, #3A2B42 100%)"
+    },
+    {
+      "type": "range",
+      "id": "fade_time",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "label": "Gradient Fade Speed",
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "Sparkle Animation Controls"
+    },
+    {
+      "type": "image_picker",
+      "id": "bg_image",
+      "label": "Sparkle Image"
+    },
+    {
+      "type": "range",
+      "id": "image_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Sparkle Opacity",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "anim_duration",
+      "min": 10,
+      "max": 60,
+      "step": 2,
+      "unit": "s",
+      "label": "Animation Speed (Total Cycle)",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "zoom_in",
+      "min": 1.0,
+      "max": 1.5,
+      "step": 0.1,
+      "label": "Max Zoom In",
+      "default": 1.1
+    },
+    {
+      "type": "range",
+      "id": "zoom_out",
+      "min": 0.1,
+      "max": 1.0,
+      "step": 0.1,
+      "label": "Max Zoom Out",
+      "default": 0.1
+    },
+    {
+      "type": "range",
+      "id": "pan_distance",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Left/Right Move Distance",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Desktop Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "Mobile Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Top (Mobile)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Bottom (Mobile)",
+      "default": 40
+    }
+  ],
+  "presets": [
+    {
+      "name": "VIP Banner (Floating)"
+    }
+  ]
+}
+{% endschema %} {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %}
+  VIP Banner with fading gradients, floating sparkles, 
+  and bulletproof auto-shrinking typography to prevent any overflow.
+{% endcomment %}
+
+{%- style -%}
+  @import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400&display=swap');
+
+  /* 1. Main Container */
+  .vip-banner-{{ section.id }} {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; 
+    background: {{ section.settings.gradient_1 }};
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    
+    /* This creates the guaranteed empty space (faka) on the left and right */
+    padding-left: 5%; 
+    padding-right: 5%;
+    
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* 2. Secondary Overlay (Fade Effect) */
+  .vip-banner__overlay-{{ section.id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: {{ section.settings.gradient_2 }};
+    z-index: 1;
+    animation: fadeGradient {{ section.settings.fade_time }}s ease-in-out infinite alternate;
+  }
+
+  /* 3. Sparkle Image Overlay (Floating Animation) */
+  {%- if section.settings.bg_image != blank -%}
+  .vip-banner__sparkles-{{ section.id }} {
+    position: absolute;
+    top: -15%;
+    left: -15%;
+    width: 130%;
+    height: 130%;
+    background-image: url('{{ section.settings.bg_image | image_url: width: 2500 }}');
+    background-size: cover;
+    background-position: center;
+    z-index: 2;
+    mix-blend-mode: screen; 
+    opacity: {{ section.settings.image_opacity | divided_by: 100.0 }};
+    animation: complexSparkleMove-{{ section.id }} {{ section.settings.anim_duration }}s ease-in-out infinite;
+  }
+
+  @keyframes complexSparkleMove-{{ section.id }} {
+    0% { transform: scale(1) translate(0px, 0px); }
+    30% { transform: scale({{ section.settings.zoom_out }}) translate({{ section.settings.pan_distance }}px, 10px); }
+    60% { transform: scale({{ section.settings.zoom_in }}) translate(-{{ section.settings.pan_distance }}px, -10px); }
+    85% { transform: scale(1.02) translate(10px, 5px); }
+    100% { transform: scale(1) translate(0px, 0px); }
+  }
+  {%- endif -%}
+
+  /* 4. Base Text Styling & Bulletproof Auto-Shrink */
+  .vip-banner__text-{{ section.id }} {
+    font-family: var(--font-heading-family, 'Libre Caslon Text', serif);
+    font-weight: 400;
+    line-height: 1.23;
+    text-transform: uppercase;
+    text-align: center;
+    color: {{ section.settings.text_color }};
+    text-shadow: 0px 0px {{ section.settings.shadow_blur }}px {{ section.settings.shadow_color }};
+    margin: 0;
+    position: relative;
+    z-index: 3;
+    
+    /* Forces ONE line always */
+    white-space: nowrap; 
+    
+    /* THE SAFEGUARD: 
+      It tries to use your Desktop Font Size setting. 
+      BUT if the screen is too narrow, it forces the text to be 3.8vw 
+      (3.8% of the screen width) so it never touches the edges.
+    */
+    font-size: min({{ section.settings.font_size }}px, 3.8vw); 
+  }
+
+  @keyframes fadeGradient {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  /* --- DEVICE RESPONSIVENESS (With Safeguards) --- */
+
+  /* Tablet & Small Laptop (1199px and below) */
+  @media screen and (max-width: 1199px) {
+    .vip-banner__text-{{ section.id }} {
+      /* Uses tablet setting, but never allows it to grow larger than 4vw */
+      font-size: min({{ section.settings.font_size_tablet }}px, 4vw);
+    }
+  }
+
+  /* Mobile Devices (768px and below) */
+  @media screen and (max-width: 768px) {
+    .vip-banner-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top_mobile }}px;
+      padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+    }
+    .vip-banner__text-{{ section.id }} {
+      /* Uses mobile setting, but never allows it to grow larger than 4.2vw */
+      font-size: min({{ section.settings.font_size_mobile }}px, 4vw);
+    }
+  }
+{%- endstyle -%}
+
+<div class="vip-banner-{{ section.id }}">
+  <div class="vip-banner__overlay-{{ section.id }}"></div>
+  
+  {%- if section.settings.bg_image != blank -%}
+    <div class="vip-banner__sparkles-{{ section.id }}"></div>
+  {%- endif -%}
+
+  <h2 class="vip-banner__text-{{ section.id }}">
+    {{ section.settings.banner_text }}
+  </h2>
+</div>
+
+{% schema %}
+{
+  "name": "VIP Banner (Floating)",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Text Settings"
+    },
+    {
+      "type": "text",
+      "id": "banner_text",
+      "label": "Banner Text",
+      "default": "UNLOCK THE UNIVERSAL VIP EXPERIENCE"
+    },
+    {
+      "type": "header",
+      "content": "Responsive Font Sizes"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "min": 24,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop Target Size",
+      "info": "Auto-shrinks if the screen is too small.",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "font_size_tablet",
+      "min": 16,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "label": "Tablet Target Size",
+      "info": "Auto-shrinks on smaller iPads/Laptops.",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "font_size_mobile",
+      "min": 10,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile Target Size",
+      "info": "Auto-shrinks on very narrow phones.",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "shadow_color",
+      "label": "Text Glow Color",
+      "default": "#FFFAF4"
+    },
+    {
+      "type": "range",
+      "id": "shadow_blur",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Text Glow Amount",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Background Settings"
+    },
+    {
+      "type": "color_background",
+      "id": "gradient_1",
+      "label": "Gradient 1",
+      "default": "linear-gradient(90deg, #947863 0%, #E9DDD4 50%, #947863 100%)"
+    },
+    {
+      "type": "color_background",
+      "id": "gradient_2",
+      "label": "Gradient 2",
+      "default": "linear-gradient(90deg, #3A2B42 0%, #634C73 50%, #3A2B42 100%)"
+    },
+    {
+      "type": "range",
+      "id": "fade_time",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "label": "Gradient Fade Speed",
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "Sparkle Animation Controls"
+    },
+    {
+      "type": "image_picker",
+      "id": "bg_image",
+      "label": "Sparkle Image"
+    },
+    {
+      "type": "range",
+      "id": "image_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Sparkle Opacity",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "anim_duration",
+      "min": 10,
+      "max": 60,
+      "step": 2,
+      "unit": "s",
+      "label": "Animation Speed (Total Cycle)",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "zoom_in",
+      "min": 1.0,
+      "max": 2,
+      "step": 0.1,
+      "label": "Max Zoom In",
+      "default": 1.1
+    },
+    {
+      "type": "range",
+      "id": "zoom_out",
+      "min": 0.1,
+      "max": 1.0,
+      "step": 0.1,
+      "label": "Max Zoom Out",
+      "default": 0.1
+    },
+    {
+      "type": "range",
+      "id": "pan_distance",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Left/Right Move Distance",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Desktop Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "Mobile Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Top (Mobile)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Bottom (Mobile)",
+      "default": 40
+    }
+  ],
+  "presets": [
+    {
+      "name": "VIP Banner (Floating)"
+    }
+  ]
+}
+{% endschema %}

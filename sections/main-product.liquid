@@ -1,0 +1,4150 @@
+{% comment %} {{ 'product.css' | asset_url | stylesheet_tag }}
+{% if section.settings.show_zoom_button %}
+  {{ 'photoswipe.css' | asset_url | stylesheet_tag }}
+  {{ 'component-photoswipe.css' | asset_url | stylesheet_tag }}
+{% endif %}
+
+{%- if product.quantity_price_breaks_configured? -%}
+  {{ 'component-volume-pricing.css' | asset_url | stylesheet_tag }}
+  <script src="{{ 'show-more.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'price-per-item.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- liquid
+  assign container = section.settings.container
+  assign layout = section.settings.layout
+  if container == 'w-full'
+    assign container = 'container-full'
+  endif
+  if layout == 'layout-7'
+    assign container = 'container-full'
+  endif
+  assign first_3d_model = product.media | where: 'media_type', 'model' | first
+
+  assign animation_effect = settings.animations
+  assign animated = false
+  if animation_effect != 'none'
+    assign animated = true
+  endif
+
+  assign enable_variant_group_img = false
+  if section.settings.enable_variant_group_images and product.metafields['foxecom-bs-kit']['variant-images'].value.enable
+    assign enable_variant_group_img = true
+  endif
+
+  assign disable_selected_variant_default = section.settings.disable_selected_variant_default
+
+  if product.has_only_default_variant
+    assign enable_variant_group_img = false
+    assign disable_selected_variant_default = false
+  endif
+-%}
+
+
+{%- if first_3d_model -%}
+  <link
+    id="ModelViewerStyle"
+    rel="stylesheet"
+    href="https://cdn.shopify.com/shopifycloud/model-viewer-ui/assets/v1.0/model-viewer-ui.css"
+    media="print"
+    onload="this.media='all'"
+  >
+{%- endif -%}
+
+{%- capture variant_option_none_text -%}
+  {%- render 'new-locale', key: 'products.product.choose_an_option' -%}
+{%- endcapture -%}
+
+<style>
+  /* 1. Bulletproof hiding class */
+  .fox-hidden-media {
+    display: none !important;
+  }
+
+
+  /* 2. Consistent Grid Layout for Desktop */
+  .m-product-media--grid-layout,
+  .m-product-media--grid-layout .m-product-media--list,
+  .m-product-media--grid-layout .swiper-wrapper,
+  .m-product-media--grid-layout > .swiper {
+    display: grid !important;
+    grid-template-columns: 1fr  !important;
+    gap: 8px !important;
+    width: 100% !important;
+    height: auto !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+    flex-wrap: unset !important;
+    flex-direction: unset !important;
+    overflow: visible !important;
+  }
+
+  /* Isolate this region so variant-swap reflow doesn't leak into the
+     rest of the page, and give it its own compositing layer so Safari
+     doesn't repaint the whole area as a visible white flash. */
+  .m-product-media--grid-layout {
+    contain: layout style paint;
+    -webkit-transform: translateZ(0) scale(1);
+    transform: translateZ(0) scale(1);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .m-product-media--grid-layout.fox-media-swapping {
+    opacity: 0;
+    transform: translateZ(0) scale(0.985);
+    will-change: opacity, transform;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .m-product-media--grid-layout {
+      transition: none !important;
+    }
+  }
+
+  /* 3. Force slides to stay in their grid cells (Prevents Overlap) */
+  .m-product-media--grid-layout .swiper-slide,
+  .m-product-media--grid-layout .m-product-media--item,
+  .m-product-media--grid-layout .m-product-media--list > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    position: relative !important;
+    display: block !important;
+    transform: none !important;
+    left: auto !important;
+    top: auto !important;
+    flex-shrink: unset !important;
+    overflow: hidden !important;
+  }
+
+  /* Make sure images inside fill the space correctly */
+  .m-product-media--grid-layout .swiper-slide img,
+  .m-product-media--grid-layout .m-product-media--item img,
+  .m-product-media--grid-layout .m-product-media--item video,
+  .m-product-media--grid-layout .m-product-media--item model-viewer {
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    object-fit: cover !important;
+  }
+
+  /* 4. First visible item takes full width (spans both columns) */
+  .m-product-media--grid-layout .m-product-media--item:first-child,
+  .m-product-media--grid-layout .swiper-slide:first-child,
+  .m-product-media--grid-layout .m-product-media--list > *:first-child,
+  .m-product-media--grid-layout .swiper-slide.is-first-visible,
+  .m-product-media--grid-layout .m-product-media--item.is-first-visible {
+    grid-column: 1 / -1 !important;
+  }
+
+  /* Secondary images: square crop */
+  .m-product-media--grid-layout .m-product-media--item:not(:first-child):not(.is-first-visible) img,
+  .m-product-media--grid-layout .swiper-slide:not(:first-child):not(.is-first-visible) img {
+    aspect-ratio: 1 / 1 !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  /* Hidden items collapse fully */
+  .m-product-media--grid-layout .m-product-media--item[style*="display: none"],
+  .m-product-media--grid-layout .m-product-media--item[style*="display:none"],
+  .m-product-media--grid-layout .swiper-slide[style*="display: none"],
+  .m-product-media--grid-layout .swiper-slide[style*="display:none"] {
+    display: none !important;
+    grid-column: auto !important;
+  }
+
+  /* 5. Hide pagination/thumbnails */
+  .m-product-media--grid-layout .swiper-pagination,
+  .m-product-media--grid-layout .m-product-media--thumbnails {
+    display: none !important;
+  }
+
+  /* 6. Custom Navigation Arrows (Hidden on Desktop) */
+  .custom-mobile-arrows {
+    display: none !important; 
+  }
+
+  /* 7. MOBILE: Native CSS Carousel with Smooth Scrolling */
+  @media (max-width: 767px) {
+    .custom-mobile-arrows {
+      display: flex !important;
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      justify-content: space-between;
+      transform: translateY(-50%);
+      z-index: 10;
+      pointer-events: none; 
+      padding: 0 10px;
+      box-sizing: border-box;
+    }
+
+    .custom-arrow {
+      background: rgba(255, 255, 255, 0.9) !important;
+      color: #000 !important;
+      border: 1px solid #ddd !important;
+      border-radius: 50% !important;
+      width: 38px !important;
+      height: 38px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      pointer-events: auto !important; 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15) !important;
+      font-size: 16px !important;
+      line-height: 1 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      transition: background 0.3s ease;
+    }
+
+    .custom-arrow:active {
+      background: #e0e0e0 !important;
+    }
+
+    .m-product-media--grid-layout > .swiper {
+      touch-action: pan-y pinch-zoom !important; 
+    }
+
+    .m-product-media--grid-layout .swiper-wrapper {
+      display: flex !important;
+      flex-wrap: nowrap !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      scroll-snap-type: x mandatory !important;
+      scroll-behavior: smooth !important;
+      -webkit-overflow-scrolling: touch !important; 
+      gap: 0px !important; 
+      width: 100% !important;
+    }
+
+    .m-product-media--grid-layout .swiper-wrapper::-webkit-scrollbar {
+      display: none !important;
+    }
+
+    .m-product-media--grid-layout .m-product-media--item,
+    .m-product-media--grid-layout .swiper-slide,
+    .m-product-media--grid-layout .m-product-media--list > * {
+      flex: 0 0 100% !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      scroll-snap-align: center !important; 
+    }
+
+    .m-product-media--grid-layout .m-product-media--item:first-child,
+    .m-product-media--grid-layout .swiper-slide:first-child,
+    .m-product-media--grid-layout .m-product-media--list > *:first-child,
+    .m-product-media--grid-layout .swiper-slide.is-first-visible,
+    .m-product-media--grid-layout .m-product-media--item.is-first-visible {
+      grid-column: auto !important;
+    }
+    
+    .m-product-media--grid-layout .m-product-media--item:not(:first-child):not(.is-first-visible) img,
+    .m-product-media--grid-layout .swiper-slide:not(:first-child):not(.is-first-visible) img {
+      aspect-ratio: unset !important;
+      height: auto !important;
+    }
+  }
+
+  /* --- Wishlist Active Icon Safe CSS (STRICTLY SCOPED) --- */
+  /* This ".m-main-product" prefix protects your header! */
+  .m-main-product .m-wishlist-button .m-tooltip-icon--active { 
+    display: none !important; 
+  }
+  
+  .m-main-product .m-wishlist-button.is-active .m-tooltip-icon--active,
+  .m-main-product .m-wishlist-button.is-wishlisted .m-tooltip-icon--active,
+  .m-main-product .m-wishlist-button.added-to-wishlist .m-tooltip-icon--active,
+  .m-main-product .m-wishlist-button.m-wishlist--active .m-tooltip-icon--active,
+  .m-main-product .m-wishlist-button.active .m-tooltip-icon--active { 
+    display: inline-block !important; 
+  }
+  
+  .m-main-product .m-wishlist-button.is-active .m-tooltip-icon,
+  .m-main-product .m-wishlist-button.is-wishlisted .m-tooltip-icon,
+  .m-main-product .m-wishlist-button.added-to-wishlist .m-tooltip-icon,
+  .m-main-product .m-wishlist-button.m-wishlist--active .m-tooltip-icon,
+  .m-main-product .m-wishlist-button.active .m-tooltip-icon { 
+    display: none !important; 
+  }
+
+  /*
+    Keep the unfiltered gallery invisible only for the brief period before
+    ProductInfo applies the initially selected Material. The core JS always
+    releases this state, including when no exact Alt match is found.
+  */
+  product-info[data-material-alt-filter="true"]:not([data-material-filter-ready="true"])
+  .m-product-media--grid-layout {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  product-info[data-material-alt-filter="true"][data-material-filter-ready="true"]
+  .m-product-media--grid-layout {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const SECTION_ID = '{{ section.id }}';
+    const productInfo = document.querySelector('product-info#MainProduct-' + SECTION_ID);
+    if (!productInfo) return;
+
+    // --- Custom Mobile Slider Logic (Index-based, No DOM Manipulation) ---
+    const nextBtn = productInfo.querySelector('.custom-arrow.next');
+    const prevBtn = productInfo.querySelector('.custom-arrow.prev');
+    const sliderContainer = productInfo.querySelector('.m-product-media--grid-layout .swiper-wrapper') || productInfo.querySelector('.m-product-media--grid-layout');
+
+    if (nextBtn && prevBtn && sliderContainer) {
+      let currentIndex = 0;
+
+      function getVisibleSlides() {
+        return Array.from(sliderContainer.children).filter(
+          el => !el.classList.contains('fox-hidden-media') && el.style.display !== 'none'
+        );
+      }
+
+      function updateArrowStates() {
+        const visibleSlides = getVisibleSlides();
+        const isFirst = currentIndex <= 0;
+        const isLast = currentIndex >= visibleSlides.length - 1;
+
+        prevBtn.disabled = isFirst;
+        prevBtn.style.opacity = isFirst ? '0.35' : '';
+        prevBtn.style.cursor = isFirst ? 'default' : '';
+        prevBtn.style.pointerEvents = isFirst ? 'none' : '';
+
+        nextBtn.disabled = isLast;
+        nextBtn.style.opacity = isLast ? '0.35' : '';
+        nextBtn.style.cursor = isLast ? 'default' : '';
+        nextBtn.style.pointerEvents = isLast ? 'none' : '';
+      }
+
+      function goToIndex(index) {
+        const visibleSlides = getVisibleSlides();
+        if (!visibleSlides.length) return;
+
+        // Clamp — no wrap-around, stop at edges
+        if (index < 0) index = 0;
+        if (index >= visibleSlides.length) index = visibleSlides.length - 1;
+
+        currentIndex = index;
+
+        const targetSlide = visibleSlides[currentIndex];
+        sliderContainer.scrollTo({ left: targetSlide.offsetLeft, behavior: 'smooth' });
+
+        updateArrowStates();
+      }
+
+      nextBtn.addEventListener('click', function() {
+        goToIndex(currentIndex + 1);
+      });
+
+      prevBtn.addEventListener('click', function() {
+        goToIndex(currentIndex - 1);
+      });
+
+      // Keep currentIndex in sync when user swipes manually
+      sliderContainer.addEventListener('scroll', function() {
+        const visibleSlides = getVisibleSlides();
+        const scrollLeft = sliderContainer.scrollLeft;
+        let closest = 0;
+        let minDiff = Infinity;
+        visibleSlides.forEach(function(slide, i) {
+          const diff = Math.abs(slide.offsetLeft - scrollLeft);
+          if (diff < minDiff) { minDiff = diff; closest = i; }
+        });
+        currentIndex = closest;
+        updateArrowStates();
+      }, { passive: true });
+
+      // Reset to first slide when variant changes
+      productInfo.addEventListener('change', function() {
+        setTimeout(function() { goToIndex(0); }, 200);
+      });
+
+      // Set initial arrow states on load
+      updateArrowStates();
+    }
+    // -------------------------------------------------------------------
+
+    /*
+      Material media filtering now runs inside assets/product-info.js,
+      directly from ProductInfo's resolved variant callback.
+      Do not add another click/change/URL media filter here.
+    */
+
+    // --- Start: Custom Variant Metafield Logic ---
+    const variantDynamicData = {
+      {% for variant in product.variants %}
+        "{{ variant.id }}": {
+          gemstone: {{ variant.metafields.custom.plating_thickness.value | json }},
+          plating: {{ variant.metafields.custom.materials_and_details.value | json }},
+          description: {{ variant.metafields.custom.gemstone_description.value | json }}
+        }{% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    };
+
+    {% comment %} ------------------------for gemstone and meterial in description  {% endcomment %}
+    {% comment %} function updateMaterialsText() {
+      const urlParams = new URLSearchParams(window.location.search);
+      let variantId = urlParams.get('variant');
+
+      if (!variantId) {
+        const variantsNode = document.querySelector('[type="application/json"][data-name="product-variants"]');
+        if (variantsNode) {
+          try {
+            const variants = JSON.parse(variantsNode.textContent);
+            const defaultVar = variants.find(v => v.available) || variants[0];
+            variantId = defaultVar.id;
+          } catch (e) {}
+        }
+      } {% endcomment %}
+      
+       const defaultVariantId = {{ product.selected_or_first_available_variant.id | json }};
+
+          function updateMaterialsText() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let variantId = urlParams.get('variant');
+
+            if (!variantId && productInfo.currentVariant && productInfo.currentVariant.id) {
+              variantId = productInfo.currentVariant.id;
+            }
+
+            if (!variantId) {
+              variantId = defaultVariantId;
+            }
+
+      if (!variantId) return;
+{% comment %} ----------------------- {% endcomment %}
+      const data = variantDynamicData[variantId];
+      if (!data) return;
+
+      const gemContainer = document.getElementById('dynamic-gemstone-text');
+      const platingContainer = document.getElementById('dynamic-plating-text');
+      const descContainer = document.getElementById('dynamic-gemstone-description');
+      
+      if (gemContainer && data.gemstone) {
+        gemContainer.innerHTML = data.gemstone;
+      }
+      if (platingContainer && data.plating) {
+        platingContainer.innerHTML = data.plating;
+      }
+      if (descContainer && data.description) {
+        descContainer.innerHTML = data.description;
+      }
+    }
+
+    setTimeout(updateMaterialsText, 150);
+
+    document.addEventListener('change', function(event) {
+       if(event.target.closest('variant-radios, variant-selects, product-info')) {
+           setTimeout(updateMaterialsText, 50);
+       }
+    });
+
+    /*
+      LIVE MATERIAL CHANGE — no page reload required.
+
+      Capture the intended Material before Minimog updates currentVariant.
+      Filtering uses this clicked value directly.
+    */
+    productInfo.addEventListener(
+      'pointerdown',
+      function (event) {
+        const materialInput = getMaterialInputFromTarget(event.target);
+        const materialValue = getMaterialFromInput(materialInput);
+
+        if (materialValue) {
+          scheduleLiveMaterialFilter(materialValue);
+        }
+      },
+      true
+    );
+
+    productInfo.addEventListener(
+      'click',
+      function (event) {
+        const materialInput = getMaterialInputFromTarget(event.target);
+        const materialValue = getMaterialFromInput(materialInput);
+
+        if (materialValue) {
+          scheduleLiveMaterialFilter(materialValue);
+        }
+      },
+      true
+    );
+
+    productInfo.addEventListener(
+      'change',
+      function (event) {
+        const materialInput = getMaterialInputFromTarget(event.target);
+        const materialValue = getMaterialFromInput(materialInput);
+
+        if (materialValue) {
+          scheduleLiveMaterialFilter(materialValue);
+        }
+      },
+      true
+    );
+
+    /*
+      Keep dynamic metafield text synchronized with the selected variant.
+    */
+    productInfo.addEventListener('change', function () {
+      window.setTimeout(updateMaterialsText, 50);
+    });
+
+    /*
+      Patch history once so URL variant changes are detectable even when
+      Minimog does not create a useful DOM mutation.
+    */
+    if (!window.__sbrilletVariantHistoryPatched) {
+      window.__sbrilletVariantHistoryPatched = true;
+
+      ['pushState', 'replaceState'].forEach(function (methodName) {
+        const originalMethod = history[methodName];
+
+        history[methodName] = function () {
+          const result = originalMethod.apply(this, arguments);
+
+          window.dispatchEvent(
+            new CustomEvent('sbrillet:variant-url-change')
+          );
+
+          return result;
+        };
+      });
+    }
+
+    window.addEventListener(
+      'sbrillet:variant-url-change',
+      function () {
+        window.setTimeout(syncMaterialFromUrl, 0);
+        window.setTimeout(syncMaterialFromUrl, 80);
+      }
+    );
+
+    window.addEventListener('popstate', function () {
+      window.setTimeout(syncMaterialFromUrl, 0);
+    });
+
+    /*
+      Compatibility fallback matching the event structure of the user's
+      previously working code.
+    */
+    let currentUrl = location.href;
+
+    function handleUrlChange() {
+      if (location.href === currentUrl) return;
+
+      currentUrl = location.href;
+      window.setTimeout(updateMaterialsText, 50);
+      window.setTimeout(syncMaterialFromUrl, 0);
+    }
+
+    new MutationObserver(handleUrlChange).observe(document.body, {
+      subtree: true,
+      childList: true
+    });
+  });
+</script>
+
+<script>
+// --- Start: Smart Wishlist Sync Logic ---
+document.addEventListener('DOMContentLoaded', function() {
+  const pHandle = "{{ product.handle }}";
+  const pId = "{{ product.id }}";
+  const wlBtns = document.querySelectorAll('.m-main-product .m-wishlist-button, .m-main-product [data-action="add-to-wishlist"], .m-main-product .m-product-media--mobile__atwl-button');
+
+  // Scanner: Scans theme's native Local Storage for the product
+  function isProductInThemeWishlist() {
+    for (let i = 0; i < localStorage.length; i++) {
+      let key = localStorage.key(i);
+      if (key && key.toLowerCase().includes('wishlist')) {
+        try {
+          let data = localStorage.getItem(key);
+          if (data && (data.includes(pHandle) || data.includes(pId))) {
+            return true;
+          }
+        } catch(e) {}
+      }
+    }
+    return false;
+  }
+
+  // Force active visual classes if it is already in the wishlist
+  if (isProductInThemeWishlist()) {
+    wlBtns.forEach(btn => {
+      btn.classList.add('is-active', 'added-to-wishlist', 'm-wishlist--active', 'active');
+    });
+  }
+
+  // Visual click toggle for instant feedback
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.m-main-product .m-wishlist-button, .m-main-product [data-action="add-to-wishlist"], .m-main-product .m-product-media--mobile__atwl-button');
+    if (btn) {
+      setTimeout(() => {
+        btn.classList.toggle('is-active');
+        btn.classList.toggle('added-to-wishlist');
+      }, 50);
+    }
+  });
+});
+// --- End: Smart Wishlist Sync Logic ---
+</script>
+
+
+
+
+<script>
+// --- Start: Bulletproof Wishlist Sync & Counter Fix ---
+document.addEventListener('DOMContentLoaded', function() {
+  const pHandle = "{{ product.handle }}";
+  const pId = "{{ product.id }}";
+  
+  // 1. Get theme icon settings directly from Liquid configuration
+  const imgDefaultSrc = "{% if section.settings.wishlist_icon_initial %}{{ section.settings.wishlist_icon_initial | image_url: width: 24 }}{% endif %}";
+  const imgActiveSrc = "{% if section.settings.wishlist_icon_active %}{{ section.settings.wishlist_icon_active | image_url: width: 24 }}{% endif %}";
+
+  // 2. Scanner: Checks if product exists in theme's native storage
+  function isItemWishlisted() {
+    for (let i = 0; i < localStorage.length; i++) {
+      let key = localStorage.key(i);
+      if (key && key.toLowerCase().includes('wishlist')) {
+        try {
+          let data = localStorage.getItem(key);
+          if (data && (data.includes(pHandle) || data.includes(pId))) {
+            return true;
+          }
+        } catch(e) {}
+      }
+    }
+    return false;
+  }
+
+  // 3. UI Updater: Safely alters icons without interrupting core click scripts
+  function syncWishlistVisuals() {
+    const isSaved = isItemWishlisted();
+    const wlBtns = document.querySelectorAll('.m-main-product .m-wishlist-button, .m-main-product [data-action="add-to-wishlist"], .m-main-product .m-product-media--mobile__atwl-button');
+
+    wlBtns.forEach(btn => {
+      // Toggle core design classes
+      if (isSaved) {
+        btn.classList.add('is-active', 'added-to-wishlist', 'm-wishlist--active', 'active');
+      } else {
+        btn.classList.remove('is-active', 'added-to-wishlist', 'm-wishlist--active', 'active');
+      }
+
+      // Handle custom template elements safely
+      if (imgDefaultSrc && imgActiveSrc) {
+        let defaultIconEl = btn.querySelector('.m-tooltip-icon:not(.m-tooltip-icon--active)');
+        let activeIconEl = btn.querySelector('.m-tooltip-icon--active');
+
+        // Dynamically insert active nodes if missing on Desktop layout
+        if (!activeIconEl && defaultIconEl) {
+          defaultIconEl.insertAdjacentHTML('afterend', '<span class="m-tooltip-icon--active"><img class="m-svg-icon--medium" src="' + imgActiveSrc + '" alt="active"></span>');
+          activeIconEl = btn.querySelector('.m-tooltip-icon--active');
+        }
+
+        // Apply clean styles based on current state
+        if (defaultIconEl && activeIconEl) {
+          defaultIconEl.style.setProperty('display', isSaved ? 'none' : 'block', 'important');
+          activeIconEl.style.setProperty('display', isSaved ? 'block' : 'none', 'important');
+          activeIconEl.style.setProperty('opacity', isSaved ? '1' : '0', 'important');
+        }
+      }
+    });
+  }
+
+  // Run initial configuration scan on page load
+  setTimeout(syncWishlistVisuals, 300);
+
+  // 4. Capture theme state transformations immediately when clicked
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.m-main-product .m-wishlist-button, .m-main-product [data-action="add-to-wishlist"], .m-main-product .m-product-media--mobile__atwl-button');
+    if (btn) {
+      // Wait exactly 100ms to let the theme complete counter changes and update storage first
+      setTimeout(() => {
+        syncWishlistVisuals();
+      }, 100);
+    }
+  });
+});
+// --- End: Bulletproof Wishlist Sync & Counter Fix ---
+</script>
+
+<product-info
+  id="MainProduct-{{ section.id }}"
+  data-section-type="product-page"
+  data-section-id="{{ section.id }}"
+  data-layout="{{ layout }}"
+  data-product-handle="{{ product.handle }}"
+  data-url="{{ product.url }}"
+  data-update-url="true"
+  data-enable-history-state="{{ section.settings.enable_history_state }}"
+  data-product-id="{{ product.id }}"
+  data-container="{{ container }}"
+  data-enable-variant-group-images="{{ enable_variant_group_img }}"
+  data-disable-selected-variant-default="{{ disable_selected_variant_default }}"
+  data-variant-option-none-text="{{ variant_option_none_text }}"
+  data-show-featured-media="{{ section.settings.show_featured_media }}"
+  data-material-alt-filter="true"
+  class="m-main-product m-gradient m-color-{{ settings.default_color_scheme }} m:block"
+>
+  <div class="{{ container }}">
+    {% liquid
+      assign media_class = 'm:w-full md:m:w-1/2'
+      assign info_class = 'm:w-full md:m:w-1/2'
+      assign wrapper_class = 'm:flex m:flex-wrap'
+      case layout
+        when 'layout-2'
+          assign media_class = 'm:w-full md:m:w-7/12'
+          assign info_class = 'm:w-full md:m:w-5/12'
+          assign column_gap = '70px'
+        when 'layout-3'
+          assign media_class = 'm:w-full md:m:w-7/12'
+          assign info_class = 'm:w-full md:m:w-5/12'
+          assign column_gap = '70px'
+        when 'layout-5'
+          assign media_class = 'm:w-full md:m:w-7/12'
+          assign info_class = 'm:w-full md:m:w-5/12 '
+          assign column_gap = '70px'
+        when 'layout-7'
+          assign media_class = 'm:w-full'
+          if product.media.size == 1
+            assign media_class = 'container-narrow'
+          endif
+          assign info_class = 'container-narrow md:m:text-center'
+          assign wrapper_class = 'm:flex m:flex-wrap md:m:block m-product-media--layout-7'
+        else
+          assign column_gap = '50px'
+      endcase
+    %}
+    <div
+      class="m-main-product--wrapper {{ wrapper_class }} "
+      style="--column-gap: {{ column_gap }}; --column-gap-mobile: 20px;"
+    >
+      <product-recently-viewed data-product-id="{{ product.id }}" class="m:hidden"></product-recently-viewed>
+      <div class="m-main-product--media m:column {{ media_class }} m:relative">
+        
+        <div class="custom-mobile-arrows md:m:hidden">
+          <button class="custom-arrow prev" aria-label="Previous image">❮</button>
+          <button class="custom-arrow next" aria-label="Next image">❯</button>
+        </div>
+        
+        <div class="m-product-media--desktop m-product-media--wrapper m-product-media--{{ section.settings.layout }} m:justify-end m-product-media--grid-layout">
+          {% render 'product-media',
+            section: section,
+            template_product: true,
+            show_thumbnails_mobile: section.settings.show_nav_media_mobile,
+            show_pagination_mobile: section.settings.show_pagination_mobile
+          %}
+
+          {% if section.settings.show_atwl %}
+            {%- liquid
+              assign wishlist_app = settings.wishlist_app
+            -%}
+            {% if wishlist_app == 'growave' %}
+              {% capture the_snippet_fave_icon %}{% render 'ssw-widget-faveicon' with product.id %}{% endcapture %}
+              <div class="m-product-media--mobile__atwl-button md:m:hidden">
+                {% unless the_snippet_fave_icon contains 'Liquid error' %}
+                  {{ the_snippet_fave_icon }}
+                {% else %}
+                  {% render 'mm-ssw-widget-faveicon' with product.id %}
+                {% endunless %}
+              </div>
+            {% else %}
+                {% render 'tooltip',
+                type: 'wishlist',
+                product: product,
+                class_name: 'm-tooltip--top m-product-media--mobile__atwl-button !md:m:hidden',
+                icon_initial: section.settings.wishlist_icon_initial,
+                icon_active: section.settings.wishlist_icon_active,
+                style: 2
+              %}
+            {% endif %}
+          {% endif %}
+          {%- if first_3d_model -%}
+            <div class="m-product-media__xr-button md:m:hidden">
+              <button
+                class="m-xr-button m:w-full m:flex m:items-center m:justify-center"
+                type="button"
+                aria-label="{%- render 'new-locale', key: 'products.product.xr_button_label' -%}"
+                data-shopify-xr
+                data-shopify-model3d-id="{{ first_3d_model.id }}"
+                data-shopify-title="title"
+                data-shopify-xr-hidden
+              >
+                <svg
+                  class="m-svg-icon"
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                  focusable="false"
+                  role="presentation"
+                  viewBox="0 0 18 21"
+                >
+                  <path d="M7.67998 20.629L1.28002 16.723C0.886205 16.4784 0.561675 16.1368 0.337572 15.731C0.113468 15.3251 -0.00274623 14.8686 -1.39464e-05 14.405V6.59497C-0.00238367 6.13167 0.113819 5.6755 0.33751 5.26978C0.561202 4.86405 0.884959 4.52227 1.278 4.27698L7.67796 0.377014C8.07524 0.131403 8.53292 0.000877102 8.99999 9.73346e-08C9.46678 -0.000129605 9.92446 0.129369 10.322 0.374024V0.374024L16.722 4.27399C17.1163 4.51985 17.4409 4.86287 17.6647 5.27014C17.8885 5.67742 18.0039 6.13529 18 6.59998V14.409C18.0026 14.8725 17.8864 15.3289 17.6625 15.7347C17.4386 16.1405 17.1145 16.4821 16.721 16.727L10.321 20.633C9.92264 20.8742 9.46565 21.0012 8.99999 21C8.53428 20.9998 8.07761 20.8714 7.67998 20.629V20.629ZM8.72398 2.078L2.32396 5.97803C2.22303 6.04453 2.14066 6.13551 2.08452 6.24255C2.02838 6.34959 2.00031 6.46919 2.00298 6.59003V14.4C2.00026 14.5205 2.02818 14.6396 2.08415 14.7463C2.14013 14.853 2.22233 14.9438 2.32298 15.01L7.99999 18.48V10.919C8.00113 10.5997 8.08851 10.2867 8.25292 10.0129C8.41732 9.73922 8.65267 9.51501 8.93401 9.36401L15.446 5.841L9.28001 2.08002C9.19614 2.02738 9.09901 1.99962 8.99999 2C8.90251 1.99972 8.8069 2.02674 8.72398 2.078V2.078Z" fill="currentColor"></path>
+                </svg>
+                <span class="m-xr-button--label">{%- render 'new-locale', key: 'products.product.xr_button' -%}</span>
+              </button>
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+      <div class="m-main-product--info m:column {{ info_class }}{% if animated %} m-scroll-trigger animate--{{ animation_effect }}{% endif %}">
+        <div class="m-product-info--wrapper m:text-color-body">
+          {% render 'main-product-blocks', section: section, product: product %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if section.settings.use_sticky_atc or section.settings.use_sticky_atc_on_mobile %}
+    {% render 'sticky-atc', section: section, product: product, first_3d_model: first_3d_model %}
+  {% endif %}
+
+  {%- if enable_variant_group_img -%}
+    <script id="variantGroup" type="application/json">
+      {{ product.metafields.foxecom-bs-kit.variant-images.value | json }}
+    </script>
+  {%- endif -%}
+</product-info>
+
+
+
+{%- if section.settings.show_zoom_button -%}
+  <script src="{{ 'photoswipe.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+{% if product.media.size > 0 %}
+  <script src="{{ 'product-media.js' | asset_url }}" defer="defer"></script>
+{% endif %}
+{%- if first_3d_model -%}
+  <script type="application/json" id="ModelJSON-{{ product.id }}">
+    {{ product.media | where: 'media_type', 'model' | json }}
+  </script>
+  <script src="{{ 'product-model.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+{%- if product.options_with_values.size > 0 -%}
+  <script src="{{ 'variant-picker.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+<script src="{{ 'product-info.js' | asset_url }}" defer="defer"></script>
+
+{%- render 'product-data' -%}
+
+
+<script>
+window.addEventListener('load', function () {
+  var urlParams = new URLSearchParams(window.location.search);
+  var themeParam = urlParams.get('theme');
+  if (!themeParam) return;
+
+  var targetText = themeParam.replace(/\+/g, ' ').trim();
+  var targetLower = targetText.toLowerCase();
+
+  var attempts = 0;
+  var maxAttempts = 30; // ~6s, covers late-rendered blocks
+
+  var interval = setInterval(function () {
+    attempts++;
+    var matched = false;
+
+    var wrappers = document.querySelectorAll('.yk-custom-select-wrapper');
+
+    wrappers.forEach(function (wrapper) {
+      var items = wrapper.querySelectorAll('.yk-dropdown-item');
+
+      items.forEach(function (item) {
+        var val = (item.getAttribute('data-value') || '').trim();
+        var text = (item.textContent || '').trim();
+
+        if (val.toLowerCase() !== targetLower && text.toLowerCase() !== targetLower) return;
+
+        matched = true;
+
+        // Already selected? nothing to do.
+        if (item.classList.contains('is-selected')) return;
+
+        // Fire a real click so the block's own handler runs — that handler
+        // is the single source of truth for how message1/2/3 and the
+        // "From" field get shown, so we never duplicate that logic here.
+        item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+        item.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+        item.click();
+      });
+    });
+
+    if (matched || attempts >= maxAttempts) {
+      clearInterval(interval);
+    }
+  }, 200);
+});
+</script>
+
+
+
+{% schema %}
+{
+  "name": "Product information",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "[Watch tutorial](https://foxecom.link/olxmn9) or [read How-to](https://foxecom.link/QlS05K)"
+    },
+    {
+      "type": "paragraph",
+      "content": "Need more advanced customization? Use [Teeinblue Product Personalizer](https://teeinblue.com/install/teeinblue?ref=foxecom) app"
+    },
+    {
+      "type": "header",
+      "content": "General"
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "label": "Container type",
+      "default": "container",
+      "options": [
+        {
+          "value": "container-fluid",
+          "label": "Default"
+        },
+        {
+          "value": "w-full",
+          "label": "Full width"
+        },
+        {
+          "value": "container",
+          "label": "Use container box"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "default": "layout-6",
+      "options": [
+        {
+          "value": "layout-4",
+          "label": "Standard"
+        },
+        {
+          "value": "layout-1",
+          "label": "Grid 1 column"
+        },
+        {
+          "value": "layout-3",
+          "label": "Grid 2 columns"
+        },
+        {
+          "value": "layout-2",
+          "label": "Grid mix"
+        },
+        {
+          "value": "layout-5",
+          "label": "Slider 2 columns"
+        },
+        {
+          "value": "layout-6",
+          "label": "Slider vertical"
+        },
+        {
+          "value": "layout-7",
+          "label": "Slider full width"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_atwl",
+      "label": "Show Add to wishlist",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "wishlist_icon_initial",
+      "label": "Wishlist icon (default)"
+    },
+    {
+      "type": "image_picker",
+      "id": "wishlist_icon_active",
+      "label": "Wishlist icon (active / saved)"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_history_state",
+      "label": "Enable history state",
+      "info": "This will add a '?variant={variant_id}' to the browser's URL",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_variant_group_images",
+      "label": "Enable variant group images",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "disable_selected_variant_default",
+      "label": "Disable selected variant by default",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Product media"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_featured_media",
+      "label": "Show featured media by default",
+      "default": true,
+      "info": "If unchecked, the selected variant's image will be show on page load."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_zoom_button",
+      "label": "Enable image zoom",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_video_autoplay",
+      "label": "Enable video autoplay",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_nav_media_mobile",
+      "label": "Show thumbnails on mobile",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_pagination_mobile",
+      "label": "Show pagination on mobile",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Sticky Add to cart"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_sticky_atc",
+      "label": "Show on desktop",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "use_sticky_atc_on_mobile",
+      "label": "Show on mobile",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_dynamic_checkout",
+      "label": "Show dynamic checkout buttons",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky_atc_wishtlist",
+      "label": "Show wishlist button",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky_atc_compare",
+      "label": "Show compare button",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "title",
+      "name": "Product title",
+      "limit": 1
+    },
+    {
+      "type": "rating",
+      "name": "Product rating",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "To display a rating, add a product reviews app.\nGo to Theme settings -> Integrated apps -> Product reviews to choose the app which you are using."
+        }
+      ]
+    },
+    {
+      "type": "price",
+      "name": "Price",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_saving",
+          "default": false,
+          "label": "Show saving amount"
+        },
+        {
+          "type": "select",
+          "label": "Type",
+          "id": "sale_badge_type",
+          "default": "percentage",
+          "options": [
+            {
+              "label": "Percentage",
+              "value": "percentage"
+            },
+            {
+              "label": "Text",
+              "value": "text"
+            },
+            {
+              "label": "Fixed amount",
+              "value": "fixed_amount"
+            }
+          ]
+        }
+      ]
+    },
+  
+    {
+  "type": "recipient_message",
+  "name": "Recipient Message Box",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "icon",
+      "label": "Icon",
+      "info": "Upload an icon to display next to the heading"
+    },
+    { "type": "header", "content": "Theme 1 (Default)" },
+    { "type": "text", "id": "theme_1_name", "label": "Theme name", "default": "Birthday Wish" },
+    { "type": "textarea", "id": "theme_1_msg_1", "label": "Message 1", "default": "Believe in the magic of new beginnings and let your dreams to shine. Happy Birthday from S-Brillet!" },
+    { "type": "textarea", "id": "theme_1_msg_2", "label": "Message 2" },
+    { "type": "textarea", "id": "theme_1_msg_3", "label": "Message 3" },
+
+    { "type": "header", "content": "Theme 2" },
+    { "type": "text", "id": "theme_2_name", "label": "Theme name", "default": "Joyful Your Day" },
+    { "type": "textarea", "id": "theme_2_msg_1", "label": "Message 1" },
+    { "type": "textarea", "id": "theme_2_msg_2", "label": "Message 2" },
+    { "type": "textarea", "id": "theme_2_msg_3", "label": "Message 3" },
+
+    { "type": "header", "content": "Theme 3" },
+    { "type": "text", "id": "theme_3_name", "label": "Theme name", "default": "Couple Love and Affection" },
+    { "type": "textarea", "id": "theme_3_msg_1", "label": "Message 1" },
+    { "type": "textarea", "id": "theme_3_msg_2", "label": "Message 2" },
+    { "type": "textarea", "id": "theme_3_msg_3", "label": "Message 3" },
+
+    { "type": "header", "content": "Theme 4" },
+    { "type": "text", "id": "theme_4_name", "label": "Theme name", "default": "Friendly Compliment" },
+    { "type": "textarea", "id": "theme_4_msg_1", "label": "Message 1" },
+    { "type": "textarea", "id": "theme_4_msg_2", "label": "Message 2" },
+    { "type": "textarea", "id": "theme_4_msg_3", "label": "Message 3" },
+
+    { "type": "header", "content": "Theme 5" },
+    { "type": "text", "id": "theme_5_name", "label": "Theme name", "default": "Secret Brighten Love" },
+    { "type": "textarea", "id": "theme_5_msg_1", "label": "Message 1" },
+    { "type": "textarea", "id": "theme_5_msg_2", "label": "Message 2" },
+    { "type": "textarea", "id": "theme_5_msg_3", "label": "Message 3" }
+  ]
+},
+    {
+      "type": "variant_picker",
+      "name": "Variants selector",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "[Watch tutorial](https://foxecom.link/bqhGMd) or [read How-to](https://foxecom.link/F7UNEx)"
+        },
+        {
+          "type": "header",
+          "content": "Size guide settings"
+        },
+        {
+          "type": "text",
+          "id": "size_title",
+          "default": "Size",
+          "label": "Size option title",
+          "info": "Enter the option titles which you want to show Size guide button, separate with a comma"
+        }
+      ]
+    },
+
+    {
+      "type": "product_grouping_picker",
+      "name": "Product Grouping Picker",
+      "limit": 1,
+      "settings": [
+            {
+                  "type": "paragraph",
+                  "content": "This block permanently replaces the Gemstone option and displays between Material and Size."
+            },
+            {
+                  "type": "select",
+                  "id": "picker_type",
+                  "label": "Picker type",
+                  "default": "button",
+                  "options": [
+                        {
+                              "value": "button",
+                              "label": "Image swatches"
+                        },
+                        {
+                              "value": "text_pills",
+                              "label": "Text pills"
+                        },
+                        {
+                              "value": "dropdown",
+                              "label": "Dropdown"
+                        }
+                  ]
+            },
+            {
+                  "type": "select",
+                  "id": "swatch_design",
+                  "label": "Image swatch design",
+                  "default": "gemstone",
+                  "options": [
+                        {
+                              "value": "gemstone",
+                              "label": "Gemstone style"
+                        },
+                        {
+                              "value": "material",
+                              "label": "Material style"
+                        }
+                  ],
+                  "info": "Used only when Picker type is Image swatches."
+            },
+            {
+                  "type": "text",
+                  "id": "grouping_label",
+                  "label": "Grouping label",
+                  "default": "Gemstone",
+                  "info": "Leave blank to use the grouping_name field from the linked metaobject."
+            },
+            {
+                  "type": "checkbox",
+                  "id": "show_selected_value",
+                  "label": "Show selected product value beside label",
+                  "default": true
+            },
+            {
+                  "type": "text",
+                  "id": "option_type_metafield_key",
+                  "label": "Grouping metafield namespace and key",
+                  "default": "custom.product_grouping_option_1"
+            },
+            {
+                  "type": "text",
+                  "id": "option_value_metafield_key",
+                  "label": "Option value metafield namespace and key",
+                  "default": "custom.product_grouping_option_1_value"
+            },
+            {
+                  "type": "text",
+                  "id": "metaobject_products_field_key",
+                  "label": "Metaobject products field key",
+                  "default": "product_grouping"
+            },
+            {
+                  "type": "text",
+                  "id": "metaobject_label_field_key",
+                  "label": "Metaobject label field key",
+                  "default": "grouping_name"
+            },
+            {
+                  "type": "text",
+                  "id": "swatch_image_metafield_key",
+                  "label": "Optional swatch image metafield",
+                  "info": "Example: custom.product_grouping_swatch. Leave blank to use product featured images."
+            },
+            {
+                  "type": "header",
+                  "content": "Gemstone style"
+            },
+            {
+                  "type": "range",
+                  "id": "swatch_height",
+                  "label": "Desktop image height",
+                  "min": 24,
+                  "max": 64,
+                  "step": 1,
+                  "default": 38,
+                  "unit": "px"
+            },
+            {
+                  "type": "range",
+                  "id": "mobile_swatch_height",
+                  "label": "Mobile image height",
+                  "min": 20,
+                  "max": 50,
+                  "step": 1,
+                  "default": 30,
+                  "unit": "px"
+            },
+            {
+                  "type": "header",
+                  "content": "Material style"
+            },
+            {
+                  "type": "range",
+                  "id": "material_swatch_size",
+                  "label": "Desktop swatch size",
+                  "min": 40,
+                  "max": 80,
+                  "step": 1,
+                  "default": 57,
+                  "unit": "px"
+            },
+            {
+                  "type": "range",
+                  "id": "material_icon_size",
+                  "label": "Desktop icon size",
+                  "min": 14,
+                  "max": 50,
+                  "step": 1,
+                  "default": 26,
+                  "unit": "px"
+            },
+            {
+                  "type": "range",
+                  "id": "material_swatch_size_mobile",
+                  "label": "Mobile swatch size",
+                  "min": 34,
+                  "max": 64,
+                  "step": 1,
+                  "default": 47,
+                  "unit": "px"
+            },
+            {
+                  "type": "range",
+                  "id": "material_icon_size_mobile",
+                  "label": "Mobile icon size",
+                  "min": 12,
+                  "max": 40,
+                  "step": 1,
+                  "default": 22,
+                  "unit": "px"
+            },
+            {
+                  "type": "header",
+                  "content": "Shared style"
+            },
+            {
+                  "type": "range",
+                  "id": "swatch_gap",
+                  "label": "Space between swatches",
+                  "min": 0,
+                  "max": 24,
+                  "step": 1,
+                  "default": 8,
+                  "unit": "px"
+            },
+            {
+                  "type": "color",
+                  "id": "active_border_color",
+                  "label": "Selected and hover border",
+                  "default": "#E8E2DC"
+            },
+            {
+                  "type": "color",
+                  "id": "swatch_background",
+                  "label": "Swatch background",
+                  "default": "#FFFFFF"
+            },
+            {
+                  "type": "checkbox",
+                  "id": "show_sold_out_text",
+                  "label": "Show sold-out text",
+                  "default": true
+            }
+      ]
+},
+    {
+  "type": "delivery_preorder",
+  "name": "Delivery / Preorder ",
+  "limit": 1,
+  "settings": [
+    { "type": "header", "content": "Icons" },
+    { "type": "image_picker", "id": "ready_icon", "label": "Ready-to-ship icon" },
+    { "type": "image_picker", "id": "preorder_icon", "label": "Preorder icon" },
+
+    { "type": "header", "content": "Ready to ship (inventory ≥ 1)" },
+    {
+      "type": "text",
+      "id": "ready_text",
+      "label": "Ready-to-ship text",
+      "default": "READY-TO-SHIP: DELIVERY WITHIN 5–10 WORKING DAYS"
+    },
+
+    { "type": "header", "content": "Preorder (inventory = 0)" },
+   {
+  "type": "text",
+  "id": "preorder_text",
+  "label": "Preorder text",
+  "default": "PREORDER NOW — SHIPS BETWEEN [from] AND [to]",
+  "info": "Use [from] and [to] as placeholders for the dates below."
+},
+    {
+      "type": "text",
+      "id": "preorder_date_from",
+      "label": "Ships from",
+      "info": "Format: YYYY-MM-DD, e.g. 2026-08-01. Shopify has no native date picker, so this is a plain text field — stick to this format or the date won't parse."
+    },
+    {
+      "type": "text",
+      "id": "preorder_date_to",
+      "label": "Ships to",
+      "info": "Format: YYYY-MM-DD, e.g. 2026-08-15"
+    },
+    {
+      "type": "text",
+      "id": "preorder_date_format",
+      "label": "Display date format",
+      "default": "%b %d",
+      "info": "Example: %m/%d. [Reference](http://strftime.net/)"
+    },
+
+    { "type": "header", "content": "Style" },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#F4F3F1"
+    }
+  ]
+},
+    {
+      "type": "buy_buttons",
+      "name": "Buy buttons",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_quantity_selector",
+          "default": true,
+          "label": "Show quantity selector"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_atc_button",
+          "default": true,
+          "label": "Show Add-to-cart button"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_dynamic_checkout",
+          "default": true,
+          "label": "Show dynamic checkout buttons",
+          "info": "Using the payment methods available on your store, customers see their preferred option, like PayPal or Apple Pay. [Learn more](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_gift_card_recipient",
+          "default": true,
+          "label": "Show recipient form for gift card products",
+          "info": "When enabled, gift card products can optionally be sent to a recipient with a personal message."
+        },
+        {
+          "type": "checkbox",
+          "id": "show_checkout_button",
+          "label": "Show checkout button",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "meta",
+      "name": "Product meta",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_collections",
+          "label": "Show collections list",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_vendor",
+          "label": "Show product vendor",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_type",
+          "label": "Show product type",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_availability",
+          "label": "Show availability",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_sku",
+          "label": "Show SKU",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "badge",
+      "name": "Custom tags",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "[Read How-to](https://foxecom.link/VafwzY)"
+        },
+        {
+          "type": "header",
+          "content": "Valid formats"
+        },
+        {
+          "type": "paragraph",
+          "content": "tag__hot_[DISPLAY_TEXT]"
+        },
+        {
+          "type": "paragraph",
+          "content": "tag__new_[DISPLAY_TEXT]"
+        },
+        {
+          "type": "paragraph",
+          "content": "tag__sale_[DISPLAY_TEXT]"
+        },
+        {
+          "type": "paragraph",
+          "content": "Example: tag__hot_-50% OFF, tag__new_NEW ARRIVAL"
+        }
+      ]
+    },
+    {
+      "type": "description",
+      "name": "Full description",
+      "limit": 1
+    },
+    {
+      "type": "short_description",
+      "name": "Short description",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Add a metafield with namespace \"descriptor.short_description\" to display. [Add metafield](https://shopify.com/admin/metafields/product/create). [Watch tutorial](https://foxecom.link/QegRTH)"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "default": "Text block",
+          "label": "Text"
+        },
+        {
+          "type": "select",
+          "label": "Text style",
+          "id": "text_style",
+          "default": "body",
+          "options": [
+            {
+              "label": "Body text",
+              "value": "body"
+            },
+            {
+              "label": "Subtitle",
+              "value": "subtitle"
+            },
+            {
+              "label": "Uppercase",
+              "value": "uppercase"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "custom_text",
+      "name": "Richtext",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Custom text"
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "image_link",
+          "label": "Image link"
+        },
+        {
+          "type": "range",
+          "id": "image_width",
+          "label": "Image width",
+          "min": 0,
+          "default": 100,
+          "max": 100,
+          "unit": "%",
+          "step": 2
+        },
+        {
+          "type": "select",
+          "label": "Image alignment",
+          "id": "image_alignment",
+          "default": "start",
+          "options": [
+            {
+              "label": "Left",
+              "value": "start"
+            },
+            {
+              "label": "Center",
+              "value": "center"
+            },
+            {
+              "label": "Right",
+              "value": "end"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "custom_liquid",
+      "name": "Custom liquid",
+      "settings": [
+        {
+          "type": "liquid",
+          "id": "custom_liquid",
+          "label": "Custom liquid"
+        }
+      ]
+    },
+    {
+      "type": "visitors",
+      "name": "Visitors counter",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "color_scheme",
+          "id": "color_scheme",
+          "label": "Color scheme"
+        },
+        {
+          "type": "text",
+          "id": "live_views_text",
+          "label": "Visitor count text",
+          "default": "<strong>{count_number}</strong> <strong>people</strong> are viewing this right now"
+        },
+        {
+          "type": "text",
+          "id": "live_views_range",
+          "label": "Visitor count range",
+          "default": "20-30"
+        },
+        {
+          "type": "text",
+          "id": "live_view_duration",
+          "label": "Change count number every",
+          "default": "10",
+          "info": "Seconds"
+        },
+        {
+          "type": "checkbox",
+          "id": "live_view_icon_blinks",
+          "label": "Visitor count icon blinks",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "shipping",
+      "name": "Shipping information",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_delivery_times",
+          "label": "Show delivery estimation",
+          "info": "How delivery times are generated?",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "deliver_text",
+          "label": "Delivery text",
+          "default": "Estimated Delivery:"
+        },
+        {
+          "type": "text",
+          "id": "deliver_days",
+          "label": "Deliver in:",
+          "info": "days (+/- 2 days)",
+          "default": "7"
+        },
+        {
+          "type": "text",
+          "id": "date_format",
+          "label": "Date format",
+          "default": "%b %d",
+          "info": "Example: %m/%d [Learn more about date format here.](http://strftime.net/)"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_shipping_text",
+          "label": "Show Shipping text",
+          "default": true
+        },
+        {
+          "type": "richtext",
+          "id": "shipping_text",
+          "label": "Shipping text",
+          "default": "<p><strong>Free Shipping & Returns: </strong>On all orders over $75</p>"
+        }
+      ]
+    },
+    {
+      "type": "trust_badge",
+      "name": "Trust badge",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "trust_badges_text",
+          "label": "Heading",
+          "default": "<p>Guarantee safe & secure checkout</p>"
+        },
+        {
+          "type": "image_picker",
+          "id": "trust_badges_image",
+          "label": "Trust badges image"
+        },
+        {
+          "type": "text",
+          "id": "trust_badges_image_width",
+          "label": "Image width",
+          "default": "100%"
+        },
+        {
+          "type": "select",
+          "label": "Heading position",
+          "id": "position",
+          "default": "below",
+          "options": [
+            {
+              "label": "Text above image",
+              "value": "above"
+            },
+            {
+              "label": "Text below image",
+              "value": "below"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "collapsible_tab",
+      "name": "Collapsible tab",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Collapsible tab"
+        },
+        {
+          "type": "richtext",
+          "label": "Content",
+          "id": "content"
+        },
+        {
+          "type": "liquid",
+          "label": "Content by Liquid",
+          "id": "liquid",
+          "info": "Example: {{product.description}}"
+        },
+        {
+          "type": "checkbox",
+          "label": "Default open",
+          "id": "default_open",
+          "default": false
+        },
+        {
+          "type": "image_picker",
+          "id": "tab_icon",
+          "label": "Tab icon image"
+        }
+      ]
+    },
+    {
+      "type": "addons",
+      "name": "Addon buttons",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_atcp",
+          "label": "Show Add to compare",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_ask_a_question",
+          "label": "Show Ask a Question",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_social",
+          "label": "Show social share",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "foxkit_stock_countdown",
+      "name": "Stock countdown",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "This block has been deprecated since version 3.5.0. Please use the App block instead by selecting \"Add block\" -> \"Apps\" -> \"FoxKit - Stock countdown\". [Learn more](https://docs.minimog.co/foxkit-app/how-to-set-up-foxkit-features)"
+        }
+      ]
+    },
+    {
+      "type": "foxkit_countdown_timer",
+      "name": "Countdown timer",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "This block has been deprecated since version 3.5.0. Please use the App block instead by selecting \"Add block\" -> \"Apps\" -> \"FoxKit - Countdown timer\". [Learn more](https://docs.minimog.co/foxkit-app/how-to-set-up-foxkit-features)"
+        }
+      ]
+    },
+    {
+      "type": "custom_field",
+      "name": "Custom field",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Need more advanced customization? Use [Teeinblue Product Personalizer](https://teeinblue.com/install/teeinblue?ref=foxecom) app"
+        },
+        {
+          "type": "text",
+          "label": "Field name",
+          "id": "title",
+          "default": "Custom text",
+          "info": "Required, don't leave it blank"
+        },
+        {
+          "type": "select",
+          "label": "Field type",
+          "id": "field_type",
+          "default": "text",
+          "options": [
+            {
+              "label": "Single line text",
+              "value": "text"
+            },
+            {
+              "label": "Multiline text",
+              "value": "textarea"
+            },
+            {
+              "label": "Select",
+              "value": "select"
+            }
+          ]
+        },
+        {
+          "type": "textarea",
+          "label": "Options",
+          "id": "field_options",
+          "info": "Each option in a new line"
+        },
+        {
+          "type": "text",
+          "label": "Placeholder",
+          "id": "field_placeholder"
+        },
+        {
+          "type": "checkbox",
+          "label": "Required",
+          "id": "field_required",
+          "default": false,
+          "info": "If you use \"Required\" with a checkbox, then the checkbox will need to be checked for the customer to add the item to the cart."
+        },
+        {
+          "type": "checkbox",
+          "label": "Show at checkout",
+          "id": "show_at_checkout",
+          "default": true,
+          "info": "Uncheck this if you don't want the captured information to be shown in the order summary on the checkout pages."
+        }
+      ]
+    },
+    {
+      "type": "image_field",
+      "name": "Upload image field",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "This field cannot work with Dynamic checkout buttons, so if using it, the dynamic checkout buttons will be disabled."
+        },
+        {
+          "type": "text",
+          "label": "Field name",
+          "id": "title",
+          "default": "Custom image",
+          "info": "Required, don't leave it blank"
+        },
+        {
+          "type": "checkbox",
+          "label": "Required",
+          "id": "field_required",
+          "default": false,
+          "info": "If you use \"Required\" with a checkbox, then the checkbox will need to be checked for the customer to add the item to the cart."
+        },
+        {
+          "type": "checkbox",
+          "label": "Show at checkout",
+          "id": "show_at_checkout",
+          "default": true,
+          "info": "Uncheck this if you don't want the captured information to be shown in the order summary on the checkout pages."
+        }
+      ]
+    },
+    {
+      "type": "breadcrumb",
+      "name": "Breadcrumb",
+      "limit": 1
+    },
+    {
+      "type": "complementary",
+      "name": "Complementary products",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "To select complementary products, add the Search & Discovery app. [Learn more](https://shopify.dev/themes/product-merchandising/recommendations)"
+        },
+        {
+          "type": "text",
+          "id": "block_heading",
+          "default": "Pairs well with",
+          "label": "Heading"
+        },
+        {
+          "type": "checkbox",
+          "id": "make_collapsible_row",
+          "default": false,
+          "label": "Show as collapsible tab"
+        },
+        {
+          "type": "range",
+          "id": "product_list_limit",
+          "min": 1,
+          "max": 10,
+          "step": 1,
+          "default": 10,
+          "label": "Maximum products to show"
+        },
+        {
+          "type": "range",
+          "id": "products_per_page",
+          "min": 1,
+          "max": 3,
+          "step": 1,
+          "default": 2,
+          "label": "Number of products per page"
+        },
+        {
+          "type": "header",
+          "content": "Product card"
+        },
+        {
+          "type": "select",
+          "id": "pcard_image_ratio",
+          "label": "Aspect ratio",
+          "default": "original",
+          "options": [
+            {
+              "value": "original",
+              "label": "Adapt to image"
+            },
+            {
+              "value": "1/1",
+              "label": "1:1"
+            },
+            {
+              "value": "3/4",
+              "label": "3:4"
+            },
+            {
+              "value": "4/3",
+              "label": "4:3"
+            },
+            {
+              "value": "16/9",
+              "label": "16:9"
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_variant_options",
+          "label": "Enable variant options",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_quick_view",
+          "label": "Enable quick view button",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_quick_add",
+          "label": "Enable add to cart button",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_compare",
+          "label": "Enable compare button",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_wishlist",
+          "label": "Enable wishlist button",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "inventory_status",
+      "name": "Inventory status",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Inventory thresholds can be changed in \"Theme Settings > Product Inventory\"."
+        },
+        {
+          "type": "checkbox",
+          "id": "show_indicator_bar",
+          "label": "Show inventory indicator bar",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Messages"
+        },
+        {
+          "type": "richtext",
+          "id": "normal_text",
+          "label": "Text for normal inventory"
+        },
+        {
+          "type": "richtext",
+          "id": "low_text",
+          "label": "Text for low inventory",
+          "default": "<p>- Hurry! Limited stock left.</p>"
+        },
+        {
+          "type": "richtext",
+          "id": "outofstock_text",
+          "label": "Text for out of stock"
+        },
+        {
+          "type": "richtext",
+          "id": "backordered_text",
+          "label": "Text for backordered",
+          "default": "<p>Backordered</p>"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %} {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{{ 'product.css' | asset_url | stylesheet_tag }}
+{% if section.settings.show_zoom_button %}
+  {{ 'photoswipe.css' | asset_url | stylesheet_tag }}
+  {{ 'component-photoswipe.css' | asset_url | stylesheet_tag }}
+{% endif %}
+
+{%- if product.quantity_price_breaks_configured? -%}
+  {{ 'component-volume-pricing.css' | asset_url | stylesheet_tag }}
+  <script src="{{ 'show-more.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'price-per-item.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- liquid
+  assign container = section.settings.container
+  assign layout = section.settings.layout
+  if container == 'w-full'
+    assign container = 'container-full'
+  endif
+  if layout == 'layout-7'
+    assign container = 'container-full'
+  endif
+  assign first_3d_model = product.media | where: 'media_type', 'model' | first
+
+  assign animation_effect = settings.animations
+  assign animated = false
+  if animation_effect != 'none'
+    assign animated = true
+  endif
+
+  assign enable_variant_group_img = false
+  if section.settings.enable_variant_group_images and product.metafields['foxecom-bs-kit']['variant-images'].value.enable
+    assign enable_variant_group_img = true
+  endif
+
+  assign disable_selected_variant_default = section.settings.disable_selected_variant_default
+
+  if product.has_only_default_variant
+    assign enable_variant_group_img = false
+    assign disable_selected_variant_default = false
+  endif
+-%}
+
+
+{%- if first_3d_model -%}
+  <link
+    id="ModelViewerStyle"
+    rel="stylesheet"
+    href="https://cdn.shopify.com/shopifycloud/model-viewer-ui/assets/v1.0/model-viewer-ui.css"
+    media="print"
+    onload="this.media='all'"
+  >
+{%- endif -%}
+
+{%- capture variant_option_none_text -%}
+  {%- render 'new-locale', key: 'products.product.choose_an_option' -%}
+{%- endcapture -%}
+
+<style>
+  /* 1. Bulletproof hiding class */
+  .fox-hidden-media {
+    display: none !important;
+  }
+
+
+  /* 2. Consistent Grid Layout for Desktop */
+  .m-product-media--grid-layout,
+  .m-product-media--grid-layout .m-product-media--list,
+  .m-product-media--grid-layout .swiper-wrapper,
+  .m-product-media--grid-layout > .swiper {
+    display: grid !important;
+    grid-template-columns: 1fr  !important;
+    gap: 8px !important;
+    width: 100% !important;
+    height: auto !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+    flex-wrap: unset !important;
+    flex-direction: unset !important;
+    overflow: visible !important;
+  }
+
+  /* Isolate this region so variant-swap reflow doesn't leak into the
+     rest of the page, and give it its own compositing layer so Safari
+     doesn't repaint the whole area as a visible white flash. */
+  .m-product-media--grid-layout {
+    contain: layout style paint;
+    -webkit-transform: translateZ(0) scale(1);
+    transform: translateZ(0) scale(1);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .m-product-media--grid-layout.fox-media-swapping {
+    opacity: 0;
+    transform: translateZ(0) scale(0.985);
+    will-change: opacity, transform;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .m-product-media--grid-layout {
+      transition: none !important;
+    }
+  }
+
+  /* 3. Force slides to stay in their grid cells (Prevents Overlap) */
+  .m-product-media--grid-layout .swiper-slide,
+  .m-product-media--grid-layout .m-product-media--item,
+  .m-product-media--grid-layout .m-product-media--list > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    position: relative !important;
+    display: block !important;
+    transform: none !important;
+    left: auto !important;
+    top: auto !important;
+    flex-shrink: unset !important;
+    overflow: hidden !important;
+  }
+
+  /* Make sure images inside fill the space correctly */
+  .m-product-media--grid-layout .swiper-slide img,
+  .m-product-media--grid-layout .m-product-media--item img,
+  .m-product-media--grid-layout .m-product-media--item video,
+  .m-product-media--grid-layout .m-product-media--item model-viewer {
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    object-fit: cover !important;
+  }
+
+  /* 4. First visible item takes full width (spans both columns) */
+  .m-product-media--grid-layout .m-product-media--item:first-child,
+  .m-product-media--grid-layout .swiper-slide:first-child,
+  .m-product-media--grid-layout .m-product-media--list > *:first-child,
+  .m-product-media--grid-layout .swiper-slide.is-first-visible,
+  .m-product-media--grid-layout .m-product-media--item.is-first-visible {
+    grid-column: 1 / -1 !important;
+  }
+
+  /* Secondary images: square crop */
+  .m-product-media--grid-layout .m-product-media--item:not(:first-child):not(.is-first-visible) img,
+  .m-product-media--grid-layout .swiper-slide:not(:first-child):not(.is-first-visible) img {
+    aspect-ratio: 1 / 1 !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  /* Hidden items collapse fully */
+  .m-product-media--grid-layout .m-product-media--item[style*="display: none"],
+  .m-product-media--grid-layout .m-product-media--item[style*="display:none"],
+  .m-product-media--grid-layout .swiper-slide[style*="display: none"],
+  .m-product-media--grid-layout .swiper-slide[style*="display:none"] {
+    display: none !important;
+    grid-column: auto !important;
+  }
+
+  /* 5. Hide pagination/thumbnails */
+  .m-product-media--grid-layout .swiper-pagination,
+  .m-product-media--grid-layout .m-product-media--thumbnails {
+    display: none !important;
+  }
+
+  /* 6. Custom Navigation Arrows (Hidden on Desktop) */
+  .custom-mobile-arrows {
+    display: none !important; 
+  }
+
+  /* 7. MOBILE: Native CSS Carousel with Smooth Scrolling */
+  @media (max-width: 767px) {
+    .custom-mobile-arrows {
+      display: flex !important;
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      justify-content: space-between;
+      transform: translateY(-50%);
+      z-index: 10;
+      pointer-events: none; 
+      padding: 0 10px;
+      box-sizing: border-box;
+    }
+
+    .custom-arrow {
+      background: rgba(255, 255, 255, 0.9) !important;
+      color: #000 !important;
+      border: 1px solid #ddd !important;
+      border-radius: 50% !important;
+      width: 38px !important;
+      height: 38px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      pointer-events: auto !important; 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15) !important;
+      font-size: 16px !important;
+      line-height: 1 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      transition: background 0.3s ease;
+    }
+
+    .custom-arrow:active {
+      background: #e0e0e0 !important;
+    }
+
+    .m-product-media--grid-layout > .swiper {
+      touch-action: pan-y pinch-zoom !important; 
+    }
+
+    .m-product-media--grid-layout .swiper-wrapper {
+      display: flex !important;
+      flex-wrap: nowrap !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      scroll-snap-type: x mandatory !important;
+      scroll-behavior: smooth !important;
+      -webkit-overflow-scrolling: touch !important; 
+      gap: 0px !important; 
+      width: 100% !important;
+    }
+
+    .m-product-media--grid-layout .swiper-wrapper::-webkit-scrollbar {
+      display: none !important;
+    }
+
+    .m-product-media--grid-layout .m-product-media--item,
+    .m-product-media--grid-layout .swiper-slide,
+    .m-product-media--grid-layout .m-product-media--list > * {
+      flex: 0 0 100% !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      scroll-snap-align: center !important; 
+    }
+
+    .m-product-media--grid-layout .m-product-media--item:first-child,
+    .m-product-media--grid-layout .swiper-slide:first-child,
+    .m-product-media--grid-layout .m-product-media--list > *:first-child,
+    .m-product-media--grid-layout .swiper-slide.is-first-visible,
+    .m-product-media--grid-layout .m-product-media--item.is-first-visible {
+      grid-column: auto !important;
+    }
+    
+    .m-product-media--grid-layout .m-product-media--item:not(:first-child):not(.is-first-visible) img,
+    .m-product-media--grid-layout .swiper-slide:not(:first-child):not(.is-first-visible) img {
+      aspect-ratio: unset !important;
+      height: auto !important;
+    }
+  }
+
+  /* --- Wishlist Active Icon Safe CSS (STRICTLY SCOPED) --- */
+  /* This ".m-main-product" prefix protects your header! */
+  .m-main-product .m-wishlist-button .m-tooltip-icon--active { 
+    display: none !important; 
+  }
+  
+  .m-main-product .m-wishlist-button.is-active .m-tooltip-icon--active,
+  .m-main-product .m-wishlist-button.is-wishlisted .m-tooltip-icon--active,
+  .m-main-product .m-wishlist-button.added-to-wishlist .m-tooltip-icon--active,
+  .m-main-product .m-wishlist-button.m-wishlist--active .m-tooltip-icon--active,
+  .m-main-product .m-wishlist-button.active .m-tooltip-icon--active { 
+    display: inline-block !important; 
+  }
+  
+  .m-main-product .m-wishlist-button.is-active .m-tooltip-icon,
+  .m-main-product .m-wishlist-button.is-wishlisted .m-tooltip-icon,
+  .m-main-product .m-wishlist-button.added-to-wishlist .m-tooltip-icon,
+  .m-main-product .m-wishlist-button.m-wishlist--active .m-tooltip-icon,
+  .m-main-product .m-wishlist-button.active .m-tooltip-icon { 
+    display: none !important; 
+  }
+
+  /*
+    Keep the unfiltered gallery invisible only for the brief period before
+    ProductInfo applies the initially selected Material. The core JS always
+    releases this state, including when no exact Alt match is found.
+  */
+  product-info[data-material-alt-filter="true"]:not([data-material-filter-ready="true"])
+  .m-product-media--grid-layout {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  product-info[data-material-alt-filter="true"][data-material-filter-ready="true"]
+  .m-product-media--grid-layout {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+</style>
+
+{%- liquid
+  assign details_material_option_index = -1
+
+  for details_option in product.options_with_values
+    assign details_option_name = details_option.name | downcase | strip
+
+    if details_option_name == 'material'
+      assign details_material_option_index = forloop.index0
+      break
+    endif
+  endfor
+-%}
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const SECTION_ID = '{{ section.id }}';
+    const productInfo = document.querySelector('product-info#MainProduct-' + SECTION_ID);
+    if (!productInfo) return;
+
+    // --- Custom Mobile Slider Logic (Index-based, No DOM Manipulation) ---
+    const nextBtn = productInfo.querySelector('.custom-arrow.next');
+    const prevBtn = productInfo.querySelector('.custom-arrow.prev');
+    const sliderContainer = productInfo.querySelector('.m-product-media--grid-layout .swiper-wrapper') || productInfo.querySelector('.m-product-media--grid-layout');
+
+    if (nextBtn && prevBtn && sliderContainer) {
+      let currentIndex = 0;
+
+      function getVisibleSlides() {
+        return Array.from(sliderContainer.children).filter(
+          el => !el.classList.contains('fox-hidden-media') && el.style.display !== 'none'
+        );
+      }
+
+      function updateArrowStates() {
+        const visibleSlides = getVisibleSlides();
+        const isFirst = currentIndex <= 0;
+        const isLast = currentIndex >= visibleSlides.length - 1;
+
+        prevBtn.disabled = isFirst;
+        prevBtn.style.opacity = isFirst ? '0.35' : '';
+        prevBtn.style.cursor = isFirst ? 'default' : '';
+        prevBtn.style.pointerEvents = isFirst ? 'none' : '';
+
+        nextBtn.disabled = isLast;
+        nextBtn.style.opacity = isLast ? '0.35' : '';
+        nextBtn.style.cursor = isLast ? 'default' : '';
+        nextBtn.style.pointerEvents = isLast ? 'none' : '';
+      }
+
+      function goToIndex(index) {
+        const visibleSlides = getVisibleSlides();
+        if (!visibleSlides.length) return;
+
+        // Clamp — no wrap-around, stop at edges
+        if (index < 0) index = 0;
+        if (index >= visibleSlides.length) index = visibleSlides.length - 1;
+
+        currentIndex = index;
+
+        const targetSlide = visibleSlides[currentIndex];
+        sliderContainer.scrollTo({ left: targetSlide.offsetLeft, behavior: 'smooth' });
+
+        updateArrowStates();
+      }
+
+      nextBtn.addEventListener('click', function() {
+        goToIndex(currentIndex + 1);
+      });
+
+      prevBtn.addEventListener('click', function() {
+        goToIndex(currentIndex - 1);
+      });
+
+      // Keep currentIndex in sync when user swipes manually
+      sliderContainer.addEventListener('scroll', function() {
+        const visibleSlides = getVisibleSlides();
+        const scrollLeft = sliderContainer.scrollLeft;
+        let closest = 0;
+        let minDiff = Infinity;
+        visibleSlides.forEach(function(slide, i) {
+          const diff = Math.abs(slide.offsetLeft - scrollLeft);
+          if (diff < minDiff) { minDiff = diff; closest = i; }
+        });
+        currentIndex = closest;
+        updateArrowStates();
+      }, { passive: true });
+
+      // Reset to first slide when variant changes
+      productInfo.addEventListener('change', function() {
+        setTimeout(function() { goToIndex(0); }, 200);
+      });
+
+      // Set initial arrow states on load
+      updateArrowStates();
+    }
+    // -------------------------------------------------------------------
+
+    /*
+      Material media filtering now runs inside assets/product-info.js,
+      directly from ProductInfo's resolved variant callback.
+      Do not add another click/change/URL media filter here.
+    */
+
+    // =========================================================
+    // LIVE MATERIALS & DETAILS
+    // Product Grouping controls Gemstone at PRODUCT level.
+    // Material + Plating Thickness update at VARIANT level.
+    // Uses the fresh "variant:changed" event from assets/product-info.js.
+    // =========================================================
+
+    const materialDetailsByVariant = {
+      {% for variant in product.variants %}
+        "{{ variant.id }}": {
+          material: {% if details_material_option_index >= 0 %}{{ variant.options[details_material_option_index] | json }}{% else %}""{% endif %},
+          platingThickness: {{ variant.metafields.custom.plating_thickness.value | default: '' | json }}
+        }{% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    };
+
+    const initialMaterialsVariantId =
+      {{ product.selected_or_first_available_variant.id | json }};
+
+    function updateLiveMaterialsDetails(variantOrId) {
+      const variantId =
+        typeof variantOrId === 'object' && variantOrId
+          ? variantOrId.id
+          : variantOrId;
+
+      if (!variantId) return;
+
+      const data = materialDetailsByVariant[String(variantId)];
+      if (!data) return;
+
+      const detailsWrapper =
+        productInfo.querySelector('[data-product-materials-details]') ||
+        document.querySelector('[data-product-materials-details]');
+
+      if (!detailsWrapper) return;
+
+      const materialElement =
+        detailsWrapper.querySelector('[data-dynamic-material]');
+
+      const platingElement =
+        detailsWrapper.querySelector('[data-dynamic-plating-thickness]');
+
+      if (materialElement) {
+        materialElement.textContent = data.material || '';
+      }
+
+      if (platingElement) {
+        platingElement.textContent = data.platingThickness || '';
+      }
+    }
+
+    // Correct values on initial product-page load.
+    updateLiveMaterialsDetails(initialMaterialsVariantId);
+
+    /*
+      product-info.js emits this AFTER the newly selected variant has been
+      resolved and assigned to currentVariant, so no reload / URL polling /
+      stale variant timeout is needed.
+    */
+    document.addEventListener('variant:changed', function(event) {
+      const variant = event.detail && event.detail.variant;
+
+      if (!variant || !variant.id) return;
+
+      // Ignore variant events from another product/quick-view.
+      if (!materialDetailsByVariant[String(variant.id)]) return;
+
+      updateLiveMaterialsDetails(variant);
+    });
+  });
+</script>
+
+<script>
+// --- Start: Smart Wishlist Sync Logic ---
+document.addEventListener('DOMContentLoaded', function() {
+  const pHandle = "{{ product.handle }}";
+  const pId = "{{ product.id }}";
+  const wlBtns = document.querySelectorAll('.m-main-product .m-wishlist-button, .m-main-product [data-action="add-to-wishlist"], .m-main-product .m-product-media--mobile__atwl-button');
+
+  // Scanner: Scans theme's native Local Storage for the product
+  function isProductInThemeWishlist() {
+    for (let i = 0; i < localStorage.length; i++) {
+      let key = localStorage.key(i);
+      if (key && key.toLowerCase().includes('wishlist')) {
+        try {
+          let data = localStorage.getItem(key);
+          if (data && (data.includes(pHandle) || data.includes(pId))) {
+            return true;
+          }
+        } catch(e) {}
+      }
+    }
+    return false;
+  }
+
+  // Force active visual classes if it is already in the wishlist
+  if (isProductInThemeWishlist()) {
+    wlBtns.forEach(btn => {
+      btn.classList.add('is-active', 'added-to-wishlist', 'm-wishlist--active', 'active');
+    });
+  }
+
+  // Visual click toggle for instant feedback
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.m-main-product .m-wishlist-button, .m-main-product [data-action="add-to-wishlist"], .m-main-product .m-product-media--mobile__atwl-button');
+    if (btn) {
+      setTimeout(() => {
+        btn.classList.toggle('is-active');
+        btn.classList.toggle('added-to-wishlist');
+      }, 50);
+    }
+  });
+});
+// --- End: Smart Wishlist Sync Logic ---
+</script>
+
+
+
+
+<script>
+// --- Start: Bulletproof Wishlist Sync & Counter Fix ---
+document.addEventListener('DOMContentLoaded', function() {
+  const pHandle = "{{ product.handle }}";
+  const pId = "{{ product.id }}";
+  
+  // 1. Get theme icon settings directly from Liquid configuration
+  const imgDefaultSrc = "{% if section.settings.wishlist_icon_initial %}{{ section.settings.wishlist_icon_initial | image_url: width: 24 }}{% endif %}";
+  const imgActiveSrc = "{% if section.settings.wishlist_icon_active %}{{ section.settings.wishlist_icon_active | image_url: width: 24 }}{% endif %}";
+
+  // 2. Scanner: Checks if product exists in theme's native storage
+  function isItemWishlisted() {
+    for (let i = 0; i < localStorage.length; i++) {
+      let key = localStorage.key(i);
+      if (key && key.toLowerCase().includes('wishlist')) {
+        try {
+          let data = localStorage.getItem(key);
+          if (data && (data.includes(pHandle) || data.includes(pId))) {
+            return true;
+          }
+        } catch(e) {}
+      }
+    }
+    return false;
+  }
+
+  // 3. UI Updater: Safely alters icons without interrupting core click scripts
+  function syncWishlistVisuals() {
+    const isSaved = isItemWishlisted();
+    const wlBtns = document.querySelectorAll('.m-main-product .m-wishlist-button, .m-main-product [data-action="add-to-wishlist"], .m-main-product .m-product-media--mobile__atwl-button');
+
+    wlBtns.forEach(btn => {
+      // Toggle core design classes
+      if (isSaved) {
+        btn.classList.add('is-active', 'added-to-wishlist', 'm-wishlist--active', 'active');
+      } else {
+        btn.classList.remove('is-active', 'added-to-wishlist', 'm-wishlist--active', 'active');
+      }
+
+      // Handle custom template elements safely
+      if (imgDefaultSrc && imgActiveSrc) {
+        let defaultIconEl = btn.querySelector('.m-tooltip-icon:not(.m-tooltip-icon--active)');
+        let activeIconEl = btn.querySelector('.m-tooltip-icon--active');
+
+        // Dynamically insert active nodes if missing on Desktop layout
+        if (!activeIconEl && defaultIconEl) {
+          defaultIconEl.insertAdjacentHTML('afterend', '<span class="m-tooltip-icon--active"><img class="m-svg-icon--medium" src="' + imgActiveSrc + '" alt="active"></span>');
+          activeIconEl = btn.querySelector('.m-tooltip-icon--active');
+        }
+
+        // Apply clean styles based on current state
+        if (defaultIconEl && activeIconEl) {
+          defaultIconEl.style.setProperty('display', isSaved ? 'none' : 'block', 'important');
+          activeIconEl.style.setProperty('display', isSaved ? 'block' : 'none', 'important');
+          activeIconEl.style.setProperty('opacity', isSaved ? '1' : '0', 'important');
+        }
+      }
+    });
+  }
+
+  // Run initial configuration scan on page load
+  setTimeout(syncWishlistVisuals, 300);
+
+  // 4. Capture theme state transformations immediately when clicked
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.m-main-product .m-wishlist-button, .m-main-product [data-action="add-to-wishlist"], .m-main-product .m-product-media--mobile__atwl-button');
+    if (btn) {
+      // Wait exactly 100ms to let the theme complete counter changes and update storage first
+      setTimeout(() => {
+        syncWishlistVisuals();
+      }, 100);
+    }
+  });
+});
+// --- End: Bulletproof Wishlist Sync & Counter Fix ---
+</script>
+
+<product-info
+  id="MainProduct-{{ section.id }}"
+  data-section-type="product-page"
+  data-section-id="{{ section.id }}"
+  data-layout="{{ layout }}"
+  data-product-handle="{{ product.handle }}"
+  data-url="{{ product.url }}"
+  data-update-url="true"
+  data-enable-history-state="{{ section.settings.enable_history_state }}"
+  data-product-id="{{ product.id }}"
+  data-container="{{ container }}"
+  data-enable-variant-group-images="{{ enable_variant_group_img }}"
+  data-disable-selected-variant-default="{{ disable_selected_variant_default }}"
+  data-variant-option-none-text="{{ variant_option_none_text }}"
+  data-show-featured-media="{{ section.settings.show_featured_media }}"
+  data-material-alt-filter="true"
+  class="m-main-product m-gradient m-color-{{ settings.default_color_scheme }} m:block"
+>
+  <div class="{{ container }}">
+    {% liquid
+      assign media_class = 'm:w-full md:m:w-1/2'
+      assign info_class = 'm:w-full md:m:w-1/2'
+      assign wrapper_class = 'm:flex m:flex-wrap'
+      case layout
+        when 'layout-2'
+          assign media_class = 'm:w-full md:m:w-7/12'
+          assign info_class = 'm:w-full md:m:w-5/12'
+          assign column_gap = '70px'
+        when 'layout-3'
+          assign media_class = 'm:w-full md:m:w-7/12'
+          assign info_class = 'm:w-full md:m:w-5/12'
+          assign column_gap = '70px'
+        when 'layout-5'
+          assign media_class = 'm:w-full md:m:w-7/12'
+          assign info_class = 'm:w-full md:m:w-5/12 '
+          assign column_gap = '70px'
+        when 'layout-7'
+          assign media_class = 'm:w-full'
+          if product.media.size == 1
+            assign media_class = 'container-narrow'
+          endif
+          assign info_class = 'container-narrow md:m:text-center'
+          assign wrapper_class = 'm:flex m:flex-wrap md:m:block m-product-media--layout-7'
+        else
+          assign column_gap = '50px'
+      endcase
+    %}
+    <div
+      class="m-main-product--wrapper {{ wrapper_class }} "
+      style="--column-gap: {{ column_gap }}; --column-gap-mobile: 20px;"
+    >
+      <product-recently-viewed data-product-id="{{ product.id }}" class="m:hidden"></product-recently-viewed>
+      <div class="m-main-product--media m:column {{ media_class }} m:relative">
+        
+        <div class="custom-mobile-arrows md:m:hidden">
+          <button class="custom-arrow prev" aria-label="Previous image">❮</button>
+          <button class="custom-arrow next" aria-label="Next image">❯</button>
+        </div>
+        
+        <div class="m-product-media--desktop m-product-media--wrapper m-product-media--{{ section.settings.layout }} m:justify-end m-product-media--grid-layout">
+          {% render 'product-media',
+            section: section,
+            template_product: true,
+            show_thumbnails_mobile: section.settings.show_nav_media_mobile,
+            show_pagination_mobile: section.settings.show_pagination_mobile
+          %}
+
+          {% if section.settings.show_atwl %}
+            {%- liquid
+              assign wishlist_app = settings.wishlist_app
+            -%}
+            {% if wishlist_app == 'growave' %}
+              {% capture the_snippet_fave_icon %}{% render 'ssw-widget-faveicon' with product.id %}{% endcapture %}
+              <div class="m-product-media--mobile__atwl-button md:m:hidden">
+                {% unless the_snippet_fave_icon contains 'Liquid error' %}
+                  {{ the_snippet_fave_icon }}
+                {% else %}
+                  {% render 'mm-ssw-widget-faveicon' with product.id %}
+                {% endunless %}
+              </div>
+            {% else %}
+                {% render 'tooltip',
+                type: 'wishlist',
+                product: product,
+                class_name: 'm-tooltip--top m-product-media--mobile__atwl-button !md:m:hidden',
+                icon_initial: section.settings.wishlist_icon_initial,
+                icon_active: section.settings.wishlist_icon_active,
+                style: 2
+              %}
+            {% endif %}
+          {% endif %}
+          {%- if first_3d_model -%}
+            <div class="m-product-media__xr-button md:m:hidden">
+              <button
+                class="m-xr-button m:w-full m:flex m:items-center m:justify-center"
+                type="button"
+                aria-label="{%- render 'new-locale', key: 'products.product.xr_button_label' -%}"
+                data-shopify-xr
+                data-shopify-model3d-id="{{ first_3d_model.id }}"
+                data-shopify-title="title"
+                data-shopify-xr-hidden
+              >
+                <svg
+                  class="m-svg-icon"
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                  focusable="false"
+                  role="presentation"
+                  viewBox="0 0 18 21"
+                >
+                  <path d="M7.67998 20.629L1.28002 16.723C0.886205 16.4784 0.561675 16.1368 0.337572 15.731C0.113468 15.3251 -0.00274623 14.8686 -1.39464e-05 14.405V6.59497C-0.00238367 6.13167 0.113819 5.6755 0.33751 5.26978C0.561202 4.86405 0.884959 4.52227 1.278 4.27698L7.67796 0.377014C8.07524 0.131403 8.53292 0.000877102 8.99999 9.73346e-08C9.46678 -0.000129605 9.92446 0.129369 10.322 0.374024V0.374024L16.722 4.27399C17.1163 4.51985 17.4409 4.86287 17.6647 5.27014C17.8885 5.67742 18.0039 6.13529 18 6.59998V14.409C18.0026 14.8725 17.8864 15.3289 17.6625 15.7347C17.4386 16.1405 17.1145 16.4821 16.721 16.727L10.321 20.633C9.92264 20.8742 9.46565 21.0012 8.99999 21C8.53428 20.9998 8.07761 20.8714 7.67998 20.629V20.629ZM8.72398 2.078L2.32396 5.97803C2.22303 6.04453 2.14066 6.13551 2.08452 6.24255C2.02838 6.34959 2.00031 6.46919 2.00298 6.59003V14.4C2.00026 14.5205 2.02818 14.6396 2.08415 14.7463C2.14013 14.853 2.22233 14.9438 2.32298 15.01L7.99999 18.48V10.919C8.00113 10.5997 8.08851 10.2867 8.25292 10.0129C8.41732 9.73922 8.65267 9.51501 8.93401 9.36401L15.446 5.841L9.28001 2.08002C9.19614 2.02738 9.09901 1.99962 8.99999 2C8.90251 1.99972 8.8069 2.02674 8.72398 2.078V2.078Z" fill="currentColor"></path>
+                </svg>
+                <span class="m-xr-button--label">{%- render 'new-locale', key: 'products.product.xr_button' -%}</span>
+              </button>
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+      <div class="m-main-product--info m:column {{ info_class }}{% if animated %} m-scroll-trigger animate--{{ animation_effect }}{% endif %}">
+        <div class="m-product-info--wrapper m:text-color-body">
+          {% render 'main-product-blocks', section: section, product: product %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if section.settings.use_sticky_atc or section.settings.use_sticky_atc_on_mobile %}
+    {% render 'sticky-atc', section: section, product: product, first_3d_model: first_3d_model %}
+  {% endif %}
+
+  {%- if enable_variant_group_img -%}
+    <script id="variantGroup" type="application/json">
+      {{ product.metafields.foxecom-bs-kit.variant-images.value | json }}
+    </script>
+  {%- endif -%}
+</product-info>
+
+
+
+{%- if section.settings.show_zoom_button -%}
+  <script src="{{ 'photoswipe.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+{% if product.media.size > 0 %}
+  <script src="{{ 'product-media.js' | asset_url }}" defer="defer"></script>
+{% endif %}
+{%- if first_3d_model -%}
+  <script type="application/json" id="ModelJSON-{{ product.id }}">
+    {{ product.media | where: 'media_type', 'model' | json }}
+  </script>
+  <script src="{{ 'product-model.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+{%- if product.options_with_values.size > 0 -%}
+  <script src="{{ 'variant-picker.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+<script src="{{ 'product-info.js' | asset_url }}" defer="defer"></script>
+
+{%- render 'product-data' -%}
+
+
+<script>
+window.addEventListener('load', function () {
+  var urlParams = new URLSearchParams(window.location.search);
+  var themeParam = urlParams.get('theme');
+  if (!themeParam) return;
+
+  var targetText = themeParam.replace(/\+/g, ' ').trim();
+  var targetLower = targetText.toLowerCase();
+
+  var attempts = 0;
+  var maxAttempts = 30; // ~6s, covers late-rendered blocks
+
+  var interval = setInterval(function () {
+    attempts++;
+    var matched = false;
+
+    var wrappers = document.querySelectorAll('.yk-custom-select-wrapper');
+
+    wrappers.forEach(function (wrapper) {
+      var items = wrapper.querySelectorAll('.yk-dropdown-item');
+
+      items.forEach(function (item) {
+        var val = (item.getAttribute('data-value') || '').trim();
+        var text = (item.textContent || '').trim();
+
+        if (val.toLowerCase() !== targetLower && text.toLowerCase() !== targetLower) return;
+
+        matched = true;
+
+        // Already selected? nothing to do.
+        if (item.classList.contains('is-selected')) return;
+
+        // Fire a real click so the block's own handler runs — that handler
+        // is the single source of truth for how message1/2/3 and the
+        // "From" field get shown, so we never duplicate that logic here.
+        item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+        item.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+        item.click();
+      });
+    });
+
+    if (matched || attempts >= maxAttempts) {
+      clearInterval(interval);
+    }
+  }, 200);
+});
+</script>
+
+
+
+{% schema %}
+{
+  "name": "Product information",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "[Watch tutorial](https://foxecom.link/olxmn9) or [read How-to](https://foxecom.link/QlS05K)"
+    },
+    {
+      "type": "paragraph",
+      "content": "Need more advanced customization? Use [Teeinblue Product Personalizer](https://teeinblue.com/install/teeinblue?ref=foxecom) app"
+    },
+    {
+      "type": "header",
+      "content": "General"
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "label": "Container type",
+      "default": "container",
+      "options": [
+        {
+          "value": "container-fluid",
+          "label": "Default"
+        },
+        {
+          "value": "w-full",
+          "label": "Full width"
+        },
+        {
+          "value": "container",
+          "label": "Use container box"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "default": "layout-6",
+      "options": [
+        {
+          "value": "layout-4",
+          "label": "Standard"
+        },
+        {
+          "value": "layout-1",
+          "label": "Grid 1 column"
+        },
+        {
+          "value": "layout-3",
+          "label": "Grid 2 columns"
+        },
+        {
+          "value": "layout-2",
+          "label": "Grid mix"
+        },
+        {
+          "value": "layout-5",
+          "label": "Slider 2 columns"
+        },
+        {
+          "value": "layout-6",
+          "label": "Slider vertical"
+        },
+        {
+          "value": "layout-7",
+          "label": "Slider full width"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_atwl",
+      "label": "Show Add to wishlist",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "wishlist_icon_initial",
+      "label": "Wishlist icon (default)"
+    },
+    {
+      "type": "image_picker",
+      "id": "wishlist_icon_active",
+      "label": "Wishlist icon (active / saved)"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_history_state",
+      "label": "Enable history state",
+      "info": "This will add a '?variant={variant_id}' to the browser's URL",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_variant_group_images",
+      "label": "Enable variant group images",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "disable_selected_variant_default",
+      "label": "Disable selected variant by default",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Product media"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_featured_media",
+      "label": "Show featured media by default",
+      "default": true,
+      "info": "If unchecked, the selected variant's image will be show on page load."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_zoom_button",
+      "label": "Enable image zoom",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_video_autoplay",
+      "label": "Enable video autoplay",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_nav_media_mobile",
+      "label": "Show thumbnails on mobile",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_pagination_mobile",
+      "label": "Show pagination on mobile",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Sticky Add to cart"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_sticky_atc",
+      "label": "Show on desktop",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "use_sticky_atc_on_mobile",
+      "label": "Show on mobile",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_dynamic_checkout",
+      "label": "Show dynamic checkout buttons",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky_atc_wishtlist",
+      "label": "Show wishlist button",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky_atc_compare",
+      "label": "Show compare button",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "title",
+      "name": "Product title",
+      "limit": 1
+    },
+    {
+      "type": "rating",
+      "name": "Product rating",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "To display a rating, add a product reviews app.\nGo to Theme settings -> Integrated apps -> Product reviews to choose the app which you are using."
+        }
+      ]
+    },
+    {
+      "type": "price",
+      "name": "Price",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_saving",
+          "default": false,
+          "label": "Show saving amount"
+        },
+        {
+          "type": "select",
+          "label": "Type",
+          "id": "sale_badge_type",
+          "default": "percentage",
+          "options": [
+            {
+              "label": "Percentage",
+              "value": "percentage"
+            },
+            {
+              "label": "Text",
+              "value": "text"
+            },
+            {
+              "label": "Fixed amount",
+              "value": "fixed_amount"
+            }
+          ]
+        }
+      ]
+    },
+  
+    {
+  "type": "recipient_message",
+  "name": "Recipient Message Box",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "icon",
+      "label": "Icon",
+      "info": "Upload an icon to display next to the heading"
+    },
+    { "type": "header", "content": "Theme 1 (Default)" },
+    { "type": "text", "id": "theme_1_name", "label": "Theme name", "default": "Birthday Wish" },
+    { "type": "textarea", "id": "theme_1_msg_1", "label": "Message 1", "default": "Believe in the magic of new beginnings and let your dreams to shine. Happy Birthday from S-Brillet!" },
+    { "type": "textarea", "id": "theme_1_msg_2", "label": "Message 2" },
+    { "type": "textarea", "id": "theme_1_msg_3", "label": "Message 3" },
+
+    { "type": "header", "content": "Theme 2" },
+    { "type": "text", "id": "theme_2_name", "label": "Theme name", "default": "Joyful Your Day" },
+    { "type": "textarea", "id": "theme_2_msg_1", "label": "Message 1" },
+    { "type": "textarea", "id": "theme_2_msg_2", "label": "Message 2" },
+    { "type": "textarea", "id": "theme_2_msg_3", "label": "Message 3" },
+
+    { "type": "header", "content": "Theme 3" },
+    { "type": "text", "id": "theme_3_name", "label": "Theme name", "default": "Couple Love and Affection" },
+    { "type": "textarea", "id": "theme_3_msg_1", "label": "Message 1" },
+    { "type": "textarea", "id": "theme_3_msg_2", "label": "Message 2" },
+    { "type": "textarea", "id": "theme_3_msg_3", "label": "Message 3" },
+
+    { "type": "header", "content": "Theme 4" },
+    { "type": "text", "id": "theme_4_name", "label": "Theme name", "default": "Friendly Compliment" },
+    { "type": "textarea", "id": "theme_4_msg_1", "label": "Message 1" },
+    { "type": "textarea", "id": "theme_4_msg_2", "label": "Message 2" },
+    { "type": "textarea", "id": "theme_4_msg_3", "label": "Message 3" },
+
+    { "type": "header", "content": "Theme 5" },
+    { "type": "text", "id": "theme_5_name", "label": "Theme name", "default": "Secret Brighten Love" },
+    { "type": "textarea", "id": "theme_5_msg_1", "label": "Message 1" },
+    { "type": "textarea", "id": "theme_5_msg_2", "label": "Message 2" },
+    { "type": "textarea", "id": "theme_5_msg_3", "label": "Message 3" }
+  ]
+},
+    {
+      "type": "variant_picker",
+      "name": "Variants selector",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "[Watch tutorial](https://foxecom.link/bqhGMd) or [read How-to](https://foxecom.link/F7UNEx)"
+        },
+        {
+          "type": "header",
+          "content": "Size guide settings"
+        },
+        {
+          "type": "text",
+          "id": "size_title",
+          "default": "Size",
+          "label": "Size option title",
+          "info": "Enter the option titles which you want to show Size guide button, separate with a comma"
+        }
+      ]
+    },
+
+    {
+      "type": "product_grouping_picker",
+      "name": "Product Grouping Picker",
+      "limit": 1,
+      "settings": [
+            {
+                  "type": "paragraph",
+                  "content": "This block permanently replaces the Gemstone option and displays between Material and Size."
+            },
+            {
+                  "type": "select",
+                  "id": "picker_type",
+                  "label": "Picker type",
+                  "default": "button",
+                  "options": [
+                        {
+                              "value": "button",
+                              "label": "Image swatches"
+                        },
+                        {
+                              "value": "text_pills",
+                              "label": "Text pills"
+                        },
+                        {
+                              "value": "dropdown",
+                              "label": "Dropdown"
+                        }
+                  ]
+            },
+            {
+                  "type": "select",
+                  "id": "swatch_design",
+                  "label": "Image swatch design",
+                  "default": "gemstone",
+                  "options": [
+                        {
+                              "value": "gemstone",
+                              "label": "Gemstone style"
+                        },
+                        {
+                              "value": "material",
+                              "label": "Material style"
+                        }
+                  ],
+                  "info": "Used only when Picker type is Image swatches."
+            },
+            {
+                  "type": "text",
+                  "id": "grouping_label",
+                  "label": "Grouping label",
+                  "default": "Gemstone",
+                  "info": "Leave blank to use the grouping_name field from the linked metaobject."
+            },
+            {
+                  "type": "checkbox",
+                  "id": "show_selected_value",
+                  "label": "Show selected product value beside label",
+                  "default": true
+            },
+            {
+                  "type": "text",
+                  "id": "option_type_metafield_key",
+                  "label": "Grouping metafield namespace and key",
+                  "default": "custom.product_grouping_option_1"
+            },
+            {
+                  "type": "text",
+                  "id": "option_value_metafield_key",
+                  "label": "Option value metafield namespace and key",
+                  "default": "custom.product_grouping_option_1_value"
+            },
+            {
+                  "type": "text",
+                  "id": "metaobject_products_field_key",
+                  "label": "Metaobject products field key",
+                  "default": "product_grouping"
+            },
+            {
+                  "type": "text",
+                  "id": "metaobject_label_field_key",
+                  "label": "Metaobject label field key",
+                  "default": "grouping_name"
+            },
+            {
+                  "type": "text",
+                  "id": "swatch_image_metafield_key",
+                  "label": "Optional swatch image metafield",
+                  "info": "Example: custom.product_grouping_swatch. Leave blank to use product featured images."
+            },
+            {
+                  "type": "header",
+                  "content": "Gemstone style"
+            },
+            {
+                  "type": "range",
+                  "id": "swatch_height",
+                  "label": "Desktop image height",
+                  "min": 24,
+                  "max": 64,
+                  "step": 1,
+                  "default": 38,
+                  "unit": "px"
+            },
+            {
+                  "type": "range",
+                  "id": "mobile_swatch_height",
+                  "label": "Mobile image height",
+                  "min": 20,
+                  "max": 50,
+                  "step": 1,
+                  "default": 30,
+                  "unit": "px"
+            },
+            {
+                  "type": "header",
+                  "content": "Material style"
+            },
+            {
+                  "type": "range",
+                  "id": "material_swatch_size",
+                  "label": "Desktop swatch size",
+                  "min": 40,
+                  "max": 80,
+                  "step": 1,
+                  "default": 57,
+                  "unit": "px"
+            },
+            {
+                  "type": "range",
+                  "id": "material_icon_size",
+                  "label": "Desktop icon size",
+                  "min": 14,
+                  "max": 50,
+                  "step": 1,
+                  "default": 26,
+                  "unit": "px"
+            },
+            {
+                  "type": "range",
+                  "id": "material_swatch_size_mobile",
+                  "label": "Mobile swatch size",
+                  "min": 34,
+                  "max": 64,
+                  "step": 1,
+                  "default": 47,
+                  "unit": "px"
+            },
+            {
+                  "type": "range",
+                  "id": "material_icon_size_mobile",
+                  "label": "Mobile icon size",
+                  "min": 12,
+                  "max": 40,
+                  "step": 1,
+                  "default": 22,
+                  "unit": "px"
+            },
+            {
+                  "type": "header",
+                  "content": "Shared style"
+            },
+            {
+                  "type": "range",
+                  "id": "swatch_gap",
+                  "label": "Space between swatches",
+                  "min": 0,
+                  "max": 24,
+                  "step": 1,
+                  "default": 8,
+                  "unit": "px"
+            },
+            {
+                  "type": "color",
+                  "id": "active_border_color",
+                  "label": "Selected and hover border",
+                  "default": "#E8E2DC"
+            },
+            {
+                  "type": "color",
+                  "id": "swatch_background",
+                  "label": "Swatch background",
+                  "default": "#FFFFFF"
+            },
+            {
+                  "type": "checkbox",
+                  "id": "show_sold_out_text",
+                  "label": "Show sold-out text",
+                  "default": true
+            }
+      ]
+},
+    {
+  "type": "delivery_preorder",
+  "name": "Delivery / Preorder ",
+  "limit": 1,
+  "settings": [
+    { "type": "header", "content": "Icons" },
+    { "type": "image_picker", "id": "ready_icon", "label": "Ready-to-ship icon" },
+    { "type": "image_picker", "id": "preorder_icon", "label": "Preorder icon" },
+
+    { "type": "header", "content": "Ready to ship (inventory ≥ 1)" },
+    {
+      "type": "text",
+      "id": "ready_text",
+      "label": "Ready-to-ship text",
+      "default": "READY-TO-SHIP: DELIVERY WITHIN 5–10 WORKING DAYS"
+    },
+
+    { "type": "header", "content": "Preorder (inventory = 0)" },
+   {
+  "type": "text",
+  "id": "preorder_text",
+  "label": "Preorder text",
+  "default": "PREORDER NOW — SHIPS BETWEEN [from] AND [to]",
+  "info": "Use [from] and [to] as placeholders for the dates below."
+},
+    {
+      "type": "text",
+      "id": "preorder_date_from",
+      "label": "Ships from",
+      "info": "Format: YYYY-MM-DD, e.g. 2026-08-01. Shopify has no native date picker, so this is a plain text field — stick to this format or the date won't parse."
+    },
+    {
+      "type": "text",
+      "id": "preorder_date_to",
+      "label": "Ships to",
+      "info": "Format: YYYY-MM-DD, e.g. 2026-08-15"
+    },
+    {
+      "type": "text",
+      "id": "preorder_date_format",
+      "label": "Display date format",
+      "default": "%b %d",
+      "info": "Example: %m/%d. [Reference](http://strftime.net/)"
+    },
+
+    { "type": "header", "content": "Style" },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#F4F3F1"
+    }
+  ]
+},
+    {
+      "type": "buy_buttons",
+      "name": "Buy buttons",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_quantity_selector",
+          "default": true,
+          "label": "Show quantity selector"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_atc_button",
+          "default": true,
+          "label": "Show Add-to-cart button"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_dynamic_checkout",
+          "default": true,
+          "label": "Show dynamic checkout buttons",
+          "info": "Using the payment methods available on your store, customers see their preferred option, like PayPal or Apple Pay. [Learn more](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_gift_card_recipient",
+          "default": true,
+          "label": "Show recipient form for gift card products",
+          "info": "When enabled, gift card products can optionally be sent to a recipient with a personal message."
+        },
+        {
+          "type": "checkbox",
+          "id": "show_checkout_button",
+          "label": "Show checkout button",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "meta",
+      "name": "Product meta",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_collections",
+          "label": "Show collections list",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_vendor",
+          "label": "Show product vendor",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_type",
+          "label": "Show product type",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_availability",
+          "label": "Show availability",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_sku",
+          "label": "Show SKU",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "badge",
+      "name": "Custom tags",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "[Read How-to](https://foxecom.link/VafwzY)"
+        },
+        {
+          "type": "header",
+          "content": "Valid formats"
+        },
+        {
+          "type": "paragraph",
+          "content": "tag__hot_[DISPLAY_TEXT]"
+        },
+        {
+          "type": "paragraph",
+          "content": "tag__new_[DISPLAY_TEXT]"
+        },
+        {
+          "type": "paragraph",
+          "content": "tag__sale_[DISPLAY_TEXT]"
+        },
+        {
+          "type": "paragraph",
+          "content": "Example: tag__hot_-50% OFF, tag__new_NEW ARRIVAL"
+        }
+      ]
+    },
+    {
+      "type": "description",
+      "name": "Full description",
+      "limit": 1
+    },
+    {
+      "type": "short_description",
+      "name": "Short description",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Add a metafield with namespace \"descriptor.short_description\" to display. [Add metafield](https://shopify.com/admin/metafields/product/create). [Watch tutorial](https://foxecom.link/QegRTH)"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "default": "Text block",
+          "label": "Text"
+        },
+        {
+          "type": "select",
+          "label": "Text style",
+          "id": "text_style",
+          "default": "body",
+          "options": [
+            {
+              "label": "Body text",
+              "value": "body"
+            },
+            {
+              "label": "Subtitle",
+              "value": "subtitle"
+            },
+            {
+              "label": "Uppercase",
+              "value": "uppercase"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "custom_text",
+      "name": "Richtext",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Custom text"
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "image_link",
+          "label": "Image link"
+        },
+        {
+          "type": "range",
+          "id": "image_width",
+          "label": "Image width",
+          "min": 0,
+          "default": 100,
+          "max": 100,
+          "unit": "%",
+          "step": 2
+        },
+        {
+          "type": "select",
+          "label": "Image alignment",
+          "id": "image_alignment",
+          "default": "start",
+          "options": [
+            {
+              "label": "Left",
+              "value": "start"
+            },
+            {
+              "label": "Center",
+              "value": "center"
+            },
+            {
+              "label": "Right",
+              "value": "end"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "custom_liquid",
+      "name": "Custom liquid",
+      "settings": [
+        {
+          "type": "liquid",
+          "id": "custom_liquid",
+          "label": "Custom liquid"
+        }
+      ]
+    },
+    {
+      "type": "visitors",
+      "name": "Visitors counter",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "color_scheme",
+          "id": "color_scheme",
+          "label": "Color scheme"
+        },
+        {
+          "type": "text",
+          "id": "live_views_text",
+          "label": "Visitor count text",
+          "default": "<strong>{count_number}</strong> <strong>people</strong> are viewing this right now"
+        },
+        {
+          "type": "text",
+          "id": "live_views_range",
+          "label": "Visitor count range",
+          "default": "20-30"
+        },
+        {
+          "type": "text",
+          "id": "live_view_duration",
+          "label": "Change count number every",
+          "default": "10",
+          "info": "Seconds"
+        },
+        {
+          "type": "checkbox",
+          "id": "live_view_icon_blinks",
+          "label": "Visitor count icon blinks",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "shipping",
+      "name": "Shipping information",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_delivery_times",
+          "label": "Show delivery estimation",
+          "info": "How delivery times are generated?",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "deliver_text",
+          "label": "Delivery text",
+          "default": "Estimated Delivery:"
+        },
+        {
+          "type": "text",
+          "id": "deliver_days",
+          "label": "Deliver in:",
+          "info": "days (+/- 2 days)",
+          "default": "7"
+        },
+        {
+          "type": "text",
+          "id": "date_format",
+          "label": "Date format",
+          "default": "%b %d",
+          "info": "Example: %m/%d [Learn more about date format here.](http://strftime.net/)"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_shipping_text",
+          "label": "Show Shipping text",
+          "default": true
+        },
+        {
+          "type": "richtext",
+          "id": "shipping_text",
+          "label": "Shipping text",
+          "default": "<p><strong>Free Shipping & Returns: </strong>On all orders over $75</p>"
+        }
+      ]
+    },
+    {
+      "type": "trust_badge",
+      "name": "Trust badge",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "trust_badges_text",
+          "label": "Heading",
+          "default": "<p>Guarantee safe & secure checkout</p>"
+        },
+        {
+          "type": "image_picker",
+          "id": "trust_badges_image",
+          "label": "Trust badges image"
+        },
+        {
+          "type": "text",
+          "id": "trust_badges_image_width",
+          "label": "Image width",
+          "default": "100%"
+        },
+        {
+          "type": "select",
+          "label": "Heading position",
+          "id": "position",
+          "default": "below",
+          "options": [
+            {
+              "label": "Text above image",
+              "value": "above"
+            },
+            {
+              "label": "Text below image",
+              "value": "below"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "collapsible_tab",
+      "name": "Collapsible tab",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Collapsible tab"
+        },
+        {
+          "type": "richtext",
+          "label": "Content",
+          "id": "content"
+        },
+        {
+          "type": "liquid",
+          "label": "Content by Liquid",
+          "id": "liquid",
+          "info": "Example: {{product.description}}"
+        },
+        {
+          "type": "checkbox",
+          "label": "Default open",
+          "id": "default_open",
+          "default": false
+        },
+        {
+          "type": "image_picker",
+          "id": "tab_icon",
+          "label": "Tab icon image"
+        }
+      ]
+    },
+    {
+      "type": "addons",
+      "name": "Addon buttons",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_atcp",
+          "label": "Show Add to compare",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_ask_a_question",
+          "label": "Show Ask a Question",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_social",
+          "label": "Show social share",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "foxkit_stock_countdown",
+      "name": "Stock countdown",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "This block has been deprecated since version 3.5.0. Please use the App block instead by selecting \"Add block\" -> \"Apps\" -> \"FoxKit - Stock countdown\". [Learn more](https://docs.minimog.co/foxkit-app/how-to-set-up-foxkit-features)"
+        }
+      ]
+    },
+    {
+      "type": "foxkit_countdown_timer",
+      "name": "Countdown timer",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "This block has been deprecated since version 3.5.0. Please use the App block instead by selecting \"Add block\" -> \"Apps\" -> \"FoxKit - Countdown timer\". [Learn more](https://docs.minimog.co/foxkit-app/how-to-set-up-foxkit-features)"
+        }
+      ]
+    },
+    {
+      "type": "custom_field",
+      "name": "Custom field",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Need more advanced customization? Use [Teeinblue Product Personalizer](https://teeinblue.com/install/teeinblue?ref=foxecom) app"
+        },
+        {
+          "type": "text",
+          "label": "Field name",
+          "id": "title",
+          "default": "Custom text",
+          "info": "Required, don't leave it blank"
+        },
+        {
+          "type": "select",
+          "label": "Field type",
+          "id": "field_type",
+          "default": "text",
+          "options": [
+            {
+              "label": "Single line text",
+              "value": "text"
+            },
+            {
+              "label": "Multiline text",
+              "value": "textarea"
+            },
+            {
+              "label": "Select",
+              "value": "select"
+            }
+          ]
+        },
+        {
+          "type": "textarea",
+          "label": "Options",
+          "id": "field_options",
+          "info": "Each option in a new line"
+        },
+        {
+          "type": "text",
+          "label": "Placeholder",
+          "id": "field_placeholder"
+        },
+        {
+          "type": "checkbox",
+          "label": "Required",
+          "id": "field_required",
+          "default": false,
+          "info": "If you use \"Required\" with a checkbox, then the checkbox will need to be checked for the customer to add the item to the cart."
+        },
+        {
+          "type": "checkbox",
+          "label": "Show at checkout",
+          "id": "show_at_checkout",
+          "default": true,
+          "info": "Uncheck this if you don't want the captured information to be shown in the order summary on the checkout pages."
+        }
+      ]
+    },
+    {
+      "type": "image_field",
+      "name": "Upload image field",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "This field cannot work with Dynamic checkout buttons, so if using it, the dynamic checkout buttons will be disabled."
+        },
+        {
+          "type": "text",
+          "label": "Field name",
+          "id": "title",
+          "default": "Custom image",
+          "info": "Required, don't leave it blank"
+        },
+        {
+          "type": "checkbox",
+          "label": "Required",
+          "id": "field_required",
+          "default": false,
+          "info": "If you use \"Required\" with a checkbox, then the checkbox will need to be checked for the customer to add the item to the cart."
+        },
+        {
+          "type": "checkbox",
+          "label": "Show at checkout",
+          "id": "show_at_checkout",
+          "default": true,
+          "info": "Uncheck this if you don't want the captured information to be shown in the order summary on the checkout pages."
+        }
+      ]
+    },
+    {
+      "type": "breadcrumb",
+      "name": "Breadcrumb",
+      "limit": 1
+    },
+    {
+      "type": "complementary",
+      "name": "Complementary products",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "To select complementary products, add the Search & Discovery app. [Learn more](https://shopify.dev/themes/product-merchandising/recommendations)"
+        },
+        {
+          "type": "text",
+          "id": "block_heading",
+          "default": "Pairs well with",
+          "label": "Heading"
+        },
+        {
+          "type": "checkbox",
+          "id": "make_collapsible_row",
+          "default": false,
+          "label": "Show as collapsible tab"
+        },
+        {
+          "type": "range",
+          "id": "product_list_limit",
+          "min": 1,
+          "max": 10,
+          "step": 1,
+          "default": 10,
+          "label": "Maximum products to show"
+        },
+        {
+          "type": "range",
+          "id": "products_per_page",
+          "min": 1,
+          "max": 3,
+          "step": 1,
+          "default": 2,
+          "label": "Number of products per page"
+        },
+        {
+          "type": "header",
+          "content": "Product card"
+        },
+        {
+          "type": "select",
+          "id": "pcard_image_ratio",
+          "label": "Aspect ratio",
+          "default": "original",
+          "options": [
+            {
+              "value": "original",
+              "label": "Adapt to image"
+            },
+            {
+              "value": "1/1",
+              "label": "1:1"
+            },
+            {
+              "value": "3/4",
+              "label": "3:4"
+            },
+            {
+              "value": "4/3",
+              "label": "4:3"
+            },
+            {
+              "value": "16/9",
+              "label": "16:9"
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_variant_options",
+          "label": "Enable variant options",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_quick_view",
+          "label": "Enable quick view button",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_quick_add",
+          "label": "Enable add to cart button",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_compare",
+          "label": "Enable compare button",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_wishlist",
+          "label": "Enable wishlist button",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "inventory_status",
+      "name": "Inventory status",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Inventory thresholds can be changed in \"Theme Settings > Product Inventory\"."
+        },
+        {
+          "type": "checkbox",
+          "id": "show_indicator_bar",
+          "label": "Show inventory indicator bar",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Messages"
+        },
+        {
+          "type": "richtext",
+          "id": "normal_text",
+          "label": "Text for normal inventory"
+        },
+        {
+          "type": "richtext",
+          "id": "low_text",
+          "label": "Text for low inventory",
+          "default": "<p>- Hurry! Limited stock left.</p>"
+        },
+        {
+          "type": "richtext",
+          "id": "outofstock_text",
+          "label": "Text for out of stock"
+        },
+        {
+          "type": "richtext",
+          "id": "backordered_text",
+          "label": "Text for backordered",
+          "default": "<p>Backordered</p>"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

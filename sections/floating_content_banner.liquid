@@ -1,0 +1,485 @@
+{%- style -%}
+  /* =========================================================
+     Floating Content Banner - Pixel Perfect Custom CSS
+     ========================================================= */
+  
+  /* Loading Custom Fonts if selected */
+  {%- if section.settings.title_font != blank -%}
+    {{ section.settings.title_font | font_face: font_display: 'swap' }}
+  {%- endif -%}
+  {%- if section.settings.subtitle_font != blank -%}
+    {{ section.settings.subtitle_font | font_face: font_display: 'swap' }}
+  {%- endif -%}
+  {%- if section.settings.desc_font != blank -%}
+    {{ section.settings.desc_font | font_face: font_display: 'swap' }}
+  {%- endif -%}
+
+  .custom-floating-banner-{{ section.id }} {
+    --title-color: {{ section.settings.title_color }};
+    --subtitle-color: {{ section.settings.subtitle_color }};
+    --text-color: {{ section.settings.text_color }};
+    --card-bg: {{ section.settings.card_bg_color }};
+    
+    --btn-bg: transparent;
+    --btn-text: {{ section.settings.btn_text_color }};
+    --btn-border: {{ section.settings.btn_border_color }};
+    
+    --border-grad-1: {{ section.settings.border_color_1 | default: '#C5A07A' }};
+    --border-grad-2: {{ section.settings.border_color_2 | default: '#F3E5D8' }};
+    --border-grad-3: {{ section.settings.border_color_3 | default: '#C5A07A' }};
+
+    position: relative;
+    width: 100%;
+    height: {{ section.settings.desktop_height }}px; /* Figma: 900px */
+    display: flex;
+    box-sizing: border-box;
+    overflow: hidden; /* Ensures nothing spills out */
+  }
+
+  /* --- BACKGROUND IMAGE --- */
+  .custom-floating-banner-{{ section.id }} .bg-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
+
+  /* --- THE FLOATING CARD --- */
+  .custom-floating-banner-{{ section.id }} .content-card {
+    position: absolute;
+    top: {{ section.settings.card_top_pos }}px; /* Figma: 323px from top */
+    left: {{ section.settings.card_left_pos }}px; /* Figma: 120px from left */
+    width: 100%;
+    max-width: {{ section.settings.card_max_width }}px; /* Default: 680px to fit content nicely */
+    height: {{ section.settings.card_height }}px; /* Figma: 440px */
+    background-color: var(--card-bg); /* Figma: #FFFFFF */
+    padding: {{ section.settings.card_padding_y }}px {{ section.settings.card_padding_x }}px; /* Figma: 70px 80px */
+    box-sizing: border-box;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* Typography */
+  .custom-floating-banner-{{ section.id }} .banner-title {
+    font-family: {% if section.settings.title_font != blank %}{{ section.settings.title_font.family }}, {{ section.settings.title_font.fallback_families }}{% else %}var(--font-heading-family, serif){% endif %};
+    font-size: {{ section.settings.title_size }}px; /* Figma: 64px */
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--title-color);
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+  }
+
+  .custom-floating-banner-{{ section.id }} .banner-subtitle {
+    font-family: {% if section.settings.subtitle_font != blank %}{{ section.settings.subtitle_font.family }}, {{ section.settings.subtitle_font.fallback_families }}{% else %}'Brush Script MT', cursive{% endif %};
+    font-size: {{ section.settings.subtitle_size }}px; /* Figma: 32px */
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--subtitle-color);
+    margin: 0 0 15px 0;
+  }
+
+  .custom-floating-banner-{{ section.id }} .banner-desc {
+    font-family: {% if section.settings.desc_font != blank %}{{ section.settings.desc_font.family }}, {{ section.settings.desc_font.fallback_families }}{% else %}var(--font-body-family, sans-serif){% endif %};
+    font-size: {{ section.settings.desc_size }}px; /* Figma: 20px */
+    font-weight: 300; /* Figma: Light 300 */
+    line-height: {{ section.settings.desc_line_height }}px; /* Figma: 36px */
+    color: var(--text-color);
+    margin: 0 0 35px 0;
+    max-width: 520px;
+  }
+
+  /* Button with Gradient Hover Effect */
+  .custom-floating-banner-{{ section.id }} .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 350px; /* Figma exactly 350px */
+    height: 55px; /* Figma exactly 55px */
+    background-color: var(--btn-bg);
+    color: var(--btn-text);
+    border: 1px solid var(--btn-border);
+    font-family: var(--font-heading-family, serif);
+    font-size: 16px;
+    font-weight: 400;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    box-sizing: border-box;
+  }
+
+  .custom-floating-banner-{{ section.id }} .btn-outline:hover {
+    background-color: transparent;
+    color: var(--title-color); /* Keep the text dark */
+    border: 1px solid transparent;
+    border-image: linear-gradient(135deg, var(--border-grad-1), var(--border-grad-2), var(--border-grad-3)) 1;
+  }
+
+  /* --- RESPONSIVE DESIGN --- */
+  @media (max-width: 1400px) {
+    .custom-floating-banner-{{ section.id }} {
+      height: 700px;
+    }
+    .custom-floating-banner-{{ section.id }} .content-card {
+      top: 50%;
+      transform: translateY(-50%); /* Vertically center on smaller laptops */
+      left: 60px;
+      padding: 50px 60px;
+      max-width: 600px;
+      height: auto;
+    }
+    .custom-floating-banner-{{ section.id }} .banner-title {
+      font-size: 54px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .custom-floating-banner-{{ section.id }} {
+      height: 600px;
+    }
+    .custom-floating-banner-{{ section.id }} .content-card {
+      left: 40px;
+      right: 40px;
+      max-width: calc(100% - 80px); /* Fill screen with padding */
+      padding: 40px;
+    }
+    .custom-floating-banner-{{ section.id }} .banner-title {
+      font-size: 48px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .custom-floating-banner-{{ section.id }} {
+      height: auto;
+      min-height: 500px;
+      flex-direction: column;
+      justify-content: flex-end; /* Push card to bottom on mobile */
+    }
+    .custom-floating-banner-{{ section.id }} .bg-image {
+      position: absolute;
+      height: 100%; /* Keep image full cover */
+    }
+    /* On mobile, card sits at the bottom instead of floating left */
+    .custom-floating-banner-{{ section.id }} .content-card {
+      position: relative;
+      top: auto;
+      left: auto;
+      transform: none;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      padding: 40px 20px;
+      background-color: rgba(255, 255, 255, 0.95); /* Slight transparency on mobile looks good */
+      text-align: center;
+      align-items: center;
+    }
+    .custom-floating-banner-{{ section.id }} .banner-desc {
+      text-align: center;
+      font-size: 16px;
+      line-height: 24px;
+    }
+    .custom-floating-banner-{{ section.id }} .banner-title {
+      font-size: 36px;
+      text-align: center;
+    }
+    .custom-floating-banner-{{ section.id }} .banner-subtitle {
+      font-size: 26px;
+    }
+    .custom-floating-banner-{{ section.id }} .btn-outline {
+      width: 100%;
+      max-width: 350px;
+    }
+  }
+{%- endstyle -%}
+
+<section class="custom-floating-banner-{{ section.id }}" data-section-id="{{ section.id }}">
+  
+  {%- if section.settings.bg_image != blank -%}
+    <img src="{{ section.settings.bg_image | image_url: width: 1920 }}" alt="{{ section.settings.title | escape }}" class="bg-image" loading="lazy">
+  {%- else -%}
+    {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg bg-image' }}
+  {%- endif -%}
+
+  <div class="content-card">
+    {%- if section.settings.title != blank -%}
+      <h2 class="banner-title">{{ section.settings.title }}</h2>
+    {%- endif -%}
+
+    {%- if section.settings.subtitle != blank -%}
+      <p class="banner-subtitle">{{ section.settings.subtitle }}</p>
+    {%- endif -%}
+
+    {%- if section.settings.description != blank -%}
+      <p class="banner-desc">{{ section.settings.description }}</p>
+    {%- endif -%}
+
+    {%- if section.settings.btn_text != blank -%}
+      <a href="{{ section.settings.btn_link | default: '#' }}" class="btn-outline">{{ section.settings.btn_text }}</a>
+    {%- endif -%}
+  </div>
+
+</section>
+
+{% schema %}
+{
+  "name": "Floating Content Banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Layout (Figma Desktop)"
+    },
+    {
+      "type": "image_picker",
+      "id": "bg_image",
+      "label": "Background Image",
+      "info": "Recommended size: 1920x900px"
+    },
+    {
+      "type": "range",
+      "id": "desktop_height",
+      "label": "Section Height (Desktop)",
+      "default": 900,
+      "min": 500,
+      "max": 1200,
+      "step": 10,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Card Positioning (Desktop)"
+    },
+    {
+      "type": "range",
+      "id": "card_top_pos",
+      "label": "Card Position From Top",
+      "default": 320,
+      "min": 0,
+      "max": 600,
+      "step": 10,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_left_pos",
+      "label": "Card Position From Left",
+      "default": 120,
+      "min": 0,
+      "max": 500,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_height",
+      "label": "Card Exact Height",
+      "default": 440,
+      "min": 200,
+      "max": 800,
+      "step": 10,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_max_width",
+      "label": "Card Max Width",
+      "default": 680,
+      "min": 300,
+      "max": 1000,
+      "step": 10,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_padding_x",
+      "label": "Card Padding (Left/Right)",
+      "default": 80,
+      "min": 10,
+      "max": 150,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_padding_y",
+      "label": "Card Padding (Top/Bottom)",
+      "default": 70,
+      "min": 10,
+      "max": 150,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Card Background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Subtitle Color (@username)",
+      "default": "#C5A07A"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Description Text Color",
+      "default": "#555555"
+    },
+    {
+      "type": "header",
+      "content": "Typography & Fonts"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Main Title",
+      "default": "FOLLOW US ON INSTAGRAM"
+    },
+    {
+      "type": "font_picker",
+      "id": "title_font",
+      "label": "Title Font",
+      "default": "playfair_display_n4",
+      "info": "Leave blank to use Theme Heading Font."
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Title Font Size",
+      "default": 64,
+      "min": 30,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle / Handle",
+      "default": "@sbrillet"
+    },
+    {
+      "type": "font_picker",
+      "id": "subtitle_font",
+      "label": "Subtitle Font (Cursive Recommended)",
+      "default": "pacifico_n4",
+      "info": "Leave blank to use default Cursive."
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "label": "Subtitle Font Size",
+      "default": 32,
+      "min": 14,
+      "max": 60,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Join our community and dive into the world of S-Brillet. Discover styling tips, the meaning behind each gemstone, and the positive energy our jewelry brings."
+    },
+    {
+      "type": "font_picker",
+      "id": "desc_font",
+      "label": "Description Font",
+      "default": "inter_n3",
+      "info": "Leave blank to use Theme Body Font."
+    },
+    {
+      "type": "range",
+      "id": "desc_size",
+      "label": "Description Font Size",
+      "default": 20,
+      "min": 12,
+      "max": 30,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "desc_line_height",
+      "label": "Description Line Height",
+      "default": 36,
+      "min": 20,
+      "max": 50,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Button Settings"
+    },
+    {
+      "type": "text",
+      "id": "btn_text",
+      "label": "Button Text",
+      "default": "FOLLOW US"
+    },
+    {
+      "type": "url",
+      "id": "btn_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "color",
+      "id": "btn_text_color",
+      "label": "Button Text Color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "btn_border_color",
+      "label": "Button Border Color",
+      "default": "#333333"
+    },
+    {
+      "type": "header",
+      "content": "Button Hover Gradient Colors"
+    },
+    {
+      "type": "color",
+      "id": "border_color_1",
+      "label": "Gradient Color 1 (Soft Gold)",
+      "default": "#C5A07A"
+    },
+    {
+      "type": "color",
+      "id": "border_color_2",
+      "label": "Gradient Color 2 (Light Beige)",
+      "default": "#F3E5D8"
+    },
+    {
+      "type": "color",
+      "id": "border_color_3",
+      "label": "Gradient Color 3 (Soft Gold)",
+      "default": "#C5A07A"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Floating Content Banner"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,662 @@
+
+{%- liquid
+  assign menu_id = menu | default: 'main_menu'
+  assign show_menu_column_divider = section.settings.show_menu_column_divider
+-%}
+{% comment %}theme-check-enable UnusedAssign{% endcomment %}
+
+<style>
+  :root {
+    --mega-max-width: 1720px;
+    --mega-padding: 10px 20px;
+    --mega-bg: #ffffff;
+    --mega-border: #f0f0f0;
+    --mega-text: #111111;
+    --mega-text-muted: #555555;
+    --mega-heading-size: 11px;
+    --mega-link-size: 14px;
+    --mega-transition: 0.22s ease;
+    --mega-shadow: 0 8px 40px rgba(0,0,0,0.08);
+    --mega-arrow-color: #aaaaaa;
+    --mega-arrow-hover: #111111;
+  }
+
+  .m-header__menu .m-menu {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 0;
+  }
+
+  .m-menu__item { position: static; }
+
+  .m-menu__link--main {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 16px;
+    font-weight: 400;
+    {% comment %} letter-spacing: 0.04em; {% endcomment %}
+    text-transform: uppercase;
+    color: var(--mega-text);
+    text-decoration: none;
+    padding: 18px 14px;
+    white-space: nowrap;
+    transition: color var(--mega-transition);
+  }
+  .m-menu__link--main:hover { color: var(--mega-arrow-hover); }
+
+  .m-menu__arrow,
+  .m-menu__sub-arrow {
+    {% comment %} display: inline-flex; {% endcomment %}
+     display:none;
+    align-items: center;
+    color: var(--mega-arrow-color);
+    transition: transform var(--mega-transition), color var(--mega-transition);
+  }
+  .m-menu__item--parent:hover > a .m-menu__arrow {
+    transform: rotate(180deg);
+    color: var(--mega-text);
+  }
+
+  /* Mega panel */
+  .m-mega-menu {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    z-index: 999;
+    background: var(--mega-bg);
+    border-top: 1px solid var(--mega-border);
+    box-shadow: var(--mega-shadow);
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity var(--mega-transition), transform var(--mega-transition), visibility var(--mega-transition);
+    pointer-events: none;
+  }
+  .m-menu__item--parent:hover > .m-mega-menu,
+  .m-menu__item--parent:focus-within > .m-mega-menu {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  /* Container */
+  .m-mega-menu__container--custom {
+    max-width: var(--mega-max-width);
+    margin: 0 auto;
+    padding: var(--mega-padding);
+    width: 100%;
+  }
+
+  /* Inner flex row */
+  .m-mega-menu__inner--custom {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  /* Column */
+  .m-mega-col {
+    flex: 1 1 0;
+    padding: 22px 20px;
+    min-width: 0;
+  }
+  .m-show-menu-column-divider .m-mega-col + .m-mega-col {
+    border-left: 1px solid var(--mega-border);
+  }
+
+  /* Column heading */
+  .m-mega-col__heading {
+    display: flex;
+    align-items: center;
+    {% comment %} justify-content: space-between; {% endcomment %}
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    color: #2C2C2C;
+    text-transform: uppercase;
+    margin: 0 0 14px;
+    white-space: nowrap;
+  }
+
+  /* Slider arrows */
+  .m-mega-col__arrows {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 8px;
+  }
+  .m-mega-col__arrows button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--mega-arrow-color);
+    padding: 2px;
+    line-height: 1;
+    transition: color var(--mega-transition);
+    font-size: 13px;
+  }
+  .m-mega-col__arrows button:hover { color: var(--mega-text); }
+  .m-mega-col__arrows button:disabled { opacity: 0.3; cursor: default; }
+
+  /* Links */
+  .m-mega-col__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .m-mega-col__item a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 400;
+    font-family: 'Inter', sans-serif;
+    color: #2C2C2C;
+    text-decoration: none;
+    transition: color var(--mega-transition);
+    line-height: 1.3;
+  }
+
+  .m-mega-col__item a:hover { color: var(--mega-text); }
+
+  /* Link icon — now image-based */
+  .m-mega-col__icon {
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .m-mega-col__icon img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* Hidden items (pagination) */
+  .m-mega-col__item--hidden {
+    display: none !important;
+  }
+
+  /* Banner column */
+  .m-mega-col--banner {
+    flex: 0 0 260px;
+    padding: 16px 16px 16px 20px;
+  }
+  .m-mega-banner-img {
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f5f5f5;
+    aspect-ratio: 4/5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .m-mega-banner-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .m-mega-banner-placeholder {
+    width: 100%;
+    aspect-ratio: 4/5;
+    border-radius: 8px;
+    background-image: repeating-conic-gradient(#e8e8e8 0% 25%, #f5f5f5 0% 50%);
+    background-size: 20px 20px;
+  }
+</style>
+
+<div class="m-header__menu{% if custom_classes != blank %} {{ custom_classes }}{% endif %}">
+  <ul class="m-menu">
+    {% for link in linklists[section.settings[menu_id]].links %}
+      {% liquid
+        assign li_class = 'm-menu__item'
+        assign is_mega = true
+        assign title_handle = link.title | handleize
+        assign has_mega_item = false
+        assign block_type = ''
+        assign dropdown_container = section.settings.container
+      %}
+
+      {% for block in section.blocks %}
+        {% liquid
+          assign menu_title = block.settings.heading | handleize
+          if menu_title == blank or menu_title != title_handle
+            continue
+          endif
+          assign has_mega_item = true
+          if block.settings.container == 'inherit'
+            assign dropdown_container = section.settings.container
+          else
+            assign dropdown_container = block.settings.container
+          endif
+        %}
+
+        {% case block.type %}
+
+          {% when 'custom_mega' %}
+            {%- capture block_type -%}
+              <div class="m-mega-menu__inner--custom{% if show_menu_column_divider %} m-show-menu-column-divider{% endif %}">
+                {%- assign col_ids = '1,2,3,4,5,6' | split: ',' -%}
+                {%- for col_id in col_ids -%}
+                  {%- assign col_title_key  = 'col_' | append: col_id | append: '_title' -%}
+                  {%- assign col_links_key  = 'col_' | append: col_id | append: '_links' -%}
+                  {%- assign col_arrows_key = 'col_' | append: col_id | append: '_show_arrows' -%}
+                  {%- assign col_title      = block.settings[col_title_key] -%}
+                  {%- assign col_linklist   = block.settings[col_links_key] -%}
+                  {%- assign col_arrows     = block.settings[col_arrows_key] -%}
+                  {%- if col_title == blank and col_linklist == blank -%}{%- continue -%}{%- endif -%}
+
+                  {%- assign col_uid = block.id | append: '-col' | append: col_id -%}
+
+                  <div class="m-mega-col" {{ block.shopify_attributes }}>
+                    <div class="m-mega-col__heading">
+                      <span>{{ col_title }}</span>
+                      {%- if col_arrows -%}
+                        <span class="m-mega-col__arrows" data-col-arrows="{{ col_uid }}">
+                          <button
+                            aria-label="Previous"
+                            data-col-prev="{{ col_uid }}"
+                            disabled
+                          >
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 17 20" fill="none">
+<rect width="17" height="20" transform="matrix(-1 0 0 1 17 0)" fill="url(#pattern0_6487_16101)" fill-opacity="0.5"/>
+<defs>
+<pattern id="pattern0_6487_16101" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image0_6487_16101" transform="matrix(0.00452489 0 0 0.00384615 0 -0.00384615)"/>
+</pattern>
+<image id="image0_6487_16101" width="221" height="262" preserveAspectRatio="none" xlink:href="data:image/png;base64,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"/>
+</defs>
+</svg>                          </button>
+                          <button
+                            aria-label="Next"
+                            data-col-next="{{ col_uid }}"
+                          >
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 17 20" fill="none">
+<rect width="17" height="20" fill="url(#pattern0_6487_16104)" fill-opacity="0.5"/>
+<defs>
+<pattern id="pattern0_6487_16104" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image0_6487_16104" transform="matrix(0.00452489 0 0 0.00384615 0 -0.00384615)"/>
+</pattern>
+<image id="image0_6487_16104" width="221" height="262" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAN0AAAEGCAYAAADhSpBCAAAABGdBTUEAALGPC/xhBQAACklpQ0NQc1JHQiBJRUM2MTk2Ni0yLjEAAEiJnVN3WJP3Fj7f92UPVkLY8LGXbIEAIiOsCMgQWaIQkgBhhBASQMWFiApWFBURnEhVxILVCkidiOKgKLhnQYqIWotVXDjuH9yntX167+3t+9f7vOec5/zOec8PgBESJpHmomoAOVKFPDrYH49PSMTJvYACFUjgBCAQ5svCZwXFAADwA3l4fnSwP/wBr28AAgBw1S4kEsfh/4O6UCZXACCRAOAiEucLAZBSAMguVMgUAMgYALBTs2QKAJQAAGx5fEIiAKoNAOz0ST4FANipk9wXANiiHKkIAI0BAJkoRyQCQLsAYFWBUiwCwMIAoKxAIi4EwK4BgFm2MkcCgL0FAHaOWJAPQGAAgJlCLMwAIDgCAEMeE80DIEwDoDDSv+CpX3CFuEgBAMDLlc2XS9IzFLiV0Bp38vDg4iHiwmyxQmEXKRBmCeQinJebIxNI5wNMzgwAABr50cH+OD+Q5+bk4eZm52zv9MWi/mvwbyI+IfHf/ryMAgQAEE7P79pf5eXWA3DHAbB1v2upWwDaVgBo3/ldM9sJoFoK0Hr5i3k4/EAenqFQyDwdHAoLC+0lYqG9MOOLPv8z4W/gi372/EAe/tt68ABxmkCZrcCjg/1xYW52rlKO58sEQjFu9+cj/seFf/2OKdHiNLFcLBWK8ViJuFAiTcd5uVKRRCHJleIS6X8y8R+W/QmTdw0ArIZPwE62B7XLbMB+7gECiw5Y0nYAQH7zLYwaC5EAEGc0Mnn3AACTv/mPQCsBAM2XpOMAALzoGFyolBdMxggAAESggSqwQQcMwRSswA6cwR28wBcCYQZEQAwkwDwQQgbkgBwKoRiWQRlUwDrYBLWwAxqgEZrhELTBMTgN5+ASXIHrcBcGYBiewhi8hgkEQcgIE2EhOogRYo7YIs4IF5mOBCJhSDSSgKQg6YgUUSLFyHKkAqlCapFdSCPyLXIUOY1cQPqQ28ggMor8irxHMZSBslED1AJ1QLmoHxqKxqBz0XQ0D12AlqJr0Rq0Hj2AtqKn0UvodXQAfYqOY4DRMQ5mjNlhXIyHRWCJWBomxxZj5Vg1Vo81Yx1YN3YVG8CeYe8IJAKLgBPsCF6EEMJsgpCQR1hMWEOoJewjtBK6CFcJg4Qxwicik6hPtCV6EvnEeGI6sZBYRqwm7iEeIZ4lXicOE1+TSCQOyZLkTgohJZAySQtJa0jbSC2kU6Q+0hBpnEwm65Btyd7kCLKArCCXkbeQD5BPkvvJw+S3FDrFiOJMCaIkUqSUEko1ZT/lBKWfMkKZoKpRzame1AiqiDqfWkltoHZQL1OHqRM0dZolzZsWQ8ukLaPV0JppZ2n3aC/pdLoJ3YMeRZfQl9Jr6Afp5+mD9HcMDYYNg8dIYigZaxl7GacYtxkvmUymBdOXmchUMNcyG5lnmA+Yb1VYKvYqfBWRyhKVOpVWlX6V56pUVXNVP9V5qgtUq1UPq15WfaZGVbNQ46kJ1Bar1akdVbupNq7OUndSj1DPUV+jvl/9gvpjDbKGhUaghkijVGO3xhmNIRbGMmXxWELWclYD6yxrmE1iW7L57Ex2Bfsbdi97TFNDc6pmrGaRZp3mcc0BDsax4PA52ZxKziHODc57LQMtPy2x1mqtZq1+rTfaetq+2mLtcu0W7eva73VwnUCdLJ31Om0693UJuja6UbqFutt1z+o+02PreekJ9cr1Dund0Uf1bfSj9Rfq79bv0R83MDQINpAZbDE4Y/DMkGPoa5hpuNHwhOGoEctoupHEaKPRSaMnuCbuh2fjNXgXPmasbxxirDTeZdxrPGFiaTLbpMSkxeS+Kc2Ua5pmutG003TMzMgs3KzYrMnsjjnVnGueYb7ZvNv8jYWlRZzFSos2i8eW2pZ8ywWWTZb3rJhWPlZ5VvVW16xJ1lzrLOtt1ldsUBtXmwybOpvLtqitm63Edptt3xTiFI8p0in1U27aMez87ArsmuwG7Tn2YfYl9m32zx3MHBId1jt0O3xydHXMdmxwvOuk4TTDqcSpw+lXZxtnoXOd8zUXpkuQyxKXdpcXU22niqdun3rLleUa7rrStdP1o5u7m9yt2W3U3cw9xX2r+00umxvJXcM970H08PdY4nHM452nm6fC85DnL152Xlle+70eT7OcJp7WMG3I28Rb4L3Le2A6Pj1l+s7pAz7GPgKfep+Hvqa+It89viN+1n6Zfgf8nvs7+sv9j/i/4XnyFvFOBWABwQHlAb2BGoGzA2sDHwSZBKUHNQWNBbsGLww+FUIMCQ1ZH3KTb8AX8hv5YzPcZyya0RXKCJ0VWhv6MMwmTB7WEY6GzwjfEH5vpvlM6cy2CIjgR2yIuB9pGZkX+X0UKSoyqi7qUbRTdHF09yzWrORZ+2e9jvGPqYy5O9tqtnJ2Z6xqbFJsY+ybuIC4qriBeIf4RfGXEnQTJAntieTE2MQ9ieNzAudsmjOc5JpUlnRjruXcorkX5unOy553PFk1WZB8OIWYEpeyP+WDIEJQLxhP5aduTR0T8oSbhU9FvqKNolGxt7hKPJLmnVaV9jjdO31D+miGT0Z1xjMJT1IreZEZkrkj801WRNberM/ZcdktOZSclJyjUg1plrQr1zC3KLdPZisrkw3keeZtyhuTh8r35CP5c/PbFWyFTNGjtFKuUA4WTC+oK3hbGFt4uEi9SFrUM99m/ur5IwuCFny9kLBQuLCz2Lh4WfHgIr9FuxYji1MXdy4xXVK6ZHhp8NJ9y2jLspb9UOJYUlXyannc8o5Sg9KlpUMrglc0lamUycturvRauWMVYZVkVe9ql9VbVn8qF5VfrHCsqK74sEa45uJXTl/VfPV5bdra3kq3yu3rSOuk626s91m/r0q9akHV0IbwDa0b8Y3lG19tSt50oXpq9Y7NtM3KzQM1YTXtW8y2rNvyoTaj9nqdf13LVv2tq7e+2Sba1r/dd3vzDoMdFTve75TsvLUreFdrvUV99W7S7oLdjxpiG7q/5n7duEd3T8Wej3ulewf2Re/ranRvbNyvv7+yCW1SNo0eSDpw5ZuAb9qb7Zp3tXBaKg7CQeXBJ9+mfHvjUOihzsPcw83fmX+39QjrSHkr0jq/dawto22gPaG97+iMo50dXh1Hvrf/fu8x42N1xzWPV56gnSg98fnkgpPjp2Snnp1OPz3Umdx590z8mWtdUV29Z0PPnj8XdO5Mt1/3yfPe549d8Lxw9CL3Ytslt0utPa49R35w/eFIr1tv62X3y+1XPK509E3rO9Hv03/6asDVc9f41y5dn3m978bsG7duJt0cuCW69fh29u0XdwruTNxdeo94r/y+2v3qB/oP6n+0/rFlwG3g+GDAYM/DWQ/vDgmHnv6U/9OH4dJHzEfVI0YjjY+dHx8bDRq98mTOk+GnsqcTz8p+Vv9563Or59/94vtLz1j82PAL+YvPv655qfNy76uprzrHI8cfvM55PfGm/K3O233vuO+638e9H5ko/ED+UPPR+mPHp9BP9z7nfP78L/eE8/stRzjPAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAJcEhZcwAACxMAAAsTAQCanBgAABBFSURBVHic7d1vzF9lfQbwq1Sg3UALtCgpA7Yap2WXiqExwWSMifqCscH+sOEgW6JNJAuZIyabvNreDF6MMRZjssCrYba4ZLOySczq0LDoXCAKXALT+CfVYk3b2VK68lDa/vbiOb/6WJ4/5899zve+z7k+L+Hh97t4+rt6n9997nPf62azGaKRvBXAwwA2SToancesT6+LfHOSmwAcWvKPjgA4KyaN2TDCPuAkj+CnCwcA60hujshjNpTBRzqSfwrg3lV+5EcIHoHN+jTYh3uZS8mVrO85ilmoQS4vV7iUXO3nP9NjHLNQvY50JL8NYFuL//SmxFHMstHLSEfyr0jO0K5w89e4LWEks2ysS3mfjuRWAHtTvZ6kdaleyywXSUpHcgOAYwBSl+R9kr6Q+DXNQnW+vCT5PQAvI33hAGB3D69pFqp16UjeWn1vuyJdnGXf5w/6fH2zoTW+vKwuJV/uJ87y/N3OxqTRSEfyRQxcuOp9fd/ORqPWfTqS1yP2+9VNge9tltSal5ckTyCPpVmHJF0YHcKsqxVHOpJXA3hiwCxruSA6gFkKy450JA8CuGj4OGuaSfLzdla0lT7ADw6aor51JK+JDmHWxYrf6ap7cFnyLQQr2WqXak8OlqIhkruiM5i1tWLpJO0YMkhDvxEdwKyttSYlvjREiDZIvhKdwayNOvfpsv1uB+AqSU9FhzBros70+z29p2jv69EBzJqqteA589HO9+6sKHU/rFf2mqKbdSRvjA5hVlet0kl6ru8gHT0SHcCsriaXZWf3liIBkgvRGczqqF06SScAPNNjlq7OJfnO6BBma2k0ASHpHX0FScSzmZa9NrN+rfeyHALJU9EZzFbTuHSSvgsg5+9P67y9g+Ws9b6Xmd+7A4CNknL+y8EmqstN5UuTpejH4BsomdXRunSSXgBwPGGW5Eh+PzqD2Zk6b6tewGXm5ZJcPstGijWL5yd4jT7tiQ5gtlTn0kk6CuD5BFl6U8BobBOS7KisAj7YJyX5LHMLl/KRmI0JX6sP60n+c3QIs2Slq+6JZb1aBcBvkvzz6BA2bUlPYgU6nTM+pEurWx5mg0v+xLWkNwPI/ftdsiOazZrqZZuDErZP8MJoi9JnObJ+6BWLC6NPRIew6emtdNVDr7f39fqJrCf5zegQNi3JJ1LORPIY8r+dcJ+kj0WHsGnovXRAETfOAeAGSY9Gh7DxG6R0QDHFu7KAnc+scIOVDiimeNuqp+PNejH01P4vDvx+bXyH5JuiQ9h4DVo6Sd8CcPeQ79nSPpIbokPYOA16eTlH8gCAzYO/cXNnV7c+zJIJWTkiaQsy3+qh8mp0ABufkJFurpCJFZ9xbkmFlg4op3jwln6WSPjC5IJGkZc9uWIphJeukvvi6DkXzzrLonTVDGFJxTsvOoSVK4vSAaeLl/t2fnMvkdwUHcLKlE3pgNPb+V0QnaOmQyQviw5h5cmqdAAg6TCALdE5atpD8uroEFaW7EoHAJIOopwR7wmS10WHsHKE36dbTTVh8VJ0jpoek/Te6BCWv6xLN1fQDfRTktZHh7C8ZXl5eaaCbqCfVdBfEBakiNIBRRWvpJHZAhRxeblUYR/oLdWkkNlpxYx0c9WIdzI6R00HSH44OoTlpbiRbo7k0wDeHp2jpv2S3hgdwvJQ3Eg3J+kdAO6PzlHTxYVdFluPih3p5qqlWCUdcezdxiau+NLNFTaS7JT0UHQIizGa0gGnT+Ip5daCj2OeqFGVDgBIfhnANdE5GvABlRNT7ETKSiS9B8DO6BwN7CX5b9EhbDijG+nmSG4GcCA6RwOzEg7TtO5GW7q5wr7nAQAlfSM6hPVn9H+zVqPHF6NzNCCS/xsdwvoz+pFujuR2AM9G52jIe22O0GRKN1fg5eYeSVdEh7B0Jlc6ACD5HIC3Redo6BJJP4oOYd2N/jvdciRtB3B5dI6G9pH8enQI626SI91SJBcAnBudoyHfUC/YJEe6pSRtQFk304HFG+r/Fx3C2pn8SDdH8nUo8zw6j3qFcenOQPIRADdG52jouKTSLpEny6VbBsmtAPZG52jhfkl3RYew1bl0qyD5NQBXRedoaAbg9dW5EJYhl24NBS6cnjsg6eLoEPZaLl1NJI+jnDP0lvqEpDujQ9hPuHQNkHwTgH3ROVryHpyZcOlaIPk8gLdG52jBs5wZcOlaqu7rHUdZi6fnnpJU2gTRaLh0HZH8AIDPR+doabek90eHmBqXLhGSrwIodXeveyTdHR1iKly6hEhuAnAoOkcHPthyAC5dD0g+BOBD0Tk6+KikB6JDjJVL1yOShwG8ITpHBzdIejQ6xNi4dD2rZjkXAJR8LPLNknZFhxgLl24gJM8DcARl3mKY8/aACbh0AyP5SwCeQdnl+4ikv4sOUSqXLgjJ6wHsjs7R0S5JN0eHKI1LF4zkHQA+GZ2jox9Luig6RClcukxUZ5M/GJ0jgR2SnowOkTOXLjMkPw3glugcCTwu6droEDly6TJF8jYAD0fnSOAUgK3eKPcnXLrMkXw3gK9G50jED9TCpStGtW3EfpR9q2HuEIDLprqPi0tXGJIbALwI4JzoLIlMbp2nS1eoannZDwFsic6SyFEsHpIy+tHPpRsBkrcC+IfoHAndLulT0SH64tKNSLW+8wCADdFZEjkB4OfGNvPp0o3UCJ7pO9PfA/iQpBPRQbpy6UauGv32A9gYnSWRGYA7Sl5w7dJNyAi/+50CcJ2kx6ODNOHSTVB12+G/ALwzOEpK+wFsK2H206WbuOry8wcANgVHSel/sPjAbZbf/1w6O616wPa/AfxMdJZEZgB+Lbd9Xlw6WxbJuwDcF50jsd+V9E/RIVw6W1W18uVeAHdhHOs+5/4di7udDX4J6tJZIyTvBPA3AM4KjpLSZwH8nqSFId7MpbPWSN4C4B8xrgJ+CcCNfc6CunSWBMntAJ5Guec5LOcYgGtTbz/h0lly1eGZ/wFge3SWhE4C+GVJX+n6Qi6d9aqaiPl9AA9hXKPg30r64zb/oUtngyL5FiyuhrkwOktCnwPw23UnYlw6C1OthrkXwB9FZ0loH4B3rfY4kktnWaguQ38HwAMYz9PwR7A4E/pTC7JdOstStSj7XQD+E+O4JXEQiw/kLozhf8asKGOaTbKCTeny0qWzMFOdSHHpbFC+ZeDSWc98c/y1xvRLsEx4GdjqXDpLwgue6xvTL8gG5kd72nHprBE/xNqdS2er8nYN6bl0tixvTNQfl85O8xZ8w3DpJs6bzQ7PpZsgb6sey6WbEB8gkgeXbuR8VFZ+XLqR8qGQ+XLpRsTHH5fBpRuBEX5Xu13Sp6JD9MWlK1S1UuSHGM9T1kcBXFLC7GNXLl1hqun+FwGcE50lkY9KeiA6xJBcukKQ3IzFWcgxrH88BOCyKYxqy3HpMkfy3QC+Gp0jkU9IujM6RDSXLlMkbwPwcHSOBE4B2Dq2GcguXLrMkPw0gFuicyTwuKRro0PkyKXLBMkPA3gwOkcCO1JvbzA2Ll0wkncA+GR0jo5+LOmi6BClcOmCkLwewO7oHB3tknRzdIjSuHQDqx4UfQZlT/1/pOQFx9FcuoFU6yKPoOyyUdI3okOUzqXrWbVcawHA+ugsHdwsaVd0iLFw6XpE8jCAN0Tn6OCG3PYXGQOXrgcjeJZtcushh+TSJURyExbXFZbqMUnvjQ4xdi5dIiRfRbm/z3sk3R0dYipK/ZBkg+QHAHw+OkdLuyW9PzrE1Lh0LVWzksdR5i2ApyRdFR1iqly6Fkg+D+Ct0TlaOC7p3OgQU+fSNVAddrgvOkdLWyQdjA5hLl1tJI8DODs6Rwt+cDQzLt0aqm0SDkTnaOGApIujQ9hrjelgv+RIfg3lFW4G4HwXLl8e6ZZBciuAvdE5Wrhf0l3RIWx1Lt0ZSD4C4MboHA15VrIgLl2luu/2anSOFi6V9EJ0CKvPpUOx+5Mck/Sz0SGsucmXjuQCgNIuzTy6FWyypSN5GYA90Tka8vKtEZhk6Ug+B+Bt0TkausQbto7D5EpH8hTKWqS8R9IV0SEsncmUjuR2AM9G52hoo6SF6BCW1iRKR/IxANdF52jAm7eO2OhLV+DlpLe5G7nRlq7AhcozSV4LOwGj/EOubnaXVLjPuXDTMbqRjuSXAVwTnaMB3+iemFGVrrDvbycljer3b/WM5pKG5AzlFG6nCzddxf/BF7ica5uk70aHsDhFl47kXwP4k+gcdUkqZSS2HhVbOpJPA3h7dI6a9kt6Y3QIy0OR3+lInkA5hdvpwtlSxY101YRJKbzXpL1GUaUrqXD+/mYrKeby0oWzsSiidAUV7pQLZ2vJ+vKS5HkAXorOUZMPVLRash3pqlNNSyncr7pwVleWI11hj+XskPRkdAgrx7rZLK+vS4Wd2325pO9Hh7CyZFW6wr7DXSDpcHQIK082pStsW/PzJR2NDmFlyuI7XWGF8w5d1kkus5cunE1GeOkKuvHtwlkSoZeXpRTOq0wspbCRjuQrUe/dhAtnqYWUjuQBAOdEvHdDZ0cHsPEZvHQkPw5g89Dv28JGSSeiQ9j4DHqfjuRbAHxzsDdsz8dSWW+GHulKKNw2F876NFjpCpmpvNLb41nfBildIYW7QdJz0SFs/HovHcljfb9HAvdJejQ6hE1Dr6UjeRuAjX2+RwLfkvSx6BA2Hb3NXhayiNmHeNjg+hzpci/czIWzCL2UrjqyKms+hNGiJP/gkfw28j+y6tLoADZdSUtH8hcAbEv5mj34C598apGSTaSQ3ADg5SQv1p9/kfRb0SFs2lKOdLkX7qQLZzlIUjqS2a/k8Eyl5aLz5WUJ2+b5QVTLSYqRLuvCAbg8OoDZUp1KV8CWCz/wDsyWm9aXlyS3AtibNk5avqy0HHUZ6bIuHPJfaG0T1ap0JHO/PbDLe1RarhpfXlarTr7TT5wkZl5XaTlr8+HMuXBeyGzZa/QBJfl0X0ESuSo6gNlaal9eFvBQ6iuSNkSHMFtLk5Eu58LBhbNS1Codye19B+no16MDmNVVd6R7ttcU3cwk/Wt0CLO61iwdyb8cIkhbnq200tT5wH689xTtebbSirNq6Uh+caggLRyX9FR0CLOm1hrpfmWIEG1IOjc6g1kbK5aO5BNDBmnos9EBzNpabaS7erAUDUm6KTqDWVvLlo7kPUMHaeA90QHMulhppNs5aIr6ZpK+Eh3CrItlSydpM4AdA2dZk+/J2RisueCZ5AkA64eJs6pDki6MDmHW1ZojR7Vf5PsGyLJWDhfORqHW5ZqkL1Sb/BzpOc9KdgW9r1lybbZrGPzMAu/qZWPSeGJC0kJVgg/2kGc5fzjQ+5gNIsW26t8DcEWSNMvwKGdj03kKXtLPY3GPyT4OLw+fwDFLLdn5dED6XZ89ytkYJb3ZLOmFqij3JXi52xO8hll2ko50Z6rOH291HLJHORurXpdVSXpzVZ6mx2nt6iGOWRZ6HemWIrkJwKE6P+tRzsZssAXEkg5XZfqzNX705BB5zKIMNtKdieQRAOcv86+2SDo4dB6zoYSVDlj2ktMn7tjohX7Al1xyfhCLl5Wvj8xjNoT/Byez4TYlE21MAAAAAElFTkSuQmCC"/>
+</defs>
+</svg>                          </button>
+                        </span>
+                      {%- endif -%}
+                    </div>
+
+                    {%- if col_linklist != blank -%}
+                      {%- assign col_links_obj = linklists[col_linklist].links -%}
+                      <ul class="m-mega-col__list" data-col-list="{{ col_uid }}">
+                        {%- assign icon_base = 'col_' | append: col_id | append: '_icon_' -%}
+                        {%- for sublink in col_links_obj -%}
+                          {%- assign icon_key = icon_base | append: forloop.index -%}
+                          {%- assign icon_img = block.settings[icon_key] -%}
+                          {%- assign item_index0 = forloop.index0 -%}
+                          {%- if item_index0 >= 7 -%}
+                            {%- assign hidden_class = ' m-mega-col__item--hidden' -%}
+                          {%- else -%}
+                            {%- assign hidden_class = '' -%}
+                          {%- endif -%}
+                          <li class="m-mega-col__item{{ hidden_class }}" data-col-item="{{ col_uid }}" data-item-index="{{ item_index0 }}">
+                            <a href="{{ sublink.url }}">
+                              {%- if icon_img != blank -%}
+                                <span class="m-mega-col__icon">
+                                  <img
+                                    src="{{ icon_img | image_url: width: 44 }}"
+                                    alt="{{ sublink.title | escape }}"
+                                    width="22"
+                                    height="22"
+                                    loading="lazy"
+                                  >
+                                </span>
+                              {%- endif -%}
+                              {{ sublink.title }}
+                            </a>
+                          </li>
+                        {%- endfor -%}
+                      </ul>
+                    {%- endif -%}
+                  </div>
+                {%- endfor -%}
+
+                {%- if block.settings.banner_image != blank -%}
+                  <div class="m-mega-col m-mega-col--banner">
+                    {%- if block.settings.banner_link != blank -%}
+                      <a href="{{ block.settings.banner_link }}" class="m-hidden-link">
+                        <span class="m:visually-hidden">{{ block.settings.banner_title | default: shop.name }}</span>
+                      </a>
+                    {%- endif -%}
+                    <div class="m-mega-banner-img">
+                      {% render 'responsive-image', image: block.settings.banner_image, sizes: '300px' %}
+                    </div>
+                    {%- if block.settings.banner_title != blank -%}
+                      <p style="margin:10px 0 4px;font-size:13px;font-weight:600;color:var(--mega-text);">{{ block.settings.banner_title }}</p>
+                    {%- endif -%}
+                    {%- if block.settings.banner_button_text != blank and block.settings.banner_link != blank -%}
+                      <a href="{{ block.settings.banner_link }}" class="m-button m-button--link" style="font-size:13px;">{{ block.settings.banner_button_text }}</a>
+                    {%- endif -%}
+                  </div>
+                {%- else -%}
+                  <div class="m-mega-col m-mega-col--banner">
+                    <div class="m-mega-banner-placeholder"></div>
+                  </div>
+                {%- endif -%}
+              </div>
+            {%- endcapture -%}
+
+          {% when 'banner' %}
+            {% capture block_type %}
+              {% if block.settings.banner_image != blank %}
+                {% liquid
+                  assign banner_class = 'm-mega-banner' | append: ' m-mega-banner--' | append: block.settings.banner_style
+                  assign banner_link = block.settings.banner_link
+                  assign banner_title = block.settings.banner_title
+                  assign banner_desc = block.settings.banner_desc
+                  assign banner_button_text = block.settings.banner_button_text
+                  if banner_title == blank and banner_desc == blank and banner_button_text == blank
+                    assign banner_class = banner_class | append: ' m-mega-banner--no-content'
+                  endif
+                %}
+                <div class="{{ banner_class }}">
+                  {% if banner_link != blank %}<a href="{{ banner_link }}" class="m-hidden-link"><span class="m:visually-hidden">{{ banner_title | default: shop.name }}</span></a>{% endif %}
+                  <div class="m-mega-banner__image m:blocks-radius">{% render 'responsive-image', image: block.settings.banner_image, sizes: '500px' %}</div>
+                  <div class="m-mega-banner__inner">
+                    <div class="m-mega-banner__conntent">
+                      <h4 class="m-mega-banner__title">{{ banner_title }}</h4>
+                      <p class="m-mega-banner__description">{{ banner_desc }}</p>
+                    </div>
+                    {% if banner_link != blank and banner_button_text != blank %}
+                      <a href="{{ banner_link }}" class="m-mega-banner__button m-button m-button--link">{{ banner_button_text }}</a>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endif %}
+            {% endcapture %}
+
+          {% when 'bloglist' %}
+            {% capture block_type %}
+              {% if block.settings.blog != blank %}
+                <div class="m-mega-blog-list">
+                  {% assign blog = blogs[block.settings.blog] %}
+                  <ul class="m-mega-blog-list__wrapper m:flex m:flex-col">
+                    {% for article in blog.articles limit: 3 %}
+                      <li class="m-mega-blog-list__item m-mega-article-card m:flex">
+                        <a href="{{ article.url }}" class="m-mega-article-card__image m:w-3/12 m:blocks-radius-md m:block">
+                          {%- if article.image -%}{% render 'responsive-image', image: article.image, aspect_ratio: '16/9', sizes: '200px' %}{%- else -%}{{ 'image' | placeholder_svg_tag: 'm-placeholder-svg m:w-full m:h-full m:object-cover' }}{%- endif -%}
+                        </a>
+                        <div class="m-mega-article-card__content m:w-9/12">
+                          {% if article.tags != blank %}<span class="m-mega-article-card__tag">{{ article.tags[0] }}</span>{% endif %}
+                          <a href="{{ article.url }}" class="m-mega-article-card__title">{{ article.title }}</a>
+                        </div>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% endif %}
+            {% endcapture %}
+
+          {% when 'product-list' %}
+            {% assign stretch_width = block.settings.stretch_width %}
+            {% assign collection = block.settings.collection %}
+            {% if collection != blank %}
+              {% capture block_type %}
+                <div class="m-mega-product-list" data-id="{{ block.id }}">
+                  {%- assign collection = collections[block.settings.collection] -%}
+                  <div class="m-mega-product-list__header">
+                    <h3 class="m-mega-product-list__heading">{{ collection.title }}</h3>
+                    {% if block.settings.limit > block.settings.columns %}
+                      <div id="m-slider-controls-{{ block.id }}" class="m-slider-controls m:flex m:items-center">
+                        <button class="m-slider-controls__button m-slider-controls__button-prev" aria-label="Previous"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                        <button class="m-slider-controls__button m-slider-controls__button-next" aria-label="Next"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                      </div>
+                    {% endif %}
+                  </div>
+                  <div class="m:grid swiper-container m-product-list-{{ block.id }}" data-column="{{ block.settings.columns }}" style="--column-gap: 20px; --items: {{ block.settings.columns }};">
+                    <div class="swiper-wrapper">
+                      {% for product in collection.products limit: block.settings.limit %}
+                        {%- assign image_ratio = product.featured_image.aspect_ratio | default: '1/1' -%}
+                        <div class="swiper-slide m:column">
+                          <div class="m-product-card m-product-card--style-1">
+                            <div class="m-product-card__media">
+                              <a class="m-product-card__link m:block m:w-full" href="{{ product.url }}" aria-label="{{ product.title | default: forloop.index }}">
+                                <div class="m-product-card__main-image">
+                                  {%- if product.featured_image -%}{% render 'responsive-image', image: product.featured_image, aspect_ratio: image_ratio, sizes: '400px' %}{%- else -%}{{ 'product-1' | placeholder_svg_tag: 'm-placeholder-svg m:w-full m:h-full m:object-cover' }}{%- endif -%}
+                                </div>
+                              </a>
+                            </div>
+                            <div class="m-product-card__content m:text-left">
+                              <div class="m-product-card__info">
+                                <h3 class="m-product-card__title"><a href="{{ product.url }}" class="m-product-card__name">{{ product.title }}</a></h3>
+                                <div class="m-product-card__price">{% render 'product-prices', product: product, is_product_card: true %}</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              {% endcapture %}
+            {% else %}
+              {%- capture block_type -%}{%- endcapture -%}
+            {% endif %}
+
+          {% when 'collection-list' %}
+            {% liquid
+              assign stretch_width = true
+              assign collection_ids = 'collection_1,collection_2,collection_3,collection_4,collection_5,collection_6' | split: ','
+              assign content_empty = true
+              for collection_id in collection_ids
+                if block.settings[collection_id] != blank
+                  assign content_empty = false
+                endif
+              endfor
+            %}
+            {% capture block_type %}
+              {% unless content_empty %}
+                {{ 'component-collection-card.css' | asset_url | stylesheet_tag }}
+                <div class="m-mega-collection-list" data-id="{{ block.id }}">
+                  <div class="m-mega-collection-list__wrapper m:flex" style="--column-gap: 20px">
+                    {% for collection_id in collection_ids %}
+                      {% liquid
+                        if block.settings[collection_id] == blank
+                          continue
+                        endif
+                        assign collection_handle = block.settings[collection_id]
+                        assign collection = collections[collection_handle]
+                        assign collection_image = collection.image
+                        assign image_id = 'image_' | append: forloop.index
+                        if block.settings[image_id] != blank
+                          assign collection_image = block.settings[image_id]
+                        endif
+                        assign all_products_count = collection.all_products_count
+                      %}
+                      <div class="m:column m:flex-1">
+                        <div class="m-collection-card m-collection-card--standard">
+                          <div class="m-collection-card__inner">
+                            <a href="{{ collection.url | default: '#' }}" class="m-collection-card__image m-hover-box m-hover-box--scale-up m:block m:w-full m:blocks-radius">
+                              {% if collection_image != blank %}{% render 'responsive-image', image: collection_image, image_class: 'm:w-full', aspect_ratio: aspect_ratio %}{% else %}<div style="--aspect-ratio: 1/1;">{% capture current %}{% cycle 1, 2, 3, 4, 5, 6 %}{% endcapture %}{{ 'collection-' | append: current | placeholder_svg_tag: 'm-placeholder-svg m:w-full m:h-full m:object-cover' }}</div>{% endif %}
+                            </a>
+                            <div class="m-collection-card__info m:text-left">
+                              <h3 class="m-collection-card__title">
+                                <a href="{{ collection.url | default: '#' }}" class="m-collection-card__link m:block">{{ title | default: collection.title }}<sup>{{ all_products_count }}</sup></a>
+                              </h3>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endunless %}
+            {% endcapture %}
+
+          {% when 'custom_html' %}
+            {% capture block_type %}
+              {% if block.settings.html != blank %}
+                <div class="m-mega-html m:text-black">{{ block.settings.html }}</div>
+              {% endif %}
+            {% endcapture %}
+
+          {% else %}
+            {%- capture block_type -%}{%- endcapture -%}
+
+        {% endcase %}
+      {% endfor %}
+
+      {% liquid
+        assign has_child = false
+        if has_mega_item == false
+          assign is_mega = false
+        endif
+        if link.links != blank or block_type != blank
+          assign has_child = true
+          assign li_class = li_class | append: ' m-menu__item--parent'
+        endif
+        if link.links != blank
+          assign li_class = li_class | append: ' m-menu__item--has-submenu'
+          unless is_mega
+            assign li_class = li_class | append: ' m-menu__item--dropdown'
+          endunless
+        endif
+        if is_mega and has_child
+          assign li_class = li_class | append: ' m-menu__item--mega'
+        endif
+      %}
+
+      <li class="{{ li_class }}" data-index="{{ forloop.index0 }}">
+        <a
+          href="{{ link.url }}"
+          class="m-menu__link m-menu__link--main{% if section.settings.uppercase_parent_level %} m:uppercase{% endif %}"
+        >
+          {{ link.title }}
+          {% if has_child or block_type != blank %}
+            <span class="m-menu__arrow">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          {% endif %}
+        </a>
+
+        {% comment %} custom mega menu {% endcomment %}
+
+        {% if has_child or block_type != blank %}
+          <div
+            class="m-mega-menu{% if is_mega and show_menu_column_divider %} m-show-menu-column-divider{% endif %} m-gradient m-color-{{ section.settings.color_scheme }}"
+            style="--total-columns: {{ link.links.size }}"
+          >
+            <div class="m-mega-menu__container--custom">
+              {% if block_type != blank %}
+                {{ block_type }}
+              {% else %}
+                <div class="m-mega-menu__inner--custom">
+                  <div class="m-mega-col">
+                    <ul class="m-mega-col__list">
+                      {% for childlink in link.links %}
+                        <li class="m-mega-col__item">
+                          <a href="{{ childlink.url }}">
+                            {{ childlink.title }}
+                            {% if childlink.links != blank %}
+                              <span class="m-menu__sub-arrow">
+                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M3.5 2L6.5 5L3.5 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                              </span>
+                            {% endif %}
+                          </a>
+                          {% if childlink.links != blank %}
+                            <div class="m-mega-menu__column">
+                              <ul class="m-sub-menu m-sub-menu--level-2">
+                                {% for grandlink in childlink.links %}
+                                  <li class="m-sub-menu__item m-sub-menu__item--level-2">
+                                    <a href="{{ grandlink.url }}" class="m-menu__link">{{ grandlink.title }}</a>
+                                  </li>
+                                {% endfor %}
+                              </ul>
+                            </div>
+                          {% endif %}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+      </li>
+
+    {% endfor %}
+  </ul>
+</div>
+
+<script>
+(function () {
+  var PAGE_SIZE = 7;
+
+  /**
+   * For a given column uid, read all items and current page,
+   * then show/hide accordingly and update button states.
+   */
+  function renderPage(uid, page) {
+    var items = document.querySelectorAll('[data-col-item="' + uid + '"]');
+    var total = items.length;
+    var maxPage = Math.max(0, Math.ceil(total / PAGE_SIZE) - 1);
+    page = Math.min(Math.max(page, 0), maxPage);
+
+    items.forEach(function (item) {
+      var idx = parseInt(item.getAttribute('data-item-index'), 10);
+      if (idx >= page * PAGE_SIZE && idx < (page + 1) * PAGE_SIZE) {
+        item.classList.remove('m-mega-col__item--hidden');
+      } else {
+        item.classList.add('m-mega-col__item--hidden');
+      }
+    });
+
+    var prevBtn = document.querySelector('[data-col-prev="' + uid + '"]');
+    var nextBtn = document.querySelector('[data-col-next="' + uid + '"]');
+    if (prevBtn) prevBtn.disabled = page === 0;
+    if (nextBtn) nextBtn.disabled = page >= maxPage;
+
+    return page;
+  }
+
+  // Track current page per column uid
+  var pages = {};
+
+  document.addEventListener('click', function (e) {
+    var prevBtn = e.target.closest('[data-col-prev]');
+    var nextBtn = e.target.closest('[data-col-next]');
+
+    if (prevBtn) {
+      var uid = prevBtn.getAttribute('data-col-prev');
+      pages[uid] = renderPage(uid, (pages[uid] || 0) - 1);
+    }
+    if (nextBtn) {
+      var uid = nextBtn.getAttribute('data-col-next');
+      pages[uid] = renderPage(uid, (pages[uid] || 0) + 1);
+    }
+  });
+
+  // Initialise all columns on load
+  document.querySelectorAll('[data-col-list]').forEach(function (list) {
+    var uid = list.getAttribute('data-col-list');
+    pages[uid] = renderPage(uid, 0);
+  });
+})();
+</script>

@@ -1,0 +1,307 @@
+
+
+<style>
+  .reward-steps-{{ section.id }} {
+    background-color: {{ section.settings.bg_color }};
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  .reward-steps__container {
+    max-width: 1920px; 
+    margin: 0 auto;
+    padding: 0 120px;
+    display: flex;
+    flex-direction: row; /* Keeps items side-by-side */
+    align-items: stretch; 
+    justify-content: center;
+    gap: 39px; 
+  }
+
+  .reward-steps__block {
+    flex: 1; /* Ensures all 3 blocks take equal width */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  /* We use a wrapper to control both Image and SVG sizes perfectly */
+  .reward-steps__icon-wrapper {
+    width: 98px; 
+    height: 98px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .reward-steps__icon-wrapper img, 
+  .reward-steps__icon-wrapper svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .reward-steps__title {
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 30px;
+    text-transform: uppercase;
+    color: {{ section.settings.text_color }};
+    margin: 0 0 0px 0;
+  }
+
+  .reward-steps__desc {
+    font-family: var(--font-body-family, 'Inter', sans-serif);
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 24px;
+    color: {{ section.settings.text_color }};
+    margin: 0;
+  }
+
+  .reward-steps__divider {
+    width: 2px; 
+    background-color: {{ section.settings.line_color }};
+    flex-shrink: 0;
+  }
+
+  /* =========================================
+     RESPONSIVE MEDIA QUERIES
+     ========================================= */
+
+  /* Large MacBooks / Monitors (1441px to 1728px) */
+  @media (min-width: 1441px) and (max-width: 1728px) {
+    .reward-steps__container {
+      gap: 30px;
+    }
+  }
+
+  /* MacBook Air / MacBook M2 / Laptops (1025px to 1440px) */
+  @media (min-width: 1025px) and (max-width: 1440px) {
+    .reward-steps__container {
+      gap: 20px;
+      padding: 0 60px;
+    }
+    .reward-steps__icon-wrapper {
+      width: 80px; 
+      height: 80px;
+    }
+    .reward-steps__title {
+      font-size: 18px;
+      line-height: 26px;
+    }
+    .reward-steps__desc {
+      font-size: 16px;
+      line-height: 20px;
+    }
+  }
+
+  /* iPad / Tablets (769px to 1024px) */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .reward-steps__container {
+      padding: 0 20px; 
+      gap: 15px; 
+    }
+    .reward-steps__icon-wrapper {
+      width: 50px; /* Smaller icon to fit 3 columns */
+      height: 50px;
+      margin-bottom: 12px;
+    }
+    .reward-steps__title {
+      font-size: 14px;
+      line-height: 20px;
+      margin-bottom: 8px;
+    }
+    .reward-steps__desc {
+      font-size: 12px;
+      line-height: 15px;
+    }
+  }
+
+  /* Mobile Devices (max-width: 768px) */
+  @media (max-width: 768px) {
+    .reward-steps-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top_mobile }}px;
+      padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+    }
+    
+    .reward-steps__container {
+      padding: 0 10px; /* Minimal padding for mobile */
+      gap: 5px; /* Tiny gap to fit everything side-by-side */
+    }
+
+    .reward-steps__icon-wrapper {
+      width: 30px; /* Very small icon for mobile */
+      height: 30px;
+      margin-bottom: 8px;
+    }
+    
+    .reward-steps__title {
+      font-size: 9px; /* Very small font */
+      line-height: 12px;
+      margin-bottom: 4px;
+    }
+    
+    .reward-steps__desc {
+      font-size: 8px; /* Very small font */
+      line-height: 10px;
+    }
+    
+    .reward-steps__divider {
+      width: 1px; /* Thinner line for mobile */
+    }
+  }
+</style>
+
+<div class="reward-steps-{{ section.id }}">
+  <div class="reward-steps__container">
+    {%- for block in section.blocks -%}
+      <div class="reward-steps__block" {{ block.shopify_attributes }}>
+        
+        <div class="reward-steps__icon-wrapper">
+          {%- if block.settings.svg_icon != blank -%}
+            {{ block.settings.svg_icon }}
+          {%- elsif block.settings.icon != blank -%}
+            <img src="{{ block.settings.icon | image_url: width: 200 }}" 
+                 alt="{{ block.settings.title | escape }}" 
+                 loading="lazy">
+          {%- else -%}
+            <div style="width: 100%; height: 98px; background: #f4f4f4;"></div>
+          {%- endif -%}
+        </div>
+
+        <h3 class="reward-steps__title">{{ block.settings.title }}</h3>
+        <p class="reward-steps__desc">{{ block.settings.description }}</p>
+      </div>
+
+      {%- unless forloop.last -%}
+        <div class="reward-steps__divider"></div>
+      {%- endunless -%}
+      
+    {%- endfor -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Reward Steps",
+  "max_blocks": 3,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#2C2C2C"
+    },
+    {
+      "type": "color",
+      "id": "line_color",
+      "label": "Divider Line Color",
+      "default": "#E9DDD4"
+    },
+    {
+      "type": "header",
+      "content": "Desktop Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Mobile Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top (Mobile)",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom (Mobile)",
+      "default": 32
+    }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Step Column",
+      "settings": [
+        {
+          "type": "html",
+          "id": "svg_icon",
+          "label": "SVG Icon Code",
+          "info": "Paste raw SVG code here. If you use this, the image below will be ignored."
+        },
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Image Icon",
+          "info": "Upload a PNG or JPG. (Only works if SVG is empty)"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "SIGN UP"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description",
+          "default": "Create your VIP Universe Account and step into the circle of brilliance."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Reward Steps",
+      "blocks": [
+        { "type": "step" },
+        { "type": "step" },
+        { "type": "step" }
+      ]
+    }
+  ]
+}
+{% endschema %}

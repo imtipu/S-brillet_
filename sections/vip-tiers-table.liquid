@@ -1,0 +1,3029 @@
+{% comment %} {%- comment -%}
+  VIP Tiers Comparison Table - Granular Device-Specific Image Positioning
+{%- endcomment -%}
+
+<style>
+  /* Import Libre Caslon Text from Google Fonts for the BRILLET Title */
+  @import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;500;700&display=swap');
+
+  :root {
+    --vip-bg-color: {{ section.settings.bg_color }};
+    --vip-text-color: {{ section.settings.text_color }};
+    --vip-accent-color: {{ section.settings.accent_color }};
+    --vip-border-color: {{ section.settings.border_color }};
+  }
+
+  .vip-section-wrapper {
+    background-color: var(--vip-bg-color);
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+    overflow: hidden;
+    /* Master Gap Variable controlled by Shopify Settings */
+    --vip-grid-gap: {{ section.settings.column_gap }}px; 
+  }
+
+  .vip-container {
+    max-width: 1920px;
+    margin: 0 auto;
+    padding-left: 120px;
+    padding-right: 120px;
+    box-sizing: border-box;
+  }
+
+  /* Table Wrapper holding the Overlays */
+  .vip-table-scroll-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  /* --- Full Column Hover Overlays --- */
+  .vip-column-overlays {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: grid;
+    grid-template-columns: 301px repeat(3, 1fr);
+    column-gap: var(--vip-grid-gap);
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .vip-col-overlay {
+    height: 100%;
+    width: 100%;
+    border-radius: 14px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    padding: 3px;
+    background: var(--card-border-gradient);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .vip-col-overlay.is-hovered {
+    opacity: 1;
+  }
+
+  /* --- Top Cards Row --- */
+  .vip-cards-row {
+    display: grid;
+    grid-template-columns: 301px repeat(3, 1fr);
+    column-gap: var(--vip-grid-gap);
+    margin-bottom: 30px;
+  }
+
+  /* FIRST CARD FIX: Figma Accurate Styling */
+  .vip-header-spacer-card {
+    background-color: var(--vip-accent-color);
+    border-radius: 12px;
+    padding: 40px 20px;
+    box-sizing: border-box;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 250px;
+    position: relative;
+  }
+  
+  .vip-spacer-logo {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+  }
+
+  .vip-spacer-logo svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .vip-spacer-title {
+    font-family: 'Libre Caslon Text', serif;
+    font-size: 40px;
+    font-weight: 500;
+    color: #FFFFFF;
+    letter-spacing: 0;
+    margin: 0;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  .vip-spacer-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #FFFFFF;
+    opacity: 0.8;
+    margin-top: 5px;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  /* DYNAMIC VERTICAL DIVIDERS (Persistent on hover) */
+  .vip-divider-right::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: calc(var(--vip-grid-gap) / -2); 
+    transform: translateX(50%);
+    width: 2px;
+    height: 100%;
+    background-color: var(--vip-border-color);
+    z-index: 15;
+  }
+
+  /* Interactive Top Cards */
+  .vip-tier-card {
+    position: relative;
+    border-radius: 12px;
+    background-color: #FFFFFF;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    min-height: 250px;
+    padding: 40px 20px;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  /* Initial State: 4px Gradient Border on Cards */
+  .vip-tier-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    padding: 4px;
+    background: var(--card-border-gradient);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 2;
+    transition: opacity 0.4s ease;
+  }
+
+  /* Hover State: Background Color Gradient Overlay */
+  .vip-card-hover-bg {
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background: var(--card-hover-gradient);
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.4s ease-in-out;
+  }
+
+  /* Hover State: Background Image Overlay (Default Desktop Position) */
+  .vip-card-hover-image {
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background-size: 160% 160%;
+    background-position: var(--bg-pos-x, 50%) var(--bg-pos-y, 50%);
+    background-repeat: no-repeat;
+    opacity: 0;
+    z-index: 0;
+    filter: grayscale(100%) brightness(var(--bg-brightness, 1));
+    transition: opacity 0.4s ease-in-out;
+  }
+
+  /* Card Content wrapper */
+  .vip-card-content {
+    position: relative;
+    z-index: 3;
+        display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+  }
+
+  .vip-tier-icon-container {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    transition: filter 0.4s ease-in-out;
+  }
+
+  .vip-tier-icon-container svg, .vip-tier-icon-container img {
+    width: auto;
+    height: 90px;
+    max-width: 100%;
+  }
+
+  .vip-tier-name {
+    font-family: 'Libre Caslon Text';
+    font-size: 40px;
+    font-weight: 500;
+    text-transform: uppercase;
+    margin: 0;
+    letter-spacing: 0.03em;
+    color: #1A1A1A;
+    transition: color 0.4s ease-in-out;
+}
+
+  .vip-tier-sparkles {
+    font-size: 20px;
+    font-weight: 600;
+    opacity: 0.8;
+    margin-top: 5px;
+    text-transform: uppercase;
+    color: #1A1A1A;
+    transition: color 0.4s ease-in-out;
+  }
+
+  /* -------------------------------------
+     HOVER TRIGGER LOGIC
+  ------------------------------------- */
+  .vip-tier-card.is-hovered { background-color: transparent; }
+  .vip-tier-card.is-hovered::before { opacity: 0; }
+  .vip-tier-card.is-hovered .vip-card-hover-bg { opacity: 1; }
+  .vip-tier-card.is-hovered .vip-card-hover-image { opacity: var(--target-opacity, 1); }
+  
+  .vip-tier-card.is-hovered .vip-tier-name,
+  .vip-tier-card.is-hovered .vip-tier-sparkles {
+    color: #FFFFFF !important;
+  }
+  
+  .vip-tier-card.is-hovered .vip-tier-icon-container {
+    filter: brightness(0) invert(1) !important;
+  }
+
+  /* --- Table Data Area --- */
+  .vip-table-area {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Interactive Banner Rows */
+  .vip-banner-row {
+    display: grid;
+    grid-template-columns: 301px repeat(3, 1fr);
+    column-gap: var(--vip-grid-gap);
+    position: relative;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    height: 44px;
+  }
+
+  .vip-banner-bg {
+    position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
+    background-color: var(--vip-accent-color);
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+    border-radius: 4px;
+    z-index: 1;
+  }
+
+  .vip-banner-pill-wrapper {
+    z-index: 2;
+    padding: 3px 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease-in-out;
+    cursor: default;
+  }
+  
+  .vip-banner-pill-wrapper[data-col="1"] { grid-column: 2; }
+  .vip-banner-pill-wrapper[data-col="2"] { grid-column: 3; }
+  .vip-banner-pill-wrapper[data-col="3"] { grid-column: 4; }
+
+  .vip-banner-pill-wrapper.is-hovered {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .vip-banner-pill {
+    background: var(--pill-color);
+    color: #FFFFFF;
+    border-radius: 6px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+
+  /* Data Rows */
+  .vip-data-row {
+    display: grid;
+    grid-template-columns: 301px repeat(3, 1fr);
+    column-gap: var(--vip-grid-gap);
+    padding:  0px;
+    align-items: center;
+  }
+
+  .vip-cell-label {
+    font-size: 20px;
+    font-weight: 500;
+    color: #2C2C2C;
+    padding-right: 15px;
+  }
+
+  .vip-cell-value {
+    font-size: 20px;
+    font-weight: 500;
+    color: #1A1A1A;
+    text-align: center;
+    position: relative;
+    padding: 10px 0;
+  }
+
+  /* Inner Vertical Borders for the Rows */
+  .vip-cell-value.has-border::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--vip-grid-gap) / -2); 
+    transform: translateX(-50%);
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background-color: #E2D3C7;
+    opacity: 0.6;
+  }
+
+  .vip-empty-dash { color: #CCCCCC; }
+
+  .vip-check-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+  }
+
+  .vip-check-icon svg {
+    width: 16px; height: 16px;
+    fill: none; stroke: #1A1A1A;
+    stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+  }
+
+  /* ----------------------------------------------------
+     RESPONSIVE MEDIA QUERIES & BACKGROUND OVERRIDES
+  ---------------------------------------------------- */
+  @media (min-width: 1441px) and (max-width: 1728px) {
+    .vip-container { padding-left: 120px; padding-right: 120px; }
+    .vip-cards-row, .vip-banner-row, .vip-data-row, .vip-column-overlays { grid-template-columns: 260px repeat(3, 1fr); }
+    .vip-header-spacer-card, .vip-tier-card { min-height: 220px; padding: 30px 15px; }
+
+    /* Large MacBook Pro (14"/16") Image Position Override - uses Laptop values */
+    .vip-card-hover-image {
+      background-size: 160% 160%;
+      background-position: var(--bg-pos-x-laptop, 50%) var(--bg-pos-y-laptop, 50%);
+    }
+
+    .vip-spacer-title { font-size: 34px; }
+    .vip-spacer-subtitle { font-size: 18px; }
+    .vip-spacer-logo { width: 70px; height: 70px; }
+    .vip-tier-name { font-size: 36px; }
+    .vip-cell-label { font-size: 18px; }
+    .vip-cell-value { font-size: 18px; }
+  }
+
+  /* MACBOOK & LAPTOP (1025px - 1440px) */
+  @media (min-width: 1025px) and (max-width: 1440px) {
+    .vip-section-wrapper { --vip-grid-gap: 15px; }
+    .vip-container { padding-left: 120px; padding-right: 120px; }
+    .vip-cards-row, .vip-banner-row, .vip-data-row, .vip-column-overlays { grid-template-columns: 220px repeat(3, 1fr); }
+    .vip-header-spacer-card, .vip-tier-card { min-height: 200px; padding: 25px 10px; }
+    .vip-divider-right::after { right: -8.5px; } 
+    
+    /* Laptop Image Position Override */
+    .vip-card-hover-image {
+      background-size: 160% 160%;
+      background-position: var(--bg-pos-x-laptop, 50%) var(--bg-pos-y-laptop, 50%);
+    }
+
+    .vip-spacer-title { font-size: 28px; }
+    .vip-spacer-subtitle { font-size: 14px; }
+    .vip-spacer-logo { width: 60px; height: 60px; }
+    .vip-tier-name { font-size: 32px; }
+    .vip-cell-label { font-size: 16px; }
+    .vip-cell-value { font-size: 16px; }
+    .vip-banner-bg { font-size: 13px; padding-left: 15px; }
+    .vip-banner-pill { font-size: 12px; }
+  }
+
+  /* iPAD & TABLET (768px - 1024px) */
+  @media (min-width: 768px) and (max-width: 1024px) {
+    .vip-section-wrapper { --vip-grid-gap: 10px; }
+    .vip-container { padding-left: 40px; padding-right: 40px; }
+    .vip-cards-row, .vip-banner-row, .vip-data-row, .vip-column-overlays { grid-template-columns: 180px repeat(3, 1fr); }
+    .vip-header-spacer-card, .vip-tier-card { min-height: 180px; padding: 20px 8px; }
+    .vip-divider-right::after { right: -6px; }
+
+    /* Tablet Image Position Override */
+    .vip-card-hover-image {
+      background-size: 160% 160%;
+      background-position: var(--bg-pos-x-tablet, 50%) var(--bg-pos-y-tablet, 50%);
+    }
+
+    .vip-spacer-title { font-size: 22px; }
+    .vip-spacer-subtitle { font-size: 11px; }
+    .vip-spacer-logo { width: 50px; height: 50px; margin-bottom: 8px; }
+    .vip-tier-name { font-size: 28px; }
+    .vip-tier-sparkles { font-size: 11px; }
+    .vip-cell-label { font-size: 14px; }
+    .vip-cell-value { font-size: 14px; }
+    .vip-banner-row { height: 38px; }
+    .vip-banner-bg { font-size: 12px; padding-left: 10px; }
+    .vip-banner-pill { font-size: 11px; }
+  }
+
+  /* MOBILE LAYOUT */
+  @media (max-width: 767px) {
+    .vip-section-wrapper { --vip-grid-gap: 4px; }
+    .vip-container { padding-left: 5px; padding-right: 5px; }
+    .vip-table-scroll-wrapper { width: 100%; overflow-x: hidden; padding-bottom: 10px; }
+    
+    .vip-cards-row, .vip-banner-row, .vip-data-row, .vip-column-overlays { 
+      grid-template-columns: 1.4fr 1fr 1fr 1fr; 
+      width: 100%; 
+    }
+    
+    .vip-col-overlay { border-radius: 8px; padding: 2px; }
+    .vip-cards-row { margin-bottom: 15px; }
+    .vip-divider-right::after { width: 1px; right: -2.5px; }
+
+    .vip-header-spacer-card { display: flex; min-height: 100px; padding: 10px 2px; border-radius: 6px; }
+    .vip-spacer-logo { display: flex; width: 28px; height: 28px; margin-bottom: 4px; border: none; }
+    .vip-spacer-title { font-size: 10px; letter-spacing: 0; line-height: 1.2; word-break: break-word;}
+    .vip-spacer-subtitle { font-size: 6.5px; margin-top: 2px; }
+
+    .vip-tier-card { min-height: 100px; padding: 10px 2px; border-radius: 6px; }
+    .vip-tier-card::before { border-radius: 6px; padding: 2px; }
+    .vip-card-hover-bg, .vip-card-hover-image { border-radius: 6px; }
+    
+    /* Mobile Image Position Override */
+    /* Oversized (160%) instead of `cover` so both axes always have overflow room to pan -
+       `cover` alone can leave zero vertical overflow on short/square mobile cards, which is
+       why the Y-axis slider looked "stuck" in the center before. */
+    .vip-card-hover-image {
+      background-size: 160% 160%;
+      background-position: var(--bg-pos-x-mobile, 50%) var(--bg-pos-y-mobile, 50%);
+    }
+
+    .vip-tier-name { font-size: 9px; letter-spacing: 0; word-break: break-word; line-height: 1.1;}
+    .vip-tier-sparkles { font-size: 6px; margin-top: 4px; }
+    .vip-tier-icon-container { height: 26px; margin-bottom: 6px; }
+    .vip-tier-icon-container svg, .vip-tier-icon-container img { height: 22px; max-width: 100%; }
+
+    .vip-banner-row { height: auto; min-height: 26px; margin-top: 15px; margin-bottom: 5px; }
+    .vip-banner-bg { font-size: 7.5px; padding-left: 4px; border-radius: 3px; letter-spacing: 0; line-height: 1.2; }
+    .vip-banner-pill-wrapper { padding: 1px 0; }
+    .vip-banner-pill { font-size: 7px; border-radius: 3px; letter-spacing: 0; padding: 2px; line-height: 1.2; text-align: center; }
+
+    .vip-data-row { padding: 4px 0; }
+    .vip-cell-label { font-size: 8px; padding-right: 2px; line-height: 1.3; }
+    .vip-cell-value { font-size: 8.5px; padding: 6px 1px; line-height: 1.3; word-break: break-word; }
+
+    .vip-check-icon { width: 14px; height: 14px; }
+    .vip-check-icon svg { width: 12px; height: 12px; stroke-width: 2; }
+  }
+</style>
+
+<section class="vip-section-wrapper">
+  <div class="vip-container">
+    <div class="vip-table-scroll-wrapper">
+      
+      <div class="vip-column-overlays">
+        <div></div> <div class="vip-col-overlay vip-hover-target" data-col="1" style="--card-border-gradient: {{ section.settings.tier1_border_grad }};"></div>
+        <div class="vip-col-overlay vip-hover-target" data-col="2" style="--card-border-gradient: {{ section.settings.tier2_border_grad }};"></div>
+        <div class="vip-col-overlay vip-hover-target" data-col="3" style="--card-border-gradient: {{ section.settings.tier3_border_grad }};"></div>
+      </div>
+
+      <div class="vip-cards-row">
+        
+        <div class="vip-header-spacer-card vip-divider-right">
+          <div class="vip-spacer-logo">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M29.2893 3H70.7107L97 29.2893V70.7107L70.7107 97H29.2893L3 70.7107V29.2893L29.2893 3Z" stroke="#FFFFFF" stroke-width="4"/>
+              <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#FFFFFF" font-size="44" font-family="'Libre Caslon Text', serif" font-weight="500">S</text>
+            </svg>
+          </div>
+          <h3 class="vip-spacer-title">{{ section.settings.spacer_title }}</h3>
+          <p class="vip-spacer-subtitle">{{ section.settings.spacer_subtitle }}</p>
+        </div>
+
+        <div class="vip-tier-card vip-hover-target vip-divider-right" data-col="1" style="
+            --card-border-gradient: {{ section.settings.tier1_border_grad }}; 
+            --card-hover-gradient: {{ section.settings.tier1_hover_grad }}; 
+            --bg-pos-x: {{ section.settings.tier1_pos_x }}%; 
+            --bg-pos-y: {{ section.settings.tier1_pos_y }}%; 
+            --bg-pos-x-laptop: {{ section.settings.tier1_pos_x_laptop }}%; 
+            --bg-pos-y-laptop: {{ section.settings.tier1_pos_y_laptop }}%; 
+            --bg-pos-x-tablet: {{ section.settings.tier1_pos_x_tablet }}%; 
+            --bg-pos-y-tablet: {{ section.settings.tier1_pos_y_tablet }}%; 
+            --bg-pos-x-mobile: {{ section.settings.tier1_pos_x_mobile }}%; 
+            --bg-pos-y-mobile: {{ section.settings.tier1_pos_y_mobile }}%;
+        ">
+          <div class="vip-card-hover-bg"></div>
+          {% if section.settings.tier1_hover_img != blank %}
+          <div class="vip-card-hover-image" style="background-image: url('{{ section.settings.tier1_hover_img | img_url: '400x' }}'); mix-blend-mode: {{ section.settings.tier1_blend }}; --target-opacity: {{ section.settings.tier1_opacity | divided_by: 100.0 }}; --bg-brightness: {{ section.settings.tier1_brightness | divided_by: 100.0 }};"></div>
+          {% endif %}
+          <div class="vip-card-content">
+            <div class="vip-tier-icon-container">
+              {% if section.settings.tier1_svg != blank %}
+                {{ section.settings.tier1_svg }}
+              {% elsif section.settings.tier1_icon != blank %}
+                <img src="{{ section.settings.tier1_icon | img_url: '120x' }}" alt="{{ section.settings.tier1_name }}" loading="lazy">
+              {% else %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              {% endif %}
+            </div>
+            <div>
+              <h3 class="vip-tier-name">{{ section.settings.tier1_name }}</h3>
+              <div class="vip-tier-sparkles">{{ section.settings.tier1_sub }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vip-tier-card vip-hover-target vip-divider-right" data-col="2" style="
+            --card-border-gradient: {{ section.settings.tier2_border_grad }}; 
+            --card-hover-gradient: {{ section.settings.tier2_hover_grad }};
+            --bg-pos-x: {{ section.settings.tier2_pos_x }}%; 
+            --bg-pos-y: {{ section.settings.tier2_pos_y }}%; 
+            --bg-pos-x-laptop: {{ section.settings.tier2_pos_x_laptop }}%; 
+            --bg-pos-y-laptop: {{ section.settings.tier2_pos_y_laptop }}%; 
+            --bg-pos-x-tablet: {{ section.settings.tier2_pos_x_tablet }}%; 
+            --bg-pos-y-tablet: {{ section.settings.tier2_pos_y_tablet }}%; 
+            --bg-pos-x-mobile: {{ section.settings.tier2_pos_x_mobile }}%; 
+            --bg-pos-y-mobile: {{ section.settings.tier2_pos_y_mobile }}%;
+        ">
+          <div class="vip-card-hover-bg"></div>
+          {% if section.settings.tier2_hover_img != blank %}
+          <div class="vip-card-hover-image" style="background-image: url('{{ section.settings.tier2_hover_img | img_url: '400x' }}'); mix-blend-mode: {{ section.settings.tier2_blend }}; --target-opacity: {{ section.settings.tier2_opacity | divided_by: 100.0 }}; --bg-brightness: {{ section.settings.tier2_brightness | divided_by: 100.0 }};"></div>
+          {% endif %}
+          <div class="vip-card-content">
+            <div class="vip-tier-icon-container">
+              {% if section.settings.tier2_svg != blank %}
+                {{ section.settings.tier2_svg }}
+              {% elsif section.settings.tier2_icon != blank %}
+                <img src="{{ section.settings.tier2_icon | img_url: '120x' }}" alt="{{ section.settings.tier2_name }}" loading="lazy">
+              {% else %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M2 12h20M12 2l4 6 6 4-6 4-4 6-4-6-6-4 6-4z"/></svg>
+              {% endif %}
+            </div>
+            <div>
+              <h3 class="vip-tier-name">{{ section.settings.tier2_name }}</h3>
+              <div class="vip-tier-sparkles">{{ section.settings.tier2_sub }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vip-tier-card vip-hover-target" data-col="3" style="
+            --card-border-gradient: {{ section.settings.tier3_border_grad }}; 
+            --card-hover-gradient: {{ section.settings.tier3_hover_grad }};
+            --bg-pos-x: {{ section.settings.tier3_pos_x }}%; 
+            --bg-pos-y: {{ section.settings.tier3_pos_y }}%; 
+            --bg-pos-x-laptop: {{ section.settings.tier3_pos_x_laptop }}%; 
+            --bg-pos-y-laptop: {{ section.settings.tier3_pos_y_laptop }}%; 
+            --bg-pos-x-tablet: {{ section.settings.tier3_pos_x_tablet }}%; 
+            --bg-pos-y-tablet: {{ section.settings.tier3_pos_y_tablet }}%; 
+            --bg-pos-x-mobile: {{ section.settings.tier3_pos_x_mobile }}%; 
+            --bg-pos-y-mobile: {{ section.settings.tier3_pos_y_mobile }}%;
+        ">
+          <div class="vip-card-hover-bg"></div>
+          {% if section.settings.tier3_hover_img != blank %}
+          <div class="vip-card-hover-image" style="background-image: url('{{ section.settings.tier3_hover_img | img_url: '400x' }}'); mix-blend-mode: {{ section.settings.tier3_blend }}; --target-opacity: {{ section.settings.tier3_opacity | divided_by: 100.0 }}; --bg-brightness: {{ section.settings.tier3_brightness | divided_by: 100.0 }};"></div>
+          {% endif %}
+          <div class="vip-card-content">
+            <div class="vip-tier-icon-container">
+              {% if section.settings.tier3_svg != blank %}
+                {{ section.settings.tier3_svg }}
+              {% elsif section.settings.tier3_icon != blank %}
+                <img src="{{ section.settings.tier3_icon | img_url: '120x' }}" alt="{{ section.settings.tier3_name }}" loading="lazy">
+              {% else %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3a9 9 0 1 0 9 9.75M19 3l-4 4M15 3h4v4"/></svg>
+              {% endif %}
+            </div>
+            <div>
+              <h3 class="vip-tier-name">{{ section.settings.tier3_name }}</h3>
+              <div class="vip-tier-sparkles">{{ section.settings.tier3_sub }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="vip-table-area">
+        
+        <div class="vip-banner-row">
+          <div class="vip-banner-bg">Upgraded Features</div>
+          <div class="vip-banner-pill-wrapper" data-col="1" style="--pill-color: {{ section.settings.pill1_color }}">
+            <div class="vip-banner-pill">Upgraded Features</div>
+          </div>
+          <div class="vip-banner-pill-wrapper" data-col="2" style="--pill-color: {{ section.settings.pill2_color }}">
+            <div class="vip-banner-pill">Upgraded Features</div>
+          </div>
+          <div class="vip-banner-pill-wrapper" data-col="3" style="--pill-color: {{ section.settings.pill3_color }}">
+            <div class="vip-banner-pill">Upgraded Features</div>
+          </div>
+        </div>
+        
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Refer to a Friend</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1">{{ section.settings.r_shiny }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.r_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.r_galaxy }}</div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Sparkle Boost</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1">{{ section.settings.b_shiny }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.b_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.b_galaxy }}</div>
+        </div>
+
+        <div class="vip-banner-row">
+          <div class="vip-banner-bg">Exclusive Bundles (Select 3 Items)</div>
+          <div class="vip-banner-pill-wrapper" data-col="1" style="--pill-color: {{ section.settings.pill1_color }}">
+            <div class="vip-banner-pill">Exclusive Bundles</div>
+          </div>
+          <div class="vip-banner-pill-wrapper" data-col="2" style="--pill-color: {{ section.settings.pill2_color }}">
+            <div class="vip-banner-pill">Exclusive Bundles</div>
+          </div>
+          <div class="vip-banner-pill-wrapper" data-col="3" style="--pill-color: {{ section.settings.pill3_color }}">
+            <div class="vip-banner-pill">Exclusive Bundles</div>
+          </div>
+        </div>
+        
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Buy 1 &rarr; 1st Item</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.b1_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.b1_galaxy }}</div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Buy 2 &rarr; 2nd Item</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.b2_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.b2_galaxy }}</div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Buy 3 &rarr; 3rd Item</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.b3_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.b3_galaxy }}</div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Get 1 + 1 Free Gift Item Next Order</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.gift_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.gift_galaxy }}</div>
+        </div>
+
+        <div class="vip-banner-row">
+          <div class="vip-banner-bg">Tier Benefits</div>
+          <div class="vip-banner-pill-wrapper" data-col="1" style="--pill-color: {{ section.settings.pill1_color }}">
+            <div class="vip-banner-pill">Tier Benefits</div>
+          </div>
+          <div class="vip-banner-pill-wrapper" data-col="2" style="--pill-color: {{ section.settings.pill2_color }}">
+            <div class="vip-banner-pill">Tier Benefits</div>
+          </div>
+          <div class="vip-banner-pill-wrapper" data-col="3" style="--pill-color: {{ section.settings.pill3_color }}">
+            <div class="vip-banner-pill">Tier Benefits</div>
+          </div>
+        </div>
+        
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Welcome Offer Gift</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1">{{ section.settings.welcome_shiny }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.welcome_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.welcome_galaxy }}</div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Free Shipping</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1">{{ section.settings.ship_shiny }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Free Theme Message Card</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Birthday Gift</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.birth_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.birth_galaxy }}</div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Member Saving</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.save_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.save_galaxy }}</div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Jewellery Warranty (2 Yrs)</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Access New Collections</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.access_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.access_galaxy }}</div>
+        </div>
+        {% comment %} <div class="vip-data-row">
+          <div class="vip-cell-label">Available Support Live Chat</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+        </div> {% endcomment %}
+        {% comment %} <div class="vip-data-row">
+          <div class="vip-cell-label">Free Giveaways</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+        </div> {% endcomment %}
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const interactors = document.querySelectorAll('.vip-hover-target');
+    
+    interactors.forEach(el => {
+      el.addEventListener('mouseenter', function() {
+        const colId = this.getAttribute('data-col');
+        document.querySelectorAll(`.vip-tier-card[data-col="${colId}"], .vip-banner-pill-wrapper[data-col="${colId}"], .vip-col-overlay[data-col="${colId}"]`).forEach(target => {
+          target.classList.add('is-hovered');
+        });
+      });
+      
+      el.addEventListener('mouseleave', function() {
+        const colId = this.getAttribute('data-col');
+        document.querySelectorAll(`.vip-tier-card[data-col="${colId}"], .vip-banner-pill-wrapper[data-col="${colId}"], .vip-col-overlay[data-col="${colId}"]`).forEach(target => {
+          target.classList.remove('is-hovered');
+        });
+      });
+
+      el.addEventListener('touchstart', function() {
+        document.querySelectorAll('.vip-tier-card, .vip-banner-pill-wrapper, .vip-col-overlay').forEach(target => {
+          target.classList.remove('is-hovered');
+        });
+        const colId = this.getAttribute('data-col');
+        document.querySelectorAll(`.vip-tier-card[data-col="${colId}"], .vip-banner-pill-wrapper[data-col="${colId}"], .vip-col-overlay[data-col="${colId}"]`).forEach(target => {
+          target.classList.add('is-hovered');
+        });
+      }, { passive: true });
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "VIP Tiers Table",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Layout Styling"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Group Block Header Color",
+      "default": "#E6D7CB"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Divider Border Color",
+      "default": "#E2D3C7"
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "min": 4,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop Grid Column Gap",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 20,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "label": "Top Padding",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 20,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "label": "Bottom Padding",
+      "default": 80
+    },
+    {
+      "type": "header",
+      "content": "Left Block Placeholder Badge"
+    },
+    {
+      "type": "text",
+      "id": "spacer_title",
+      "label": "Title",
+      "default": "BRILLET"
+    },
+    {
+      "type": "text",
+      "id": "spacer_subtitle",
+      "label": "Sub-title text",
+      "default": "(TIER LEVELS)"
+    },
+    {
+      "type": "header",
+      "content": "Tier 1 Config (SHINY)"
+    },
+    {
+      "type": "text",
+      "id": "tier1_name",
+      "label": "Tier Name",
+      "default": "SHINY"
+    },
+    {
+      "type": "text",
+      "id": "tier1_sub",
+      "label": "Tier Subtitle String",
+      "default": "(100 SPARKLES)"
+    },
+    {
+      "type": "html",
+      "id": "tier1_svg",
+      "label": "Custom SVG Code",
+      "info": "Paste raw SVG code here. Overrides image picker."
+    },
+    {
+      "type": "image_picker",
+      "id": "tier1_icon",
+      "label": "Fallback Tier Icon File"
+    },
+    {
+      "type": "color_background",
+      "id": "tier1_border_grad",
+      "label": "Normal Border Gradient",
+      "default": "linear-gradient(180deg, #8D6C5C, #D6C2B3, #8D6C5C)"
+    },
+    {
+      "type": "color_background",
+      "id": "tier1_hover_grad",
+      "label": "Hover Background Gradient",
+      "default": "linear-gradient(180deg, #8D6C5C, #D6C2B3, #8D6C5C)"
+    },
+    {
+      "type": "image_picker",
+      "id": "tier1_hover_img",
+      "label": "Hover Background Image"
+    },
+    {
+      "type": "range",
+      "id": "tier1_pos_x",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Desktop/Large Screen X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier1_pos_y",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Desktop/Large Screen Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier1_pos_x_laptop",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "MacBook/Laptop X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier1_pos_y_laptop",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "MacBook/Laptop Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier1_pos_x_tablet",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "iPad/Tablet X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier1_pos_y_tablet",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "iPad/Tablet Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier1_pos_x_mobile",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Mobile X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier1_pos_y_mobile",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Mobile Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "select",
+      "id": "tier1_blend",
+      "label": "Image Blend Mode",
+      "options": [
+        { "value": "normal", "label": "Normal" },
+        { "value": "screen", "label": "Screen" },
+        { "value": "color-dodge", "label": "Color Dodge" }
+      ],
+      "default": "screen"
+    },
+    {
+      "type": "range",
+      "id": "tier1_opacity",
+      "min": 0, "max": 100, "step": 5,
+      "label": "Image Opacity",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "tier1_brightness",
+      "min": 100, "max": 300, "step": 10,
+      "label": "Image Brightness Boost",
+      "info": "Turn this up if your uploaded image isn't glowing pure white.",
+      "default": 120
+    },
+    {
+      "type": "color_background",
+      "id": "pill1_color",
+      "label": "Pill Background Gradient/Color",
+      "default": "linear-gradient(180deg, #8D6C5C, #D6C2B3, #8D6C5C)"
+    },
+    {
+      "type": "header",
+      "content": "Tier 2 Config (STARLIGHT)"
+    },
+    {
+      "type": "text",
+      "id": "tier2_name",
+      "label": "Tier Name",
+      "default": "STARLIGHT"
+    },
+    {
+      "type": "text",
+      "id": "tier2_sub",
+      "label": "Tier Subtitle String",
+      "default": "(700 SPARKLES)"
+    },
+    {
+      "type": "html",
+      "id": "tier2_svg",
+      "label": "Custom SVG Code"
+    },
+    {
+      "type": "image_picker",
+      "id": "tier2_icon",
+      "label": "Fallback Tier Icon File"
+    },
+    {
+      "type": "color_background",
+      "id": "tier2_border_grad",
+      "label": "Normal Border Gradient",
+      "default": "linear-gradient(180deg, #7C5E4F, #E2D3CA, #7C5E4F)"
+    },
+    {
+      "type": "color_background",
+      "id": "tier2_hover_grad",
+      "label": "Hover Background Gradient",
+      "default": "linear-gradient(180deg, #7C5E4F, #E2D3CA, #7C5E4F)"
+    },
+    {
+      "type": "image_picker",
+      "id": "tier2_hover_img",
+      "label": "Hover Background Image"
+    },
+    {
+      "type": "range",
+      "id": "tier2_pos_x",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Desktop/Large Screen X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier2_pos_y",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Desktop/Large Screen Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier2_pos_x_laptop",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "MacBook/Laptop X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier2_pos_y_laptop",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "MacBook/Laptop Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier2_pos_x_tablet",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "iPad/Tablet X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier2_pos_y_tablet",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "iPad/Tablet Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier2_pos_x_mobile",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Mobile X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier2_pos_y_mobile",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Mobile Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "select",
+      "id": "tier2_blend",
+      "label": "Image Blend Mode",
+      "options": [
+        { "value": "normal", "label": "Normal" },
+        { "value": "screen", "label": "Screen" },
+        { "value": "color-dodge", "label": "Color Dodge" }
+      ],
+      "default": "screen"
+    },
+    {
+      "type": "range",
+      "id": "tier2_opacity",
+      "min": 0, "max": 100, "step": 5,
+      "label": "Image Opacity",
+      "default": 90
+    },
+    {
+      "type": "range",
+      "id": "tier2_brightness",
+      "min": 100, "max": 300, "step": 10,
+      "label": "Image Brightness Boost",
+      "default": 120
+    },
+    {
+      "type": "color_background",
+      "id": "pill2_color",
+      "label": "Pill Background Gradient/Color",
+      "default": "linear-gradient(180deg, #7C5E4F, #E2D3CA, #7C5E4F)"
+    },
+    {
+      "type": "header",
+      "content": "Tier 3 Config (GALAXY)"
+    },
+    {
+      "type": "text",
+      "id": "tier3_name",
+      "label": "Tier Name",
+      "default": "GALAXY"
+    },
+    {
+      "type": "text",
+      "id": "tier3_sub",
+      "label": "Tier Subtitle String",
+      "default": "(1000 SPARKLES)"
+    },
+    {
+      "type": "html",
+      "id": "tier3_svg",
+      "label": "Custom SVG Code"
+    },
+    {
+      "type": "image_picker",
+      "id": "tier3_icon",
+      "label": "Fallback Tier Icon File"
+    },
+    {
+      "type": "color_background",
+      "id": "tier3_border_grad",
+      "label": "Normal Border Gradient",
+      "default": "linear-gradient(180deg, #2E253A, #58466E, #2E253A)"
+    },
+    {
+      "type": "color_background",
+      "id": "tier3_hover_grad",
+      "label": "Hover Background Gradient",
+      "default": "linear-gradient(180deg, #2E253A, #58466E, #2E253A)"
+    },
+    {
+      "type": "image_picker",
+      "id": "tier3_hover_img",
+      "label": "Hover Background Image"
+    },
+    {
+      "type": "range",
+      "id": "tier3_pos_x",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Desktop/Large Screen X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier3_pos_y",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Desktop/Large Screen Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier3_pos_x_laptop",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "MacBook/Laptop X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier3_pos_y_laptop",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "MacBook/Laptop Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier3_pos_x_tablet",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "iPad/Tablet X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier3_pos_y_tablet",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "iPad/Tablet Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier3_pos_x_mobile",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Mobile X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier3_pos_y_mobile",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Mobile Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "select",
+      "id": "tier3_blend",
+      "label": "Image Blend Mode",
+      "options": [
+        { "value": "normal", "label": "Normal" },
+        { "value": "screen", "label": "Screen" },
+        { "value": "color-dodge", "label": "Color Dodge" }
+      ],
+      "default": "color-dodge"
+    },
+    {
+      "type": "range",
+      "id": "tier3_opacity",
+      "min": 0, "max": 100, "step": 5,
+      "label": "Image Opacity",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "tier3_brightness",
+      "min": 100, "max": 300, "step": 10,
+      "label": "Image Brightness Boost",
+      "default": 120
+    },
+    {
+      "type": "color_background",
+      "id": "pill3_color",
+      "label": "Pill Background Gradient/Color",
+      "default": "linear-gradient(180deg, #2E253A, #58466E, #2E253A)"
+    },
+    {
+      "type": "header",
+      "content": "Data Values: Upgraded Features"
+    },
+    {
+      "type": "text",
+      "id": "r_shiny",
+      "label": "Refer: Shiny",
+      "default": "100 Sparkles"
+    },
+    {
+      "type": "text",
+      "id": "r_starlight",
+      "label": "Refer: Starlight",
+      "default": "125 Sparkles"
+    },
+    {
+      "type": "text",
+      "id": "r_galaxy",
+      "label": "Refer: Galaxy",
+      "default": "150 Sparkles"
+    },
+    {
+      "type": "text",
+      "id": "b_shiny",
+      "label": "Boost: Shiny",
+      "default": "$1 = 1.00 Sparkles"
+    },
+    {
+      "type": "text",
+      "id": "b_starlight",
+      "label": "Boost: Starlight",
+      "default": "$1 = 1.25 Sparkles"
+    },
+    {
+      "type": "text",
+      "id": "b_galaxy",
+      "label": "Boost: Galaxy",
+      "default": "$1 = 1.50 Sparkles"
+    },
+    {
+      "type": "header",
+      "content": "Data Values: Exclusive Bundles"
+    },
+    {
+      "type": "text",
+      "id": "b1_starlight",
+      "label": "Buy 1: Starlight",
+      "default": "20% OFF"
+    },
+    {
+      "type": "text",
+      "id": "b1_galaxy",
+      "label": "Buy 1: Galaxy",
+      "default": "25% OFF"
+    },
+    {
+      "type": "text",
+      "id": "b2_starlight",
+      "label": "Buy 2: Starlight",
+      "default": "25% OFF"
+    },
+    {
+      "type": "text",
+      "id": "b2_galaxy",
+      "label": "Buy 2: Galaxy",
+      "default": "35% OFF"
+    },
+    {
+      "type": "text",
+      "id": "b3_starlight",
+      "label": "Buy 3: Starlight",
+      "default": "35% OFF"
+    },
+    {
+      "type": "text",
+      "id": "b3_galaxy",
+      "label": "Buy 3: Galaxy",
+      "default": "45% OFF"
+    },
+    {
+      "type": "text",
+      "id": "gift_starlight",
+      "label": "Gift item: Starlight",
+      "default": "Ready To Ship Design"
+    },
+    {
+      "type": "text",
+      "id": "gift_galaxy",
+      "label": "Gift item: Galaxy",
+      "default": "Get Any Design + Crystal"
+    },
+    {
+      "type": "header",
+      "content": "Data Values: Tier Benefits"
+    },
+    {
+      "type": "text",
+      "id": "welcome_shiny",
+      "label": "Welcome: Shiny",
+      "default": "10% OFF"
+    },
+    {
+      "type": "text",
+      "id": "welcome_starlight",
+      "label": "Welcome: Starlight",
+      "default": "15% OFF"
+    },
+    {
+      "type": "text",
+      "id": "welcome_galaxy",
+      "label": "Welcome: Galaxy",
+      "default": "20% OFF"
+    },
+    {
+      "type": "text",
+      "id": "ship_shiny",
+      "label": "Shipping text: Shiny",
+      "default": "Orders $100+"
+    },
+    {
+      "type": "text",
+      "id": "birth_starlight",
+      "label": "Birthday: Starlight",
+      "default": "$10 OFF"
+    },
+    {
+      "type": "text",
+      "id": "birth_galaxy",
+      "label": "Birthday: Galaxy",
+      "default": "$20 OFF"
+    },
+    {
+      "type": "text",
+      "id": "save_starlight",
+      "label": "Savings: Starlight",
+      "default": "5% OFF"
+    },
+    {
+      "type": "text",
+      "id": "save_galaxy",
+      "label": "Savings: Galaxy",
+      "default": "15% OFF"
+    },
+    {
+      "type": "text",
+      "id": "access_starlight",
+      "label": "Access: Starlight",
+      "default": "Vote New Designs"
+    },
+    {
+      "type": "text",
+      "id": "access_galaxy",
+      "label": "Access: Galaxy",
+      "default": "Vote New Designs"
+    }
+  ],
+  "presets": [
+    {
+      "name": "VIP Tiers Table"
+    }
+  ]
+}
+{% endschema %} {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+{%- comment -%}
+  VIP Tiers Comparison Table - Granular Device-Specific Image Positioning
+{%- endcomment -%}
+
+<style>
+  /* Import Libre Caslon Text from Google Fonts for the BRILLET Title */
+  @import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;500;700&display=swap');
+
+  :root {
+    --vip-bg-color: {{ section.settings.bg_color }};
+    --vip-text-color: {{ section.settings.text_color }};
+    --vip-accent-color: {{ section.settings.accent_color }};
+    --vip-border-color: {{ section.settings.border_color }};
+  }
+
+  .vip-section-wrapper {
+    background-color: var(--vip-bg-color);
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+    overflow: hidden;
+    /* Master Gap Variable controlled by Shopify Settings */
+    --vip-grid-gap: {{ section.settings.column_gap }}px; 
+  }
+
+  .vip-container {
+    max-width: 1920px;
+    margin: 0 auto;
+    padding-left: 120px;
+    padding-right: 120px;
+    box-sizing: border-box;
+  }
+
+  /* Table Wrapper holding the Overlays */
+  .vip-table-scroll-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  /* --- Full Column Hover Overlays --- */
+  .vip-column-overlays {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* iPad/Safari fix: the long border is synced to the REAL card width/position. */
+  .vip-col-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    height: auto;
+    width: 0;
+    box-sizing: border-box;
+    border-radius: 14px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    padding: 3px;
+    background: var(--card-border-gradient);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .vip-col-overlay.is-hovered {
+    opacity: 1;
+  }
+
+  /* --- Top Cards Row --- */
+  .vip-cards-row {
+    display: grid;
+    grid-template-columns: 301px repeat(3, 1fr);
+    column-gap: var(--vip-grid-gap);
+    margin-bottom: 30px;
+  }
+
+  /* FIRST CARD FIX: Figma Accurate Styling */
+  .vip-header-spacer-card {
+    background-color: var(--vip-accent-color);
+    border-radius: 12px;
+    padding: 40px 20px;
+    box-sizing: border-box;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 250px;
+    position: relative;
+  }
+  
+  .vip-spacer-logo {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+  }
+
+  .vip-spacer-logo svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .vip-spacer-title {
+    font-family: 'Libre Caslon Text', serif;
+    font-size: 40px;
+    font-weight: 500;
+    color: #FFFFFF;
+    letter-spacing: 0;
+    margin: 0;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  .vip-spacer-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #FFFFFF;
+    opacity: 0.8;
+    margin-top: 5px;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  /* DYNAMIC VERTICAL DIVIDERS (Persistent on hover) */
+  .vip-divider-right::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: calc(var(--vip-grid-gap) / -2); 
+    transform: translateX(50%);
+    width: 2px;
+    height: 100%;
+    background-color: var(--vip-border-color);
+    z-index: 15;
+  }
+
+  /* Interactive Top Cards */
+  .vip-tier-card {
+    position: relative;
+    border-radius: 12px;
+    background-color: #FFFFFF;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    min-height: 250px;
+    padding: 40px 20px;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  /* Initial State: 4px Gradient Border on Cards */
+  .vip-tier-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    padding: 4px;
+    background: var(--card-border-gradient);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 2;
+    transition: opacity 0.4s ease;
+  }
+
+  /* Hover State: Background Color Gradient Overlay */
+  .vip-card-hover-bg {
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background: var(--card-hover-gradient);
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.4s ease-in-out;
+  }
+
+  /* Hover State: Background Image Overlay (Default Desktop Position) */
+  .vip-card-hover-image {
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background-size: 160% 160%;
+    background-position: var(--bg-pos-x, 50%) var(--bg-pos-y, 50%);
+    background-repeat: no-repeat;
+    opacity: 0;
+    z-index: 0;
+    filter: grayscale(100%) brightness(var(--bg-brightness, 1));
+    transition: opacity 0.4s ease-in-out;
+  }
+
+  /* Card Content wrapper */
+  .vip-card-content {
+    position: relative;
+    z-index: 3;
+        display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+  }
+
+  .vip-tier-icon-container {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    transition: filter 0.4s ease-in-out;
+  }
+
+  .vip-tier-icon-container svg, .vip-tier-icon-container img {
+    width: auto;
+    height: 90px;
+    max-width: 100%;
+  }
+
+  .vip-tier-name {
+    font-family: 'Libre Caslon Text';
+    font-size: 40px;
+    font-weight: 500;
+    text-transform: uppercase;
+    margin: 0;
+    letter-spacing: 0.03em;
+    color: #1A1A1A;
+    transition: color 0.4s ease-in-out;
+}
+
+  .vip-tier-sparkles {
+    font-size: 20px;
+    font-weight: 600;
+    opacity: 0.8;
+    margin-top: 5px;
+    text-transform: uppercase;
+    color: #1A1A1A;
+    transition: color 0.4s ease-in-out;
+  }
+
+  /* -------------------------------------
+     HOVER TRIGGER LOGIC
+  ------------------------------------- */
+  .vip-tier-card.is-hovered { background-color: transparent; }
+  .vip-tier-card.is-hovered::before { opacity: 0; }
+  .vip-tier-card.is-hovered .vip-card-hover-bg { opacity: 1; }
+  .vip-tier-card.is-hovered .vip-card-hover-image { opacity: var(--target-opacity, 1); }
+  
+  .vip-tier-card.is-hovered .vip-tier-name,
+  .vip-tier-card.is-hovered .vip-tier-sparkles {
+    color: #FFFFFF !important;
+  }
+  
+  .vip-tier-card.is-hovered .vip-tier-icon-container {
+    filter: brightness(0) invert(1) !important;
+  }
+
+  /* --- Table Data Area --- */
+  .vip-table-area {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Interactive Banner Rows */
+  .vip-banner-row {
+    display: grid;
+    grid-template-columns: 301px repeat(3, 1fr);
+    column-gap: var(--vip-grid-gap);
+    position: relative;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    height: 44px;
+  }
+
+  .vip-banner-bg {
+    position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
+    background-color: var(--vip-accent-color);
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+    border-radius: 4px;
+    z-index: 1;
+  }
+
+  .vip-banner-pill-wrapper {
+    z-index: 2;
+    padding: 3px 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease-in-out;
+    cursor: default;
+  }
+  
+  .vip-banner-pill-wrapper[data-col="1"] { grid-column: 2; }
+  .vip-banner-pill-wrapper[data-col="2"] { grid-column: 3; }
+  .vip-banner-pill-wrapper[data-col="3"] { grid-column: 4; }
+
+  .vip-banner-pill-wrapper.is-hovered {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .vip-banner-pill {
+    background: var(--pill-color);
+    color: #FFFFFF;
+    border-radius: 6px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+
+  /* Data Rows */
+  .vip-data-row {
+    display: grid;
+    grid-template-columns: 301px repeat(3, 1fr);
+    column-gap: var(--vip-grid-gap);
+    padding:  0px;
+    align-items: center;
+  }
+
+  .vip-cell-label {
+    font-size: 20px;
+    font-weight: 500;
+    color: #2C2C2C;
+    padding-right: 15px;
+  }
+
+  .vip-cell-value {
+    font-size: 20px;
+    font-weight: 500;
+    color: #1A1A1A;
+    text-align: center;
+    position: relative;
+    padding: 10px 0;
+  }
+
+  /* Inner Vertical Borders for the Rows */
+  .vip-cell-value.has-border::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--vip-grid-gap) / -2); 
+    transform: translateX(-50%);
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background-color: #E2D3C7;
+    opacity: 0.6;
+  }
+
+  .vip-empty-dash { color: #CCCCCC; }
+
+  .vip-check-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+  }
+
+  .vip-check-icon svg {
+    width: 16px; height: 16px;
+    fill: none; stroke: #1A1A1A;
+    stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+  }
+
+  /* ----------------------------------------------------
+     RESPONSIVE MEDIA QUERIES & BACKGROUND OVERRIDES
+  ---------------------------------------------------- */
+  @media (min-width: 1441px) and (max-width: 1728px) {
+    .vip-container { padding-left: 120px; padding-right: 120px; }
+    .vip-cards-row, .vip-banner-row, .vip-data-row, .vip-column-overlays { grid-template-columns: 260px repeat(3, 1fr); }
+    .vip-header-spacer-card, .vip-tier-card { min-height: 220px; padding: 30px 15px; }
+
+    /* Large MacBook Pro (14"/16") Image Position Override - uses Laptop values */
+    .vip-card-hover-image {
+      background-size: 160% 160%;
+      background-position: var(--bg-pos-x-laptop, 50%) var(--bg-pos-y-laptop, 50%);
+    }
+
+    .vip-spacer-title { font-size: 34px; }
+    .vip-spacer-subtitle { font-size: 18px; }
+    .vip-spacer-logo { width: 70px; height: 70px; }
+    .vip-tier-name { font-size: 36px; }
+    .vip-cell-label { font-size: 18px; }
+    .vip-cell-value { font-size: 18px; }
+  }
+
+  /* MACBOOK & LAPTOP (1025px - 1440px) */
+  @media (min-width: 1025px) and (max-width: 1440px) {
+    .vip-section-wrapper { --vip-grid-gap: 15px; }
+    .vip-container { padding-left: 120px; padding-right: 120px; }
+    .vip-cards-row, .vip-banner-row, .vip-data-row, .vip-column-overlays { grid-template-columns: 220px repeat(3, 1fr); }
+    .vip-header-spacer-card, .vip-tier-card { min-height: 200px; padding: 25px 10px; }
+    .vip-divider-right::after { right: -8.5px; } 
+    
+    /* Laptop Image Position Override */
+    .vip-card-hover-image {
+      background-size: 160% 160%;
+      background-position: var(--bg-pos-x-laptop, 50%) var(--bg-pos-y-laptop, 50%);
+    }
+
+    .vip-spacer-title { font-size: 28px; }
+    .vip-spacer-subtitle { font-size: 14px; }
+    .vip-spacer-logo { width: 60px; height: 60px; }
+    .vip-tier-name { font-size: 32px; }
+    .vip-cell-label { font-size: 16px; }
+    .vip-cell-value { font-size: 16px; }
+    .vip-banner-bg { font-size: 13px; padding-left: 15px; }
+    .vip-banner-pill { font-size: 12px; }
+  }
+
+  /* iPAD & TABLET (768px - 1024px) */
+  @media (min-width: 768px) and (max-width: 1024px) {
+    .vip-section-wrapper { --vip-grid-gap: 10px; }
+    .vip-container { padding-left: 40px; padding-right: 40px; }
+    .vip-cards-row, .vip-banner-row, .vip-data-row, .vip-column-overlays { grid-template-columns: 180px repeat(3, 1fr); }
+    .vip-header-spacer-card, .vip-tier-card { min-height: 180px; padding: 20px 8px; }
+    .vip-divider-right::after { right: -6px; }
+
+    /* Tablet Image Position Override */
+    .vip-card-hover-image {
+      background-size: 160% 160%;
+      background-position: var(--bg-pos-x-tablet, 50%) var(--bg-pos-y-tablet, 50%);
+    }
+
+    .vip-spacer-title { font-size: 22px; }
+    .vip-spacer-subtitle { font-size: 11px; }
+    .vip-spacer-logo { width: 50px; height: 50px; margin-bottom: 8px; }
+    .vip-tier-name { font-size: 28px; }
+    .vip-tier-sparkles { font-size: 11px; }
+    .vip-cell-label { font-size: 14px; }
+    .vip-cell-value { font-size: 14px; }
+    .vip-banner-row { height: 38px; }
+    .vip-banner-bg { font-size: 12px; padding-left: 10px; }
+
+    /* Keep every active column title perfectly inside the measured full border on iPad. */
+    .vip-banner-pill-wrapper {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      padding: 3px 0;
+      box-sizing: border-box;
+    }
+    .vip-banner-pill-wrapper[data-col="1"],
+    .vip-banner-pill-wrapper[data-col="2"],
+    .vip-banner-pill-wrapper[data-col="3"] {
+      grid-column: auto;
+    }
+
+    .vip-banner-pill { font-size: 11px; }
+  }
+
+  /* MOBILE LAYOUT */
+  @media (max-width: 767px) {
+    .vip-section-wrapper { --vip-grid-gap: 4px; }
+    .vip-container { padding-left: 5px; padding-right: 5px; }
+    .vip-table-scroll-wrapper { width: 100%; overflow-x: hidden; padding-bottom: 10px; }
+    
+    .vip-cards-row, .vip-banner-row, .vip-data-row, .vip-column-overlays { 
+      grid-template-columns: 1.4fr 1fr 1fr 1fr; 
+      width: 100%; 
+    }
+    
+    .vip-col-overlay { border-radius: 8px; padding: 2px; }
+    .vip-cards-row { margin-bottom: 15px; }
+    .vip-divider-right::after { width: 1px; right: -2.5px; }
+
+    .vip-header-spacer-card { display: flex; min-height: 100px; padding: 10px 2px; border-radius: 6px; }
+    .vip-spacer-logo { display: flex; width: 28px; height: 28px; margin-bottom: 4px; border: none; }
+    .vip-spacer-title { font-size: 10px; letter-spacing: 0; line-height: 1.2; word-break: break-word;}
+    .vip-spacer-subtitle { font-size: 6.5px; margin-top: 2px; }
+
+    .vip-tier-card { min-height: 100px; padding: 10px 2px; border-radius: 6px; }
+    .vip-tier-card::before { border-radius: 6px; padding: 2px; }
+    .vip-card-hover-bg, .vip-card-hover-image { border-radius: 6px; }
+    
+    /* Mobile Image Position Override */
+    /* Oversized (160%) instead of `cover` so both axes always have overflow room to pan -
+       `cover` alone can leave zero vertical overflow on short/square mobile cards, which is
+       why the Y-axis slider looked "stuck" in the center before. */
+    .vip-card-hover-image {
+      background-size: 160% 160%;
+      background-position: var(--bg-pos-x-mobile, 50%) var(--bg-pos-y-mobile, 50%);
+    }
+
+    .vip-tier-name { font-size: 9px; letter-spacing: 0; word-break: break-word; line-height: 1.1;}
+    .vip-tier-sparkles { font-size: 6px; margin-top: 4px; }
+    .vip-tier-icon-container { height: 26px; margin-bottom: 6px; }
+    .vip-tier-icon-container svg, .vip-tier-icon-container img { height: 22px; max-width: 100%; }
+
+    .vip-banner-row { height: auto; min-height: 26px; margin-top: 15px; margin-bottom: 5px; }
+    .vip-banner-bg { font-size: 7.5px; padding-left: 4px; border-radius: 3px; letter-spacing: 0; line-height: 1.2; }
+    .vip-banner-pill-wrapper { padding: 1px 0; }
+    .vip-banner-pill { font-size: 7px; border-radius: 3px; letter-spacing: 0; padding: 2px; line-height: 1.2; text-align: center; }
+
+    .vip-data-row { padding: 4px 0; }
+    .vip-cell-label { font-size: 8px; padding-right: 2px; line-height: 1.3; }
+    .vip-cell-value { font-size: 8.5px; padding: 6px 1px; line-height: 1.3; word-break: break-word; }
+
+    .vip-check-icon { width: 14px; height: 14px; }
+    .vip-check-icon svg { width: 12px; height: 12px; stroke-width: 2; }
+  }
+</style>
+
+<section class="vip-section-wrapper">
+  <div class="vip-container">
+    <div class="vip-table-scroll-wrapper">
+      
+      <div class="vip-column-overlays">
+        <div></div> <div class="vip-col-overlay vip-hover-target" data-col="1" style="--card-border-gradient: {{ section.settings.tier1_border_grad }};"></div>
+        <div class="vip-col-overlay vip-hover-target" data-col="2" style="--card-border-gradient: {{ section.settings.tier2_border_grad }};"></div>
+        <div class="vip-col-overlay vip-hover-target" data-col="3" style="--card-border-gradient: {{ section.settings.tier3_border_grad }};"></div>
+      </div>
+
+      <div class="vip-cards-row">
+        
+        <div class="vip-header-spacer-card vip-divider-right">
+          <div class="vip-spacer-logo">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M29.2893 3H70.7107L97 29.2893V70.7107L70.7107 97H29.2893L3 70.7107V29.2893L29.2893 3Z" stroke="#FFFFFF" stroke-width="4"/>
+              <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#FFFFFF" font-size="44" font-family="'Libre Caslon Text', serif" font-weight="500">S</text>
+            </svg>
+          </div>
+          <h3 class="vip-spacer-title">{{ section.settings.spacer_title }}</h3>
+          <p class="vip-spacer-subtitle">{{ section.settings.spacer_subtitle }}</p>
+        </div>
+
+        <div class="vip-tier-card vip-hover-target vip-divider-right" data-col="1" style="
+            --card-border-gradient: {{ section.settings.tier1_border_grad }}; 
+            --card-hover-gradient: {{ section.settings.tier1_hover_grad }}; 
+            --bg-pos-x: {{ section.settings.tier1_pos_x }}%; 
+            --bg-pos-y: {{ section.settings.tier1_pos_y }}%; 
+            --bg-pos-x-laptop: {{ section.settings.tier1_pos_x_laptop }}%; 
+            --bg-pos-y-laptop: {{ section.settings.tier1_pos_y_laptop }}%; 
+            --bg-pos-x-tablet: {{ section.settings.tier1_pos_x_tablet }}%; 
+            --bg-pos-y-tablet: {{ section.settings.tier1_pos_y_tablet }}%; 
+            --bg-pos-x-mobile: {{ section.settings.tier1_pos_x_mobile }}%; 
+            --bg-pos-y-mobile: {{ section.settings.tier1_pos_y_mobile }}%;
+        ">
+          <div class="vip-card-hover-bg"></div>
+          {% if section.settings.tier1_hover_img != blank %}
+          <div class="vip-card-hover-image" style="background-image: url('{{ section.settings.tier1_hover_img | img_url: '400x' }}'); mix-blend-mode: {{ section.settings.tier1_blend }}; --target-opacity: {{ section.settings.tier1_opacity | divided_by: 100.0 }}; --bg-brightness: {{ section.settings.tier1_brightness | divided_by: 100.0 }};"></div>
+          {% endif %}
+          <div class="vip-card-content">
+            <div class="vip-tier-icon-container">
+              {% if section.settings.tier1_svg != blank %}
+                {{ section.settings.tier1_svg }}
+              {% elsif section.settings.tier1_icon != blank %}
+                <img src="{{ section.settings.tier1_icon | img_url: '120x' }}" alt="{{ section.settings.tier1_name }}" loading="lazy">
+              {% else %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              {% endif %}
+            </div>
+            <div>
+              <h3 class="vip-tier-name">{{ section.settings.tier1_name }}</h3>
+              <div class="vip-tier-sparkles">{{ section.settings.tier1_sub }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vip-tier-card vip-hover-target vip-divider-right" data-col="2" style="
+            --card-border-gradient: {{ section.settings.tier2_border_grad }}; 
+            --card-hover-gradient: {{ section.settings.tier2_hover_grad }};
+            --bg-pos-x: {{ section.settings.tier2_pos_x }}%; 
+            --bg-pos-y: {{ section.settings.tier2_pos_y }}%; 
+            --bg-pos-x-laptop: {{ section.settings.tier2_pos_x_laptop }}%; 
+            --bg-pos-y-laptop: {{ section.settings.tier2_pos_y_laptop }}%; 
+            --bg-pos-x-tablet: {{ section.settings.tier2_pos_x_tablet }}%; 
+            --bg-pos-y-tablet: {{ section.settings.tier2_pos_y_tablet }}%; 
+            --bg-pos-x-mobile: {{ section.settings.tier2_pos_x_mobile }}%; 
+            --bg-pos-y-mobile: {{ section.settings.tier2_pos_y_mobile }}%;
+        ">
+          <div class="vip-card-hover-bg"></div>
+          {% if section.settings.tier2_hover_img != blank %}
+          <div class="vip-card-hover-image" style="background-image: url('{{ section.settings.tier2_hover_img | img_url: '400x' }}'); mix-blend-mode: {{ section.settings.tier2_blend }}; --target-opacity: {{ section.settings.tier2_opacity | divided_by: 100.0 }}; --bg-brightness: {{ section.settings.tier2_brightness | divided_by: 100.0 }};"></div>
+          {% endif %}
+          <div class="vip-card-content">
+            <div class="vip-tier-icon-container">
+              {% if section.settings.tier2_svg != blank %}
+                {{ section.settings.tier2_svg }}
+              {% elsif section.settings.tier2_icon != blank %}
+                <img src="{{ section.settings.tier2_icon | img_url: '120x' }}" alt="{{ section.settings.tier2_name }}" loading="lazy">
+              {% else %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M2 12h20M12 2l4 6 6 4-6 4-4 6-4-6-6-4 6-4z"/></svg>
+              {% endif %}
+            </div>
+            <div>
+              <h3 class="vip-tier-name">{{ section.settings.tier2_name }}</h3>
+              <div class="vip-tier-sparkles">{{ section.settings.tier2_sub }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vip-tier-card vip-hover-target" data-col="3" style="
+            --card-border-gradient: {{ section.settings.tier3_border_grad }}; 
+            --card-hover-gradient: {{ section.settings.tier3_hover_grad }};
+            --bg-pos-x: {{ section.settings.tier3_pos_x }}%; 
+            --bg-pos-y: {{ section.settings.tier3_pos_y }}%; 
+            --bg-pos-x-laptop: {{ section.settings.tier3_pos_x_laptop }}%; 
+            --bg-pos-y-laptop: {{ section.settings.tier3_pos_y_laptop }}%; 
+            --bg-pos-x-tablet: {{ section.settings.tier3_pos_x_tablet }}%; 
+            --bg-pos-y-tablet: {{ section.settings.tier3_pos_y_tablet }}%; 
+            --bg-pos-x-mobile: {{ section.settings.tier3_pos_x_mobile }}%; 
+            --bg-pos-y-mobile: {{ section.settings.tier3_pos_y_mobile }}%;
+        ">
+          <div class="vip-card-hover-bg"></div>
+          {% if section.settings.tier3_hover_img != blank %}
+          <div class="vip-card-hover-image" style="background-image: url('{{ section.settings.tier3_hover_img | img_url: '400x' }}'); mix-blend-mode: {{ section.settings.tier3_blend }}; --target-opacity: {{ section.settings.tier3_opacity | divided_by: 100.0 }}; --bg-brightness: {{ section.settings.tier3_brightness | divided_by: 100.0 }};"></div>
+          {% endif %}
+          <div class="vip-card-content">
+            <div class="vip-tier-icon-container">
+              {% if section.settings.tier3_svg != blank %}
+                {{ section.settings.tier3_svg }}
+              {% elsif section.settings.tier3_icon != blank %}
+                <img src="{{ section.settings.tier3_icon | img_url: '120x' }}" alt="{{ section.settings.tier3_name }}" loading="lazy">
+              {% else %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3a9 9 0 1 0 9 9.75M19 3l-4 4M15 3h4v4"/></svg>
+              {% endif %}
+            </div>
+            <div>
+              <h3 class="vip-tier-name">{{ section.settings.tier3_name }}</h3>
+              <div class="vip-tier-sparkles">{{ section.settings.tier3_sub }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="vip-table-area">
+        
+        <div class="vip-banner-row">
+          <div class="vip-banner-bg">Upgraded Features</div>
+          <div class="vip-banner-pill-wrapper" data-col="1" style="--pill-color: {{ section.settings.pill1_color }}">
+            <div class="vip-banner-pill">Upgraded Features</div>
+          </div>
+          <div class="vip-banner-pill-wrapper" data-col="2" style="--pill-color: {{ section.settings.pill2_color }}">
+            <div class="vip-banner-pill">Upgraded Features</div>
+          </div>
+          <div class="vip-banner-pill-wrapper" data-col="3" style="--pill-color: {{ section.settings.pill3_color }}">
+            <div class="vip-banner-pill">Upgraded Features</div>
+          </div>
+        </div>
+        
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Refer to a Friend</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1">{{ section.settings.r_shiny }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.r_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.r_galaxy }}</div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Sparkle Boost</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1">{{ section.settings.b_shiny }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.b_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.b_galaxy }}</div>
+        </div>
+
+        <div class="vip-banner-row">
+          <div class="vip-banner-bg">Exclusive Bundles (Select 3 Items)</div>
+          <div class="vip-banner-pill-wrapper" data-col="1" style="--pill-color: {{ section.settings.pill1_color }}">
+            <div class="vip-banner-pill">Exclusive Bundles</div>
+          </div>
+          <div class="vip-banner-pill-wrapper" data-col="2" style="--pill-color: {{ section.settings.pill2_color }}">
+            <div class="vip-banner-pill">Exclusive Bundles</div>
+          </div>
+          <div class="vip-banner-pill-wrapper" data-col="3" style="--pill-color: {{ section.settings.pill3_color }}">
+            <div class="vip-banner-pill">Exclusive Bundles</div>
+          </div>
+        </div>
+        
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Buy 1 &rarr; 1st Item</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.b1_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.b1_galaxy }}</div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Buy 2 &rarr; 2nd Item</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.b2_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.b2_galaxy }}</div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Buy 3 &rarr; 3rd Item</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.b3_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.b3_galaxy }}</div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Get 1 + 1 Free Gift Item Next Order</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.gift_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.gift_galaxy }}</div>
+        </div>
+
+        <div class="vip-banner-row">
+          <div class="vip-banner-bg">Tier Benefits</div>
+          <div class="vip-banner-pill-wrapper" data-col="1" style="--pill-color: {{ section.settings.pill1_color }}">
+            <div class="vip-banner-pill">Tier Benefits</div>
+          </div>
+          <div class="vip-banner-pill-wrapper" data-col="2" style="--pill-color: {{ section.settings.pill2_color }}">
+            <div class="vip-banner-pill">Tier Benefits</div>
+          </div>
+          <div class="vip-banner-pill-wrapper" data-col="3" style="--pill-color: {{ section.settings.pill3_color }}">
+            <div class="vip-banner-pill">Tier Benefits</div>
+          </div>
+        </div>
+        
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Welcome Offer Gift</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1">{{ section.settings.welcome_shiny }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.welcome_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.welcome_galaxy }}</div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Free Shipping</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1">{{ section.settings.ship_shiny }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Free Theme Message Card</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Birthday Gift</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.birth_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.birth_galaxy }}</div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Member Saving</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.save_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.save_galaxy }}</div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Jewellery Warranty (2 Yrs)</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+        </div>
+        <div class="vip-data-row">
+          <div class="vip-cell-label">Access New Collections</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2">{{ section.settings.access_starlight }}</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3">{{ section.settings.access_galaxy }}</div>
+        </div>
+        {% comment %} <div class="vip-data-row">
+          <div class="vip-cell-label">Available Support Live Chat</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+        </div> {% endcomment %}
+        {% comment %} <div class="vip-data-row">
+          <div class="vip-cell-label">Free Giveaways</div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="1"><span class="vip-empty-dash">-</span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="2"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+          <div class="vip-cell-value has-border vip-hover-target" data-col="3"><span class="vip-check-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+        </div> {% endcomment %}
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (() => {
+    const initVipTiers = () => {
+      const root = document.querySelector('#shopify-section-{{ section.id }} .vip-section-wrapper');
+      if (!root || root.dataset.vipInitialized === 'true') return;
+
+      root.dataset.vipInitialized = 'true';
+
+      const wrapper = root.querySelector('.vip-table-scroll-wrapper');
+      const interactors = root.querySelectorAll('.vip-hover-target');
+      const overlays = root.querySelectorAll('.vip-col-overlay');
+
+      if (!wrapper) return;
+
+      /*
+        iPad/Safari can round a duplicated CSS grid differently.
+        Measure each REAL top card and make the full-height hover border
+        use exactly that card's left position and width.
+      */
+      const syncColumnOverlays = () => {
+        const wrapperRect = wrapper.getBoundingClientRect();
+
+        overlays.forEach(overlay => {
+          const colId = overlay.getAttribute('data-col');
+          const card = root.querySelector(`.vip-tier-card[data-col="${colId}"]`);
+          if (!card) return;
+
+          const cardRect = card.getBoundingClientRect();
+          overlay.style.left = `${cardRect.left - wrapperRect.left}px`;
+          overlay.style.width = `${cardRect.width}px`;
+        });
+
+        /*
+          iPad only: position each highlighted banner title from the same REAL top-card
+          measurement as the full-height border. This keeps the left/right titles centered
+          inside their borders without changing desktop or mobile layout.
+        */
+        if (window.matchMedia('(min-width: 768px) and (max-width: 1024px)').matches) {
+          root.querySelectorAll('.vip-banner-row').forEach(row => {
+            const rowRect = row.getBoundingClientRect();
+
+            row.querySelectorAll('.vip-banner-pill-wrapper[data-col]').forEach(pillWrapper => {
+              const colId = pillWrapper.getAttribute('data-col');
+              const card = root.querySelector(`.vip-tier-card[data-col="${colId}"]`);
+              if (!card) return;
+
+              const cardRect = card.getBoundingClientRect();
+              pillWrapper.style.left = `${cardRect.left - rowRect.left}px`;
+              pillWrapper.style.width = `${cardRect.width}px`;
+            });
+          });
+        } else {
+          root.querySelectorAll('.vip-banner-pill-wrapper[data-col]').forEach(pillWrapper => {
+            pillWrapper.style.removeProperty('left');
+            pillWrapper.style.removeProperty('width');
+          });
+        }
+      };
+
+      const setColumnState = (colId, active) => {
+        root.querySelectorAll(`.vip-tier-card[data-col="${colId}"], .vip-banner-pill-wrapper[data-col="${colId}"], .vip-col-overlay[data-col="${colId}"]`).forEach(target => {
+          target.classList.toggle('is-hovered', active);
+        });
+      };
+
+      const clearColumns = () => {
+        root.querySelectorAll('.vip-tier-card, .vip-banner-pill-wrapper, .vip-col-overlay').forEach(target => {
+          target.classList.remove('is-hovered');
+        });
+      };
+
+      interactors.forEach(el => {
+        el.addEventListener('mouseenter', function() {
+          const colId = this.getAttribute('data-col');
+          if (colId) setColumnState(colId, true);
+        });
+
+        el.addEventListener('mouseleave', function() {
+          const colId = this.getAttribute('data-col');
+          if (colId) setColumnState(colId, false);
+        });
+
+        el.addEventListener('touchstart', function() {
+          clearColumns();
+          const colId = this.getAttribute('data-col');
+          if (colId) setColumnState(colId, true);
+        }, { passive: true });
+      });
+
+      syncColumnOverlays();
+      requestAnimationFrame(syncColumnOverlays);
+
+      window.addEventListener('resize', syncColumnOverlays, { passive: true });
+      window.addEventListener('orientationchange', () => {
+        setTimeout(syncColumnOverlays, 120);
+      }, { passive: true });
+
+      if ('ResizeObserver' in window) {
+        const resizeObserver = new ResizeObserver(syncColumnOverlays);
+        resizeObserver.observe(wrapper);
+      }
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initVipTiers, { once: true });
+    } else {
+      initVipTiers();
+    }
+
+    document.addEventListener('shopify:section:load', initVipTiers);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "VIP Tiers Table",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Layout Styling"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Group Block Header Color",
+      "default": "#E6D7CB"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Divider Border Color",
+      "default": "#E2D3C7"
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "min": 4,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop Grid Column Gap",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 20,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "label": "Top Padding",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 20,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "label": "Bottom Padding",
+      "default": 80
+    },
+    {
+      "type": "header",
+      "content": "Left Block Placeholder Badge"
+    },
+    {
+      "type": "text",
+      "id": "spacer_title",
+      "label": "Title",
+      "default": "BRILLET"
+    },
+    {
+      "type": "text",
+      "id": "spacer_subtitle",
+      "label": "Sub-title text",
+      "default": "(TIER LEVELS)"
+    },
+    {
+      "type": "header",
+      "content": "Tier 1 Config (SHINY)"
+    },
+    {
+      "type": "text",
+      "id": "tier1_name",
+      "label": "Tier Name",
+      "default": "SHINY"
+    },
+    {
+      "type": "text",
+      "id": "tier1_sub",
+      "label": "Tier Subtitle String",
+      "default": "(100 SPARKLES)"
+    },
+    {
+      "type": "html",
+      "id": "tier1_svg",
+      "label": "Custom SVG Code",
+      "info": "Paste raw SVG code here. Overrides image picker."
+    },
+    {
+      "type": "image_picker",
+      "id": "tier1_icon",
+      "label": "Fallback Tier Icon File"
+    },
+    {
+      "type": "color_background",
+      "id": "tier1_border_grad",
+      "label": "Normal Border Gradient",
+      "default": "linear-gradient(180deg, #8D6C5C, #D6C2B3, #8D6C5C)"
+    },
+    {
+      "type": "color_background",
+      "id": "tier1_hover_grad",
+      "label": "Hover Background Gradient",
+      "default": "linear-gradient(180deg, #8D6C5C, #D6C2B3, #8D6C5C)"
+    },
+    {
+      "type": "image_picker",
+      "id": "tier1_hover_img",
+      "label": "Hover Background Image"
+    },
+    {
+      "type": "range",
+      "id": "tier1_pos_x",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Desktop/Large Screen X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier1_pos_y",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Desktop/Large Screen Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier1_pos_x_laptop",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "MacBook/Laptop X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier1_pos_y_laptop",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "MacBook/Laptop Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier1_pos_x_tablet",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "iPad/Tablet X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier1_pos_y_tablet",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "iPad/Tablet Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier1_pos_x_mobile",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Mobile X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier1_pos_y_mobile",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Mobile Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "select",
+      "id": "tier1_blend",
+      "label": "Image Blend Mode",
+      "options": [
+        { "value": "normal", "label": "Normal" },
+        { "value": "screen", "label": "Screen" },
+        { "value": "color-dodge", "label": "Color Dodge" }
+      ],
+      "default": "screen"
+    },
+    {
+      "type": "range",
+      "id": "tier1_opacity",
+      "min": 0, "max": 100, "step": 5,
+      "label": "Image Opacity",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "tier1_brightness",
+      "min": 100, "max": 300, "step": 10,
+      "label": "Image Brightness Boost",
+      "info": "Turn this up if your uploaded image isn't glowing pure white.",
+      "default": 120
+    },
+    {
+      "type": "color_background",
+      "id": "pill1_color",
+      "label": "Pill Background Gradient/Color",
+      "default": "linear-gradient(180deg, #8D6C5C, #D6C2B3, #8D6C5C)"
+    },
+    {
+      "type": "header",
+      "content": "Tier 2 Config (STARLIGHT)"
+    },
+    {
+      "type": "text",
+      "id": "tier2_name",
+      "label": "Tier Name",
+      "default": "STARLIGHT"
+    },
+    {
+      "type": "text",
+      "id": "tier2_sub",
+      "label": "Tier Subtitle String",
+      "default": "(700 SPARKLES)"
+    },
+    {
+      "type": "html",
+      "id": "tier2_svg",
+      "label": "Custom SVG Code"
+    },
+    {
+      "type": "image_picker",
+      "id": "tier2_icon",
+      "label": "Fallback Tier Icon File"
+    },
+    {
+      "type": "color_background",
+      "id": "tier2_border_grad",
+      "label": "Normal Border Gradient",
+      "default": "linear-gradient(180deg, #7C5E4F, #E2D3CA, #7C5E4F)"
+    },
+    {
+      "type": "color_background",
+      "id": "tier2_hover_grad",
+      "label": "Hover Background Gradient",
+      "default": "linear-gradient(180deg, #7C5E4F, #E2D3CA, #7C5E4F)"
+    },
+    {
+      "type": "image_picker",
+      "id": "tier2_hover_img",
+      "label": "Hover Background Image"
+    },
+    {
+      "type": "range",
+      "id": "tier2_pos_x",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Desktop/Large Screen X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier2_pos_y",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Desktop/Large Screen Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier2_pos_x_laptop",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "MacBook/Laptop X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier2_pos_y_laptop",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "MacBook/Laptop Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier2_pos_x_tablet",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "iPad/Tablet X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier2_pos_y_tablet",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "iPad/Tablet Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier2_pos_x_mobile",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Mobile X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier2_pos_y_mobile",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Mobile Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "select",
+      "id": "tier2_blend",
+      "label": "Image Blend Mode",
+      "options": [
+        { "value": "normal", "label": "Normal" },
+        { "value": "screen", "label": "Screen" },
+        { "value": "color-dodge", "label": "Color Dodge" }
+      ],
+      "default": "screen"
+    },
+    {
+      "type": "range",
+      "id": "tier2_opacity",
+      "min": 0, "max": 100, "step": 5,
+      "label": "Image Opacity",
+      "default": 90
+    },
+    {
+      "type": "range",
+      "id": "tier2_brightness",
+      "min": 100, "max": 300, "step": 10,
+      "label": "Image Brightness Boost",
+      "default": 120
+    },
+    {
+      "type": "color_background",
+      "id": "pill2_color",
+      "label": "Pill Background Gradient/Color",
+      "default": "linear-gradient(180deg, #7C5E4F, #E2D3CA, #7C5E4F)"
+    },
+    {
+      "type": "header",
+      "content": "Tier 3 Config (GALAXY)"
+    },
+    {
+      "type": "text",
+      "id": "tier3_name",
+      "label": "Tier Name",
+      "default": "GALAXY"
+    },
+    {
+      "type": "text",
+      "id": "tier3_sub",
+      "label": "Tier Subtitle String",
+      "default": "(1000 SPARKLES)"
+    },
+    {
+      "type": "html",
+      "id": "tier3_svg",
+      "label": "Custom SVG Code"
+    },
+    {
+      "type": "image_picker",
+      "id": "tier3_icon",
+      "label": "Fallback Tier Icon File"
+    },
+    {
+      "type": "color_background",
+      "id": "tier3_border_grad",
+      "label": "Normal Border Gradient",
+      "default": "linear-gradient(180deg, #2E253A, #58466E, #2E253A)"
+    },
+    {
+      "type": "color_background",
+      "id": "tier3_hover_grad",
+      "label": "Hover Background Gradient",
+      "default": "linear-gradient(180deg, #2E253A, #58466E, #2E253A)"
+    },
+    {
+      "type": "image_picker",
+      "id": "tier3_hover_img",
+      "label": "Hover Background Image"
+    },
+    {
+      "type": "range",
+      "id": "tier3_pos_x",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Desktop/Large Screen X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier3_pos_y",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Desktop/Large Screen Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier3_pos_x_laptop",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "MacBook/Laptop X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier3_pos_y_laptop",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "MacBook/Laptop Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier3_pos_x_tablet",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "iPad/Tablet X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier3_pos_y_tablet",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "iPad/Tablet Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier3_pos_x_mobile",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Mobile X-Axis Position (Left/Right)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "tier3_pos_y_mobile",
+      "min": 0, "max": 200, "step": 2,
+      "unit": "%",
+      "label": "Mobile Y-Axis Position (Top/Bottom)",
+      "default": 50
+    },
+    {
+      "type": "select",
+      "id": "tier3_blend",
+      "label": "Image Blend Mode",
+      "options": [
+        { "value": "normal", "label": "Normal" },
+        { "value": "screen", "label": "Screen" },
+        { "value": "color-dodge", "label": "Color Dodge" }
+      ],
+      "default": "color-dodge"
+    },
+    {
+      "type": "range",
+      "id": "tier3_opacity",
+      "min": 0, "max": 100, "step": 5,
+      "label": "Image Opacity",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "tier3_brightness",
+      "min": 100, "max": 300, "step": 10,
+      "label": "Image Brightness Boost",
+      "default": 120
+    },
+    {
+      "type": "color_background",
+      "id": "pill3_color",
+      "label": "Pill Background Gradient/Color",
+      "default": "linear-gradient(180deg, #2E253A, #58466E, #2E253A)"
+    },
+    {
+      "type": "header",
+      "content": "Data Values: Upgraded Features"
+    },
+    {
+      "type": "text",
+      "id": "r_shiny",
+      "label": "Refer: Shiny",
+      "default": "100 Sparkles"
+    },
+    {
+      "type": "text",
+      "id": "r_starlight",
+      "label": "Refer: Starlight",
+      "default": "125 Sparkles"
+    },
+    {
+      "type": "text",
+      "id": "r_galaxy",
+      "label": "Refer: Galaxy",
+      "default": "150 Sparkles"
+    },
+    {
+      "type": "text",
+      "id": "b_shiny",
+      "label": "Boost: Shiny",
+      "default": "$1 = 1.00 Sparkles"
+    },
+    {
+      "type": "text",
+      "id": "b_starlight",
+      "label": "Boost: Starlight",
+      "default": "$1 = 1.25 Sparkles"
+    },
+    {
+      "type": "text",
+      "id": "b_galaxy",
+      "label": "Boost: Galaxy",
+      "default": "$1 = 1.50 Sparkles"
+    },
+    {
+      "type": "header",
+      "content": "Data Values: Exclusive Bundles"
+    },
+    {
+      "type": "text",
+      "id": "b1_starlight",
+      "label": "Buy 1: Starlight",
+      "default": "20% OFF"
+    },
+    {
+      "type": "text",
+      "id": "b1_galaxy",
+      "label": "Buy 1: Galaxy",
+      "default": "25% OFF"
+    },
+    {
+      "type": "text",
+      "id": "b2_starlight",
+      "label": "Buy 2: Starlight",
+      "default": "25% OFF"
+    },
+    {
+      "type": "text",
+      "id": "b2_galaxy",
+      "label": "Buy 2: Galaxy",
+      "default": "35% OFF"
+    },
+    {
+      "type": "text",
+      "id": "b3_starlight",
+      "label": "Buy 3: Starlight",
+      "default": "35% OFF"
+    },
+    {
+      "type": "text",
+      "id": "b3_galaxy",
+      "label": "Buy 3: Galaxy",
+      "default": "45% OFF"
+    },
+    {
+      "type": "text",
+      "id": "gift_starlight",
+      "label": "Gift item: Starlight",
+      "default": "Ready To Ship Design"
+    },
+    {
+      "type": "text",
+      "id": "gift_galaxy",
+      "label": "Gift item: Galaxy",
+      "default": "Get Any Design + Crystal"
+    },
+    {
+      "type": "header",
+      "content": "Data Values: Tier Benefits"
+    },
+    {
+      "type": "text",
+      "id": "welcome_shiny",
+      "label": "Welcome: Shiny",
+      "default": "10% OFF"
+    },
+    {
+      "type": "text",
+      "id": "welcome_starlight",
+      "label": "Welcome: Starlight",
+      "default": "15% OFF"
+    },
+    {
+      "type": "text",
+      "id": "welcome_galaxy",
+      "label": "Welcome: Galaxy",
+      "default": "20% OFF"
+    },
+    {
+      "type": "text",
+      "id": "ship_shiny",
+      "label": "Shipping text: Shiny",
+      "default": "Orders $100+"
+    },
+    {
+      "type": "text",
+      "id": "birth_starlight",
+      "label": "Birthday: Starlight",
+      "default": "$10 OFF"
+    },
+    {
+      "type": "text",
+      "id": "birth_galaxy",
+      "label": "Birthday: Galaxy",
+      "default": "$20 OFF"
+    },
+    {
+      "type": "text",
+      "id": "save_starlight",
+      "label": "Savings: Starlight",
+      "default": "5% OFF"
+    },
+    {
+      "type": "text",
+      "id": "save_galaxy",
+      "label": "Savings: Galaxy",
+      "default": "15% OFF"
+    },
+    {
+      "type": "text",
+      "id": "access_starlight",
+      "label": "Access: Starlight",
+      "default": "Vote New Designs"
+    },
+    {
+      "type": "text",
+      "id": "access_galaxy",
+      "label": "Access: Galaxy",
+      "default": "Vote New Designs"
+    }
+  ],
+  "presets": [
+    {
+      "name": "VIP Tiers Table"
+    }
+  ]
+}
+{% endschema %}

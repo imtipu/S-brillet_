@@ -1,0 +1,419 @@
+{% schema %}
+{
+  "name": "Meditation & Mindfulness",
+  "settings": [
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#FFF9F5"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image Position",
+      "options": [
+        { "value": "right", "label": "Right" },
+        { "value": "left", "label": "Left" }
+      ],
+      "default": "right"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "MEDITATION & MINDFULNESS"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Hold a crystal in your hand or place it on your body during meditation to enhance relaxation, sharpen focus, and amplify your inner peace."
+    },
+    {
+      "type": "richtext",
+      "id": "supported_list",
+      "label": "Supported Crystals"
+    },
+    {
+      "type": "text",
+      "id": "unsupported_text",
+      "label": "Unsupported Text",
+      "default": "Unsupported: None"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button Label",
+      "default": "LEARN MORE"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button Link"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Slider Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Meditation Section",
+      "blocks": [
+        { "type": "image" },
+        { "type": "image" }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+  /* Import Fonts similar to Figma */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Libre+Caslon+Text:wght@400&display=swap');
+
+  .meditation-section-{{ section.id }} {
+    background-color: {{ section.settings.bg_color }};
+    padding: 80px 120px;
+    box-sizing: border-box;
+  }
+
+  .meditation-container-{{ section.id }} {
+    max-width: 1680px;
+    margin: 0 auto;
+    display: flex;
+    gap: 60px;
+    /* This ensures both left and right sides are the exact same height */
+    align-items: stretch; 
+    /* Switch layout direction based on schema */
+    flex-direction: {% if section.settings.image_position == 'left' %}row-reverse{% else %}row{% endif %};
+  }
+
+  /* --- LEFT SIDE: CONTENT --- */
+  .meditation-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 720px;
+  }
+
+  .meditation-heading {
+    font-family: 'Libre Caslon Text', serif;
+    font-size: 64px;
+    line-height: 1.2;
+    color: #2C2C2C;
+    text-transform: uppercase;
+    margin: 0 0 20px 0;
+    font-weight: 400;
+  }
+
+  .meditation-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    line-height: 1.5;
+    color: #2C2C2C;
+    margin: 0 0 30px 0;
+  }
+
+  .meditation-divider {
+    border: none;
+    border-top: 1.5px solid #2C2C2C;
+    margin: 0 0 30px 0;
+  }
+
+  .meditation-lists {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    line-height: 1.5;
+    color: #2C2C2C;
+    margin-bottom: 40px;
+  }
+
+  .meditation-lists p {
+    margin: 0 0 10px 0;
+  }
+
+  .meditation-lists strong {
+    font-weight: 500;
+  }
+
+  .meditation-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 350px;
+    height: 55px;
+    border: 1px solid #2C2C2C;
+    background: transparent;
+    color: #2C2C2C;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .meditation-btn:hover {
+    background: #2C2C2C;
+    color: #fff;
+  }
+
+  /* --- RIGHT SIDE: SLIDER --- */
+  .meditation-slider-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 840px;
+  }
+
+  /* The image container grows to fill available space, matching content height */
+  .meditation-image-container {
+    flex-grow: 1; 
+    position: relative;
+    overflow: hidden;
+    min-height: 400px; /* Fallback */
+  }
+
+  .meditation-slides {
+    display: flex;
+    height: 100%;
+    transition: transform 0.5s ease-in-out;
+  }
+
+  .meditation-slide {
+    min-width: 100%;
+    height: 100%;
+  }
+
+  .meditation-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures image fills space without stretching */
+    display: block;
+  }
+
+  /* Slider Controls (Below Image) */
+  .meditation-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding-top: 25px;
+  }
+
+  .slider-arrow {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+  }
+
+  .slider-dots {
+    display: flex;
+    gap: 10px;
+  }
+
+  .slider-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #D9D9D9;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  /* Gradient Active Dot */
+  .slider-dot.active {
+    background: linear-gradient(135deg, #A855F7, #EC4899); /* Beautiful Purple/Pink gradient */
+    transform: scale(1.2);
+  }
+
+  /* --- RESPONSIVE STYLES --- */
+
+  /* MacBook */
+  @media (max-width: 1440px) {
+    .meditation-heading {
+      font-size: 46px; /* Updated per your request */
+    }
+    .meditation-desc, .meditation-lists {
+      font-size: 16px; /* Updated per your request */
+    }
+    .meditation-btn {
+      width: 280px;
+    }
+    .meditation-section-{{ section.id }} {
+      padding: 60px 80px;
+    }
+  }
+
+  /* Tablet */
+  @media (max-width: 1024px) {
+    .meditation-section-{{ section.id }} {
+      padding: 40px;
+    }
+    .meditation-container-{{ section.id }} {
+      flex-direction: column; /* Stack vertically on smaller screens */
+      gap: 40px;
+    }
+    .meditation-slider-wrapper {
+      max-width: 100%;
+    }
+    .meditation-image-container {
+      height: 450px;
+    }
+  }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .meditation-section-{{ section.id }} {
+      padding: 40px 20px;
+    }
+    .meditation-heading {
+      font-size: 28px; /* Updated per your request */
+    }
+    .meditation-desc, .meditation-lists {
+      font-size: 14px;
+    }
+    .meditation-btn {
+      width: 100%;
+    }
+    .meditation-image-container {
+      height: 350px;
+    }
+  }
+</style>
+
+<div class="meditation-section-{{ section.id }}">
+  <div class="meditation-container-{{ section.id }}">
+    
+    <div class="meditation-content">
+      <h2 class="meditation-heading">{{ section.settings.heading }}</h2>
+      <p class="meditation-desc">{{ section.settings.description }}</p>
+      
+      <hr class="meditation-divider" />
+      
+      <div class="meditation-lists">
+        {% if section.settings.supported_list != blank %}
+          {{ section.settings.supported_list }}
+        {% endif %}
+        {% if section.settings.unsupported_text != blank %}
+          <p><strong>{{ section.settings.unsupported_text }}</strong></p>
+        {% endif %}
+      </div>
+
+      {% if section.settings.button_label != blank %}
+        <a href="{{ section.settings.button_link }}" class="meditation-btn">
+          {{ section.settings.button_label }}
+        </a>
+      {% endif %}
+    </div>
+
+    <div class="meditation-slider-wrapper">
+      <div class="meditation-image-container">
+        <div class="meditation-slides" id="slides-{{ section.id }}">
+          {% for block in section.blocks %}
+            <div class="meditation-slide">
+              {% if block.settings.image != blank %}
+                <img src="{{ block.settings.image | img_url: 'master' }}" alt="Crystal Healing">
+              {% else %}
+                {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      
+      <div class="meditation-controls">
+        <button class="slider-arrow prev" onclick="moveSlide('{{ section.id }}', -1)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2C2C2C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        
+        <div class="slider-dots" id="dots-{{ section.id }}">
+          {% for block in section.blocks %}
+            <span class="slider-dot {% if forloop.first %}active{% endif %}" onclick="goToSlide('{{ section.id }}', {{ forloop.index0 }})"></span>
+          {% endfor %}
+        </div>
+
+        <button class="slider-arrow next" onclick="moveSlide('{{ section.id }}', 1)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2C2C2C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // A simple Vanilla JavaScript Slider logic
+  // আমি এখানে একটি সাধারণ জাভাস্ক্রিপ্ট স্লাইডার তৈরি করেছি যাতে এটি সব থিমে কাজ করে।
+  
+  const sliders = {};
+
+  function initSlider(sectionId) {
+    const slidesContainer = document.getElementById(`slides-${sectionId}`);
+    const dotsContainer = document.getElementById(`dots-${sectionId}`);
+    
+    if(!slidesContainer) return;
+
+    const totalSlides = slidesContainer.children.length;
+    
+    sliders[sectionId] = {
+      currentIndex: 0,
+      total: totalSlides,
+      container: slidesContainer,
+      dots: dotsContainer ? dotsContainer.children : []
+    };
+  }
+
+  function updateSlider(sectionId) {
+    const slider = sliders[sectionId];
+    // Move the slides left or right
+    slider.container.style.transform = `translateX(-${slider.currentIndex * 100}%)`;
+    
+    // Update active dot gradient
+    Array.from(slider.dots).forEach((dot, index) => {
+      if(index === slider.currentIndex) {
+        dot.classList.add('active');
+      } else {
+        dot.classList.remove('active');
+      }
+    });
+  }
+
+  function moveSlide(sectionId, direction) {
+    if(!sliders[sectionId]) initSlider(sectionId);
+    
+    const slider = sliders[sectionId];
+    slider.currentIndex += direction;
+
+    // Loop back to start/end
+    if (slider.currentIndex >= slider.total) slider.currentIndex = 0;
+    if (slider.currentIndex < 0) slider.currentIndex = slider.total - 1;
+
+    updateSlider(sectionId);
+  }
+
+  function goToSlide(sectionId, index) {
+    if(!sliders[sectionId]) initSlider(sectionId);
+    sliders[sectionId].currentIndex = index;
+    updateSlider(sectionId);
+  }
+
+  // Initialize on load
+  document.addEventListener("DOMContentLoaded", () => {
+    initSlider('{{ section.id }}');
+  });
+</script>

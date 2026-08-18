@@ -1,0 +1,1149 @@
+{% comment %} {%- liquid
+  assign grouping_reference_setting = block.settings.option_type_metafield_key | default: 'custom.product_grouping_option_1' | strip
+  assign grouping_reference_parts = grouping_reference_setting | split: '.'
+  assign grouping_namespace = grouping_reference_parts | first
+  assign grouping_key = grouping_reference_parts | last
+
+  assign option_value_setting = block.settings.option_value_metafield_key | default: 'custom.product_grouping_option_1_value' | strip
+  assign option_value_parts = option_value_setting | split: '.'
+  assign option_value_namespace = option_value_parts | first
+  assign option_value_key = option_value_parts | last
+
+  assign products_field_key = block.settings.metaobject_products_field_key | default: 'product_grouping' | strip
+  assign label_field_key = block.settings.metaobject_label_field_key | default: 'grouping_name' | strip
+
+  assign grouping_metafield = product.metafields[grouping_namespace][grouping_key]
+  assign grouping_entry = grouping_metafield.value
+  assign products_field = blank
+  assign related_products = blank
+
+  if grouping_entry != blank
+    assign products_field = grouping_entry[products_field_key]
+    assign related_products = products_field.value
+
+    if related_products == blank and products_field_key == 'product_grouping'
+      assign related_products = grouping_entry.product_grouping.value
+    endif
+  endif
+
+  assign picker_label = block.settings.grouping_label | strip
+  if picker_label == blank and grouping_entry != blank
+    assign metaobject_label_field = grouping_entry[label_field_key]
+    assign picker_label = metaobject_label_field.value | default: metaobject_label_field
+
+    if picker_label == blank and label_field_key == 'grouping_name'
+      assign picker_label = grouping_entry.grouping_name.value
+    endif
+  endif
+
+  assign current_option_metafield = product.metafields[option_value_namespace][option_value_key]
+  assign current_option_text = current_option_metafield.value | default: product.title
+
+  assign swatch_image_setting = block.settings.swatch_image_metafield_key | strip
+  assign swatch_image_namespace = blank
+  assign swatch_image_key = blank
+
+  if swatch_image_setting != blank
+    assign swatch_image_parts = swatch_image_setting | split: '.'
+    assign swatch_image_namespace = swatch_image_parts | first
+    assign swatch_image_key = swatch_image_parts | last
+  endif
+-%}
+
+{%- if related_products != blank -%}
+  <div
+    id="ProductGrouping-{{ section.id }}-{{ block.id }}"
+    class="mpg-product-grouping mpg-product-grouping--{{ block.settings.picker_type }}"
+    data-product-grouping
+    data-placement="{{ block.settings.placement | default: 'after_variant_picker' }}"
+    style="
+      --mpg-swatch-height: {{ block.settings.swatch_height | default: 38 }}px;
+      --mpg-swatch-height-mobile: {{ block.settings.mobile_swatch_height | default: 30 }}px;
+      --mpg-swatch-gap: {{ block.settings.swatch_gap | default: 8 }}px;
+      --mpg-active-border: {{ block.settings.active_border_color | default: '#E8E2DC' }};
+      --mpg-swatch-background: {{ block.settings.swatch_background | default: '#FFFFFF' }};
+    "
+  >
+    {%- if block.settings.picker_type == 'dropdown' -%}
+      <div class="mpg-product-grouping__field">
+        {%- if picker_label != blank -%}
+          <label
+            for="ProductGroupingSelect-{{ section.id }}-{{ block.id }}"
+            class="mpg-product-grouping__label form__label"
+          >
+            {{ picker_label | escape }}
+          </label>
+        {%- endif -%}
+
+        <div class="mpg-product-grouping__select-wrap select">
+          <select
+            id="ProductGroupingSelect-{{ section.id }}-{{ block.id }}"
+            class="mpg-product-grouping__select select__select"
+            aria-label="{{ picker_label | default: 'Product option' | escape }}"
+            onchange="if (this.value) window.location.assign(this.value);"
+          >
+            {%- for related_product in related_products -%}
+              {%- liquid
+                assign option_value_metafield = related_product.metafields[option_value_namespace][option_value_key]
+                assign option_text = option_value_metafield.value | default: related_product.title
+                assign is_current_product = false
+                if related_product.id == product.id
+                  assign is_current_product = true
+                endif
+              -%}
+              <option
+                value="{{ related_product.url }}"
+                {% if is_current_product %}selected{% endif %}
+              >
+                {{ option_text | escape }}
+                {%- if block.settings.show_sold_out_text and related_product.available == false -%}
+                  — Sold out
+                {%- endif -%}
+              </option>
+            {%- endfor -%}
+          </select>
+
+          {%- render 'icon-caret' -%}
+        </div>
+      </div>
+
+    {%- elsif block.settings.picker_type == 'text_pills' -%}
+      <fieldset class="mpg-product-grouping__fieldset">
+        {%- if picker_label != blank -%}
+          <legend class="mpg-product-grouping__label form__label">
+            {{ picker_label | escape }}
+          </legend>
+        {%- endif -%}
+
+        <div class="mpg-product-grouping__pill-options" role="list">
+          {%- for related_product in related_products -%}
+            {%- liquid
+              assign option_value_metafield = related_product.metafields[option_value_namespace][option_value_key]
+              assign option_text = option_value_metafield.value | default: related_product.title
+              assign is_current_product = false
+              if related_product.id == product.id
+                assign is_current_product = true
+              endif
+            -%}
+
+            <a
+              class="mpg-product-grouping__pill{% if is_current_product %} is-active{% endif %}{% unless related_product.available %} is-sold-out{% endunless %}"
+              href="{{ related_product.url }}"
+              role="listitem"
+              {% if is_current_product %}aria-current="page"{% endif %}
+            >
+              <span>{{ option_text | escape }}</span>
+              {%- if block.settings.show_sold_out_text and related_product.available == false -%}
+                <small>Sold out</small>
+              {%- endif -%}
+            </a>
+          {%- endfor -%}
+        </div>
+      </fieldset>
+
+    {%- else -%}
+      <div class="m-product-option m-product-option--swatch mpg-product-grouping__variant-layout">
+        <div class="m-product-option__inner">
+          {%- if picker_label != blank -%}
+            <div class="m-product-option--label mpg-product-grouping__variant-label">
+              <label class="option-label">
+                <span class="option-label--title">{{ picker_label | escape }}:</span>
+                {%- if block.settings.show_selected_value -%}
+                  <span class="option-label--selected">{{ current_option_text | escape }}</span>
+                {%- endif -%}
+              </label>
+            </div>
+          {%- endif -%}
+
+          <div
+            class="m-product-option--content m:inline-flex m:flex-wrap mpg-product-grouping__swatch-options"
+            role="list"
+          >
+            {%- for related_product in related_products -%}
+              {%- liquid
+                assign option_value_metafield = related_product.metafields[option_value_namespace][option_value_key]
+                assign option_text = option_value_metafield.value | default: related_product.title
+
+                assign is_current_product = false
+                if related_product.id == product.id
+                  assign is_current_product = true
+                endif
+
+                assign swatch_image = blank
+                if swatch_image_namespace != blank and swatch_image_key != blank
+                  assign swatch_image_metafield = related_product.metafields[swatch_image_namespace][swatch_image_key]
+                  assign swatch_image = swatch_image_metafield.value
+                endif
+
+                if swatch_image == blank
+                  assign swatch_image = related_product.featured_image
+                endif
+
+                assign swatch_render_image = swatch_image.preview_image | default: swatch_image
+              -%}
+
+              <a
+                href="{{ related_product.url }}"
+                class="mpg-product-grouping__swatch-node m-product-option--node m-tooltip m-tooltip--top{% if is_current_product %} is-selected{% endif %}{% unless related_product.available %} m-product-option--node__unavailable{% endunless %}"
+                data-option-type="gemstone"
+                data-product-grouping-value="{{ option_text | escape }}"
+                role="listitem"
+                {% if is_current_product %}aria-current="page"{% endif %}
+                aria-label="{{ option_text | escape }}{% unless related_product.available %}, sold out{% endunless %}"
+              >
+                <span class="m-product-option--oct-gap mpg-product-grouping__oct-gap">
+                  <span class="m-product-option--oct-inner mpg-product-grouping__oct-inner">
+                    <span class="m-product-option--node__label mpg-product-grouping__swatch-label">
+                      {%- if swatch_render_image != blank -%}
+                        <img
+                          src="{{ swatch_render_image | image_url: height: 160 }}"
+                          alt="{{ option_text | escape }}"
+                          loading="lazy"
+                          width="auto"
+                          height="{{ block.settings.swatch_height | default: 38 }}"
+                        >
+                      {%- else -%}
+                        <span class="mpg-product-grouping__fallback-text">{{ option_text | escape }}</span>
+                      {%- endif -%}
+                    </span>
+                  </span>
+                </span>
+
+                <span class="m-tooltip__content">{{ option_text | escape }}</span>
+              </a>
+            {%- endfor -%}
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+
+  <script>
+    (function () {
+      var innerBlock = document.getElementById('ProductGrouping-{{ section.id }}-{{ block.id }}');
+      if (!innerBlock) return;
+
+      var wrapper = innerBlock.closest('.main-product__block-product_grouping_picker') || innerBlock;
+      wrapper.setAttribute('data-product-grouping-wrapper', '');
+      wrapper.setAttribute(
+        'data-product-grouping-placement',
+        innerBlock.getAttribute('data-placement') || 'after_variant_picker'
+      );
+
+      function positionProductGroupingBlocks() {
+        var root = wrapper.closest('.m-product-info--wrapper');
+        if (!root) return;
+
+        var groupingBlocks = Array.prototype.slice.call(
+          root.querySelectorAll('[data-product-grouping-wrapper]')
+        );
+
+        var afterVariantTarget = root.querySelector('.main-product__block-variant_picker');
+        var afterPriceTarget = root.querySelector('.main-product__block-price');
+        var beforeBuyTarget = root.querySelector('.main-product__block-buy_buttons');
+
+        if (afterVariantTarget) {
+          var afterVariantCursor = afterVariantTarget;
+          groupingBlocks
+            .filter(function (item) {
+              return item.getAttribute('data-product-grouping-placement') === 'after_variant_picker';
+            })
+            .forEach(function (item) {
+              afterVariantCursor.insertAdjacentElement('afterend', item);
+              afterVariantCursor = item;
+            });
+        }
+
+        if (afterPriceTarget) {
+          var afterPriceCursor = afterPriceTarget;
+          groupingBlocks
+            .filter(function (item) {
+              return item.getAttribute('data-product-grouping-placement') === 'after_price';
+            })
+            .forEach(function (item) {
+              afterPriceCursor.insertAdjacentElement('afterend', item);
+              afterPriceCursor = item;
+            });
+        }
+
+        if (beforeBuyTarget && beforeBuyTarget.parentNode) {
+          groupingBlocks
+            .filter(function (item) {
+              return item.getAttribute('data-product-grouping-placement') === 'before_buy_buttons';
+            })
+            .forEach(function (item) {
+              beforeBuyTarget.parentNode.insertBefore(item, beforeBuyTarget);
+            });
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', positionProductGroupingBlocks);
+      } else {
+        positionProductGroupingBlocks();
+      }
+
+      document.addEventListener('shopify:section:load', positionProductGroupingBlocks);
+      document.addEventListener('shopify:block:select', positionProductGroupingBlocks);
+    })();
+  </script>
+
+{%- elsif request.design_mode -%}
+  <div class="mpg-product-grouping mpg-product-grouping--debug">
+    <strong>Product Grouping Picker is connected, but no products were returned.</strong>
+    <p>Check the current product metafield, metaobject status, and Product Grouping list.</p>
+  </div>
+{%- endif -%}
+
+<style>
+  #ProductGrouping-{{ section.id }}-{{ block.id }} {
+    width: 100%;
+    margin: 0;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__label {
+    display: block;
+    width: 100%;
+    margin: 0 0 9px;
+    padding: 0;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__pill-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__pill {
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 9px 18px;
+    border: 1px solid rgba(18, 18, 18, 0.35);
+    border-radius: 999px;
+    background: transparent;
+    color: inherit;
+    font-size: 14px;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__pill:hover {
+    border-color: currentColor;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__pill.is-active {
+    border-color: #121212;
+    background: #121212;
+    color: #ffffff;
+    pointer-events: none;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__pill.is-sold-out:not(.is-active) {
+    opacity: 0.5;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__pill small {
+    font-size: 10px;
+    line-height: 1;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__select-wrap {
+    position: relative;
+    width: 100%;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__select {
+    width: 100%;
+    min-height: 46px;
+  }
+
+  /* Match the native Gemstone variant layout */
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__variant-label {
+    margin-bottom: 8px;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-options {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: var(--mpg-swatch-gap) !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-node {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    background: transparent !important;
+    color: inherit !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.10)) !important;
+    transform: none !important;
+    cursor: pointer !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-node::before,
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-node::after,
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-label::before,
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-label::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__oct-gap {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    padding: 1.5px !important;
+    margin: 0 !important;
+    background: transparent !important;
+    box-sizing: content-box !important;
+    clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+    -webkit-clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+    transition: background-color 0.2s ease !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-node:hover .mpg-product-grouping__oct-gap,
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-node.is-selected .mpg-product-grouping__oct-gap {
+    background: var(--mpg-active-border) !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__oct-inner {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: var(--mpg-swatch-background) !important;
+    box-sizing: content-box !important;
+    clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+    -webkit-clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-label {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    font-size: 0 !important;
+    transform: none !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-label img {
+    display: block !important;
+    width: auto !important;
+    height: var(--mpg-swatch-height) !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    object-fit: contain !important;
+    transform: none !important;
+    scale: 1 !important;
+    transition: none !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__fallback-text {
+    display: inline-flex;
+    min-height: var(--mpg-swatch-height);
+    align-items: center;
+    justify-content: center;
+    padding: 0 14px;
+    color: #2c2c2c;
+    font-size: 13px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-node.is-selected {
+    pointer-events: none;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-node.m-product-option--node__unavailable {
+    opacity: 0.52;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-node.m-product-option--node__unavailable .mpg-product-grouping__oct-inner::after {
+    content: '' !important;
+    display: block !important;
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(
+      to top right,
+      transparent calc(50% - 0.5px),
+      rgba(0, 0, 0, 0.3) calc(50% - 0.5px),
+      rgba(0, 0, 0, 0.3) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    );
+  }
+
+  .mpg-product-grouping--debug {
+    padding: 14px;
+    border: 1px dashed #d72c0d;
+    background: #fff4f4;
+    color: #3b0d06;
+    font-size: 13px;
+  }
+
+  @media (max-width: 767px) {
+    #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-options {
+      gap: 6px !important;
+    }
+
+    #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-label img {
+      height: var(--mpg-swatch-height-mobile) !important;
+    }
+
+    #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__fallback-text {
+      min-height: var(--mpg-swatch-height-mobile);
+      padding: 0 10px;
+      font-size: 12px;
+    }
+
+    #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__pill {
+      min-height: 38px;
+      padding: 8px 14px;
+      font-size: 13px;
+    }
+  }
+</style> {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{%- liquid
+  assign grouping_reference_setting = block.settings.option_type_metafield_key | default: 'custom.product_grouping_option_1' | strip
+  assign grouping_reference_parts = grouping_reference_setting | split: '.'
+  assign grouping_namespace = grouping_reference_parts | first
+  assign grouping_key = grouping_reference_parts | last
+
+  assign option_value_setting = block.settings.option_value_metafield_key | default: 'custom.product_grouping_option_1_value' | strip
+  assign option_value_parts = option_value_setting | split: '.'
+  assign option_value_namespace = option_value_parts | first
+  assign option_value_key = option_value_parts | last
+
+  assign products_field_key = block.settings.metaobject_products_field_key | default: 'product_grouping' | strip
+  assign label_field_key = block.settings.metaobject_label_field_key | default: 'grouping_name' | strip
+
+  assign grouping_metafield = product.metafields[grouping_namespace][grouping_key]
+  assign grouping_entry = grouping_metafield.value
+  assign products_field = blank
+  assign related_products = blank
+
+  if grouping_entry != blank
+    assign products_field = grouping_entry[products_field_key]
+    assign related_products = products_field.value
+
+    if related_products == blank and products_field_key == 'product_grouping'
+      assign related_products = grouping_entry.product_grouping.value
+    endif
+  endif
+
+  assign picker_label = block.settings.grouping_label | strip
+  if picker_label == blank and grouping_entry != blank
+    assign metaobject_label_field = grouping_entry[label_field_key]
+    assign picker_label = metaobject_label_field.value | default: metaobject_label_field
+
+    if picker_label == blank and label_field_key == 'grouping_name'
+      assign picker_label = grouping_entry.grouping_name.value
+    endif
+  endif
+
+  assign current_option_metafield = product.metafields[option_value_namespace][option_value_key]
+  assign current_option_text = current_option_metafield.value | default: product.title
+
+  assign swatch_image_setting = block.settings.swatch_image_metafield_key | strip
+  assign swatch_image_namespace = blank
+  assign swatch_image_key = blank
+
+  if swatch_image_setting != blank
+    assign swatch_image_parts = swatch_image_setting | split: '.'
+    assign swatch_image_namespace = swatch_image_parts | first
+    assign swatch_image_key = swatch_image_parts | last
+  endif
+-%}
+
+{%- if related_products != blank -%}
+  <div
+    id="ProductGrouping-{{ section.id }}-{{ block.id }}"
+    class="mpg-product-grouping mpg-product-grouping--{{ block.settings.picker_type }} mpg-swatch-design--{{ block.settings.swatch_design | default: 'gemstone' }}"
+    data-product-grouping
+    {{ block.shopify_attributes }}
+    style="
+      --mpg-swatch-height: {{ block.settings.swatch_height | default: 38 }}px;
+      --mpg-swatch-height-mobile: {{ block.settings.mobile_swatch_height | default: 30 }}px;
+      --mpg-swatch-gap: {{ block.settings.swatch_gap | default: 8 }}px;
+      --mpg-active-border: {{ block.settings.active_border_color | default: '#E8E2DC' }};
+      --mpg-swatch-background: {{ block.settings.swatch_background | default: '#FFFFFF' }};
+      --mpg-material-size: {{ block.settings.material_swatch_size | default: 57 }}px;
+      --mpg-material-size-mobile: {{ block.settings.material_swatch_size_mobile | default: 47 }}px;
+      --mpg-material-icon-size: {{ block.settings.material_icon_size | default: 26 }}px;
+      --mpg-material-icon-size-mobile: {{ block.settings.material_icon_size_mobile | default: 22 }}px;
+    "
+  >
+    {%- if block.settings.picker_type == 'dropdown' -%}
+      <div class="mpg-product-grouping__field">
+        {%- if picker_label != blank -%}
+          <label
+            for="ProductGroupingSelect-{{ section.id }}-{{ block.id }}"
+            class="mpg-product-grouping__label form__label"
+          >
+            {{ picker_label | escape }}
+          </label>
+        {%- endif -%}
+
+        <div class="mpg-product-grouping__select-wrap select">
+          <select
+            id="ProductGroupingSelect-{{ section.id }}-{{ block.id }}"
+            class="mpg-product-grouping__select select__select"
+            aria-label="{{ picker_label | default: 'Product option' | escape }}"
+            onchange="if (this.value) window.location.assign(this.value);"
+          >
+            {%- for related_product in related_products -%}
+              {%- liquid
+                assign option_value_metafield = related_product.metafields[option_value_namespace][option_value_key]
+                assign option_text = option_value_metafield.value | default: related_product.title
+                assign is_current_product = false
+                if related_product.id == product.id
+                  assign is_current_product = true
+                endif
+              -%}
+              <option
+                value="{{ related_product.url }}"
+                {% if is_current_product %}selected{% endif %}
+              >
+                {{ option_text | escape }}
+                {%- if block.settings.show_sold_out_text and related_product.available == false -%}
+                  — Sold out
+                {%- endif -%}
+              </option>
+            {%- endfor -%}
+          </select>
+
+          {%- render 'icon-caret' -%}
+        </div>
+      </div>
+
+    {%- elsif block.settings.picker_type == 'text_pills' -%}
+      <fieldset class="mpg-product-grouping__fieldset">
+        {%- if picker_label != blank -%}
+          <legend class="mpg-product-grouping__label form__label">
+            {{ picker_label | escape }}
+          </legend>
+        {%- endif -%}
+
+        <div class="mpg-product-grouping__pill-options" role="list">
+          {%- for related_product in related_products -%}
+            {%- liquid
+              assign option_value_metafield = related_product.metafields[option_value_namespace][option_value_key]
+              assign option_text = option_value_metafield.value | default: related_product.title
+              assign is_current_product = false
+              if related_product.id == product.id
+                assign is_current_product = true
+              endif
+            -%}
+
+            <a
+              class="mpg-product-grouping__pill{% if is_current_product %} is-active{% endif %}{% unless related_product.available %} is-sold-out{% endunless %}"
+              href="{{ related_product.url }}"
+              role="listitem"
+              {% if is_current_product %}aria-current="page"{% endif %}
+            >
+              <span>{{ option_text | escape }}</span>
+              {%- if block.settings.show_sold_out_text and related_product.available == false -%}
+                <small>Sold out</small>
+              {%- endif -%}
+            </a>
+          {%- endfor -%}
+        </div>
+      </fieldset>
+
+    {%- else -%}
+      <div class="m-product-option m-product-option--swatch mpg-product-grouping__variant-layout">
+        <div class="m-product-option__inner">
+          {%- if picker_label != blank -%}
+            <div class="m-product-option--label mpg-product-grouping__variant-label">
+              <label class="option-label">
+                <span class="option-label--title">{{ picker_label | escape }}:</span>
+                {%- if block.settings.show_selected_value -%}
+                  <span class="option-label--selected">{{ current_option_text | escape }}</span>
+                {%- endif -%}
+              </label>
+            </div>
+          {%- endif -%}
+
+          <div
+            class="m-product-option--content m:inline-flex m:flex-wrap mpg-product-grouping__swatch-options"
+            role="list"
+          >
+            {%- for related_product in related_products -%}
+              {%- liquid
+                assign option_value_metafield = related_product.metafields[option_value_namespace][option_value_key]
+                assign option_text = option_value_metafield.value | default: related_product.title
+
+                assign is_current_product = false
+                if related_product.id == product.id
+                  assign is_current_product = true
+                endif
+
+                assign swatch_image = blank
+                if swatch_image_namespace != blank and swatch_image_key != blank
+                  assign swatch_image_metafield = related_product.metafields[swatch_image_namespace][swatch_image_key]
+                  assign swatch_image = swatch_image_metafield.value
+                endif
+
+                if swatch_image == blank
+                  assign swatch_image = related_product.featured_image
+                endif
+
+                assign swatch_render_image = swatch_image.preview_image | default: swatch_image
+              -%}
+
+              <a
+                href="{{ related_product.url }}"
+                class="mpg-product-grouping__swatch-node m-product-option--node m-tooltip m-tooltip--top{% if is_current_product %} is-selected{% endif %}{% unless related_product.available %} m-product-option--node__unavailable{% endunless %}"
+                data-option-type="product-grouping"
+                data-product-grouping-value="{{ option_text | escape }}"
+                role="listitem"
+                {% if is_current_product %}aria-current="page"{% endif %}
+                aria-label="{{ option_text | escape }}{% unless related_product.available %}, sold out{% endunless %}"
+              >
+                <span class="m-product-option--oct-gap mpg-product-grouping__oct-gap">
+                  <span class="m-product-option--oct-inner mpg-product-grouping__oct-inner">
+                    <span class="m-product-option--node__label mpg-product-grouping__swatch-label">
+                      {%- if swatch_render_image != blank -%}
+                        <img
+                          src="{{ swatch_render_image | image_url: height: 160 }}"
+                          alt="{{ option_text | escape }}"
+                          loading="lazy"
+                          width="auto"
+                          height="{{ block.settings.swatch_height | default: 38 }}"
+                        >
+                      {%- else -%}
+                        <span class="mpg-product-grouping__fallback-text">{{ option_text | escape }}</span>
+                      {%- endif -%}
+                    </span>
+                  </span>
+                </span>
+
+                <span class="m-tooltip__content">{{ option_text | escape }}</span>
+              </a>
+            {%- endfor -%}
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+
+{%- elsif request.design_mode -%}
+  <div class="mpg-product-grouping mpg-product-grouping--debug">
+    <strong>Product Grouping Picker is connected, but no products were returned.</strong>
+    <p>Check the current product metafield, metaobject status, and Product Grouping list.</p>
+  </div>
+{%- endif -%}
+
+<style>
+  #ProductGrouping-{{ section.id }}-{{ block.id }} {
+    width: 100%;
+    margin: 0;
+  }
+
+
+  [removed-data-product-grouping-gemstone-slot] #ProductGrouping-{{ section.id }}-{{ block.id }} {
+    margin: 0 !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__label {
+    display: block;
+    width: 100%;
+    margin: 0 0 9px;
+    padding: 0;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__pill-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__pill {
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 9px 18px;
+    border: 1px solid rgba(18, 18, 18, 0.35);
+    border-radius: 999px;
+    background: transparent;
+    color: inherit;
+    font-size: 14px;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__pill:hover {
+    border-color: currentColor;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__pill.is-active {
+    border-color: #121212;
+    background: #121212;
+    color: #ffffff;
+    pointer-events: none;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__pill.is-sold-out:not(.is-active) {
+    opacity: 0.5;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__pill small {
+    font-size: 10px;
+    line-height: 1;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__select-wrap {
+    position: relative;
+    width: 100%;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__select {
+    width: 100%;
+    min-height: 46px;
+  }
+
+  /* Match the native variant label layout */
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__variant-label {
+    margin-bottom: 8px;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__variant-label .option-label {
+    display: inline-flex !important;
+    align-items: baseline !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__variant-label .option-label {
+    display: inline-flex !important;
+    align-items: baseline !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-options {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: var(--mpg-swatch-gap) !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-node {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    background: transparent !important;
+    color: inherit !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.10)) !important;
+    transform: none !important;
+    scale: 1 !important;
+    cursor: pointer !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-node:hover,
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-node:hover img {
+    transform: none !important;
+    scale: 1 !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-node::before,
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-node::after,
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-label::before,
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-label::after,
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__oct-gap::before,
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__oct-gap::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__oct-gap,
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__oct-inner,
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-label {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__oct-gap {
+    padding: 1.5px !important;
+    background: transparent !important;
+    transition: background-color 0.2s ease !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-node:hover .mpg-product-grouping__oct-gap,
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-node.is-selected .mpg-product-grouping__oct-gap {
+    background: var(--mpg-active-border) !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__oct-inner {
+    position: relative !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    background: var(--mpg-swatch-background) !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-label {
+    padding: 0 !important;
+    background: transparent !important;
+    font-size: 0 !important;
+    transform: none !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-label img {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    object-fit: contain !important;
+    transform: none !important;
+    scale: 1 !important;
+    transition: none !important;
+  }
+
+  /* ═══════════════════════════════════════════════
+     GEMSTONE STYLE
+     Auto-width image swatches, matching Gemstone.
+  ═══════════════════════════════════════════════ */
+  #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--gemstone .mpg-product-grouping__swatch-node,
+  #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--gemstone .mpg-product-grouping__oct-gap,
+  #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--gemstone .mpg-product-grouping__oct-inner,
+  #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--gemstone .mpg-product-grouping__swatch-label {
+    width: auto !important;
+    height: auto !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--gemstone .mpg-product-grouping__oct-gap,
+  #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--gemstone .mpg-product-grouping__oct-inner {
+    box-sizing: content-box !important;
+    clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+    -webkit-clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px) !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--gemstone .mpg-product-grouping__swatch-label img {
+    width: auto !important;
+    height: var(--mpg-swatch-height) !important;
+    max-width: none !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--gemstone .mpg-product-grouping__fallback-text {
+    display: inline-flex;
+    min-height: var(--mpg-swatch-height);
+    align-items: center;
+    justify-content: center;
+    padding: 0 14px;
+    color: #2c2c2c;
+    font-size: 13px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  /* ═══════════════════════════════════════════════
+     MATERIAL STYLE
+     Square octagon swatches, matching Material.
+  ═══════════════════════════════════════════════ */
+  #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--material .mpg-product-grouping__swatch-node {
+    width: var(--mpg-material-size) !important;
+    height: var(--mpg-material-size) !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--material .mpg-product-grouping__oct-gap {
+    width: 100% !important;
+    height: 100% !important;
+    box-sizing: border-box !important;
+    clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+    -webkit-clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--material .mpg-product-grouping__oct-inner,
+  #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--material .mpg-product-grouping__swatch-label {
+    width: 100% !important;
+    height: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--material .mpg-product-grouping__oct-inner {
+    clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+    -webkit-clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%) !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--material .mpg-product-grouping__swatch-label img {
+    width: var(--mpg-material-icon-size) !important;
+    height: var(--mpg-material-icon-size) !important;
+    max-width: 72% !important;
+    max-height: 72% !important;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--material .mpg-product-grouping__fallback-text {
+    display: -webkit-box;
+    max-width: calc(var(--mpg-material-size) - 12px);
+    overflow: hidden;
+    padding: 0 5px;
+    color: #2c2c2c;
+    font-size: 10px;
+    line-height: 1.05;
+    text-align: center;
+    word-break: break-word;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-node.is-selected {
+    pointer-events: none;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-node.m-product-option--node__unavailable {
+    opacity: 0.52;
+  }
+
+  #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-node.m-product-option--node__unavailable .mpg-product-grouping__oct-inner::after {
+    content: '' !important;
+    display: block !important;
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(
+      to top right,
+      transparent calc(50% - 0.5px),
+      rgba(0, 0, 0, 0.3) calc(50% - 0.5px),
+      rgba(0, 0, 0, 0.3) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    );
+  }
+
+  .mpg-product-grouping--debug {
+    padding: 14px;
+    border: 1px dashed #d72c0d;
+    background: #fff4f4;
+    color: #3b0d06;
+    font-size: 13px;
+  }
+
+  @media (max-width: 767px) {
+    #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__swatch-options {
+      gap: 6px !important;
+    }
+
+    #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--gemstone .mpg-product-grouping__swatch-label img {
+      height: var(--mpg-swatch-height-mobile) !important;
+    }
+
+    #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--gemstone .mpg-product-grouping__fallback-text {
+      min-height: var(--mpg-swatch-height-mobile);
+      padding: 0 10px;
+      font-size: 12px;
+    }
+
+    #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--material .mpg-product-grouping__swatch-node {
+      width: var(--mpg-material-size-mobile) !important;
+      height: var(--mpg-material-size-mobile) !important;
+    }
+
+    #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--material .mpg-product-grouping__swatch-label img {
+      width: var(--mpg-material-icon-size-mobile) !important;
+      height: var(--mpg-material-icon-size-mobile) !important;
+    }
+
+    #ProductGrouping-{{ section.id }}-{{ block.id }}.mpg-swatch-design--material .mpg-product-grouping__fallback-text {
+      max-width: calc(var(--mpg-material-size-mobile) - 10px);
+      font-size: 9px;
+    }
+
+    #ProductGrouping-{{ section.id }}-{{ block.id }} .mpg-product-grouping__pill {
+      min-height: 38px;
+      padding: 8px 14px;
+      font-size: 13px;
+    }
+  }
+</style>
