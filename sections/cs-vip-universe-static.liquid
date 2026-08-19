@@ -964,19 +964,60 @@
     .vip-uni-{{ section.id }} .vu-desc-bottom { font-size: 14px; }
   }
 
-  /* Tablet 769–1024: stack, image on top */
-  @media (max-width: 1024px) {
+  /* iPad / Tablet 769–1024: same content order as mobile */
+  @media (min-width: 769px) and (max-width: 1024px) {
     .vip-uni-{{ section.id }} .vu-wrap {
-      grid-template-columns: 1fr;
+      display: flex !important;
+      flex-direction: column !important;
       padding-left: 40px;
       padding-right: 40px;
-      gap: 32px;
-      align-items: start;
+      gap: 0 !important;
+      align-items: stretch;
     }
-    .vip-uni-{{ section.id }} .vu-left { order: 2; }
-    .vip-uni-{{ section.id }} .vu-right {
+
+    /* Allow title, description, divider, cards and bottom box
+       to participate in the same flex order as the image */
+    .vip-uni-{{ section.id }} .vu-left {
+      display: contents !important;
+      order: unset;
+    }
+
+    .vip-uni-{{ section.id }} .vu-title {
       order: 1;
-      aspect-ratio: 16 / 9;
+    }
+
+    .vip-uni-{{ section.id }} .vu-desc-top {
+      order: 2;
+    }
+
+    .vip-uni-{{ section.id }} .vu-divider {
+      order: 3;
+    }
+
+    /* Image now sits directly below the divider, like mobile */
+    .vip-uni-{{ section.id }} .vu-right {
+      order: 4 !important;
+      width: 100%;
+      aspect-ratio: auto;
+      height: auto;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .vip-uni-{{ section.id }} .vu-static-img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      object-position: center center;
+      display: block;
+    }
+
+    .vip-uni-{{ section.id }} .vu-grid {
+      order: 5 !important;
+    }
+
+    .vip-uni-{{ section.id }} .vu-desc-bottom-box {
+      order: 6;
     }
   }
 
@@ -1017,35 +1058,6 @@
     .vip-uni-{{ section.id }} .vu-desc-bottom { font-size: 13px; }
   }
 
-
-  /* Tablet / iPad 769–1024: stack, image on top */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .vip-uni-{{ section.id }} .vu-wrap {
-    grid-template-columns: 1fr;
-    padding-left: 40px;
-    padding-right: 40px;
-    gap: 32px;
-    align-items: start;
-  }
-
-  .vip-uni-{{ section.id }} .vu-left {
-    order: 2;
-  }
-
-  .vip-uni-{{ section.id }} .vu-right {
-    order: 1;
-    aspect-ratio: auto;
-    height: auto;
-    overflow: hidden;
-  }
-
-  .vip-uni-{{ section.id }} .vu-static-img {
-    width: 100%;
-    height: auto;
-    object-fit: contain;
-    object-position: center center;
-  }
-}
 {%- endstyle -%}
 
 <section class="vip-uni-{{ section.id }}" data-section-id="{{ section.id }}">
