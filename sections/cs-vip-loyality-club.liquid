@@ -3281,8 +3281,6 @@ transition: none !important;
    Only affects 768px–1199px.
 ========================================================= */
 @media (min-width: 768px) and (max-width: 1199px) {
-  .vip-bottom-tagline-wrap,
-  .vip-bottom-tagline,
   .vip-bottom-ellipse {
     display: none !important;
   }
@@ -5068,6 +5066,15 @@ const card = document.getElementById("reward-card-" + reward.id + "-" + SID);
 if (!card) return;
 const isUnlocked = progress >= reward.unlock;
 let displayText = reward.text;
+if (reward.iconId === "welcome-gift" || displayText.indexOf("ONE-TIME") > -1) {
+if (progress >= 145) {
+displayText = displayText.replace(/10%|15%|20%/, "20%");
+} else if (progress >= 115) {
+displayText = displayText.replace(/10%|15%|20%/, "15%");
+} else {
+displayText = displayText.replace(/10%|15%|20%/, "10%");
+}
+}
 const label = card.querySelector(".reward-label");
 if (label && label.innerText !== displayText) {
 label.innerText = displayText;

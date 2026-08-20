@@ -395,7 +395,7 @@
               <h2 class="fcf-heading">{{ block.settings.title }}</h2>
               <p class="fcf-nl-desc">{{ block.settings.description }}</p>
               
-              <form class="fcf-nl-form" action="#">
+              {% comment %} <form class="fcf-nl-form" action="#">
                 <input type="email" class="fcf-nl-input" placeholder="{{ block.settings.placeholder }}" required>
                 <button type="submit" class="fcf-nl-btn">
                   {%- if block.settings.submit_icon_image != blank -%}
@@ -404,7 +404,36 @@
                     <svg viewBox="0 0 24 24" fill="none"><path d="M9 5L16 12L9 19" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   {%- endif -%}
                 </button>
-              </form>
+              </form> {% endcomment %}
+
+
+              {% form 'customer', id: 'FooterNewsletterForm', class: 'fcf-nl-form' %}
+
+  <input
+    type="hidden"
+    name="contact[tags]"
+    value="newsletter"
+  >
+
+  <input
+    type="email"
+    name="contact[email]"
+    class="fcf-nl-input"
+    placeholder="{{ block.settings.placeholder }}"
+    required
+  >
+
+  <button type="submit" class="fcf-nl-btn">
+    {%- if block.settings.submit_icon_image != blank -%}
+      <img src="{{ block.settings.submit_icon_image | image_url: width: 30 }}" alt="Submit">
+    {%- else -%}
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M9 5L16 12L9 19" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    {%- endif -%}
+  </button>
+
+{% endform %}
 
               {%- if block.settings.show_social -%}
                 <div class="fcf-socials">

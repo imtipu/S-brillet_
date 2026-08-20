@@ -197,7 +197,7 @@
 
 
 
-
+{% comment %} 
 
 {%- liquid
   assign current_variant = product.selected_or_first_available_variant
@@ -286,4 +286,137 @@
   .product-materials-details__row:last-child {
     margin-bottom: 0;
   }
+</style> {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+
+
+  # Product level metafield
+  assign metal_meta = product.metafields.custom.metal
+
+
+  # Variant level metafield
+  assign plating_thickness_meta = current_variant.metafields.custom.plating_thickness
+
+
+  assign gemstone_name_meta = product.metafields.custom.product_grouping_option_1_value
+  assign gemstone_cut_meta = product.metafields.custom.gemstone_cut
+  assign band_meta = product.metafields.custom.band
+  assign hand_finished_meta = product.metafields.custom.hand_finished
+  assign brand_meta = product.metafields.custom.brand
+
+
+
+  # Convert metafields
+  assign metal_value = metal_meta | metafield_text | strip
+
+  assign gemstone_name = gemstone_name_meta | metafield_text | strip
+  assign gemstone_cut = gemstone_cut_meta | metafield_text | strip
+  assign band = band_meta | metafield_text | strip
+  assign hand_finished = hand_finished_meta | metafield_text | strip
+  assign brand = brand_meta | metafield_text | strip
+
+  assign plating_thickness = plating_thickness_meta | metafield_text | strip
+
+
+  if brand == blank
+    assign brand = product.vendor
+  endif
+
+-%}
+
+
+
+<div class="product-materials-details" data-product-materials-details>
+
+
+  {%- if metal_value != blank -%}
+  <div class="product-materials-details__row">
+    <span>• Metal:</span>
+    <span>
+      {{ metal_value | escape }}
+    </span>
+  </div>
+  {%- endif -%}
+
+
+
+  {%- if gemstone_name != blank -%}
+  <div class="product-materials-details__row">
+    <span>• Gemstones:</span>
+    <span>
+      {{ gemstone_name | escape }}
+    </span>
+  </div>
+  {%- endif -%}
+
+
+
+  {%- if plating_thickness != blank -%}
+  <div class="product-materials-details__row">
+    <span>• Plating Thickness:</span>
+    <span data-dynamic-plating-thickness>
+      {{ plating_thickness | escape }}
+    </span>
+  </div>
+  {%- endif -%}
+
+
+
+  {%- if gemstone_cut != blank -%}
+  <div class="product-materials-details__row">
+    <span>• Gemstone Cut:</span>
+    <span>
+      {{ gemstone_cut | escape }}
+    </span>
+  </div>
+  {%- endif -%}
+
+
+
+  {%- if band != blank -%}
+  <div class="product-materials-details__row">
+    <span>• Band:</span>
+    <span>
+      {{ band | escape }}
+    </span>
+  </div>
+  {%- endif -%}
+
+
+
+  {%- if hand_finished != blank -%}
+  <div class="product-materials-details__row">
+    <span>• Hand-Finished:</span>
+    <span>
+      {{ hand_finished | escape | newline_to_br }}
+    </span>
+  </div>
+  {%- endif -%}
+
+
+</div>
+
+
+
+<style>
+.product-materials-details__row {
+  display: block;
+  margin: 0 0 4px;
+}
+
+.product-materials-details__row:last-child {
+  margin-bottom: 0;
+}
 </style>
