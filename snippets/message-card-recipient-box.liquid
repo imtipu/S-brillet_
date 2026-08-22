@@ -218,3 +218,264 @@
     })();
   </script>
 </div>
+
+<style>
+  /* ── Custom Theme Card Styling matching Image ── */
+  .yk-theme-card-container {
+    margin: 15px 0 25px;
+    
+  }
+  
+  .yk-custom-select-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+    width: 100%;
+  }
+
+  .yk-theme-card-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #EBEBEB;
+    cursor: pointer;
+    user-select: none;
+    width: auto;
+  }
+  
+  .yk-chevron-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Rotate 90deg initially to turn '>' into 'v' */
+  transform: rotate(90deg); 
+  transition: transform 0.3s ease;
+}
+
+.yk-custom-select-wrapper.is-open .yk-chevron-icon {
+  /* Rotate to -90deg (or 270deg) to turn 'v' into '^' */
+  transform: rotate(-90deg);
+}
+
+  .yk-theme-card-label {
+    font-size: 16px;
+    margin: 0;
+  }
+
+  .yk-label-muted {
+    color: #2c2c2c;
+    font-size: 20px;
+    font-weight: 400;
+    
+}
+
+  .yk-selected-text {
+    color: #2c2c2c;
+    font-size: 20px;
+    font-weight: 500;
+  }
+  
+  .yk-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    width: 100%;
+    max-width: 450px;
+    background: #FFFFFF;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    border: 1px solid #F0F0F0;
+    z-index: 99;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    padding: 10px 0;
+  }
+  
+  .yk-custom-select-wrapper.is-open .yk-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .yk-dropdown-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .yk-dropdown-item {
+    padding: 10px 20px;
+    text-align: center;
+    font-size: 15px;
+    color: #2c2c2c;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .yk-dropdown-item:hover {
+    background-color: #F9F9F9;
+    color: #2C2C2C;
+  }
+
+  .yk-dropdown-item.is-selected {
+       color: #2C2C2C;
+    font-weight: 500;
+    font-size: 18px;
+  }
+  
+  .yk-theme-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+
+
+
+  {% comment %} new {% endcomment %}
+
+
+  /* ── Message number switcher (1 / 2 / 3) ── */
+
+
+  /* ── Message number switcher (1 / 2 / 3) — octagon, matches variant swatches ── */
+.yk-msg-switcher {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.yk-msg-switcher-label {
+  font-size: 15px;
+  color: #2c2c2c;
+}
+
+.yk-msg-switcher-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.yk-msg-btn {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.10));
+}
+
+.yk-msg-btn-ring {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 1.5px;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+  clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%);
+  -webkit-clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%);
+}
+
+.yk-msg-btn:hover .yk-msg-btn-ring,
+.yk-msg-btn.is-active .yk-msg-btn-ring {
+  background-color: #E8E2DC;
+}
+
+.yk-msg-btn-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  color: #2C2C2C;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%);
+  -webkit-clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%);
+}
+
+{% comment %} .yk-msg-btn.is-active .yk-msg-btn-inner {
+  background-color: #2C2C2C;
+  color: #FFFFFF;
+} {% endcomment %}
+
+
+
+.yk-msg-btn:hover .yk-msg-btn-ring,
+.yk-msg-btn.is-active .yk-msg-btn-ring {
+  background-color: #E8E2DC;
+}
+
+.yk-msg-btn-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background-color: #ffffff; /* সবসময় সাদা — active হলেও বদলাবে না */
+  font-size: 15px;
+  font-weight: 700;
+  color: #2C2C2C; /* সবসময় কালো টেক্সট */
+  transition: background-color 0.2s ease;
+  clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%);
+  -webkit-clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%);
+}
+
+
+
+  {% comment %} new {% endcomment %}
+
+  
+  .yk-theme-card-textarea,
+  .yk-theme-card-input {
+    width: 100% !important; /* Made 100% for full responsiveness */
+    max-width: 500px !important;
+    border: 1px solid #E6E6E6 !important;
+    border-radius:8px !important;
+    padding: 16px 18px !important;
+    font-size: 15px !important;
+    color: #2C2C2C !important;
+    background-color: #FFFFFF !important;
+    box-sizing: border-box;
+    outline: none !important;
+    transition: border-color 0.3s ease;
+    box-shadow: none !important;
+  }
+  
+  .yk-theme-card-textarea::placeholder,
+  .yk-theme-card-input::placeholder {
+    color: #888888;
+    font-size: 16px;
+  }
+  
+  .yk-theme-card-textarea:focus,
+  .yk-theme-card-input:focus {
+    border-color: #2C2C2C !important;
+  }
+  
+  .yk-theme-card-textarea {
+    resize: vertical;
+    min-height: 50px !important;
+  }
+
+  /* ── Responsive Mobile ── */
+  @media (max-width: 768px) {
+    .yk-theme-card-textarea,
+    .yk-theme-card-input {
+      font-size: 16px !important; /* Forces 16px on mobile to prevent iOS zooming */
+    }
+  }
+
+</style>
