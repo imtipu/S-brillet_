@@ -1140,6 +1140,18 @@
           {% endif %}
 
           <foxkit-cart-goal></foxkit-cart-goal>
+          
+          <div style="margin-top: 15px; margin-bottom: 5px;">
+            <button 
+              id="ShopGiftCardBtn"
+              class="m-button m-button--secondary m:w-full" 
+              type="button" 
+              onclick="document.getElementById('MessageCardModal').style.display='flex'"
+              style="border-color: #2c2c2c; color: #2c2c2c; padding: 12px; font-weight: 500;"
+            >
+              <span>SHOP GIFT CARD</span>
+            </button>
+          </div>
         </div>
 
         <m-cart-items
@@ -1310,20 +1322,7 @@
                 {%- endif -%}
               </div>
 
-              <div style="margin-bottom: 15px;">
-                <button 
-                  class="m-button m-button--secondary m:w-full m-product-quickview-button m-spinner-button" 
-                  type="button" 
-                  data-product-handle="message-card"
-                  data-product-url="/products/message-card"
-                  style="border-color: #2c2c2c; color: #2c2c2c; padding: 12px; font-weight: 500;"
-                >
-                  <span class="m-spinner-icon">
-                    <svg class="animate-spin m-svg-icon--medium" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                  </span>
-                  <span>SHOP GIFT CARD</span>
-                </button>
-              </div>
+
 
               <div class="m-cart__subtotal m:flex m:justify-between" data-cart-subtotal>
                 <span class="m-cart__subtotal--label m:font-medium">{{ 'cart.general.subtotal' | t }}</span>
@@ -1379,6 +1378,95 @@
       </div>
     </div>
   </div>
+  <!-- CUSTOM MESSAGE CARD MODAL -->
+  <div id="MessageCardModal" class="m-cart-modal" style="display:none;">
+    <div class="m-cart-modal-overlay" onclick="document.getElementById('MessageCardModal').style.display='none'"></div>
+    <div class="m-cart-modal-content">
+      <button type="button" class="m-cart-modal-close" onclick="document.getElementById('MessageCardModal').style.display='none'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <div class="m-cart-modal-body">
+        {% assign msg_product = all_products['message-card'] %}
+        {% if msg_product != blank %}
+          <div class="m:flex m:flex-wrap">
+            <div class="m:w-full md:m:w-1/2">
+              <img src="{{ msg_product.featured_image | image_url: width: 600 }}" style="width:100%; height:100%; object-fit:cover;" alt="{{ msg_product.title | escape }}">
+            </div>
+            <div class="m:w-full md:m:w-1/2" style="padding: 30px;">
+              <h2 class="m:text-2xl m:mb-2 m:font-medium">{{ msg_product.title }}</h2>
+              <div class="m:text-lg m:mb-6">{{ msg_product.price | money }}</div>
+              
+              <product-form class="product-form">
+                <form method="post" action="/cart/add" id="MessageCardForm" accept-charset="UTF-8" class="form" enctype="multipart/form-data" data-type="add-to-cart-form" onsubmit="setTimeout(() => { document.getElementById('MessageCardModal').style.display='none' }, 800)">
+                  <input type="hidden" name="id" value="{{ msg_product.variants.first.id }}">
+                  <input type="hidden" name="quantity" value="1">
+                  
+                  <div style="margin-bottom: 25px;">
+                    {% render 'message-card-recipient-box', product_form_id: 'MessageCardForm' %}
+                  </div>
+                  
+                  <button type="submit" name="add" class="m-button m-button--primary m:w-full" style="padding: 14px; font-size:16px;">
+                    <span>Add to cart</span>
+                  </button>
+                </form>
+              </product-form>
+            </div>
+          </div>
+        {% else %}
+          <div style="padding: 30px; text-align: center;">Message Card product not found! Make sure the handle is 'message-card'.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .m-cart-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 9999999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: left;
+    }
+    .m-cart-modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(3px);
+    }
+    .m-cart-modal-content {
+      position: relative;
+      background: #fff;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: 8px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+    }
+    .m-cart-modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(255,255,255,0.8);
+      border: none;
+      cursor: pointer;
+      z-index: 10;
+      color: #111;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    @media (max-width: 768px) {
+      .m-cart-modal-content { max-width: 95%; }
+    }
+  </style>
+
 </m-cart-drawer>
 
 <div class="cs-wishlist-toast" id="CsWishlistToast">

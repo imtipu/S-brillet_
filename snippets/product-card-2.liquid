@@ -13,12 +13,21 @@
     assign show_title = false
   endif
 
+  assign has_group_tag = false
+  if product.tags contains 'group'
+    assign has_group_tag = true
+  endif
+
   if image_ratio == null or image_ratio == blank
     assign image_ratio = settings.pcard_image_ratio | default: '1/1'
   endif
 
   if image_ratio == 'original'
-    assign image_ratio = product.featured_image.aspect_ratio | default: '1/1'
+    if has_group_tag and product.images.size > 1 and product.images[1] != blank
+      assign image_ratio = product.images[1].aspect_ratio | default: '1/1'
+    else
+      assign image_ratio = product.featured_image.aspect_ratio | default: '1/1'
+    endif
   endif
 
   if show_vendor == null
@@ -95,6 +104,11 @@
   endif
 
   assign preview_image = product.media[0].preview_image
+
+  if has_group_tag and product.images.size > 1 and product.images[1] != blank
+    assign preview_image = product.images[1]
+  endif
+
   if section.settings.change_product_variant_on_fitlering == true and product.selected_variant.image != null
     assign preview_image = product.selected_variant.image
   endif
@@ -1315,12 +1329,21 @@
     assign show_title = false
   endif
 
+  assign has_group_tag = false
+  if product.tags contains 'group'
+    assign has_group_tag = true
+  endif
+
   if image_ratio == null or image_ratio == blank
     assign image_ratio = settings.pcard_image_ratio | default: '1/1'
   endif
 
   if image_ratio == 'original'
-    assign image_ratio = product.featured_image.aspect_ratio | default: '1/1'
+    if has_group_tag and product.images.size > 1 and product.images[1] != blank
+      assign image_ratio = product.images[1].aspect_ratio | default: '1/1'
+    else
+      assign image_ratio = product.featured_image.aspect_ratio | default: '1/1'
+    endif
   endif
 
   if show_vendor == null
@@ -1397,6 +1420,11 @@
   endif
 
   assign preview_image = product.media[0].preview_image
+
+  if has_group_tag and product.images.size > 1 and product.images[1] != blank
+    assign preview_image = product.images[1]
+  endif
+
   if section.settings.change_product_variant_on_fitlering == true and product.selected_variant.image != null
     assign preview_image = product.selected_variant.image
   endif
