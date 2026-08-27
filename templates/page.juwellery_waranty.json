@@ -1,1 +1,166 @@
-{"sections":{"main":{"type":"page","settings":{}},"featured_collection_KGcPzM":{"type":"featured-collection","disabled":true,"name":"Featured collection","settings":{"heading":"BEST SELLING BRILLIANT DESIGNS","bg_color":"#ffffff","collection":"shop-all-copy","product_to_show":8,"items_per_row":4,"item_gap":40,"enable_slider":true,"show_navigation":true,"icon_left":"shopify:\/\/shop_images\/Frame_129.png","icon_right":"shopify:\/\/shop_images\/Frame_119.png","button_text":"SHOP BESTSELLERS","padding_top":80,"padding_bottom":80}},"featured_collection_fakD93":{"type":"featured-collection","disabled":true,"name":"Featured collection","settings":{"heading":"BEST SELLING BRILLIANT DESIGNS","bg_color":"#ffffff","collection":"earrings-copy","product_to_show":8,"items_per_row":4,"item_gap":40,"enable_slider":true,"show_navigation":true,"icon_left":"shopify:\/\/shop_images\/Frame_129.png","icon_right":"shopify:\/\/shop_images\/Frame_119.png","button_text":"SHOP BESTSELLERS","padding_top":80,"padding_bottom":80}},"shop_by_instagram_yqi8cd":{"type":"shopByInstagram","blocks":{"instagram_image_FbkJk6":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/In._5.png","link":"","collection":"shop-all-copy"}},"instagram_image_waizL6":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/In._4.png","link":"","collection":"shop-all-copy"}},"instagram_image_VxHaa8":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/In._6.png","link":"","collection":"shop-all-copy"}},"instagram_image_nfVgab":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/In._11.png","link":"","collection":"earrings-copy"}},"instagram_image_VziTJG":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/8964b6b1499a38cafe2a35d0a2196ea9258d4227.png","link":"","collection":"shop-all-copy"}},"instagram_image_PryBRf":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/2dc3f1b8cebed1615cb2749ba2ff0f1cc3cf1aa2.png","link":"","collection":"earrings-copy"}},"instagram_image_W7UNr3":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/9e6f71212afb8fc3c834aabc1d45e52536b131f2.png","link":"","collection":"shop-all-copy"}},"instagram_image_JLRAdn":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/1f744fbf7c14d5191a725fc0be65ee8d2333569e.png","link":"","collection":"earrings-copy"}}},"block_order":["instagram_image_FbkJk6","instagram_image_waizL6","instagram_image_VxHaa8","instagram_image_nfVgab","instagram_image_VziTJG","instagram_image_PryBRf","instagram_image_W7UNr3","instagram_image_JLRAdn"],"disabled":true,"name":"Shop By Instagram","settings":{"padding_sides":120,"padding_top":80,"padding_bottom":80,"grid_gap":4,"columns_desktop":4,"title":"SHOP BY INSTAGRAM","title_font":"playfair_display_n4","title_size":64,"hover_text":"step into the style","hover_font":"pacifico_n4","bg_color":"#ffffff","title_color":"#2c2c2c","overlay_bg_color":"rgba(0,0,0,0.2)","btn_text":"LOAD MORE","final_btn_text":"SHOP BY STYLE","final_btn_link":"","btn_text_color":"#555555","btn_border_color":"#a1a1a1","btn_hover_bg":"#b09783","btn_hover_text":"#ffffff"}}},"order":["main","featured_collection_KGcPzM","featured_collection_fakD93","shop_by_instagram_yqi8cd"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "page",
+      "settings": {}
+    },
+    "featured_collection_KGcPzM": {
+      "type": "featured-collection",
+      "disabled": true,
+      "name": "Featured collection",
+      "settings": {
+        "heading": "BEST SELLING BRILLIANT DESIGNS",
+        "bg_color": "#ffffff",
+        "collection": "shop-all-copy",
+        "product_to_show": 8,
+        "items_per_row": 4,
+        "item_gap": 40,
+        "enable_slider": true,
+        "show_navigation": true,
+        "icon_left": "shopify://shop_images/Frame_129.png",
+        "icon_right": "shopify://shop_images/Frame_119.png",
+        "button_text": "SHOP BESTSELLERS",
+        "padding_top": 80,
+        "padding_bottom": 80
+      }
+    },
+    "featured_collection_fakD93": {
+      "type": "featured-collection",
+      "disabled": true,
+      "name": "Featured collection",
+      "settings": {
+        "heading": "BEST SELLING BRILLIANT DESIGNS",
+        "bg_color": "#ffffff",
+        "collection": "earrings-copy",
+        "product_to_show": 8,
+        "items_per_row": 4,
+        "item_gap": 40,
+        "enable_slider": true,
+        "show_navigation": true,
+        "icon_left": "shopify://shop_images/Frame_129.png",
+        "icon_right": "shopify://shop_images/Frame_119.png",
+        "button_text": "SHOP BESTSELLERS",
+        "padding_top": 80,
+        "padding_bottom": 80
+      }
+    },
+    "shop_by_instagram_yqi8cd": {
+      "type": "shopByInstagram",
+      "blocks": {
+        "instagram_image_FbkJk6": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/In._5.png",
+            "link": "",
+            "collection": "shop-all-copy"
+          }
+        },
+        "instagram_image_waizL6": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/In._4.png",
+            "link": "",
+            "collection": "shop-all-copy"
+          }
+        },
+        "instagram_image_VxHaa8": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/In._6.png",
+            "link": "",
+            "collection": "shop-all-copy"
+          }
+        },
+        "instagram_image_nfVgab": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/In._11.png",
+            "link": "",
+            "collection": "earrings-copy"
+          }
+        },
+        "instagram_image_VziTJG": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/8964b6b1499a38cafe2a35d0a2196ea9258d4227.png",
+            "link": "",
+            "collection": "shop-all-copy"
+          }
+        },
+        "instagram_image_PryBRf": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/2dc3f1b8cebed1615cb2749ba2ff0f1cc3cf1aa2.png",
+            "link": "",
+            "collection": "earrings-copy"
+          }
+        },
+        "instagram_image_W7UNr3": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/9e6f71212afb8fc3c834aabc1d45e52536b131f2.png",
+            "link": "",
+            "collection": "shop-all-copy"
+          }
+        },
+        "instagram_image_JLRAdn": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/1f744fbf7c14d5191a725fc0be65ee8d2333569e.png",
+            "link": "",
+            "collection": "earrings-copy"
+          }
+        }
+      },
+      "block_order": [
+        "instagram_image_FbkJk6",
+        "instagram_image_waizL6",
+        "instagram_image_VxHaa8",
+        "instagram_image_nfVgab",
+        "instagram_image_VziTJG",
+        "instagram_image_PryBRf",
+        "instagram_image_W7UNr3",
+        "instagram_image_JLRAdn"
+      ],
+      "disabled": true,
+      "name": "Shop By Instagram",
+      "settings": {
+        "padding_sides": 120,
+        "padding_top": 80,
+        "padding_bottom": 80,
+        "grid_gap": 4,
+        "columns_desktop": 4,
+        "title": "SHOP BY INSTAGRAM",
+        "title_font": "playfair_display_n4",
+        "title_size": 64,
+        "hover_text": "step into the style",
+        "hover_font": "pacifico_n4",
+        "bg_color": "#ffffff",
+        "title_color": "#2c2c2c",
+        "overlay_bg_color": "rgba(0,0,0,0.2)",
+        "btn_text": "LOAD MORE",
+        "final_btn_text": "SHOP BY STYLE",
+        "final_btn_link": "",
+        "btn_text_color": "#555555",
+        "btn_border_color": "#a1a1a1",
+        "btn_hover_bg": "#b09783",
+        "btn_hover_text": "#ffffff"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "featured_collection_KGcPzM",
+    "featured_collection_fakD93",
+    "shop_by_instagram_yqi8cd"
+  ]
+}

@@ -1,1 +1,860 @@
-{"sections":{"main":{"type":"page","disabled":true,"settings":{}},"slider_JNwbP3":{"type":"slider","blocks":{"slider_item_E8tWxd":{"type":"slider_item","settings":{"background":"shopify:\/\/shop_images\/SUSTAINABILITY.png","content_in_container":false,"content_position":"center middle","text_alignment":"center","text_size":"medium","text_color":"black","subheading":"","title":"","description":"","image_link":"","button_text":"","button_link":"","button_style":"m-button--primary","button_size":"","second_button_text":"","second_button_link":"","second_button_style":"m-button--primary","second_button_size":"","show_footer":false,"footer_alignment":"end","footer_text":"","footer_button":"","footer_link":"","enable_preload_image":false}}},"block_order":["slider_item_E8tWxd"],"name":"Slideshow","settings":{"container":"w-full","slideshow_height":"fullscreen","show_overlay":false,"dots_position":"bottom","dots_color":"dark","show_dots":true,"show_arrows":false,"autorotate":false,"autorotate_speed":5,"use_content_above":false,"custom_class":"sf-home__slideshow","animations":"inherit"}},"shining_sustainably_m4kdRN":{"type":"shining-sustainably","custom_css":[".shining-title {max-width: 1348px !important;}",".shining-subtitle {max-width: 80%;}"],"name":"Shining Sustainably","settings":{"padding_sides":120,"padding_top":80,"padding_bottom":60,"bg_color":"#fff9f5","title_color":"#2c2c2c","text_color":"#555555","btn_bg_color":"#333333","btn_text_color":"#ffffff","btn_hover_bg":"#b09783","btn_hover_text":"#ffffff","use_gradient_hover":true,"title":"Ethically Sourced from the Earth","title_size":64,"subtitle":"Our metals and crystals are carefully sourced from deep underground mines and tunnels, ensuring both quality and ethical practices at every step.","subtitle_size":20,"main_video":"shopify:\/\/files\/videos\/A648C055-4D39-48CB-A004-B5A9359D3629.mov","main_video_mobile":"shopify:\/\/files\/videos\/47EF3528-E532-4D31-96F0-CC5941FE7E97.mov","btn_text":"","btn_link":""}},"crystal_slider_TPKymM":{"type":"crystal_slider","blocks":{"crystal_783wFh":{"type":"crystal","settings":{"image":"shopify:\/\/shop_images\/Moonstone1.png","title":"MOONSTONE","link":"shopify:\/\/collections\/aquamarine-copy"}},"crystal_LTah6L":{"type":"crystal","settings":{"image":"shopify:\/\/shop_images\/Ethiopian_Opals-1.png","title":"Ethiopian Opal","link":"shopify:\/\/collections\/ethiopian-opal"}},"crystal_QatexX":{"type":"crystal","settings":{"image":"shopify:\/\/shop_images\/9373097b368953862e846b03e7b5115bee829311.png","title":"ROSE QUARTZ","link":"shopify:\/\/collections\/rose-quartz"}},"crystal_VtL7TK":{"type":"crystal","settings":{"image":"shopify:\/\/shop_images\/ddd151c087e75ffc56d5b605084bfd933e38bf91_1.png","title":"BLACK OBSIDIAN","link":"shopify:\/\/collections\/black-obsidian"}},"crystal_6dVGhg":{"type":"crystal","settings":{"image":"shopify:\/\/shop_images\/79830989fdfedb6e85ac0b5994c882ffe5d6f214.png","title":"green peridot","link":"shopify:\/\/collections\/green-peridot"}},"crystal_NzAC3E":{"type":"crystal","settings":{"image":"shopify:\/\/shop_images\/2Amethyst.png","title":"Amethyst","link":"shopify:\/\/collections\/amethyst-1"}},"crystal_HwA838":{"type":"crystal","settings":{"image":"shopify:\/\/shop_images\/21e6143eabf92f380e5716e2d83e5e66bd994a8b.png","title":"RUBY Corundum","link":"shopify:\/\/collections\/white-quartz-copy"}},"crystal_Gw7FyG":{"type":"crystal","settings":{"image":"shopify:\/\/shop_images\/93bb52c64a6f05fd4ef374f11ffd5c03c2ed64a9.png","title":"White Quartz","link":"shopify:\/\/collections\/white-quartz"}},"crystal_3ypFJT":{"type":"crystal","settings":{"image":"shopify:\/\/shop_images\/1Aquamarine.png","title":"AQUAMARINE","link":"shopify:\/\/collections\/aquamarine"}},"crystal_7877jz":{"type":"crystal","settings":{"image":"shopify:\/\/shop_images\/2aa77e8eb792237ec3ced1e84808d32e08c50d87_1.png","title":"RED GARNET","link":"shopify:\/\/collections\/red-garnet"}},"crystal_qte9BH":{"type":"crystal","settings":{"image":"shopify:\/\/shop_images\/c864e74eba3289c678e37d1aee6c458cad01e9b7.png","title":"TURQUOISE","link":"shopify:\/\/collections\/turquoise"}},"crystal_AB9Gxm":{"type":"crystal","settings":{"image":"shopify:\/\/shop_images\/f71ba5e4d4672ce23e2e2d79a6a2236fa5c7b9b3.png","title":"LAPIS LAZULI","link":"shopify:\/\/collections\/lapis-lazuli"}},"crystal_QTDRxA":{"type":"crystal","settings":{"image":"shopify:\/\/shop_images\/55ea2f7aae846ed1d90c2fe0c29e5d7ff3d53114.png","title":"GREEN FLUORITE","link":"shopify:\/\/collections\/green-fluorite"}},"crystal_gmjqfi":{"type":"crystal","settings":{"image":"shopify:\/\/shop_images\/b3a524c44aae51400e462d97a7908cbdbcf5e83d.png","title":"RED RUBY","link":"shopify:\/\/collections\/red-ruby"}},"crystal_WLbMcM":{"type":"crystal","settings":{"image":"shopify:\/\/shop_images\/850591ece498c34375f24bbf13ba17f0b45334ec.png","title":"LABRADORITE","link":"shopify:\/\/collections\/labradorite"}}},"block_order":["crystal_783wFh","crystal_LTah6L","crystal_QatexX","crystal_VtL7TK","crystal_6dVGhg","crystal_NzAC3E","crystal_HwA838","crystal_Gw7FyG","crystal_3ypFJT","crystal_7877jz","crystal_qte9BH","crystal_AB9Gxm","crystal_QTDRxA","crystal_gmjqfi","crystal_WLbMcM"],"name":"Raw Crystal Slider","settings":{"heading":"Meaningful Authentic RAW Crystals","heading_size":64,"heading_max_width":1500,"subtext":"Connect with crystal energy to nurture your spirit and soul.","subtext_size":20,"text_color":"#2c2c2c","bg_color":"#fff9f5","slider_max_width":1680,"card_width":272,"card_gap":20,"image_size":120,"card_title_size":20,"card_hover_bg":"#ffffff","arrow_size":24,"arrow_color":"#8b8b8b","button_label":"SHOP ENERGY","button_link":"shopify:\/\/collections\/shop-all-t","button_width":350,"button_font_size":20,"btn_bg_color":"#2c2c2c","btn_text_color":"#ffffff","btn_border_color":"#2c2c2c","btn_hover_text_color":"#ffffff","grad_color_1":"#947863","grad_color_2":"#e9ddd4","grad_color_3":"#947863","padding_top":0,"padding_bottom":80}},"sourced_from_world_FPEpLA":{"type":"sourced-from-world","blocks":{"location_KGkkwd":{"type":"location","settings":{"crystal_name":"Green Fluorite: Mexico","region":"Chihuahua","mine":"[De La Cruz Mine]"}},"location_ji9CiE":{"type":"location","settings":{"crystal_name":"White Quartz: USA","region":"Arkansas","mine":"[Ron Coleman Mine]"}},"location_dpPRyF":{"type":"location","settings":{"crystal_name":"Amethyst: Brazil","region":"Rio Grande do Sul","mine":"[Ametista do Sul]"}},"location_6nPpgp":{"type":"location","settings":{"crystal_name":"Labradorite: Madagascar","region":"Andilamena","mine":"[Feldspar]"}},"location_WVFYDG":{"type":"location","settings":{"crystal_name":"Red Garnet: India","region":"Rajasthan","mine":"[Pali District]"}},"location_UX74mC":{"type":"location","settings":{"crystal_name":"Ruby Corundum: Myanmar","region":"Mandalay","mine":"[Mogok Stone Tract]"}},"location_7UTWWD":{"type":"location","settings":{"crystal_name":"Green Peridot: USA","region":"Arizona","mine":"[Peridot Mesa]"}},"location_kURTiT":{"type":"location","settings":{"crystal_name":"Rose Quartz: USA","region":"North Carolina","mine":"[Spruce Pine]"}},"location_fDLfrt":{"type":"location","settings":{"crystal_name":"Citrine: Brazil","region":"Minas Gerais","mine":"[Araponga]"}},"location_48PQQV":{"type":"location","settings":{"crystal_name":"Turquoise: Iran","region":"Kerman Province","mine":"[Neishabour]"}},"location_m3MkkE":{"type":"location","settings":{"crystal_name":"Pink Tourmaline: USA","region":"California, San Diego","mine":"[Pala District]"}},"location_ThrhDe":{"type":"location","settings":{"crystal_name":"Silver: China","region":"Henan","mine":"[Ying Mine]"}},"location_QF7rpx":{"type":"location","settings":{"crystal_name":"Black Obsidian: USA","region":"Utah","mine":"[Fillmore Region]"}},"location_fgj8cR":{"type":"location","settings":{"crystal_name":"Emerald: Colombia","region":"San Pablo de Borbur","mine":"[Coscuez Mine]"}},"location_RaehYk":{"type":"location","settings":{"crystal_name":"Aquamarine: Brazil","region":"Minas Gerais","mine":"[Mina da Barra]"}},"location_MUVcR4":{"type":"location","settings":{"crystal_name":"Lapis Lazuli: Afghanistan","region":"Badakhshan Province","mine":"[Sar-e-Sang]"}},"location_wKPff9":{"type":"location","settings":{"crystal_name":"Moonstone: Sri Lanka","region":"Southern Province","mine":"[Meetiyagoda Mine]"}},"location_HcaGwf":{"type":"location","settings":{"crystal_name":"Gold: China","region":"Hunan, Pingjiang","mine":"[Wangu Goldfield]"}}},"block_order":["location_KGkkwd","location_ji9CiE","location_dpPRyF","location_6nPpgp","location_WVFYDG","location_UX74mC","location_7UTWWD","location_kURTiT","location_fDLfrt","location_48PQQV","location_m3MkkE","location_ThrhDe","location_QF7rpx","location_fgj8cR","location_RaehYk","location_MUVcR4","location_wKPff9","location_HcaGwf"],"name":"Sourced From World","settings":{"heading":"SOURCED FROM AROUND THE WORLD","heading_size":64,"subtext":"Each material is ethically sourced from its native origin, connecting nature's energy from across the globe to your personal journey.","subtext_size":20,"map_image":"shopify:\/\/shop_images\/deww_bc8b2ba8-2a4c-4808-8e74-9dd95906b691.png","map_max_width":1440,"list_max_width":1680,"column_count":3,"column_gap":120,"item_gap":40,"bg_color":"#ffffff","text_color":"#2c2c2c","gap_after_header":40,"gap_after_map":40,"padding_top":80,"padding_bottom":80}},"brillet_expertise_F7jp4L":{"type":"brillet-expertise","name":"Brillet Expertise","settings":{"container_max_width":1680,"bg_color":"#fff9f5","image_position":"left","gap_desktop":80,"gap_mobile":40,"image":"shopify:\/\/shop_images\/b0e9a17452f1805f6e71beba6c9a10ffab3dc4fc.png","image_max_width":840,"image_height_fix":true,"heading":"Excellence Smelting Metals","title_color":"#000000","title_size":64,"title_size_mb":32,"title_lh":"1.23","title_transform":"uppercase","title_max_width":782,"description":"<p>Our metals go through careful smelting and alloying processes, ensuring they are pure, durable, and ready to shine in every piece of jewelry.<\/p>","text_color":"#2c2c2c","subtitle_size":20,"subtitle_size_mb":16,"subtitle_lh":37,"subtitle_max_width":867,"content_gap":40,"padding_top":80,"padding_bottom":120,"padding_left":120,"padding_right":120,"padding_top_mb":40,"padding_bottom_mb":40}},"brillet_expertise_e9AhbC":{"type":"brillet-expertise","name":"Brillet Expertise","settings":{"container_max_width":1680,"bg_color":"#fff9f5","image_position":"right","gap_desktop":80,"gap_mobile":40,"image":"shopify:\/\/shop_images\/31dd126512d08e772896724ed257032eaf470411.png","image_max_width":840,"image_height_fix":true,"heading":"Expert Gemstone Cutting & Shaping","title_color":"#000000","title_size":64,"title_size_mb":32,"title_lh":"1.23","title_transform":"uppercase","title_max_width":782,"description":"<p>Our gemstones are carefully shaped and cut to enhance their natural brilliance, ensuring each piece sparkles beautifully.<\/p>","text_color":"#2c2c2c","subtitle_size":20,"subtitle_size_mb":16,"subtitle_lh":37,"subtitle_max_width":867,"content_gap":40,"padding_top":0,"padding_bottom":120,"padding_left":120,"padding_right":120,"padding_top_mb":40,"padding_bottom_mb":40}},"brillet_expertise_APJQbj":{"type":"brillet-expertise","name":"Brillet Expertise","settings":{"container_max_width":1680,"bg_color":"#fff9f5","image_position":"left","gap_desktop":80,"gap_mobile":40,"image":"shopify:\/\/shop_images\/19b85cde2cccc23224ed5bc86d97f2428b8cd263.png","image_max_width":840,"image_height_fix":true,"heading":"Handcrafted jewellery Designs","title_color":"#000000","title_size":64,"title_size_mb":32,"title_lh":"1.23","title_transform":"uppercase","title_max_width":782,"description":"<p>We refine each detail by hand, from polishing metals to the final gemstone setting, ensuring lasting beauty and durability.<br\/><br\/><\/p>","text_color":"#2c2c2c","subtitle_size":20,"subtitle_size_mb":16,"subtitle_lh":37,"subtitle_max_width":867,"content_gap":40,"padding_top":0,"padding_bottom":120,"padding_left":120,"padding_right":120,"padding_top_mb":40,"padding_bottom_mb":40}},"premium_plating_JUTJ6g":{"type":"premium_plating","blocks":{"quality_card_wYjWAt":{"type":"quality_card","settings":{"ring_image":"shopify:\/\/shop_images\/e9ccbcdbf11c66921b756ec581f6f594e6b5143e.png","icon":"shopify:\/\/shop_images\/c56ca7b957a76bac9b42fa67ecc28dc9a715cf31.png","text":"<p>18KT YELLOW GOLD<br\/>VERMEIL PLATED<\/p>","card_link":"shopify:\/\/collections\/rhodium-silver-jewellery-copy"}},"quality_card_fYMUdz":{"type":"quality_card","settings":{"ring_image":"shopify:\/\/shop_images\/sdsxa_3f13ac24-81a1-47a3-8d77-95dc3f49e473.png","icon":"shopify:\/\/shop_images\/6e1eb47c49895233824130008f0e4f24ed407cce.png","text":"<p>18KT ROSE GOLD<br\/>VERMEIL PLATED<\/p>","card_link":"shopify:\/\/collections\/rose-gold-jewellery"}},"quality_card_ekFeTf":{"type":"quality_card","settings":{"ring_image":"shopify:\/\/shop_images\/de68577c6d7a2534619f90f56f9148533f8d92a4.png","icon":"shopify:\/\/shop_images\/15b7ee2fecf7b3ef8bc6371867ee58b9ebdda75d.png","text":"<p>925 STAINLESS SILVER<\/p><p>RHODIUM PLATED<\/p>","card_link":"shopify:\/\/collections\/rose-gold-jewellery-copy"}}},"block_order":["quality_card_wYjWAt","quality_card_fYMUdz","quality_card_ekFeTf"],"name":"Premium Plating Quality","settings":{"container_max_width":1680,"bg_color":"#fafafa","heading":"PREMIUM PLATING & METAL QUALITY","title_color":"#000000","title_size":64,"title_size_mb":32,"title_lh":"1.23","title_max_width":1680,"text_color":"#2c2c2c","subtitle_size":20,"btn_label":"SHOP BY COLOUR","btn_link":"","btn_bg_color":"#2c2c2c","btn_text_color":"#ffffff","btn_grad_1":"#947863","btn_grad_2":"#e9ddd4","btn_grad_3":"#947863","btn_hover_text_color":"#ffffff","padding_top":80,"padding_bottom":80,"padding_left":120,"padding_right":120,"padding_top_mb":40,"padding_bottom_mb":40}},"certified_quality_P9dbeP":{"type":"certified-quality","name":"Certified Quality","settings":{"image":"shopify:\/\/shop_images\/IMG_23130_WEBP_34808b4e-ac55-4c61-a786-3ecf16e2f1fb.jpg","heading":"Certified Quality You Can Trust","title_size":64,"title_size_mb":32,"title_color":"#000000","description":"<p>Every gemstone diamond is carefully inspected and certified by the Gemological Institute of America (GIA), ensuring you receive only the highest quality<\/p>","text_size":20,"text_size_mb":16,"text_color":"#2c2c2c","btn_label":"LEARN MORE","btn_link":"shopify:\/\/blogs\/news\/how-to-identify-genuine-vs-fake-gemstones-a-buyer-s-guide-1","btn_border_color":"#2c2c2c","btn_text_color":"#2c2c2c","container_max_width":1680,"content_max_width":720,"bg_color":"#ffffff","gap_desktop":40,"gap_mobile":30,"padding_top":80,"padding_bottom":80,"padding_left":120,"padding_right":120,"padding_top_mb":40,"padding_bottom_mb":40}},"shining_sustainably_NDKgTy":{"type":"shining-sustainably","custom_css":[".shining-title {max-width: 100%;}"],"name":"Shining Sustainably","settings":{"padding_sides":120,"padding_top":80,"padding_bottom":120,"bg_color":"#fff9f5","title_color":"#2c2c2c","text_color":"#555555","btn_bg_color":"#333333","btn_text_color":"#ffffff","btn_hover_bg":"#b09783","btn_hover_text":"#ffffff","use_gradient_hover":true,"title":"Delivered with Care to Your Door","title_size":64,"subtitle":"We ensure every piece arrives safely, beautifully packaged for a special unboxing experience.","subtitle_size":20,"main_image":"shopify:\/\/shop_images\/3212144e90ef97eee6700ae2cde7a68f50271392.png","main_video":"shopify:\/\/files\/videos\/19C30B20-88A3-4DA2-900C-721DF9BCA4B0.mov","main_video_mobile":"shopify:\/\/files\/videos\/S render island.mov","btn_text":"shop now","btn_link":""}},"featured_collection_6AxAft":{"type":"featured-collection","name":"Featured collection","settings":{"heading":"Best selling brilliant designs","bg_color":"#ffffff","collection":"shop-all-copy","product_to_show":8,"items_per_row":4,"item_gap":40,"enable_slider":true,"show_navigation":true,"icon_left":"shopify:\/\/shop_images\/Arrows.png","icon_right":"shopify:\/\/shop_images\/Frame_119.png","button_text":"SHOP BESTSELLERS","padding_top":80,"padding_bottom":80}},"shop_by_instagram_wWeXM3":{"type":"shopByInstagram","blocks":{"instagram_image_Md4Dq4":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/In._5.png","link":"","collection":"shop-all"}},"instagram_image_HcnzXU":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/In._4.png","link":"","collection":"shop-all"}},"instagram_image_gyYndb":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/In._6.png","link":"","collection":"shop-all"}},"instagram_image_jJURAH":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/2dc3f1b8cebed1615cb2749ba2ff0f1cc3cf1aa2.png","link":"","collection":"shop-all"}},"instagram_image_4qqwcW":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/8964b6b1499a38cafe2a35d0a2196ea9258d4227.png","link":"","collection":"shop-all"}},"instagram_image_WKwTxF":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/2dc3f1b8cebed1615cb2749ba2ff0f1cc3cf1aa2.png","link":"","collection":"shop-all"}},"instagram_image_GJqPEY":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/9e6f71212afb8fc3c834aabc1d45e52536b131f2.png","link":"","collection":"shop-all"}},"instagram_image_6LP9nJ":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/1f744fbf7c14d5191a725fc0be65ee8d2333569e.png","link":"","collection":"shop-all"}},"instagram_image_gRmCAf":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/36cc1564a3c005419aff2c85c97e885ce342a491.png","link":"","collection":"shop-all"}},"instagram_image_GqTU9m":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/02c226933b744df135f5ad4af11236e57d718388.jpg","link":"","collection":"shop-all"}},"instagram_image_wBqghM":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/9e6f71212afb8fc3c834aabc1d45e52536b131f2.png","link":"","collection":"shop-all"}},"instagram_image_UCC7eT":{"type":"instagram_image","settings":{"image":"shopify:\/\/shop_images\/198d7bb97716469ca14cd98f9ed6223f2e67c0d7.png","link":"","collection":"shop-all"}}},"block_order":["instagram_image_Md4Dq4","instagram_image_HcnzXU","instagram_image_gyYndb","instagram_image_jJURAH","instagram_image_4qqwcW","instagram_image_WKwTxF","instagram_image_GJqPEY","instagram_image_6LP9nJ","instagram_image_gRmCAf","instagram_image_GqTU9m","instagram_image_wBqghM","instagram_image_UCC7eT"],"name":"Shop By Instagram","settings":{"padding_sides":120,"padding_top":80,"padding_bottom":80,"grid_gap":4,"columns_desktop":4,"title":"SHOP BY INSTAGRAM","title_font":"playfair_display_n4","title_size":64,"hover_text":"step into the style","hover_font":"pacifico_n4","bg_color":"#ffffff","title_color":"#2c2c2c","overlay_bg_color":"rgba(0,0,0,0.2)","btn_text":"LOAD MORE","final_btn_text":"SHOP BY STYLE","final_btn_link":"","btn_text_color":"#555555","btn_border_color":"#a1a1a1","btn_hover_bg":"#b09783","btn_hover_text":"#ffffff","icon_close":"shopify:\/\/shop_images\/X_2.png","icon_prev":"shopify:\/\/shop_images\/Frame_129.png","icon_next":"shopify:\/\/shop_images\/Pop-Up_Arrow.png"}}},"order":["main","slider_JNwbP3","shining_sustainably_m4kdRN","crystal_slider_TPKymM","sourced_from_world_FPEpLA","brillet_expertise_F7jp4L","brillet_expertise_e9AhbC","brillet_expertise_APJQbj","premium_plating_JUTJ6g","certified_quality_P9dbeP","shining_sustainably_NDKgTy","featured_collection_6AxAft","shop_by_instagram_wWeXM3"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "page",
+      "disabled": true,
+      "settings": {}
+    },
+    "slider_JNwbP3": {
+      "type": "slider",
+      "blocks": {
+        "slider_item_E8tWxd": {
+          "type": "slider_item",
+          "settings": {
+            "background": "shopify://shop_images/SUSTAINABILITY.png",
+            "content_in_container": false,
+            "content_position": "center middle",
+            "text_alignment": "center",
+            "text_size": "medium",
+            "text_color": "black",
+            "subheading": "",
+            "title": "",
+            "description": "",
+            "image_link": "",
+            "button_text": "",
+            "button_link": "",
+            "button_style": "m-button--primary",
+            "button_size": "",
+            "second_button_text": "",
+            "second_button_link": "",
+            "second_button_style": "m-button--primary",
+            "second_button_size": "",
+            "show_footer": false,
+            "footer_alignment": "end",
+            "footer_text": "",
+            "footer_button": "",
+            "footer_link": "",
+            "enable_preload_image": false
+          }
+        }
+      },
+      "block_order": [
+        "slider_item_E8tWxd"
+      ],
+      "name": "Slideshow",
+      "settings": {
+        "container": "w-full",
+        "slideshow_height": "fullscreen",
+        "show_overlay": false,
+        "dots_position": "bottom",
+        "dots_color": "dark",
+        "show_dots": true,
+        "show_arrows": false,
+        "autorotate": false,
+        "autorotate_speed": 5,
+        "use_content_above": false,
+        "custom_class": "sf-home__slideshow",
+        "animations": "inherit"
+      }
+    },
+    "shining_sustainably_m4kdRN": {
+      "type": "shining-sustainably",
+      "custom_css": [
+        ".shining-title {max-width: 1348px !important;}",
+        ".shining-subtitle {max-width: 80%;}"
+      ],
+      "name": "Shining Sustainably",
+      "settings": {
+        "padding_sides": 120,
+        "padding_top": 80,
+        "padding_bottom": 60,
+        "bg_color": "#fff9f5",
+        "title_color": "#2c2c2c",
+        "text_color": "#555555",
+        "btn_bg_color": "#333333",
+        "btn_text_color": "#ffffff",
+        "btn_hover_bg": "#b09783",
+        "btn_hover_text": "#ffffff",
+        "use_gradient_hover": true,
+        "title": "Ethically Sourced from the Earth",
+        "title_size": 64,
+        "subtitle": "Our metals and crystals are carefully sourced from deep underground mines and tunnels, ensuring both quality and ethical practices at every step.",
+        "subtitle_size": 20,
+        "main_video": "shopify://files/videos/A648C055-4D39-48CB-A004-B5A9359D3629.mov",
+        "main_video_mobile": "shopify://files/videos/47EF3528-E532-4D31-96F0-CC5941FE7E97.mov",
+        "btn_text": "",
+        "btn_link": ""
+      }
+    },
+    "crystal_slider_TPKymM": {
+      "type": "crystal_slider",
+      "blocks": {
+        "crystal_783wFh": {
+          "type": "crystal",
+          "settings": {
+            "image": "shopify://shop_images/Moonstone1.png",
+            "title": "MOONSTONE",
+            "link": "shopify://collections/aquamarine-copy"
+          }
+        },
+        "crystal_LTah6L": {
+          "type": "crystal",
+          "settings": {
+            "image": "shopify://shop_images/Ethiopian_Opals-1.png",
+            "title": "Ethiopian Opal",
+            "link": "shopify://collections/ethiopian-opal"
+          }
+        },
+        "crystal_QatexX": {
+          "type": "crystal",
+          "settings": {
+            "image": "shopify://shop_images/9373097b368953862e846b03e7b5115bee829311.png",
+            "title": "ROSE QUARTZ",
+            "link": "shopify://collections/rose-quartz"
+          }
+        },
+        "crystal_VtL7TK": {
+          "type": "crystal",
+          "settings": {
+            "image": "shopify://shop_images/ddd151c087e75ffc56d5b605084bfd933e38bf91_1.png",
+            "title": "BLACK OBSIDIAN",
+            "link": "shopify://collections/black-obsidian"
+          }
+        },
+        "crystal_6dVGhg": {
+          "type": "crystal",
+          "settings": {
+            "image": "shopify://shop_images/79830989fdfedb6e85ac0b5994c882ffe5d6f214.png",
+            "title": "green peridot",
+            "link": "shopify://collections/green-peridot"
+          }
+        },
+        "crystal_NzAC3E": {
+          "type": "crystal",
+          "settings": {
+            "image": "shopify://shop_images/2Amethyst.png",
+            "title": "Amethyst",
+            "link": "shopify://collections/amethyst-1"
+          }
+        },
+        "crystal_HwA838": {
+          "type": "crystal",
+          "settings": {
+            "image": "shopify://shop_images/21e6143eabf92f380e5716e2d83e5e66bd994a8b.png",
+            "title": "RUBY Corundum",
+            "link": "shopify://collections/white-quartz-copy"
+          }
+        },
+        "crystal_Gw7FyG": {
+          "type": "crystal",
+          "settings": {
+            "image": "shopify://shop_images/93bb52c64a6f05fd4ef374f11ffd5c03c2ed64a9.png",
+            "title": "White Quartz",
+            "link": "shopify://collections/white-quartz"
+          }
+        },
+        "crystal_3ypFJT": {
+          "type": "crystal",
+          "settings": {
+            "image": "shopify://shop_images/1Aquamarine.png",
+            "title": "AQUAMARINE",
+            "link": "shopify://collections/aquamarine"
+          }
+        },
+        "crystal_7877jz": {
+          "type": "crystal",
+          "settings": {
+            "image": "shopify://shop_images/2aa77e8eb792237ec3ced1e84808d32e08c50d87_1.png",
+            "title": "RED GARNET",
+            "link": "shopify://collections/red-garnet"
+          }
+        },
+        "crystal_qte9BH": {
+          "type": "crystal",
+          "settings": {
+            "image": "shopify://shop_images/c864e74eba3289c678e37d1aee6c458cad01e9b7.png",
+            "title": "TURQUOISE",
+            "link": "shopify://collections/turquoise"
+          }
+        },
+        "crystal_AB9Gxm": {
+          "type": "crystal",
+          "settings": {
+            "image": "shopify://shop_images/f71ba5e4d4672ce23e2e2d79a6a2236fa5c7b9b3.png",
+            "title": "LAPIS LAZULI",
+            "link": "shopify://collections/lapis-lazuli"
+          }
+        },
+        "crystal_QTDRxA": {
+          "type": "crystal",
+          "settings": {
+            "image": "shopify://shop_images/55ea2f7aae846ed1d90c2fe0c29e5d7ff3d53114.png",
+            "title": "GREEN FLUORITE",
+            "link": "shopify://collections/green-fluorite"
+          }
+        },
+        "crystal_gmjqfi": {
+          "type": "crystal",
+          "settings": {
+            "image": "shopify://shop_images/b3a524c44aae51400e462d97a7908cbdbcf5e83d.png",
+            "title": "RED RUBY",
+            "link": "shopify://collections/red-ruby"
+          }
+        },
+        "crystal_WLbMcM": {
+          "type": "crystal",
+          "settings": {
+            "image": "shopify://shop_images/850591ece498c34375f24bbf13ba17f0b45334ec.png",
+            "title": "LABRADORITE",
+            "link": "shopify://collections/labradorite"
+          }
+        }
+      },
+      "block_order": [
+        "crystal_783wFh",
+        "crystal_LTah6L",
+        "crystal_QatexX",
+        "crystal_VtL7TK",
+        "crystal_6dVGhg",
+        "crystal_NzAC3E",
+        "crystal_HwA838",
+        "crystal_Gw7FyG",
+        "crystal_3ypFJT",
+        "crystal_7877jz",
+        "crystal_qte9BH",
+        "crystal_AB9Gxm",
+        "crystal_QTDRxA",
+        "crystal_gmjqfi",
+        "crystal_WLbMcM"
+      ],
+      "name": "Raw Crystal Slider",
+      "settings": {
+        "heading": "Meaningful Authentic RAW Crystals",
+        "heading_size": 64,
+        "heading_max_width": 1500,
+        "subtext": "Connect with crystal energy to nurture your spirit and soul.",
+        "subtext_size": 20,
+        "text_color": "#2c2c2c",
+        "bg_color": "#fff9f5",
+        "slider_max_width": 1680,
+        "card_width": 272,
+        "card_gap": 20,
+        "image_size": 120,
+        "card_title_size": 20,
+        "card_hover_bg": "#ffffff",
+        "arrow_size": 24,
+        "arrow_color": "#8b8b8b",
+        "button_label": "SHOP ENERGY",
+        "button_link": "shopify://collections/shop-all-t",
+        "button_width": 350,
+        "button_font_size": 20,
+        "btn_bg_color": "#2c2c2c",
+        "btn_text_color": "#ffffff",
+        "btn_border_color": "#2c2c2c",
+        "btn_hover_text_color": "#ffffff",
+        "grad_color_1": "#947863",
+        "grad_color_2": "#e9ddd4",
+        "grad_color_3": "#947863",
+        "padding_top": 0,
+        "padding_bottom": 80
+      }
+    },
+    "sourced_from_world_FPEpLA": {
+      "type": "sourced-from-world",
+      "blocks": {
+        "location_KGkkwd": {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Green Fluorite: Mexico",
+            "region": "Chihuahua",
+            "mine": "[De La Cruz Mine]"
+          }
+        },
+        "location_ji9CiE": {
+          "type": "location",
+          "settings": {
+            "crystal_name": "White Quartz: USA",
+            "region": "Arkansas",
+            "mine": "[Ron Coleman Mine]"
+          }
+        },
+        "location_dpPRyF": {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Amethyst: Brazil",
+            "region": "Rio Grande do Sul",
+            "mine": "[Ametista do Sul]"
+          }
+        },
+        "location_6nPpgp": {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Labradorite: Madagascar",
+            "region": "Andilamena",
+            "mine": "[Feldspar]"
+          }
+        },
+        "location_WVFYDG": {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Red Garnet: India",
+            "region": "Rajasthan",
+            "mine": "[Pali District]"
+          }
+        },
+        "location_UX74mC": {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Ruby Corundum: Myanmar",
+            "region": "Mandalay",
+            "mine": "[Mogok Stone Tract]"
+          }
+        },
+        "location_7UTWWD": {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Green Peridot: USA",
+            "region": "Arizona",
+            "mine": "[Peridot Mesa]"
+          }
+        },
+        "location_kURTiT": {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Rose Quartz: USA",
+            "region": "North Carolina",
+            "mine": "[Spruce Pine]"
+          }
+        },
+        "location_fDLfrt": {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Citrine: Brazil",
+            "region": "Minas Gerais",
+            "mine": "[Araponga]"
+          }
+        },
+        "location_48PQQV": {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Turquoise: Iran",
+            "region": "Kerman Province",
+            "mine": "[Neishabour]"
+          }
+        },
+        "location_m3MkkE": {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Pink Tourmaline: USA",
+            "region": "California, San Diego",
+            "mine": "[Pala District]"
+          }
+        },
+        "location_ThrhDe": {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Silver: China",
+            "region": "Henan",
+            "mine": "[Ying Mine]"
+          }
+        },
+        "location_QF7rpx": {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Black Obsidian: USA",
+            "region": "Utah",
+            "mine": "[Fillmore Region]"
+          }
+        },
+        "location_fgj8cR": {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Emerald: Colombia",
+            "region": "San Pablo de Borbur",
+            "mine": "[Coscuez Mine]"
+          }
+        },
+        "location_RaehYk": {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Aquamarine: Brazil",
+            "region": "Minas Gerais",
+            "mine": "[Mina da Barra]"
+          }
+        },
+        "location_MUVcR4": {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Lapis Lazuli: Afghanistan",
+            "region": "Badakhshan Province",
+            "mine": "[Sar-e-Sang]"
+          }
+        },
+        "location_wKPff9": {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Moonstone: Sri Lanka",
+            "region": "Southern Province",
+            "mine": "[Meetiyagoda Mine]"
+          }
+        },
+        "location_HcaGwf": {
+          "type": "location",
+          "settings": {
+            "crystal_name": "Gold: China",
+            "region": "Hunan, Pingjiang",
+            "mine": "[Wangu Goldfield]"
+          }
+        }
+      },
+      "block_order": [
+        "location_KGkkwd",
+        "location_ji9CiE",
+        "location_dpPRyF",
+        "location_6nPpgp",
+        "location_WVFYDG",
+        "location_UX74mC",
+        "location_7UTWWD",
+        "location_kURTiT",
+        "location_fDLfrt",
+        "location_48PQQV",
+        "location_m3MkkE",
+        "location_ThrhDe",
+        "location_QF7rpx",
+        "location_fgj8cR",
+        "location_RaehYk",
+        "location_MUVcR4",
+        "location_wKPff9",
+        "location_HcaGwf"
+      ],
+      "name": "Sourced From World",
+      "settings": {
+        "heading": "SOURCED FROM AROUND THE WORLD",
+        "heading_size": 64,
+        "subtext": "Each material is ethically sourced from its native origin, connecting nature's energy from across the globe to your personal journey.",
+        "subtext_size": 20,
+        "map_image": "shopify://shop_images/deww_bc8b2ba8-2a4c-4808-8e74-9dd95906b691.png",
+        "map_max_width": 1440,
+        "list_max_width": 1680,
+        "column_count": 3,
+        "column_gap": 120,
+        "item_gap": 40,
+        "bg_color": "#ffffff",
+        "text_color": "#2c2c2c",
+        "gap_after_header": 40,
+        "gap_after_map": 40,
+        "padding_top": 80,
+        "padding_bottom": 80
+      }
+    },
+    "brillet_expertise_F7jp4L": {
+      "type": "brillet-expertise",
+      "name": "Brillet Expertise",
+      "settings": {
+        "container_max_width": 1680,
+        "bg_color": "#fff9f5",
+        "image_position": "left",
+        "gap_desktop": 80,
+        "gap_mobile": 40,
+        "image": "shopify://shop_images/b0e9a17452f1805f6e71beba6c9a10ffab3dc4fc.png",
+        "image_max_width": 840,
+        "image_height_fix": true,
+        "heading": "Excellence Smelting Metals",
+        "title_color": "#000000",
+        "title_size": 64,
+        "title_size_mb": 32,
+        "title_lh": "1.23",
+        "title_transform": "uppercase",
+        "title_max_width": 782,
+        "description": "<p>Our metals go through careful smelting and alloying processes, ensuring they are pure, durable, and ready to shine in every piece of jewelry.</p>",
+        "text_color": "#2c2c2c",
+        "subtitle_size": 20,
+        "subtitle_size_mb": 16,
+        "subtitle_lh": 37,
+        "subtitle_max_width": 867,
+        "content_gap": 40,
+        "padding_top": 80,
+        "padding_bottom": 120,
+        "padding_left": 120,
+        "padding_right": 120,
+        "padding_top_mb": 40,
+        "padding_bottom_mb": 40
+      }
+    },
+    "brillet_expertise_e9AhbC": {
+      "type": "brillet-expertise",
+      "name": "Brillet Expertise",
+      "settings": {
+        "container_max_width": 1680,
+        "bg_color": "#fff9f5",
+        "image_position": "right",
+        "gap_desktop": 80,
+        "gap_mobile": 40,
+        "image": "shopify://shop_images/31dd126512d08e772896724ed257032eaf470411.png",
+        "image_max_width": 840,
+        "image_height_fix": true,
+        "heading": "Expert Gemstone Cutting & Shaping",
+        "title_color": "#000000",
+        "title_size": 64,
+        "title_size_mb": 32,
+        "title_lh": "1.23",
+        "title_transform": "uppercase",
+        "title_max_width": 782,
+        "description": "<p>Our gemstones are carefully shaped and cut to enhance their natural brilliance, ensuring each piece sparkles beautifully.</p>",
+        "text_color": "#2c2c2c",
+        "subtitle_size": 20,
+        "subtitle_size_mb": 16,
+        "subtitle_lh": 37,
+        "subtitle_max_width": 867,
+        "content_gap": 40,
+        "padding_top": 0,
+        "padding_bottom": 120,
+        "padding_left": 120,
+        "padding_right": 120,
+        "padding_top_mb": 40,
+        "padding_bottom_mb": 40
+      }
+    },
+    "brillet_expertise_APJQbj": {
+      "type": "brillet-expertise",
+      "name": "Brillet Expertise",
+      "settings": {
+        "container_max_width": 1680,
+        "bg_color": "#fff9f5",
+        "image_position": "left",
+        "gap_desktop": 80,
+        "gap_mobile": 40,
+        "image": "shopify://shop_images/19b85cde2cccc23224ed5bc86d97f2428b8cd263.png",
+        "image_max_width": 840,
+        "image_height_fix": true,
+        "heading": "Handcrafted jewellery Designs",
+        "title_color": "#000000",
+        "title_size": 64,
+        "title_size_mb": 32,
+        "title_lh": "1.23",
+        "title_transform": "uppercase",
+        "title_max_width": 782,
+        "description": "<p>We refine each detail by hand, from polishing metals to the final gemstone setting, ensuring lasting beauty and durability.<br/><br/></p>",
+        "text_color": "#2c2c2c",
+        "subtitle_size": 20,
+        "subtitle_size_mb": 16,
+        "subtitle_lh": 37,
+        "subtitle_max_width": 867,
+        "content_gap": 40,
+        "padding_top": 0,
+        "padding_bottom": 120,
+        "padding_left": 120,
+        "padding_right": 120,
+        "padding_top_mb": 40,
+        "padding_bottom_mb": 40
+      }
+    },
+    "premium_plating_JUTJ6g": {
+      "type": "premium_plating",
+      "blocks": {
+        "quality_card_wYjWAt": {
+          "type": "quality_card",
+          "settings": {
+            "ring_image": "shopify://shop_images/e9ccbcdbf11c66921b756ec581f6f594e6b5143e.png",
+            "icon": "shopify://shop_images/c56ca7b957a76bac9b42fa67ecc28dc9a715cf31.png",
+            "text": "<p>18KT YELLOW GOLD<br/>VERMEIL PLATED</p>",
+            "card_link": "shopify://collections/rhodium-silver-jewellery-copy"
+          }
+        },
+        "quality_card_fYMUdz": {
+          "type": "quality_card",
+          "settings": {
+            "ring_image": "shopify://shop_images/sdsxa_3f13ac24-81a1-47a3-8d77-95dc3f49e473.png",
+            "icon": "shopify://shop_images/6e1eb47c49895233824130008f0e4f24ed407cce.png",
+            "text": "<p>18KT ROSE GOLD<br/>VERMEIL PLATED</p>",
+            "card_link": "shopify://collections/rose-gold-jewellery"
+          }
+        },
+        "quality_card_ekFeTf": {
+          "type": "quality_card",
+          "settings": {
+            "ring_image": "shopify://shop_images/de68577c6d7a2534619f90f56f9148533f8d92a4.png",
+            "icon": "shopify://shop_images/15b7ee2fecf7b3ef8bc6371867ee58b9ebdda75d.png",
+            "text": "<p>925 STAINLESS SILVER</p><p>RHODIUM PLATED</p>",
+            "card_link": "shopify://collections/rose-gold-jewellery-copy"
+          }
+        }
+      },
+      "block_order": [
+        "quality_card_wYjWAt",
+        "quality_card_fYMUdz",
+        "quality_card_ekFeTf"
+      ],
+      "name": "Premium Plating Quality",
+      "settings": {
+        "container_max_width": 1680,
+        "bg_color": "#fafafa",
+        "heading": "PREMIUM PLATING & METAL QUALITY",
+        "title_color": "#000000",
+        "title_size": 64,
+        "title_size_mb": 32,
+        "title_lh": "1.23",
+        "title_max_width": 1680,
+        "text_color": "#2c2c2c",
+        "subtitle_size": 20,
+        "btn_label": "SHOP BY COLOUR",
+        "btn_link": "",
+        "btn_bg_color": "#2c2c2c",
+        "btn_text_color": "#ffffff",
+        "btn_grad_1": "#947863",
+        "btn_grad_2": "#e9ddd4",
+        "btn_grad_3": "#947863",
+        "btn_hover_text_color": "#ffffff",
+        "padding_top": 80,
+        "padding_bottom": 80,
+        "padding_left": 120,
+        "padding_right": 120,
+        "padding_top_mb": 40,
+        "padding_bottom_mb": 40
+      }
+    },
+    "certified_quality_P9dbeP": {
+      "type": "certified-quality",
+      "name": "Certified Quality",
+      "settings": {
+        "image": "shopify://shop_images/IMG_23130_WEBP_34808b4e-ac55-4c61-a786-3ecf16e2f1fb.jpg",
+        "heading": "Certified Quality You Can Trust",
+        "title_size": 64,
+        "title_size_mb": 32,
+        "title_color": "#000000",
+        "description": "<p>Every gemstone diamond is carefully inspected and certified by the Gemological Institute of America (GIA), ensuring you receive only the highest quality</p>",
+        "text_size": 20,
+        "text_size_mb": 16,
+        "text_color": "#2c2c2c",
+        "btn_label": "LEARN MORE",
+        "btn_link": "shopify://blogs/news/how-to-identify-genuine-vs-fake-gemstones-a-buyer-s-guide-1",
+        "btn_border_color": "#2c2c2c",
+        "btn_text_color": "#2c2c2c",
+        "container_max_width": 1680,
+        "content_max_width": 720,
+        "bg_color": "#ffffff",
+        "gap_desktop": 40,
+        "gap_mobile": 30,
+        "padding_top": 80,
+        "padding_bottom": 80,
+        "padding_left": 120,
+        "padding_right": 120,
+        "padding_top_mb": 40,
+        "padding_bottom_mb": 40
+      }
+    },
+    "shining_sustainably_NDKgTy": {
+      "type": "shining-sustainably",
+      "custom_css": [
+        ".shining-title {max-width: 100%;}"
+      ],
+      "name": "Shining Sustainably",
+      "settings": {
+        "padding_sides": 120,
+        "padding_top": 80,
+        "padding_bottom": 120,
+        "bg_color": "#fff9f5",
+        "title_color": "#2c2c2c",
+        "text_color": "#555555",
+        "btn_bg_color": "#333333",
+        "btn_text_color": "#ffffff",
+        "btn_hover_bg": "#b09783",
+        "btn_hover_text": "#ffffff",
+        "use_gradient_hover": true,
+        "title": "Delivered with Care to Your Door",
+        "title_size": 64,
+        "subtitle": "We ensure every piece arrives safely, beautifully packaged for a special unboxing experience.",
+        "subtitle_size": 20,
+        "main_image": "shopify://shop_images/3212144e90ef97eee6700ae2cde7a68f50271392.png",
+        "main_video": "shopify://files/videos/19C30B20-88A3-4DA2-900C-721DF9BCA4B0.mov",
+        "main_video_mobile": "shopify://files/videos/S render island.mov",
+        "btn_text": "shop now",
+        "btn_link": ""
+      }
+    },
+    "featured_collection_6AxAft": {
+      "type": "featured-collection",
+      "name": "Featured collection",
+      "settings": {
+        "heading": "Best selling brilliant designs",
+        "bg_color": "#ffffff",
+        "collection": "shop-all-copy",
+        "product_to_show": 8,
+        "items_per_row": 4,
+        "item_gap": 40,
+        "enable_slider": true,
+        "show_navigation": true,
+        "icon_left": "shopify://shop_images/Arrows.png",
+        "icon_right": "shopify://shop_images/Frame_119.png",
+        "button_text": "SHOP BESTSELLERS",
+        "padding_top": 80,
+        "padding_bottom": 80
+      }
+    },
+    "shop_by_instagram_wWeXM3": {
+      "type": "shopByInstagram",
+      "blocks": {
+        "instagram_image_Md4Dq4": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/In._5.png",
+            "link": "",
+            "collection": "shop-all"
+          }
+        },
+        "instagram_image_HcnzXU": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/In._4.png",
+            "link": "",
+            "collection": "shop-all"
+          }
+        },
+        "instagram_image_gyYndb": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/In._6.png",
+            "link": "",
+            "collection": "shop-all"
+          }
+        },
+        "instagram_image_jJURAH": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/2dc3f1b8cebed1615cb2749ba2ff0f1cc3cf1aa2.png",
+            "link": "",
+            "collection": "shop-all"
+          }
+        },
+        "instagram_image_4qqwcW": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/8964b6b1499a38cafe2a35d0a2196ea9258d4227.png",
+            "link": "",
+            "collection": "shop-all"
+          }
+        },
+        "instagram_image_WKwTxF": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/2dc3f1b8cebed1615cb2749ba2ff0f1cc3cf1aa2.png",
+            "link": "",
+            "collection": "shop-all"
+          }
+        },
+        "instagram_image_GJqPEY": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/9e6f71212afb8fc3c834aabc1d45e52536b131f2.png",
+            "link": "",
+            "collection": "shop-all"
+          }
+        },
+        "instagram_image_6LP9nJ": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/1f744fbf7c14d5191a725fc0be65ee8d2333569e.png",
+            "link": "",
+            "collection": "shop-all"
+          }
+        },
+        "instagram_image_gRmCAf": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/36cc1564a3c005419aff2c85c97e885ce342a491.png",
+            "link": "",
+            "collection": "shop-all"
+          }
+        },
+        "instagram_image_GqTU9m": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/02c226933b744df135f5ad4af11236e57d718388.jpg",
+            "link": "",
+            "collection": "shop-all"
+          }
+        },
+        "instagram_image_wBqghM": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/9e6f71212afb8fc3c834aabc1d45e52536b131f2.png",
+            "link": "",
+            "collection": "shop-all"
+          }
+        },
+        "instagram_image_UCC7eT": {
+          "type": "instagram_image",
+          "settings": {
+            "image": "shopify://shop_images/198d7bb97716469ca14cd98f9ed6223f2e67c0d7.png",
+            "link": "",
+            "collection": "shop-all"
+          }
+        }
+      },
+      "block_order": [
+        "instagram_image_Md4Dq4",
+        "instagram_image_HcnzXU",
+        "instagram_image_gyYndb",
+        "instagram_image_jJURAH",
+        "instagram_image_4qqwcW",
+        "instagram_image_WKwTxF",
+        "instagram_image_GJqPEY",
+        "instagram_image_6LP9nJ",
+        "instagram_image_gRmCAf",
+        "instagram_image_GqTU9m",
+        "instagram_image_wBqghM",
+        "instagram_image_UCC7eT"
+      ],
+      "name": "Shop By Instagram",
+      "settings": {
+        "padding_sides": 120,
+        "padding_top": 80,
+        "padding_bottom": 80,
+        "grid_gap": 4,
+        "columns_desktop": 4,
+        "title": "SHOP BY INSTAGRAM",
+        "title_font": "playfair_display_n4",
+        "title_size": 64,
+        "hover_text": "step into the style",
+        "hover_font": "pacifico_n4",
+        "bg_color": "#ffffff",
+        "title_color": "#2c2c2c",
+        "overlay_bg_color": "rgba(0,0,0,0.2)",
+        "btn_text": "LOAD MORE",
+        "final_btn_text": "SHOP BY STYLE",
+        "final_btn_link": "",
+        "btn_text_color": "#555555",
+        "btn_border_color": "#a1a1a1",
+        "btn_hover_bg": "#b09783",
+        "btn_hover_text": "#ffffff",
+        "icon_close": "shopify://shop_images/X_2.png",
+        "icon_prev": "shopify://shop_images/Frame_129.png",
+        "icon_next": "shopify://shop_images/Pop-Up_Arrow.png"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "slider_JNwbP3",
+    "shining_sustainably_m4kdRN",
+    "crystal_slider_TPKymM",
+    "sourced_from_world_FPEpLA",
+    "brillet_expertise_F7jp4L",
+    "brillet_expertise_e9AhbC",
+    "brillet_expertise_APJQbj",
+    "premium_plating_JUTJ6g",
+    "certified_quality_P9dbeP",
+    "shining_sustainably_NDKgTy",
+    "featured_collection_6AxAft",
+    "shop_by_instagram_wWeXM3"
+  ]
+}

@@ -1,1 +1,335 @@
-{"sections":{"main":{"type":"main-product","blocks":{"product_grouping_picker_pFgBjR":{"type":"product_grouping_picker","settings":{"picker_type":"button","swatch_design":"gemstone","grouping_label":"Gemstone","show_selected_value":true,"option_type_metafield_key":"custom.product_grouping_option_1","option_value_metafield_key":"custom.product_grouping_option_1_value","metaobject_products_field_key":"product_grouping","metaobject_label_field_key":"grouping_name","swatch_image_metafield_key":"","swatch_height":38,"mobile_swatch_height":30,"material_swatch_size":57,"material_icon_size":26,"material_swatch_size_mobile":47,"material_icon_size_mobile":22,"swatch_gap":8,"active_border_color":"#e8e2dc","swatch_background":"#ffffff","show_sold_out_text":true}},"custom_liquid_DewYiC":{"type":"custom_liquid","settings":{"custom_liquid":""}},"breadcrumb_xiYdPT":{"type":"breadcrumb","settings":{}},"badge_ChqgGj":{"type":"badge","settings":{}},"title":{"type":"title","settings":{}},"price":{"type":"price","settings":{"show_saving":true,"sale_badge_type":"percentage"}},"judge_me_reviews_preview_badge_RygQCb":{"type":"shopify:\/\/apps\/judge-me-reviews\/blocks\/preview_badge\/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8","disabled":true,"settings":{}},"variant_picker":{"type":"variant_picker","settings":{"size_title":"Size"}},"custom_liquid_7Xtzjf":{"type":"custom_liquid","disabled":true,"settings":{"custom_liquid":"<div class=\"rk-delivery-banner\">\n  <div class=\"rk-delivery-inner\">\n\n    <img \n      src=\"https:\/\/cdn.shopify.com\/s\/files\/1\/0997\/1941\/4142\/files\/82312533c0dbce92f831a11a90a2dee083255ed4.png?v=1777264438\" \n      alt=\"Delivery\" \n      class=\"rk-delivery-icon\"\n    >\n\n    <span class=\"rk-delivery-text\">\n      READY-TO-SHIP: DELIVERY WITHIN 5–10 WORKING DAYS\n    <\/span>\n\n  <\/div>\n<\/div>\n\n<style>\n.rk-delivery-banner {\n    background: #F4F3F1;\n    padding: 12px 20px;\n    text-align: center;\n    width: 100%;\n    position: relative;\n    z-index: 1;\n}\n\n.rk-delivery-inner {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    gap: 10px;\n\n    font-family: 'Inter', sans-serif;\n    font-size: 16px;\n    color: #2c2c2c;\n    letter-spacing: 0.5px;\n    text-transform: uppercase;\n\n    max-width: 100%;\n    margin: 0 auto;\n    flex-wrap: wrap;\n}\n\n.rk-delivery-icon {\n    width: 23px;\n    height: 20px;\n    object-fit: contain;\n    flex-shrink: 0;\n}\n\n.rk-delivery-text {\n    line-height: 1.4;\n}\n\n\/* RESPONSIVE *\/\n@media (max-width: 1280px) {\n    .rk-delivery-inner {\n        font-size: 12px;\n        gap: 8px;\n    }\n.rk-delivery-icon {\n    width: 16px;\n    height: 16px;\n    object-fit: contain;\n    flex-shrink: 0;\n}\n}\n@media (max-width: 1470px) {\n    .rk-delivery-inner {\n        font-size: 12px;\n        gap: 8px;\n    }\n\n}\n@media (max-width: 768px) {\n    .rk-delivery-banner {\n        padding: 10px 12px;\n    }\n\n    .rk-delivery-inner {\n        font-size: 12px;\n        gap: 6px;\n    }\n\n    .rk-delivery-icon {\n        width: 20px;\n        height: 18px;\n    }\n}\n<\/style>"}},"delivery_preorder_XAhyzU":{"type":"delivery_preorder","settings":{"ready_text":"{{ product.metafields.custom.shipping_date.value }}","preorder_text":"PRE-ORDER NOW — SHIPS BETWEEN [from] - [to]","preorder_date_from":"2026-08-06","preorder_date_to":"2026-08-26","preorder_date_format":"%b %d","background_color":"#f4f3f1"}},"buy_buttons":{"type":"buy_buttons","settings":{"show_quantity_selector":false,"show_atc_button":true,"show_dynamic_checkout":false,"show_gift_card_recipient":false,"show_checkout_button":true}},"custom_liquid_nbynBt":{"type":"custom_liquid","settings":{"custom_liquid":"<div class=\"feature-bar\">\n  <div class=\"feature-item\">\n    <img src=\"https:\/\/cdn.shopify.com\/s\/files\/1\/0997\/1941\/4142\/files\/97d5ca3b434db3f9b5b96de9ded3b937101a8622_2.png?v=1777358591\" alt=\"Gemstone\">\n    <p>Each Gemstone is checked and Certified<\/p>\n  <\/div>\n\n  <div class=\"feature-item\">\n    <img src=\"https:\/\/cdn.shopify.com\/s\/files\/1\/0997\/1941\/4142\/files\/70de9a1009c9555142f40e8ed7f956078febdf22_2.png?v=1777358590\" alt=\"Secure\">\n    <p>Secure Transactions and Data Protection<\/p>\n  <\/div>\n\n  <div class=\"feature-item\">\n    <img src=\"https:\/\/cdn.shopify.com\/s\/files\/1\/0997\/1941\/4142\/files\/03a74ab14ed1e92b6a57ebb5c2a118de58d4c6a8_2.png?v=1777358591\" alt=\"Materials\">\n    <p>Feel confidence with Authentic Materials<\/p>\n  <\/div>\n\n  <div class=\"feature-item\">\n    <img src=\"https:\/\/cdn.shopify.com\/s\/files\/1\/0997\/1941\/4142\/files\/37f1ca8a751bc9728fb05dbfff4aa8a77b8f1a97_3.png?v=1777358591\" alt=\"Shipping\">\n    <p>Enjoy Worldwide Shipping on All Orders<\/p>\n  <\/div>\n<\/div>\n\n<style>\n.feature-bar {\n  display: grid;\n  grid-template-columns: repeat(2, 1fr);\n  gap: 30px 20px;\n  background: #f5f5f5;\n  padding: 20px 40px;\n  align-items: center;\n}\n\n\/* Item *\/\n.feature-item {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n}\n\n.feature-item img {\n  width: 28px;\n  height: 28px;\n  object-fit: contain;\n}\n\n.feature-item p {\n  font-size: 16px;\n  color: #2c2c2c;\n  margin: 0;\n  line-height: 1.4;\n}\n\n\/* ===== 1280px ===== *\/\n@media (max-width: 1280px) {\n  .feature-bar {\n    grid-template-columns: repeat(2, 1fr);\n    gap: 15px;\n    padding: 20px;\n  }\n\n  .feature-item p {\n    font-size: 16px;\n  }\n}\n\n\/* ===== 768px ===== *\/\n@media (max-width: 768px) {\n  .feature-bar {\n    grid-template-columns: 1fr;\n    text-align: left;\n  }\n\n  .feature-item {\n    align-items: flex-start;\n  }\n\n  .feature-item img {\n    width: 24px;\n    height: 24px;\n  }\n\n  .feature-item p {\n    font-size: 16px;\n  }\n}\n<\/style>"}},"collapsible_tab_ecyjT6":{"type":"collapsible_tab","settings":{"heading":"Product Description","content":"{{ product.description }}","liquid":"","default_open":false,"tab_icon":"shopify:\/\/shop_images\/Arrows-12_3_534d3edc-5bd0-4061-b6f4-c96218a3cfaf.svg"}},"collapsible_tab_iJiBmz":{"type":"collapsible_tab","settings":{"heading":"Materials And Details","content":"","liquid":"{% render 'product-materials-details' %}","default_open":false,"tab_icon":"shopify:\/\/shop_images\/Arrows-12_3_534d3edc-5bd0-4061-b6f4-c96218a3cfaf.svg"}},"collapsible_tab_X87gf6":{"type":"collapsible_tab","settings":{"heading":"Shipping & Returns","content":"<p>{{ product.metafields.custom.shipping_returns | metafield_tag }}<\/p>","liquid":"","default_open":false,"tab_icon":"shopify:\/\/shop_images\/Arrows-12_3_534d3edc-5bd0-4061-b6f4-c96218a3cfaf.svg"}},"collapsible_tab_nxPbaN":{"type":"collapsible_tab","settings":{"heading":"{{ product.metafields.custom.warranty_title.value }}","content":"<p>{{ product.metafields.custom.vip_warranty_2_years | metafield_tag }}<\/p>","liquid":"","default_open":false,"tab_icon":"shopify:\/\/shop_images\/Arrows-12_3_534d3edc-5bd0-4061-b6f4-c96218a3cfaf.svg"}},"trust_badge_NyBMd4":{"type":"trust_badge","settings":{"trust_badges_text":"<p>Guarantee safe & secure checkout<\/p>","trust_badges_image_width":"60%","position":"below"}}},"block_order":["product_grouping_picker_pFgBjR","custom_liquid_DewYiC","breadcrumb_xiYdPT","badge_ChqgGj","title","price","judge_me_reviews_preview_badge_RygQCb","variant_picker","custom_liquid_7Xtzjf","delivery_preorder_XAhyzU","buy_buttons","custom_liquid_nbynBt","collapsible_tab_ecyjT6","collapsible_tab_iJiBmz","collapsible_tab_X87gf6","collapsible_tab_nxPbaN","trust_badge_NyBMd4"],"custom_css":[".m-product-tax {display: none !important;}",".m-product-option--swatch {display: flex; align-items: center; justify-content: start;}","span.m-variant-option__image img {max-height: 40px !important;}",".m-product-option--node[data-option-type=\"gemstone\"] label.m-product-option--node__label {padding: 2px;}"],"settings":{"container":"container-fluid","layout":"layout-2","show_atwl":true,"wishlist_icon_initial":"shopify:\/\/shop_images\/Wishlist_3_Product_Page.png","wishlist_icon_active":"shopify:\/\/shop_images\/Wish_List-1.png","enable_history_state":true,"enable_variant_group_images":false,"disable_selected_variant_default":false,"show_featured_media":false,"show_zoom_button":false,"enable_video_autoplay":true,"show_nav_media_mobile":false,"show_pagination_mobile":false,"use_sticky_atc":false,"use_sticky_atc_on_mobile":false,"enable_dynamic_checkout":false,"sticky_atc_wishtlist":false,"sticky_atc_compare":false}},"product-details-tabs":{"type":"product-details-tabs","blocks":{"description":{"type":"description","settings":{"header":"Product description"}},"tab":{"type":"tab","settings":{"header":"Shipping & Return","content":"<p>Shipping cost is based on weight. Just add products to your cart and use the Shipping Calculator to see the shipping price.<\/p><p>We want you to be 100% satisfied with your purchase. Items can be returned or exchanged within 30 days of delivery.<\/p>","content_page":""}}},"block_order":["description","tab"],"disabled":true,"custom_css":[".m-tabs__header {justify-content: flex-start;}"],"settings":{"container":"container-fluid","color_scheme":"","default_open":true,"padding_top":0,"padding_bottom":50,"custom_class":"","animations":"inherit"}},"cs_shop_by_style_KtkbWK":{"type":"cs-shop-by-style","custom_css":[".sbs-vnode[data-option-type=\"image\"] .sbs-vlabel,.sbs-vnode[data-option-type=\"color\"] .sbs-vlabel {display: block; width: 22px; height: 22px; font-size: 0; margin: 0; background-size: cover !important; background-position: center !important;}"],"name":"Shop By Style","settings":{"heading":"Shop By Style","featured_image":"shopify:\/\/shop_images\/9048baa09cfb84dba4677c0585d78485e7699ee0_2.png","collection":"velora-ring","button_label":"Shop By Instagram","button_link":"","modal_close_icon":"shopify:\/\/shop_images\/Star_26.png","nav_prev_icon":"shopify:\/\/shop_images\/Frame_129.png","nav_next_icon":"shopify:\/\/shop_images\/Frame_119_78bc4edb-008a-437f-a84b-8d6d99f30533.png","carousel_prev_icon":"shopify:\/\/shop_images\/7610c1a0a41f61d76599fbbdbba97e9fcb2c8002_3.png","carousel_next_icon":"shopify:\/\/shop_images\/7610c1a0a41f61d76599fbbdbba97e9fcb2c8002_2.png","bg_color":"#f5f5f5"}},"cs_single_product_review_9JUWfR":{"type":"cs-single-product-review","name":"Custom Judge.me Layout","settings":{"heading":"Customer Reviews","summary_star_icon":"shopify:\/\/shop_images\/Star_3.svg","card_star_icon":"shopify:\/\/shop_images\/Star_3.svg","prev_nav_icon":"shopify:\/\/shop_images\/7610c1a0a41f61d76599fbbdbba97e9fcb2c8002_3.png","next_nav_icon":"shopify:\/\/shop_images\/7610c1a0a41f61d76599fbbdbba97e9fcb2c8002_2.png"}},"product_recommendations_qqXG9T":{"type":"product-recommendations","custom_css":["h2.m-section__heading.h3.m-scroll-trigger.animate--fade-in-up {font-family: \"Libre Caslon Text\", serif !important; font-size: 64px !important;}",".container-fluid {padding: 40px 120px !important;}","@media (min-width: 1440px) and (max-width: 1710px) {h2.m-section__heading.h3.m-scroll-trigger.animate--fade-in-up {font-size: 54px !important; }}","@media (max-width: 768px) {h2.m-section__heading.h3.m-scroll-trigger.animate--fade-in-up {font-size: 28px !important; } .container-fluid {padding: 40px 20px !important; }}"],"name":"Product recommendations","settings":{"container":"container-fluid","color_scheme":"","remove_params":false,"heading":"RECENTLY  VIEW","heading_size":"h3","text_align":"left","limit":4,"columns":4,"column_gap":10,"enable_slider":true,"show_pagination":false,"show_navigation":false,"use_scroll_mobile":true,"padding_top":50,"padding_bottom":50,"custom_class":"","animations":"inherit"}}},"order":["main","product-details-tabs","cs_shop_by_style_KtkbWK","cs_single_product_review_9JUWfR","product_recommendations_qqXG9T"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "product_grouping_picker_pFgBjR": {
+          "type": "product_grouping_picker",
+          "settings": {
+            "picker_type": "button",
+            "swatch_design": "gemstone",
+            "grouping_label": "Gemstone",
+            "show_selected_value": true,
+            "option_type_metafield_key": "custom.product_grouping_option_1",
+            "option_value_metafield_key": "custom.product_grouping_option_1_value",
+            "metaobject_products_field_key": "product_grouping",
+            "metaobject_label_field_key": "grouping_name",
+            "swatch_image_metafield_key": "",
+            "swatch_height": 38,
+            "mobile_swatch_height": 30,
+            "material_swatch_size": 57,
+            "material_icon_size": 26,
+            "material_swatch_size_mobile": 47,
+            "material_icon_size_mobile": 22,
+            "swatch_gap": 8,
+            "active_border_color": "#e8e2dc",
+            "swatch_background": "#ffffff",
+            "show_sold_out_text": true
+          }
+        },
+        "custom_liquid_DewYiC": {
+          "type": "custom_liquid",
+          "settings": {
+            "custom_liquid": ""
+          }
+        },
+        "breadcrumb_xiYdPT": {
+          "type": "breadcrumb",
+          "settings": {}
+        },
+        "badge_ChqgGj": {
+          "type": "badge",
+          "settings": {}
+        },
+        "title": {
+          "type": "title",
+          "settings": {}
+        },
+        "price": {
+          "type": "price",
+          "settings": {
+            "show_saving": true,
+            "sale_badge_type": "percentage"
+          }
+        },
+        "recipient_message_TnibTE": {
+          "type": "recipient_message",
+          "settings": {
+            "theme_1_name": "Birthday Wish",
+            "theme_1_msg_1": "Believe in the magic of new beginnings and let your dreams to shine. Happy Birthday from S-Brillet!",
+            "theme_1_msg_2": "",
+            "theme_1_msg_3": "",
+            "theme_2_name": "Joyful Your Day",
+            "theme_2_msg_1": "",
+            "theme_2_msg_2": "",
+            "theme_2_msg_3": "",
+            "theme_3_name": "Couple Love and Affection",
+            "theme_3_msg_1": "",
+            "theme_3_msg_2": "",
+            "theme_3_msg_3": "",
+            "theme_4_name": "Friendly Compliment",
+            "theme_4_msg_1": "",
+            "theme_4_msg_2": "",
+            "theme_4_msg_3": "",
+            "theme_5_name": "Secret Brighten Love",
+            "theme_5_msg_1": "",
+            "theme_5_msg_2": "",
+            "theme_5_msg_3": ""
+          }
+        },
+        "judge_me_reviews_preview_badge_RygQCb": {
+          "type": "shopify://apps/judge-me-reviews/blocks/preview_badge/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "disabled": true,
+          "settings": {}
+        },
+        "variant_picker": {
+          "type": "variant_picker",
+          "disabled": true,
+          "settings": {
+            "size_title": "Size"
+          }
+        },
+        "custom_liquid_7Xtzjf": {
+          "type": "custom_liquid",
+          "disabled": true,
+          "settings": {
+            "custom_liquid": "<div class=\"rk-delivery-banner\">\n  <div class=\"rk-delivery-inner\">\n\n    <img \n      src=\"https://cdn.shopify.com/s/files/1/0997/1941/4142/files/82312533c0dbce92f831a11a90a2dee083255ed4.png?v=1777264438\" \n      alt=\"Delivery\" \n      class=\"rk-delivery-icon\"\n    >\n\n    <span class=\"rk-delivery-text\">\n      READY-TO-SHIP: DELIVERY WITHIN 5–10 WORKING DAYS\n    </span>\n\n  </div>\n</div>\n\n<style>\n.rk-delivery-banner {\n    background: #F4F3F1;\n    padding: 12px 20px;\n    text-align: center;\n    width: 100%;\n    position: relative;\n    z-index: 1;\n}\n\n.rk-delivery-inner {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    gap: 10px;\n\n    font-family: 'Inter', sans-serif;\n    font-size: 16px;\n    color: #2c2c2c;\n    letter-spacing: 0.5px;\n    text-transform: uppercase;\n\n    max-width: 100%;\n    margin: 0 auto;\n    flex-wrap: wrap;\n}\n\n.rk-delivery-icon {\n    width: 23px;\n    height: 20px;\n    object-fit: contain;\n    flex-shrink: 0;\n}\n\n.rk-delivery-text {\n    line-height: 1.4;\n}\n\n/* RESPONSIVE */\n@media (max-width: 1280px) {\n    .rk-delivery-inner {\n        font-size: 12px;\n        gap: 8px;\n    }\n.rk-delivery-icon {\n    width: 16px;\n    height: 16px;\n    object-fit: contain;\n    flex-shrink: 0;\n}\n}\n@media (max-width: 1470px) {\n    .rk-delivery-inner {\n        font-size: 12px;\n        gap: 8px;\n    }\n\n}\n@media (max-width: 768px) {\n    .rk-delivery-banner {\n        padding: 10px 12px;\n    }\n\n    .rk-delivery-inner {\n        font-size: 12px;\n        gap: 6px;\n    }\n\n    .rk-delivery-icon {\n        width: 20px;\n        height: 18px;\n    }\n}\n</style>"
+          }
+        },
+        "delivery_preorder_XAhyzU": {
+          "type": "delivery_preorder",
+          "settings": {
+            "ready_text": "{{ product.metafields.custom.shipping_date.value }}",
+            "preorder_text": "PRE-ORDER NOW — SHIPS BETWEEN [from] - [to]",
+            "preorder_date_from": "2026-08-06",
+            "preorder_date_to": "2026-08-26",
+            "preorder_date_format": "%b %d",
+            "background_color": "#f4f3f1"
+          }
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_quantity_selector": false,
+            "show_atc_button": true,
+            "show_dynamic_checkout": false,
+            "show_gift_card_recipient": false,
+            "show_checkout_button": true
+          }
+        },
+        "custom_liquid_nbynBt": {
+          "type": "custom_liquid",
+          "settings": {
+            "custom_liquid": "<div class=\"feature-bar\">\n  <div class=\"feature-item\">\n    <img src=\"https://cdn.shopify.com/s/files/1/0997/1941/4142/files/97d5ca3b434db3f9b5b96de9ded3b937101a8622_2.png?v=1777358591\" alt=\"Gemstone\">\n    <p>Each Gemstone is checked and Certified</p>\n  </div>\n\n  <div class=\"feature-item\">\n    <img src=\"https://cdn.shopify.com/s/files/1/0997/1941/4142/files/70de9a1009c9555142f40e8ed7f956078febdf22_2.png?v=1777358590\" alt=\"Secure\">\n    <p>Secure Transactions and Data Protection</p>\n  </div>\n\n  <div class=\"feature-item\">\n    <img src=\"https://cdn.shopify.com/s/files/1/0997/1941/4142/files/03a74ab14ed1e92b6a57ebb5c2a118de58d4c6a8_2.png?v=1777358591\" alt=\"Materials\">\n    <p>Feel confidence with Authentic Materials</p>\n  </div>\n\n  <div class=\"feature-item\">\n    <img src=\"https://cdn.shopify.com/s/files/1/0997/1941/4142/files/37f1ca8a751bc9728fb05dbfff4aa8a77b8f1a97_3.png?v=1777358591\" alt=\"Shipping\">\n    <p>Enjoy Worldwide Shipping on All Orders</p>\n  </div>\n</div>\n\n<style>\n.feature-bar {\n  display: grid;\n  grid-template-columns: repeat(2, 1fr);\n  gap: 30px 20px;\n  background: #f5f5f5;\n  padding: 20px 40px;\n  align-items: center;\n}\n\n/* Item */\n.feature-item {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n}\n\n.feature-item img {\n  width: 28px;\n  height: 28px;\n  object-fit: contain;\n}\n\n.feature-item p {\n  font-size: 16px;\n  color: #2c2c2c;\n  margin: 0;\n  line-height: 1.4;\n}\n\n/* ===== 1280px ===== */\n@media (max-width: 1280px) {\n  .feature-bar {\n    grid-template-columns: repeat(2, 1fr);\n    gap: 15px;\n    padding: 20px;\n  }\n\n  .feature-item p {\n    font-size: 16px;\n  }\n}\n\n/* ===== 768px ===== */\n@media (max-width: 768px) {\n  .feature-bar {\n    grid-template-columns: 1fr;\n    text-align: left;\n  }\n\n  .feature-item {\n    align-items: flex-start;\n  }\n\n  .feature-item img {\n    width: 24px;\n    height: 24px;\n  }\n\n  .feature-item p {\n    font-size: 16px;\n  }\n}\n</style>"
+          }
+        },
+        "collapsible_tab_ecyjT6": {
+          "type": "collapsible_tab",
+          "settings": {
+            "heading": "Product Description",
+            "content": "{{ product.description }}",
+            "liquid": "",
+            "default_open": false,
+            "tab_icon": "shopify://shop_images/Arrows-12_3_534d3edc-5bd0-4061-b6f4-c96218a3cfaf.svg"
+          }
+        },
+        "collapsible_tab_iJiBmz": {
+          "type": "collapsible_tab",
+          "settings": {
+            "heading": "Materials And Details",
+            "content": "",
+            "liquid": "{% render 'product-materials-details' %}",
+            "default_open": false,
+            "tab_icon": "shopify://shop_images/Arrows-12_3_534d3edc-5bd0-4061-b6f4-c96218a3cfaf.svg"
+          }
+        },
+        "collapsible_tab_X87gf6": {
+          "type": "collapsible_tab",
+          "settings": {
+            "heading": "Shipping & Returns",
+            "content": "<p>{{ product.metafields.custom.shipping_returns | metafield_tag }}</p>",
+            "liquid": "",
+            "default_open": false,
+            "tab_icon": "shopify://shop_images/Arrows-12_3_534d3edc-5bd0-4061-b6f4-c96218a3cfaf.svg"
+          }
+        },
+        "collapsible_tab_nxPbaN": {
+          "type": "collapsible_tab",
+          "settings": {
+            "heading": "{{ product.metafields.custom.warranty_title.value }}",
+            "content": "<p>{{ product.metafields.custom.vip_warranty_2_years | metafield_tag }}</p>",
+            "liquid": "",
+            "default_open": false,
+            "tab_icon": "shopify://shop_images/Arrows-12_3_534d3edc-5bd0-4061-b6f4-c96218a3cfaf.svg"
+          }
+        },
+        "trust_badge_NyBMd4": {
+          "type": "trust_badge",
+          "settings": {
+            "trust_badges_text": "<p>Guarantee safe & secure checkout</p>",
+            "trust_badges_image_width": "60%",
+            "position": "below"
+          }
+        }
+      },
+      "block_order": [
+        "product_grouping_picker_pFgBjR",
+        "custom_liquid_DewYiC",
+        "breadcrumb_xiYdPT",
+        "badge_ChqgGj",
+        "title",
+        "price",
+        "recipient_message_TnibTE",
+        "judge_me_reviews_preview_badge_RygQCb",
+        "variant_picker",
+        "custom_liquid_7Xtzjf",
+        "delivery_preorder_XAhyzU",
+        "buy_buttons",
+        "custom_liquid_nbynBt",
+        "collapsible_tab_ecyjT6",
+        "collapsible_tab_iJiBmz",
+        "collapsible_tab_X87gf6",
+        "collapsible_tab_nxPbaN",
+        "trust_badge_NyBMd4"
+      ],
+      "custom_css": [
+        ".m-product-tax {display: none !important;}",
+        ".m-product-option--swatch {display: flex; align-items: center; justify-content: start;}",
+        "span.m-variant-option__image img {max-height: 40px !important;}",
+        ".m-product-option--node[data-option-type=\"gemstone\"] label.m-product-option--node__label {padding: 2px;}"
+      ],
+      "settings": {
+        "container": "container-fluid",
+        "layout": "layout-2",
+        "show_atwl": true,
+        "wishlist_icon_initial": "shopify://shop_images/Wishlist_3_Product_Page.png",
+        "wishlist_icon_active": "shopify://shop_images/Wish_List-1.png",
+        "enable_history_state": true,
+        "enable_variant_group_images": false,
+        "disable_selected_variant_default": false,
+        "show_featured_media": false,
+        "show_zoom_button": false,
+        "enable_video_autoplay": true,
+        "show_nav_media_mobile": false,
+        "show_pagination_mobile": false,
+        "use_sticky_atc": false,
+        "use_sticky_atc_on_mobile": false,
+        "enable_dynamic_checkout": false,
+        "sticky_atc_wishtlist": false,
+        "sticky_atc_compare": false
+      }
+    },
+    "product-details-tabs": {
+      "type": "product-details-tabs",
+      "blocks": {
+        "description": {
+          "type": "description",
+          "settings": {
+            "header": "Product description"
+          }
+        },
+        "tab": {
+          "type": "tab",
+          "settings": {
+            "header": "Shipping & Return",
+            "content": "<p>Shipping cost is based on weight. Just add products to your cart and use the Shipping Calculator to see the shipping price.</p><p>We want you to be 100% satisfied with your purchase. Items can be returned or exchanged within 30 days of delivery.</p>",
+            "content_page": ""
+          }
+        }
+      },
+      "block_order": [
+        "description",
+        "tab"
+      ],
+      "disabled": true,
+      "custom_css": [
+        ".m-tabs__header {justify-content: flex-start;}"
+      ],
+      "settings": {
+        "container": "container-fluid",
+        "color_scheme": "",
+        "default_open": true,
+        "padding_top": 0,
+        "padding_bottom": 50,
+        "custom_class": "",
+        "animations": "inherit"
+      }
+    },
+    "cs_shop_by_style_KtkbWK": {
+      "type": "cs-shop-by-style",
+      "custom_css": [
+        ".sbs-vnode[data-option-type=\"image\"] .sbs-vlabel,.sbs-vnode[data-option-type=\"color\"] .sbs-vlabel {display: block; width: 22px; height: 22px; font-size: 0; margin: 0; background-size: cover !important; background-position: center !important;}"
+      ],
+      "name": "Shop By Style",
+      "settings": {
+        "heading": "Shop By Style",
+        "featured_image": "shopify://shop_images/9048baa09cfb84dba4677c0585d78485e7699ee0_2.png",
+        "collection": "velora-ring",
+        "button_label": "Shop By Instagram",
+        "button_link": "",
+        "modal_close_icon": "shopify://shop_images/Star_26.png",
+        "nav_prev_icon": "shopify://shop_images/Frame_129.png",
+        "nav_next_icon": "shopify://shop_images/Frame_119_78bc4edb-008a-437f-a84b-8d6d99f30533.png",
+        "carousel_prev_icon": "shopify://shop_images/7610c1a0a41f61d76599fbbdbba97e9fcb2c8002_3.png",
+        "carousel_next_icon": "shopify://shop_images/7610c1a0a41f61d76599fbbdbba97e9fcb2c8002_2.png",
+        "bg_color": "#f5f5f5"
+      }
+    },
+    "cs_single_product_review_9JUWfR": {
+      "type": "cs-single-product-review",
+      "name": "Custom Judge.me Layout",
+      "settings": {
+        "heading": "Customer Reviews",
+        "summary_star_icon": "shopify://shop_images/Star_3.svg",
+        "card_star_icon": "shopify://shop_images/Star_3.svg",
+        "prev_nav_icon": "shopify://shop_images/7610c1a0a41f61d76599fbbdbba97e9fcb2c8002_3.png",
+        "next_nav_icon": "shopify://shop_images/7610c1a0a41f61d76599fbbdbba97e9fcb2c8002_2.png"
+      }
+    },
+    "product_recommendations_qqXG9T": {
+      "type": "product-recommendations",
+      "custom_css": [
+        "h2.m-section__heading.h3.m-scroll-trigger.animate--fade-in-up {font-family: \"Libre Caslon Text\", serif !important; font-size: 64px !important;}",
+        ".container-fluid {padding: 40px 120px !important;}",
+        "@media (min-width: 1440px) and (max-width: 1710px) {h2.m-section__heading.h3.m-scroll-trigger.animate--fade-in-up {font-size: 54px !important; }}",
+        "@media (max-width: 768px) {h2.m-section__heading.h3.m-scroll-trigger.animate--fade-in-up {font-size: 28px !important; } .container-fluid {padding: 40px 20px !important; }}"
+      ],
+      "name": "Product recommendations",
+      "settings": {
+        "container": "container-fluid",
+        "color_scheme": "",
+        "remove_params": false,
+        "heading": "RECENTLY  VIEW",
+        "heading_size": "h3",
+        "text_align": "left",
+        "limit": 4,
+        "columns": 4,
+        "column_gap": 10,
+        "enable_slider": true,
+        "show_pagination": false,
+        "show_navigation": false,
+        "use_scroll_mobile": true,
+        "padding_top": 50,
+        "padding_bottom": 50,
+        "custom_class": "",
+        "animations": "inherit"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "product-details-tabs",
+    "cs_shop_by_style_KtkbWK",
+    "cs_single_product_review_9JUWfR",
+    "product_recommendations_qqXG9T"
+  ]
+}
