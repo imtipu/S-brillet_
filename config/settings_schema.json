@@ -772,9 +772,9 @@
     ]
   },
   {
-		"name": "Animations",
-		"settings": [
-			{
+    "name": "Animations",
+    "settings": [
+      {
         "type": "checkbox",
         "id": "page_transition",
         "default": true,
@@ -808,35 +808,50 @@
         "label": "Custom logo",
         "info": " Should use square sized images. Example: 64x64, 128x128"
       },
-			{
-				"type": "header",
-				"content": "Visible in the view"
-			},
-			{
-				"type": "select",
-				"id": "animations",
-				"label": "Animation",
-				"default": "none",
-				"options": [
-					{"value": "none", "label": "None"},
-					{"value": "fade-in", "label": "Fade in"},
-					{"value": "fade-in-up", "label": "Fade in up"},
-					{"value": "fade-in-left", "label": "Fade in left"},
-					{"value": "fade-in-right", "label": "Fade in right"}
-				]
-			},
-			{
-				"type": "range",
-				"id": "animation_duration",
-				"label": "Duration",
-				"default": 0.6,
-				"min": 0.1,
-				"max": 1,
-				"unit": "(s)",
-				"step": 0.1
-			}
-		]
-	},
+      {
+        "type": "header",
+        "content": "Visible in the view"
+      },
+      {
+        "type": "select",
+        "id": "animations",
+        "label": "Animation",
+        "default": "none",
+        "options": [
+          {
+            "value": "none",
+            "label": "None"
+          },
+          {
+            "value": "fade-in",
+            "label": "Fade in"
+          },
+          {
+            "value": "fade-in-up",
+            "label": "Fade in up"
+          },
+          {
+            "value": "fade-in-left",
+            "label": "Fade in left"
+          },
+          {
+            "value": "fade-in-right",
+            "label": "Fade in right"
+          }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "animation_duration",
+        "label": "Duration",
+        "default": 0.6,
+        "min": 0.1,
+        "max": 1,
+        "unit": "(s)",
+        "step": 0.1
+      }
+    ]
+  },
   {
     "name": "Product card",
     "settings": [
@@ -2503,7 +2518,7 @@
         "type": "richtext",
         "id": "agree_text",
         "label": "Text",
-        "default": "<p>I agree with the <a href=\"#\" title=\"#\">Terms & conditions<\/a><\/p>"
+        "default": "<p>I agree with the <a href=\"#\" title=\"#\">Terms & conditions</a></p>"
       },
       {
         "type": "checkbox",
@@ -2746,6 +2761,141 @@
         "id": "currency_code_enabled",
         "label": "Show currency codes",
         "default": false
+      }
+    ]
+  },
+  {
+    "name": "Message Card Settings",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Theme Card 1"
+      },
+      {
+        "type": "text",
+        "id": "msg_card_t1_name",
+        "label": "Theme Name 1",
+        "default": "Theme 1"
+      },
+      {
+        "type": "textarea",
+        "id": "msg_card_t1_msg1",
+        "label": "Theme 1 Message 1",
+        "default": "Message 1"
+      },
+      {
+        "type": "textarea",
+        "id": "msg_card_t1_msg2",
+        "label": "Theme 1 Message 2"
+      },
+      {
+        "type": "textarea",
+        "id": "msg_card_t1_msg3",
+        "label": "Theme 1 Message 3"
+      },
+      {
+        "type": "header",
+        "content": "Theme Card 2"
+      },
+      {
+        "type": "text",
+        "id": "msg_card_t2_name",
+        "label": "Theme Name 2",
+        "default": "Theme 2"
+      },
+      {
+        "type": "textarea",
+        "id": "msg_card_t2_msg1",
+        "label": "Theme 2 Message 1",
+        "default": "Message 1"
+      },
+      {
+        "type": "textarea",
+        "id": "msg_card_t2_msg2",
+        "label": "Theme 2 Message 2"
+      },
+      {
+        "type": "textarea",
+        "id": "msg_card_t2_msg3",
+        "label": "Theme 2 Message 3"
+      },
+      {
+        "type": "header",
+        "content": "Theme Card 3"
+      },
+      {
+        "type": "text",
+        "id": "msg_card_t3_name",
+        "label": "Theme Name 3",
+        "default": "Theme 3"
+      },
+      {
+        "type": "textarea",
+        "id": "msg_card_t3_msg1",
+        "label": "Theme 3 Message 1",
+        "default": "Message 1"
+      },
+      {
+        "type": "textarea",
+        "id": "msg_card_t3_msg2",
+        "label": "Theme 3 Message 2"
+      },
+      {
+        "type": "textarea",
+        "id": "msg_card_t3_msg3",
+        "label": "Theme 3 Message 3"
+      },
+      {
+        "type": "header",
+        "content": "Theme Card 4"
+      },
+      {
+        "type": "text",
+        "id": "msg_card_t4_name",
+        "label": "Theme Name 4",
+        "default": "Theme 4"
+      },
+      {
+        "type": "textarea",
+        "id": "msg_card_t4_msg1",
+        "label": "Theme 4 Message 1",
+        "default": "Message 1"
+      },
+      {
+        "type": "textarea",
+        "id": "msg_card_t4_msg2",
+        "label": "Theme 4 Message 2"
+      },
+      {
+        "type": "textarea",
+        "id": "msg_card_t4_msg3",
+        "label": "Theme 4 Message 3"
+      },
+      {
+        "type": "header",
+        "content": "Theme Card 5"
+      },
+      {
+        "type": "text",
+        "id": "msg_card_t5_name",
+        "label": "Theme Name 5",
+        "default": "Theme 5"
+      },
+      {
+        "type": "textarea",
+        "id": "msg_card_t5_msg1",
+        "label": "Theme 5 Message 1",
+        "default": "Message 1"
+      },
+      {
+        "type": "textarea",
+        "id": "msg_card_t5_msg2",
+        "label": "Theme 5 Message 2"
+      },
+      {
+        "type": "textarea",
+        "id": "msg_card_t5_msg3",
+        "label": "Theme 5 Message 3"
       }
     ]
   }

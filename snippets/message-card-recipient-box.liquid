@@ -1,9 +1,9 @@
 {% liquid
-  assign t1_name = 'Birthday Wish'
-  assign t2_name = 'Joyful Your Day'
-  assign t3_name = 'Couple Love and Affection'
-  assign t4_name = 'Friendly Compliment'
-  assign t5_name = 'Secret Brighten Love'
+  assign t1_name = settings.msg_card_t1_name | default: 'Theme 1'
+  assign t2_name = settings.msg_card_t2_name | default: 'Theme 2'
+  assign t3_name = settings.msg_card_t3_name | default: 'Theme 3'
+  assign t4_name = settings.msg_card_t4_name | default: 'Theme 4'
+  assign t5_name = settings.msg_card_t5_name | default: 'Theme 5'
   assign block_id = 'quickview_msg_card'
 %}
 
@@ -25,40 +25,39 @@
       <ul class="yk-dropdown-list">
         <li class="yk-dropdown-item is-selected"
             data-value="{{ t1_name }}"
-            data-msg1="Believe in the magic of new beginnings and let your dreams to shine. Happy Birthday from S-Brillet!"
-            data-msg2=""
-            data-msg3="">
+            data-msg1="{{ settings.msg_card_t1_msg1 | escape }}"
+            data-msg2="{{ settings.msg_card_t1_msg2 | escape }}"
+            data-msg3="{{ settings.msg_card_t1_msg3 | escape }}">
           {{ t1_name }}
         </li>
         <li class="yk-dropdown-item"
             data-value="{{ t2_name }}"
-            data-msg1=""
-            data-msg2=""
-            data-msg3="">
+            data-msg1="{{ settings.msg_card_t2_msg1 | escape }}"
+            data-msg2="{{ settings.msg_card_t2_msg2 | escape }}"
+            data-msg3="{{ settings.msg_card_t2_msg3 | escape }}">
           {{ t2_name | truncate: 40 }}
         </li>
         <li class="yk-dropdown-item"
             data-value="{{ t3_name }}"
-            data-msg1=""
-            data-msg2=""
-            data-msg3="">
+            data-msg1="{{ settings.msg_card_t3_msg1 | escape }}"
+            data-msg2="{{ settings.msg_card_t3_msg2 | escape }}"
+            data-msg3="{{ settings.msg_card_t3_msg3 | escape }}">
           {{ t3_name | truncate: 40 }}
         </li>
         <li class="yk-dropdown-item"
             data-value="{{ t4_name }}"
-            data-msg1=""
-            data-msg2=""
-            data-msg3="">
+            data-msg1="{{ settings.msg_card_t4_msg1 | escape }}"
+            data-msg2="{{ settings.msg_card_t4_msg2 | escape }}"
+            data-msg3="{{ settings.msg_card_t4_msg3 | escape }}">
           {{ t4_name | truncate: 40 }}
         </li>
         <li class="yk-dropdown-item"
             data-value="{{ t5_name }}"
-            data-msg1=""
-            data-msg2=""
-            data-msg3="">
+            data-msg1="{{ settings.msg_card_t5_msg1 | escape }}"
+            data-msg2="{{ settings.msg_card_t5_msg2 | escape }}"
+            data-msg3="{{ settings.msg_card_t5_msg3 | escape }}">
           {{ t5_name | truncate: 40 }}
         </li>
-        <li class="yk-dropdown-item" data-value="custom">Custom Message</li>
       </ul>
     </div>
 
@@ -68,7 +67,6 @@
       <option value="{{ t3_name }}">{{ t3_name | truncate: 40 }}</option>
       <option value="{{ t4_name }}">{{ t4_name | truncate: 40 }}</option>
       <option value="{{ t5_name }}">{{ t5_name | truncate: 40 }}</option>
-      <option value="custom">Custom Message</option>
     </select>
   </div>
 
@@ -98,7 +96,7 @@
         form="{{ product_form_id }}"
         readonly
         style="background-color: #fbfbfb;"
-      >Believe in the magic of new beginnings and let your dreams to shine. Happy Birthday from S-Brillet!</textarea>
+      >{{ settings.msg_card_t1_msg1 | escape }}</textarea>
     </div>
 
     <input type="hidden" id="MsgIndexInput-{{ block_id }}" name="properties[Message Number]" value="1" form="{{ product_form_id }}">
@@ -247,14 +245,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Rotate 90deg initially to turn '>' into 'v' */
-  transform: rotate(90deg); 
+  /* Points down by default */
+  transform: rotate(0deg); 
   transition: transform 0.3s ease;
 }
 
 .yk-custom-select-wrapper.is-open .yk-chevron-icon {
-  /* Rotate to -90deg (or 270deg) to turn 'v' into '^' */
-  transform: rotate(-90deg);
+  /* Points up when open */
+  transform: rotate(180deg);
 }
 
   .yk-theme-card-label {
@@ -264,14 +262,14 @@
 
   .yk-label-muted {
     color: #2c2c2c;
-    font-size: 20px;
+    font-size: 15px;
     font-weight: 400;
     
 }
 
   .yk-selected-text {
     color: #2c2c2c;
-    font-size: 20px;
+    font-size: 15px;
     font-weight: 500;
   }
   
@@ -362,12 +360,21 @@
   position: relative;
   width: 38px;
   height: 38px;
-  border: none;
-  background: transparent;
+  border: 1px solid #E6E6E6;
+  border-radius: 8px;
+  background: #FFFFFF;
   padding: 0;
   margin: 0;
   cursor: pointer;
-  filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.10));
+  transition: all 0.2s ease;
+}
+
+.yk-msg-btn:hover {
+  border-color: #2C2C2C;
+}
+
+.yk-msg-btn.is-active {
+  border-color: #2C2C2C;
 }
 
 .yk-msg-btn-ring {
@@ -376,61 +383,19 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  box-sizing: border-box;
-  padding: 1.5px;
+  border-radius: 8px;
+}
+
+.yk-msg-btn-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
   background-color: transparent;
-  transition: background-color 0.2s ease;
-  clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%);
-  -webkit-clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%);
-}
-
-.yk-msg-btn:hover .yk-msg-btn-ring,
-.yk-msg-btn.is-active .yk-msg-btn-ring {
-  background-color: #E8E2DC;
-}
-
-.yk-msg-btn-inner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  background-color: #ffffff;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 500;
   color: #2C2C2C;
-  transition: background-color 0.2s ease, color 0.2s ease;
-  clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%);
-  -webkit-clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%);
-}
-
-{% comment %} .yk-msg-btn.is-active .yk-msg-btn-inner {
-  background-color: #2C2C2C;
-  color: #FFFFFF;
-} {% endcomment %}
-
-
-
-.yk-msg-btn:hover .yk-msg-btn-ring,
-.yk-msg-btn.is-active .yk-msg-btn-ring {
-  background-color: #E8E2DC;
-}
-
-.yk-msg-btn-inner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  background-color: #ffffff; /* সবসময় সাদা — active হলেও বদলাবে না */
-  font-size: 15px;
-  font-weight: 700;
-  color: #2C2C2C; /* সবসময় কালো টেক্সট */
-  transition: background-color 0.2s ease;
-  clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%);
-  -webkit-clip-path: polygon(18% 0%, 82% 0%, 100% 18%, 100% 82%, 82% 100%, 18% 100%, 0% 82%, 0% 18%);
 }
 
 

@@ -138,8 +138,6 @@
 
     {% render 'custom-country-popup' %}
 
-
-
     <!-- Custom Product Card Swatch Script -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -232,3 +230,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
   </body>
 </html>
+<!-- CUSTOM: Auto-append material filters to Mega Menu links --><script>document.addEventListener('click', function(e) { let link = e.target.closest('.m-menu__link') || e.target.closest('a'); if (link && link.href) { let isMegaMenu = link.closest('.m-mega-menu') || link.closest('.m-menu-mobile'); if (isMegaMenu) { let text = (link.innerText || '').toLowerCase().trim(); let materialFilter = null; if (text.includes('18kt rose gold') || text === 'rose gold' || text === 'rose gold plated') { materialFilter = 'rose'; } else if (text.includes('18kt yellow gold') || text === 'yellow gold' || text === 'yellow gold plated') { materialFilter = 'yellow'; } else if (text.includes('rhodium silver') || text === 'silver' || text === 'silver plated') { materialFilter = 'silver'; } if (materialFilter) { e.preventDefault(); let url = new URL(link.href, window.location.origin); url.searchParams.set('filters[material]', materialFilter); window.location.href = url.toString(); } } } });</script><!-- END CUSTOM -->

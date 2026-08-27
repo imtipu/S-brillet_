@@ -31,20 +31,118 @@ if (!customElements.get("pcard-swatch")) {
       this.activeOptionNodeByPosition = {};
       this.hideUnavailableProductOptions = MinimogSettings.hide_unavailable_product_options;
 
-      const { variantIdNode, productData, productData: { variants } = {} } = this;
+      const productDataVariants = this.productData ? this.productData.variants : undefined;
+      const variants = this.variantData && this.variantData.length > 0 ? this.variantData : productDataVariants;
+      const { variantIdNode, productData } = this;
 
-      if (productData) {
+      if (variants) {
         let currentVariantId = variantIdNode && Number(variantIdNode.value);
+        
+        // --- CUSTOM: Check for material filter or collection in URL ---
+        let urlParams = new URLSearchParams(window.location.search);
+        let activeFilterMaterial = null;
+        for (let [key, value] of urlParams.entries()) {
+          if (key.toLowerCase().includes('filter') && key.toLowerCase().includes('material')) {
+            activeFilterMaterial = value.toLowerCase();
+            break;
+          }
+        }
+        
+        let h1Text = document.querySelector('h1') ? document.querySelector('h1').innerText.toLowerCase() : "";
+        let titleText = document.title.toLowerCase();
+        let pathText = window.location.pathname.toLowerCase();
+        let forcedMaterial = false;
+
+        if (variants) {
+          let matchedVariant = null;
+          
+          if (activeFilterMaterial) {
+            matchedVariant = variants.find(v => {
+              return v.options && v.options.some(opt => {
+                 return typeof opt === 'string' && (opt.toLowerCase() === activeFilterMaterial || opt.toLowerCase().includes(activeFilterMaterial));
+              });
+            });
+          }
+          
+          if (!matchedVariant) {
+             let intendedMaterial = null;
+             let primaryText = h1Text + " " + titleText;
+             
+             // 1. Determine intent from H1 / Title
+             if (primaryText.includes('rhodium') || primaryText.includes('silver')) {
+                intendedMaterial = 'silver';
+             } else if (primaryText.includes('rose')) {
+                intendedMaterial = 'rose';
+             } else if (primaryText.includes('yellow')) {
+                intendedMaterial = 'yellow';
+             }
+             // 2. Fallback to URL path if H1 doesn't specify a material
+             else if (pathText.includes('rhodium') || pathText.includes('silver')) {
+                intendedMaterial = 'silver';
+             } else if (pathText.includes('rose')) {
+                intendedMaterial = 'rose';
+             } else if (pathText.includes('yellow')) {
+                intendedMaterial = 'yellow';
+             }
+
+             // 3. Match variant based on intent
+             if (intendedMaterial) {
+                matchedVariant = variants.find(v => {
+                   return v.options && v.options.some(opt => {
+                      if (typeof opt !== 'string') return false;
+                      let optLower = opt.toLowerCase();
+                      if (intendedMaterial === 'silver' && (optLower.includes('silver') || optLower.includes('rhodium'))) return true;
+                      if (intendedMaterial === 'rose' && optLower.includes('rose')) return true;
+                      if (intendedMaterial === 'yellow' && optLower.includes('yellow')) return true;
+                      return false;
+                   });
+                });
+             }
+          }
+
+          if (matchedVariant) {
+            currentVariantId = matchedVariant.id;
+            forcedMaterial = true;
+            // FAILSAFE: Simulate a native click on the correct swatch label
+            setTimeout(() => {
+               if (this.domNodes && this.domNodes.optionNodes) {
+                  let labelToClick = Array.from(this.domNodes.optionNodes).find(node => {
+                     let val = node.dataset.value;
+                     if (!val || !matchedVariant.options) return false;
+                     return matchedVariant.options.some(opt => opt.toLowerCase().includes(val.toLowerCase()) || val.toLowerCase().includes(opt.toLowerCase()));
+                  });
+                  if (labelToClick) {
+                     // Force the click
+                     labelToClick.click();
+                     // Manually force border if JS fails
+                     this.domNodes.optionNodes.forEach(node => {
+                        node.removeAttribute('data-selected');
+                        node.style.border = '';
+                     });
+                     labelToClick.setAttribute('data-selected', 'true');
+                  } else {
+                     console.error("ProductCardSwatch: Could not find label for", matchedVariant);
+                  }
+               }
+            }, 100);
+          }
+        }
+        // --- END CUSTOM ---
+
         if (!currentVariantId) {
           currentVariantId =
-            productData.selected_or_first_available_variant && productData.selected_or_first_available_variant.id;
+            productData && productData.selected_or_first_available_variant && productData.selected_or_first_available_variant.id;
         }
         const currentVariant = variants.find((v) => v.id === currentVariantId) || variants[0];
-        this.productData.initialVariant = currentVariant;
-        if (!this.productData.selected_variant && variantIdNode && variantIdNode.dataset.selectedVariant) {
+        if (this.productData) this.productData.initialVariant = currentVariant;
+        if (this.productData && !this.productData.selected_variant && variantIdNode && variantIdNode.dataset.selectedVariant) {
           this.productData.selected_variant = variants.find(
             (v) => v.id === Number(variantIdNode.dataset.selectedVariant)
           );
+        }
+
+        if (forcedMaterial) {
+          this.keepFeaturedImage = false; // Force the JS to update the swatch selection and image!
         }
 
         if (!this.keepFeaturedImage) {
@@ -121,6 +219,21 @@ if (!customElements.get("pcard-swatch")) {
     }
 
     updateOptionsByVariant(variant) {
+      // Clear any pre-selected state from Liquid render
+      if (this.domNodes && this.domNodes.optionNodes) {
+        this.domNodes.optionNodes.forEach(node => {
+          node.removeAttribute('data-selected');
+          if (node.tagName === 'INPUT') node.checked = false;
+          if (node.tagName === 'OPTION') {
+            const select = node.closest('select');
+            if (select) select.value = "";
+          }
+          if (!["default", "image", "color"].includes(node.dataset.optionType)) {
+            node.style.border = "";
+          }
+        });
+      }
+      
       Object.values(this.activeOptionNodeByPosition).forEach((optNode) => this.toggleOptionNodeActive(optNode, false));
 
       const { optionNodes } = this.domNodes;
@@ -131,7 +244,12 @@ if (!customElements.get("pcard-swatch")) {
           const _optPosition = Number(optNode.dataset.optionPosition);
           const _optValue = optNode.dataset.value;
 
-          if (_optPosition === optPosition && option === _optValue) {
+          if (_optPosition === optPosition && typeof option === 'string' && typeof _optValue === 'string') {
+            let match = option.toLowerCase().includes(_optValue.toLowerCase()) || _optValue.toLowerCase().includes(option.toLowerCase());
+            if (match) {
+               this.toggleOptionNodeActive(optNode, true);
+            }
+          } else if (_optPosition === optPosition && option === _optValue) {
             this.toggleOptionNodeActive(optNode, true);
           }
         });
