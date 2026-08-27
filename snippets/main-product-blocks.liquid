@@ -697,12 +697,14 @@
         </m-visitiors-counter>
         <script src="{{ 'visitors-counter.js' | asset_url }}" defer="defer"></script>
       {%- when 'variant_picker' -%}
-        {% render 'product-variant-picker',
-          product: product,
-          section: section,
-          size_title: size_title,
-          product_form_id: product_form_id
-        %}
+        {%- unless product.template_suffix == 'message_card1' -%}
+          {% render 'product-variant-picker',
+            product: product,
+            section: section,
+            size_title: size_title,
+            product_form_id: product_form_id
+          %}
+        {%- endunless -%}
 
       {%- when 'product_grouping_picker' -%}
         {% render 'product-grouping-picker-custom',
@@ -2133,6 +2135,12 @@
     if embedded_product_grouping_block != blank and block.id == embedded_product_grouping_block.id
       assign render_current_main_block = false
     endif
+
+    # Message Card has its own variant selector inside Recipient Message Box.
+    # Never render Shopify's native variant-picker block on this dedicated template.
+    if product.template_suffix == 'message_card1' and block.type == 'variant_picker'
+      assign render_current_main_block = false
+    endif
   -%}
 
   {%- if render_current_main_block -%}
@@ -2731,12 +2739,14 @@
         </m-visitiors-counter>
         <script src="{{ 'visitors-counter.js' | asset_url }}" defer="defer"></script>
       {%- when 'variant_picker' -%}
-        {% render 'product-variant-picker',
-          product: product,
-          section: section,
-          size_title: size_title,
-          product_form_id: product_form_id
-        %}
+        {%- unless product.template_suffix == 'message_card1' -%}
+          {% render 'product-variant-picker',
+            product: product,
+            section: section,
+            size_title: size_title,
+            product_form_id: product_form_id
+          %}
+        {%- endunless -%}
 
       {%- when 'product_grouping_picker' -%}
         {% render 'product-grouping-picker-custom',

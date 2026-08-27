@@ -32,17 +32,10 @@
                     "disabled": true,
                     "settings": {}
                 },
-                "variant_picker": {
-                    "type": "variant_picker",
-                    "disabled": true,
-                    "settings": {
-                        "size_title": "Size"
-                    }
-                },
                 "custom_liquid_7Xtzjf": {
                     "type": "custom_liquid",
                     "settings": {
-                        "custom_liquid": "<div class=\"rk-delivery-banner\">\n  <div class=\"rk-delivery-inner\">\n\n    <img \n      src=\"https://cdn.shopify.com/s/files/1/0997/1941/4142/files/82312533c0dbce92f831a11a90a2dee083255ed4.png?v=1777264438\" \n      alt=\"Delivery\" \n      class=\"rk-delivery-icon\"\n    >\n\n    <span class=\"rk-delivery-text\">\n      READY-TO-SHIP: DELIVERY WITHIN 5–10 WORKING DAYS\n    </span>\n\n  </div>\n</div>\n\n<style>\n.rk-delivery-banner {\n    background: #F4F3F1;\n    padding: 12px 20px;\n    text-align: center;\n    width: 100%;\n    position: relative;\n    z-index: 1;\n}\n\n.rk-delivery-inner {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    gap: 10px;\n\n    font-family: 'Inter', sans-serif;\n    font-size: 16px;\n    color: #2c2c2c;\n    letter-spacing: 0.5px;\n    text-transform: uppercase;\n\n    max-width: 100%;\n    margin: 0 auto;\n    flex-wrap: wrap;\n}\n\n.rk-delivery-icon {\n    width: 23px;\n    height: 20px;\n    object-fit: contain;\n    flex-shrink: 0;\n}\n\n.rk-delivery-text {\n    line-height: 1.4;\n}\n\n/* RESPONSIVE */\n@media (max-width: 1280px) {\n    .rk-delivery-inner {\n        font-size: 12px;\n        gap: 8px;\n    }\n.rk-delivery-icon {\n    width: 16px;\n    height: 16px;\n    object-fit: contain;\n    flex-shrink: 0;\n}\n}\n@media (max-width: 1470px) {\n    .rk-delivery-inner {\n        font-size: 12px;\n        gap: 8px;\n    }\n\n}\n@media (max-width: 768px) {\n    .rk-delivery-banner {\n        padding: 10px 12px;\n    }\n\n    .rk-delivery-inner {\n        font-size: 12px;\n        gap: 6px;\n    }\n\n    .rk-delivery-icon {\n        width: 20px;\n        height: 18px;\n    }\n}\n</style>"
+                        "custom_liquid": "<div class=\"rk-delivery-banner\">\n  <div class=\"rk-delivery-inner\">\n\n    <img \n      src=\"https://cdn.shopify.com/s/files/1/0997/1941/4142/files/82312533c0dbce92f831a11a90a2dee083255ed4.png?v=1777264438\" \n      alt=\"Delivery\" \n      class=\"rk-delivery-icon\"\n    >\n\n    <span class=\"rk-delivery-text\">\n      READY-TO-SHIP: DELIVERY WITHIN 5\u201310 WORKING DAYS\n    </span>\n\n  </div>\n</div>\n\n<style>\n.rk-delivery-banner {\n    background: #F4F3F1;\n    padding: 12px 20px;\n    text-align: center;\n    width: 100%;\n    position: relative;\n    z-index: 1;\n}\n\n.rk-delivery-inner {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    gap: 10px;\n\n    font-family: 'Inter', sans-serif;\n    font-size: 16px;\n    color: #2c2c2c;\n    letter-spacing: 0.5px;\n    text-transform: uppercase;\n\n    max-width: 100%;\n    margin: 0 auto;\n    flex-wrap: wrap;\n}\n\n.rk-delivery-icon {\n    width: 23px;\n    height: 20px;\n    object-fit: contain;\n    flex-shrink: 0;\n}\n\n.rk-delivery-text {\n    line-height: 1.4;\n}\n\n/* RESPONSIVE */\n@media (max-width: 1280px) {\n    .rk-delivery-inner {\n        font-size: 12px;\n        gap: 8px;\n    }\n.rk-delivery-icon {\n    width: 16px;\n    height: 16px;\n    object-fit: contain;\n    flex-shrink: 0;\n}\n}\n@media (max-width: 1470px) {\n    .rk-delivery-inner {\n        font-size: 12px;\n        gap: 8px;\n    }\n\n}\n@media (max-width: 768px) {\n    .rk-delivery-banner {\n        padding: 10px 12px;\n    }\n\n    .rk-delivery-inner {\n        font-size: 12px;\n        gap: 6px;\n    }\n\n    .rk-delivery-icon {\n        width: 20px;\n        height: 18px;\n    }\n}\n</style>"
                     }
                 },
                 "buy_buttons": {
@@ -118,7 +111,6 @@
                 "price",
                 "recipient_message_bL3BfU",
                 "judge_me_reviews_preview_badge_RygQCb",
-                "variant_picker",
                 "custom_liquid_7Xtzjf",
                 "buy_buttons",
                 "custom_liquid_nbynBt",

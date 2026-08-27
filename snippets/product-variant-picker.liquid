@@ -1,3 +1,4 @@
+{%- unless product.template_suffix == 'message_card1' -%}
 {% comment %} {% liquid
   assign is_size = false
   assign size_title_downcase = size_title | downcase
@@ -1668,3 +1669,4 @@
 
 })();
 </script>
+{%- endunless -%}
