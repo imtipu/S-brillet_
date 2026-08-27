@@ -2884,6 +2884,7 @@ document.addEventListener('DOMContentLoaded', function() {
 {%- render 'product-data' -%}
 
 
+{% if product.template_suffix == 'message_card1' %}
 <script>
 window.addEventListener('load', function () {
   var urlParams = new URLSearchParams(window.location.search);
@@ -2917,8 +2918,8 @@ window.addEventListener('load', function () {
         if (item.classList.contains('is-selected')) return;
 
         // Fire a real click so the block's own handler runs — that handler
-        // is the single source of truth for how message1/2/3 and the
-        // "From" field get shown, so we never duplicate that logic here.
+        // is the single source of truth for the selected Theme variant and
+        // message 1/2/3 display, so we never duplicate that logic here.
         item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
         item.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
         item.click();
@@ -2931,6 +2932,7 @@ window.addEventListener('load', function () {
   }, 200);
 });
 </script>
+{% endif %}
 
 
 
@@ -3166,46 +3168,10 @@ window.addEventListener('load', function () {
     },
   
     {
-  "type": "recipient_message",
-  "name": "Recipient Message Box",
-  "settings": [
-    {
-      "type": "image_picker",
-      "id": "icon",
-      "label": "Icon",
-      "info": "Upload an icon to display next to the heading"
+      "type": "recipient_message",
+      "name": "Recipient Message Box",
+      "settings": []
     },
-    { "type": "header", "content": "Theme 1 (Default)" },
-    { "type": "text", "id": "theme_1_name", "label": "Theme name", "default": "Birthday Wish" },
-    { "type": "textarea", "id": "theme_1_msg_1", "label": "Message 1", "default": "Believe in the magic of new beginnings and let your dreams to shine. Happy Birthday from S-Brillet!" },
-    { "type": "textarea", "id": "theme_1_msg_2", "label": "Message 2" },
-    { "type": "textarea", "id": "theme_1_msg_3", "label": "Message 3" },
-
-    { "type": "header", "content": "Theme 2" },
-    { "type": "text", "id": "theme_2_name", "label": "Theme name", "default": "Joyful Your Day" },
-    { "type": "textarea", "id": "theme_2_msg_1", "label": "Message 1" },
-    { "type": "textarea", "id": "theme_2_msg_2", "label": "Message 2" },
-    { "type": "textarea", "id": "theme_2_msg_3", "label": "Message 3" },
-
-    { "type": "header", "content": "Theme 3" },
-    { "type": "text", "id": "theme_3_name", "label": "Theme name", "default": "Couple Love and Affection" },
-    { "type": "textarea", "id": "theme_3_msg_1", "label": "Message 1" },
-    { "type": "textarea", "id": "theme_3_msg_2", "label": "Message 2" },
-    { "type": "textarea", "id": "theme_3_msg_3", "label": "Message 3" },
-
-    { "type": "header", "content": "Theme 4" },
-    { "type": "text", "id": "theme_4_name", "label": "Theme name", "default": "Friendly Compliment" },
-    { "type": "textarea", "id": "theme_4_msg_1", "label": "Message 1" },
-    { "type": "textarea", "id": "theme_4_msg_2", "label": "Message 2" },
-    { "type": "textarea", "id": "theme_4_msg_3", "label": "Message 3" },
-
-    { "type": "header", "content": "Theme 5" },
-    { "type": "text", "id": "theme_5_name", "label": "Theme name", "default": "Secret Brighten Love" },
-    { "type": "textarea", "id": "theme_5_msg_1", "label": "Message 1" },
-    { "type": "textarea", "id": "theme_5_msg_2", "label": "Message 2" },
-    { "type": "textarea", "id": "theme_5_msg_3", "label": "Message 3" }
-  ]
-},
     {
       "type": "variant_picker",
       "name": "Variants selector",

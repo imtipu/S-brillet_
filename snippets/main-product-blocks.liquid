@@ -2263,340 +2263,279 @@
           {%- endform -%}
         </div>
 
-      {% comment %} {%- when 'recipient_message' -%}
-        
-        <div class="yk-theme-card-container block-{{ block.id }}">
-          
-          <div class="yk-custom-select-wrapper" id="YkCustomSelect-{{ block.id }}">
-            <div class="yk-theme-card-header" id="YkSelectToggle-{{ block.id }}">
-              <div class="yk-theme-card-icon yk-chevron-icon">
-                {% if block.settings.icon != blank %}
-                  <img src="{{ block.settings.icon | image_url: width: 20 }}" alt="" width="20" height="20" loading="lazy" style="object-fit: contain;">
-                {% else %}
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2C2C2C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M6 9L12 15L18 9"/>
-                  </svg>
-                {% endif %}
+      {%- comment -%} Legacy theme-editor Recipient Message code removed. {%- endcomment -%}
+
+        {%- when 'recipient_message' -%}
+          {%- comment -%}
+            Message Card selector is intentionally scoped to the dedicated
+            product.message_card1 template. All theme names come from Shopify
+            variants and all three messages come from variant metafields:
+            custom.message_1, custom.message_2, custom.message_3.
+          {%- endcomment -%}
+          {% if product.template_suffix == 'message_card1' %}
+            {% liquid
+              assign message_selected_variant = product.selected_or_first_available_variant
+              assign initial_message_1 = message_selected_variant.metafields.custom.message_1.value | default: ''
+            %}
+
+            <div
+              class="yk-theme-card-container block-{{ block.id }}"
+              data-message-card-selector
+              data-product-form-id="{{ product_form_id }}"
+            >
+              <div class="yk-custom-select-wrapper" id="YkCustomSelect-{{ block.id }}">
+                <div class="yk-theme-card-header" id="YkSelectToggle-{{ block.id }}">
+                  <div class="yk-theme-card-icon yk-chevron-icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2C2C2C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M6 9L12 15L18 9"/>
+                    </svg>
+                  </div>
+                  <div class="yk-theme-card-label">
+                    <span class="yk-label-muted">Theme Card:</span>
+                    <strong class="yk-selected-text" id="YkSelectedText-{{ block.id }}">{{ message_selected_variant.title }}</strong>
+                  </div>
+                </div>
+
+                <div class="yk-dropdown-menu" id="YkDropdownMenu-{{ block.id }}">
+                  <ul class="yk-dropdown-list">
+                    {% for variant in product.variants %}
+                      {% liquid
+                        assign variant_message_1 = variant.metafields.custom.message_1.value | default: ''
+                        assign variant_message_2 = variant.metafields.custom.message_2.value | default: ''
+                        assign variant_message_3 = variant.metafields.custom.message_3.value | default: ''
+                      %}
+                      <li
+                        class="yk-dropdown-item{% if variant.id == message_selected_variant.id %} is-selected{% endif %}"
+                        data-value="{{ variant.title | escape }}"
+                        data-variant-id="{{ variant.id }}"
+                        data-available="{{ variant.available }}"
+                        data-msg1="{{ variant_message_1 | escape }}"
+                        data-msg2="{{ variant_message_2 | escape }}"
+                        data-msg3="{{ variant_message_3 | escape }}"
+                      >
+                        {{ variant.title }}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+
+                <select
+                  id="MsgSelect-{{ block.id }}"
+                  name="properties[Theme Card]"
+                  form="{{ product_form_id }}"
+                  style="display: none;"
+                  aria-hidden="true"
+                  tabindex="-1"
+                >
+                  {% for variant in product.variants %}
+                    <option
+                      value="{{ variant.title | escape }}"
+                      data-variant-id="{{ variant.id }}"
+                      {% if variant.id == message_selected_variant.id %}selected{% endif %}
+                    >
+                      {{ variant.title }}
+                    </option>
+                  {% endfor %}
+                </select>
               </div>
-              <div class="yk-theme-card-label">
-                <span class="yk-label-muted">Theme Card:</span> 
-                <strong class="yk-selected-text" id="YkSelectedText-{{ block.id }}">Birthday Wish</strong>
+
+              <div class="yk-theme-card-body">
+                <div class="yk-msg-switcher" id="YkMsgSwitcher-{{ block.id }}">
+                  <div class="yk-msg-switcher-label">Message Text: <span id="YkMsgIndex-{{ block.id }}">1</span></div>
+                  <div class="yk-msg-switcher-buttons">
+                    <button type="button" class="yk-msg-btn is-active" data-index="1" aria-label="Message 1">
+                      <span class="yk-msg-btn-ring"><span class="yk-msg-btn-inner">1</span></span>
+                    </button>
+                    <button type="button" class="yk-msg-btn" data-index="2" aria-label="Message 2">
+                      <span class="yk-msg-btn-ring"><span class="yk-msg-btn-inner">2</span></span>
+                    </button>
+                    <button type="button" class="yk-msg-btn" data-index="3" aria-label="Message 3">
+                      <span class="yk-msg-btn-ring"><span class="yk-msg-btn-inner">3</span></span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="yk-theme-card-field">
+                  <textarea
+                    id="MsgText-{{ block.id }}"
+                    name="properties[Message]"
+                    class="yk-theme-card-textarea"
+                    rows="3"
+                    placeholder="Message not set for this theme."
+                    form="{{ product_form_id }}"
+                    readonly
+                    style="background-color: #fbfbfb;"
+                  >{{ initial_message_1 }}</textarea>
+                </div>
+
+                <input
+                  type="hidden"
+                  id="MsgIndexInput-{{ block.id }}"
+                  name="properties[Message Number]"
+                  value="1"
+                  form="{{ product_form_id }}"
+                >
               </div>
-            </div>
 
-            <div class="yk-dropdown-menu" id="YkDropdownMenu-{{ block.id }}">
-              <ul class="yk-dropdown-list">
-                <li class="yk-dropdown-item is-selected" data-value="Birthday Wish">Birthday Wish</li>
-                {% if block.settings.option_1 != blank %}<li class="yk-dropdown-item" data-value="{{ block.settings.option_1 }}">{{ block.settings.option_1 | truncate: 40 }}</li>{% endif %}
-                {% if block.settings.option_2 != blank %}<li class="yk-dropdown-item" data-value="{{ block.settings.option_2 }}">{{ block.settings.option_2 | truncate: 40 }}</li>{% endif %}
-                {% if block.settings.option_3 != blank %}<li class="yk-dropdown-item" data-value="{{ block.settings.option_3 }}">{{ block.settings.option_3 | truncate: 40 }}</li>{% endif %}
-                <li class="yk-dropdown-item" data-value="custom">Custom Message</li>
-              </ul>
-            </div>
-            
-            <select id="MsgSelect-{{ block.id }}" name="properties[Theme Card]" style="display: none;">
-              <option value="Birthday Wish" selected>Birthday Wish</option>
-              {% if block.settings.option_1 != blank %}<option value="{{ block.settings.option_1 }}">{{ block.settings.option_1 | truncate: 40 }}</option>{% endif %}
-              {% if block.settings.option_2 != blank %}<option value="{{ block.settings.option_2 }}">{{ block.settings.option_2 | truncate: 40 }}</option>{% endif %}
-              {% if block.settings.option_3 != blank %}<option value="{{ block.settings.option_3 }}">{{ block.settings.option_3 | truncate: 40 }}</option>{% endif %}
-              <option value="custom">Custom Message</option>
-            </select>
-          </div>
+              <script type="application/json" id="YkVariantData-{{ block.id }}">
+                {{ product.variants | json }}
+              </script>
 
-          <div class="yk-theme-card-body">
-            <div class="yk-theme-card-field">
-              <textarea id="MsgText-{{ block.id }}" name="properties[Message]" class="yk-theme-card-textarea" rows="3" placeholder="Write your custom message here..." form="{{ product_form_id }}" readonly style="background-color: #fbfbfb;">Birthday Wish</textarea>
-            </div>
+              <script>
+                (function () {
+                  function initMessageCardBlock{{ block.id | replace: '-', '_' }}() {
+                    var root = document.querySelector('.block-{{ block.id }}[data-message-card-selector]');
+                    if (!root || root.dataset.ykInit === '1') return;
+                    root.dataset.ykInit = '1';
 
-            <div class="yk-theme-card-field">
-              <input type="text" id="MsgEmail-{{ block.id }}" name="properties[From]" class="yk-theme-card-input" placeholder="From:" form="{{ product_form_id }}">
-            </div>
-          </div>
+                    var selectWrapper = document.getElementById('YkCustomSelect-{{ block.id }}');
+                    var selectToggle = document.getElementById('YkSelectToggle-{{ block.id }}');
+                    var selectedText = document.getElementById('YkSelectedText-{{ block.id }}');
+                    var hiddenSelect = document.getElementById('MsgSelect-{{ block.id }}');
+                    var textarea = document.getElementById('MsgText-{{ block.id }}');
+                    var msgIndexInput = document.getElementById('MsgIndexInput-{{ block.id }}');
+                    var msgSwitcher = document.getElementById('YkMsgSwitcher-{{ block.id }}');
+                    var msgIndexLabel = document.getElementById('YkMsgIndex-{{ block.id }}');
+                    var variantDataNode = document.getElementById('YkVariantData-{{ block.id }}');
 
-          <script>
-            document.addEventListener('DOMContentLoaded', function() {
-              var selectWrapper = document.getElementById('YkCustomSelect-{{ block.id }}');
-              var selectToggle = document.getElementById('YkSelectToggle-{{ block.id }}');
-              var selectedText = document.getElementById('YkSelectedText-{{ block.id }}');
-              var hiddenSelect = document.getElementById('MsgSelect-{{ block.id }}');
-              var textarea = document.getElementById('MsgText-{{ block.id }}');
-              
-              if (!selectWrapper || !selectToggle) return;
-              
-              var dropdownItems = selectWrapper.querySelectorAll('.yk-dropdown-item');
+                    if (!selectWrapper || !selectToggle || !hiddenSelect || !textarea || !msgSwitcher) return;
 
-              selectToggle.addEventListener('click', function(e) {
-                e.stopPropagation();
-                selectWrapper.classList.toggle('is-open');
-              });
+                    var dropdownItems = Array.prototype.slice.call(selectWrapper.querySelectorAll('.yk-dropdown-item'));
+                    var msgBtns = Array.prototype.slice.call(msgSwitcher.querySelectorAll('.yk-msg-btn'));
+                    var currentItem = selectWrapper.querySelector('.yk-dropdown-item.is-selected') || dropdownItems[0];
+                    var currentIndex = '1';
+                    var variants = [];
 
-              document.addEventListener('click', function(e) {
-                if (!selectWrapper.contains(e.target)) {
-                  selectWrapper.classList.remove('is-open');
-                }
-              });
+                    try {
+                      variants = variantDataNode ? JSON.parse(variantDataNode.textContent || '[]') : [];
+                    } catch (error) {
+                      variants = [];
+                    }
 
-              if (dropdownItems.length > 0 && textarea && hiddenSelect) {
-                dropdownItems.forEach(function(item) {
-                  item.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    var val = this.getAttribute('data-value');
-                    var text = this.innerText;
-                    
-                    hiddenSelect.value = val;
-                    selectedText.innerText = text;
-                    
-                    dropdownItems.forEach(function(el) { el.classList.remove('is-selected'); });
-                    this.classList.add('is-selected');
-                    selectWrapper.classList.remove('is-open');
+                    function getVariantById(variantId) {
+                      return variants.find(function (variant) {
+                        return String(variant.id) === String(variantId);
+                      });
+                    }
 
-                    if (val === 'custom') {
-                      textarea.value = '';
-                      textarea.removeAttribute('readonly');
-                      textarea.style.backgroundColor = '';
-                      textarea.focus();
-                    } else {
-                      textarea.value = text;
+                    function setActiveMsgBtn(index) {
+                      msgBtns.forEach(function (button) {
+                        button.classList.toggle('is-active', button.getAttribute('data-index') === String(index));
+                      });
+                      if (msgIndexLabel) msgIndexLabel.textContent = index;
+                      if (msgIndexInput) msgIndexInput.value = index;
+                    }
+
+                    function applyMessage(item, index) {
+                      if (!item) return;
+                      var message = item.getAttribute('data-msg' + index) || '';
+                      textarea.value = message;
                       textarea.setAttribute('readonly', 'readonly');
                       textarea.style.backgroundColor = '#fbfbfb';
                     }
-                  });
-                });
-              }
-            });
-          </script>
-        </div> {% endcomment %}
 
+                    function syncProductVariant(item) {
+                      if (!item) return;
 
-        {%- when 'recipient_message' -%}
-  {% liquid
-    assign t1_name = block.settings.theme_1_name | default: 'Birthday Wish'
-    assign t2_name = block.settings.theme_2_name
-    assign t3_name = block.settings.theme_3_name
-    assign t4_name = block.settings.theme_4_name
-     assign t5_name = block.settings.theme_5_name
-  %}
+                      var variantId = item.getAttribute('data-variant-id');
+                      if (!variantId) return;
 
-  <div class="yk-theme-card-container block-{{ block.id }}">
+                      // Update only this product section's forms. Other product pages/templates
+                      // are untouched because this entire block renders only on message_card1.
+                      document.querySelectorAll(
+                        '#product-form-{{ section.id }}, #product-form-installment-{{ section.id }}'
+                      ).forEach(function (form) {
+                        var input = form.querySelector('input[name="id"]');
+                        if (!input) return;
+                        input.disabled = false;
+                        input.value = variantId;
+                        input.dispatchEvent(new Event('change', { bubbles: true }));
+                      });
 
-    <div class="yk-custom-select-wrapper" id="YkCustomSelect-{{ block.id }}">
-      <div class="yk-theme-card-header" id="YkSelectToggle-{{ block.id }}">
-        <div class="yk-theme-card-icon yk-chevron-icon">
-          {% if block.settings.icon != blank %}
-            <img src="{{ block.settings.icon | image_url: width: 20 }}" alt="" width="20" height="20" loading="lazy" style="object-fit: contain;">
-          {% else %}
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2C2C2C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 9L12 15L18 9"/>
-            </svg>
+                      if ({{ section.settings.enable_history_state | json }}) {
+                        try {
+                          var url = new URL(window.location.href);
+                          url.searchParams.set('variant', variantId);
+                          url.searchParams.delete('theme');
+                          window.history.replaceState({}, '', url.toString());
+                        } catch (error) {}
+                      }
+
+                      var selectedVariant = getVariantById(variantId);
+                      if (selectedVariant) {
+                        document.dispatchEvent(new CustomEvent('variant:changed', {
+                          detail: { variant: selectedVariant }
+                        }));
+                      }
+
+                      var addButton = document.getElementById('ProductSubmitButton-{{ section.id }}');
+                      var checkoutButton = document.getElementById('ProductCheckoutButton-{{ section.id }}');
+                      var available = item.getAttribute('data-available') === 'true';
+                      if (addButton) addButton.disabled = !available;
+                      if (checkoutButton) checkoutButton.disabled = !available;
+                    }
+
+                    selectToggle.addEventListener('click', function (event) {
+                      event.stopPropagation();
+                      selectWrapper.classList.toggle('is-open');
+                    });
+
+                    document.addEventListener('click', function (event) {
+                      if (!selectWrapper.contains(event.target)) {
+                        selectWrapper.classList.remove('is-open');
+                      }
+                    });
+
+                    dropdownItems.forEach(function (item) {
+                      item.addEventListener('click', function (event) {
+                        event.stopPropagation();
+
+                        var title = this.getAttribute('data-value') || this.textContent.trim();
+                        var variantId = this.getAttribute('data-variant-id');
+
+                        hiddenSelect.value = title;
+                        if (selectedText) selectedText.textContent = title;
+
+                        dropdownItems.forEach(function (dropdownItem) {
+                          dropdownItem.classList.remove('is-selected');
+                        });
+                        this.classList.add('is-selected');
+                        selectWrapper.classList.remove('is-open');
+
+                        currentItem = this;
+                        currentIndex = '1';
+                        setActiveMsgBtn(currentIndex);
+                        applyMessage(currentItem, currentIndex);
+                        syncProductVariant(currentItem);
+
+                        // Keep the hidden Theme Card property aligned with the actual variant.
+                        Array.prototype.forEach.call(hiddenSelect.options, function (option) {
+                          option.selected = String(option.getAttribute('data-variant-id')) === String(variantId);
+                        });
+                      });
+                    });
+
+                    msgBtns.forEach(function (button) {
+                      button.addEventListener('click', function () {
+                        currentIndex = this.getAttribute('data-index');
+                        setActiveMsgBtn(currentIndex);
+                        applyMessage(currentItem, currentIndex);
+                      });
+                    });
+
+                    // Initial state is Shopify's selected/first available variant.
+                    setActiveMsgBtn(currentIndex);
+                    applyMessage(currentItem, currentIndex);
+                    syncProductVariant(currentItem);
+                  }
+
+                  initMessageCardBlock{{ block.id | replace: '-', '_' }}();
+                  document.addEventListener('DOMContentLoaded', initMessageCardBlock{{ block.id | replace: '-', '_' }});
+                  window.addEventListener('load', initMessageCardBlock{{ block.id | replace: '-', '_' }});
+                })();
+              </script>
+            </div>
           {% endif %}
-        </div>
-        <div class="yk-theme-card-label">
-          <span class="yk-label-muted">Theme Card:</span>
-          <strong class="yk-selected-text" id="YkSelectedText-{{ block.id }}">{{ t1_name }}</strong>
-        </div>
-      </div>
-
-      <div class="yk-dropdown-menu" id="YkDropdownMenu-{{ block.id }}">
-        <ul class="yk-dropdown-list">
-          <li class="yk-dropdown-item is-selected"
-              data-value="{{ t1_name }}"
-              data-msg1="{{ block.settings.theme_1_msg_1 | escape }}"
-              data-msg2="{{ block.settings.theme_1_msg_2 | escape }}"
-              data-msg3="{{ block.settings.theme_1_msg_3 | escape }}">
-            {{ t1_name }}
-          </li>
-          {% if t2_name != blank %}
-          <li class="yk-dropdown-item"
-              data-value="{{ t2_name }}"
-              data-msg1="{{ block.settings.theme_2_msg_1 | escape }}"
-              data-msg2="{{ block.settings.theme_2_msg_2 | escape }}"
-              data-msg3="{{ block.settings.theme_2_msg_3 | escape }}">
-            {{ t2_name | truncate: 40 }}
-          </li>
-          {% endif %}
-          {% if t3_name != blank %}
-          <li class="yk-dropdown-item"
-              data-value="{{ t3_name }}"
-              data-msg1="{{ block.settings.theme_3_msg_1 | escape }}"
-              data-msg2="{{ block.settings.theme_3_msg_2 | escape }}"
-              data-msg3="{{ block.settings.theme_3_msg_3 | escape }}">
-            {{ t3_name | truncate: 40 }}
-          </li>
-          {% endif %}
-          {% if t4_name != blank %}
-          <li class="yk-dropdown-item"
-              data-value="{{ t4_name }}"
-              data-msg1="{{ block.settings.theme_4_msg_1 | escape }}"
-              data-msg2="{{ block.settings.theme_4_msg_2 | escape }}"
-              data-msg3="{{ block.settings.theme_4_msg_3 | escape }}">
-            {{ t4_name | truncate: 40 }}
-          </li>
-          {% endif %}
-
-
-          {% if t5_name != blank %}
-          <li class="yk-dropdown-item"
-              data-value="{{ t5_name }}"
-              data-msg1="{{ block.settings.theme_5_msg_1 | escape }}"
-              data-msg2="{{ block.settings.theme_5_msg_2 | escape }}"
-              data-msg3="{{ block.settings.theme_5_msg_3 | escape }}">
-            {{ t5_name | truncate: 40 }}
-          </li>
-          {% endif %}
-
-          <li class="yk-dropdown-item" data-value="custom">Custom Message</li>
-        </ul>
-      </div>
-
-      <select id="MsgSelect-{{ block.id }}" name="properties[Theme Card]" style="display: none;">
-        <option value="{{ t1_name }}" selected>{{ t1_name }}</option>
-        {% if t2_name != blank %}<option value="{{ t2_name }}">{{ t2_name | truncate: 40 }}</option>{% endif %}
-        {% if t3_name != blank %}<option value="{{ t3_name }}">{{ t3_name | truncate: 40 }}</option>{% endif %}
-        {% if t4_name != blank %}<option value="{{ t4_name }}">{{ t4_name | truncate: 40 }}</option>{% endif %}
-        <option value="custom">Custom Message</option>
-      </select>
-    </div>
-
-    <div class="yk-theme-card-body">
-
-      <div class="yk-msg-switcher" id="YkMsgSwitcher-{{ block.id }}">
-        <div class="yk-msg-switcher-label">Message Text: <span id="YkMsgIndex-{{ block.id }}">1</span></div>
-        <div class="yk-msg-switcher-buttons">
-          <button type="button" class="yk-msg-btn is-active" data-index="1">
-            <span class="yk-msg-btn-ring"><span class="yk-msg-btn-inner">1</span></span>
-          </button>
-          <button type="button" class="yk-msg-btn" data-index="2">
-            <span class="yk-msg-btn-ring"><span class="yk-msg-btn-inner">2</span></span>
-          </button>
-          <button type="button" class="yk-msg-btn" data-index="3">
-            <span class="yk-msg-btn-ring"><span class="yk-msg-btn-inner">3</span></span>
-          </button>
-        </div>
-      </div>
-
-      <div class="yk-theme-card-field">
-        <textarea
-          id="MsgText-{{ block.id }}"
-          name="properties[Message]"
-          class="yk-theme-card-textarea"
-          rows="3"
-          placeholder="Write your custom message here..."
-          form="{{ product_form_id }}"
-          readonly
-          style="background-color: #fbfbfb;"
-        >{{ block.settings.theme_1_msg_1 }}</textarea>
-      </div>
-
-      <input type="hidden" id="MsgIndexInput-{{ block.id }}" name="properties[Message Number]" value="1">
-
-      <div class="yk-theme-card-field yk-from-field" id="YkFromField-{{ block.id }}" style="display: none;">
-        <input type="text" id="MsgEmail-{{ block.id }}" name="properties[From]" class="yk-theme-card-input" placeholder="From:" form="{{ product_form_id }}">
-      </div>
-    </div>
-
-    <script>
-      (function () {
-        function init() {
-          var selectWrapper = document.getElementById('YkCustomSelect-{{ block.id }}');
-          var selectToggle = document.getElementById('YkSelectToggle-{{ block.id }}');
-          var selectedText = document.getElementById('YkSelectedText-{{ block.id }}');
-          var hiddenSelect = document.getElementById('MsgSelect-{{ block.id }}');
-          var textarea = document.getElementById('MsgText-{{ block.id }}');
-          var msgIndexInput = document.getElementById('MsgIndexInput-{{ block.id }}');
-          var msgSwitcher = document.getElementById('YkMsgSwitcher-{{ block.id }}');
-          var msgIndexLabel = document.getElementById('YkMsgIndex-{{ block.id }}');
-          var fromField = document.getElementById('YkFromField-{{ block.id }}');
-          if (!selectWrapper || selectWrapper.dataset.ykInit === '1') return;
-          selectWrapper.dataset.ykInit = '1';
-
-          var dropdownItems = selectWrapper.querySelectorAll('.yk-dropdown-item');
-          var msgBtns = msgSwitcher.querySelectorAll('.yk-msg-btn');
-          var currentItem = selectWrapper.querySelector('.yk-dropdown-item.is-selected') || dropdownItems[0];
-          var currentIndex = '1';
-
-          function setActiveMsgBtn(index) {
-            msgBtns.forEach(function (b) {
-              b.classList.toggle('is-active', b.getAttribute('data-index') === String(index));
-            });
-            if (msgIndexLabel) msgIndexLabel.textContent = index;
-            if (msgIndexInput) msgIndexInput.value = index;
-          }
-
-          function applyMessage(item, index) {
-            if (!item) return;
-            var val = item.getAttribute('data-value');
-
-            if (val === 'custom') {
-              msgSwitcher.style.display = 'none';
-              fromField.style.display = '';
-              textarea.value = '';
-              textarea.removeAttribute('readonly');
-              textarea.style.backgroundColor = '';
-              textarea.placeholder = 'Write your custom message here...';
-              return;
-            }
-
-            msgSwitcher.style.display = '';
-            fromField.style.display = 'none';
-            var msgText = item.getAttribute('data-msg' + index) || '';
-            textarea.value = msgText;
-            textarea.setAttribute('readonly', 'readonly');
-            textarea.style.backgroundColor = '#fbfbfb';
-          }
-
-          selectToggle.addEventListener('click', function (e) {
-            e.stopPropagation();
-            selectWrapper.classList.toggle('is-open');
-          });
-
-          document.addEventListener('click', function (e) {
-            if (!selectWrapper.contains(e.target)) {
-              selectWrapper.classList.remove('is-open');
-            }
-          });
-
-          dropdownItems.forEach(function (item) {
-            item.addEventListener('click', function (e) {
-              e.stopPropagation();
-              var val = this.getAttribute('data-value');
-              var text = this.textContent.trim();
-
-              hiddenSelect.value = val;
-              selectedText.textContent = text;
-
-              dropdownItems.forEach(function (el) { el.classList.remove('is-selected'); });
-              this.classList.add('is-selected');
-              selectWrapper.classList.remove('is-open');
-
-              currentItem = this;
-              currentIndex = '1';
-              setActiveMsgBtn(currentIndex);
-              applyMessage(this, currentIndex);
-            });
-          });
-
-          msgBtns.forEach(function (btn) {
-            btn.addEventListener('click', function () {
-              currentIndex = this.getAttribute('data-index');
-              setActiveMsgBtn(currentIndex);
-              applyMessage(currentItem, currentIndex);
-            });
-          });
-
-          // Force-sync on load — guards against any timing race with other
-          // theme scripts that might touch this block right after render.
-          setActiveMsgBtn(currentIndex);
-          applyMessage(currentItem, currentIndex);
-        }
-
-        init();
-        document.addEventListener('DOMContentLoaded', init);
-        window.addEventListener('load', init);
-      })();
-    </script>
-  </div>
-
-
 
       {%- when 'short_description' -%}
         {% if product.metafields.descriptor.short_description != blank %}
