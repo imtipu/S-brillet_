@@ -63,28 +63,7 @@
         },
         "recipient_message_TnibTE": {
           "type": "recipient_message",
-          "settings": {
-            "theme_1_name": "Birthday Wish",
-            "theme_1_msg_1": "Believe in the magic of new beginnings and let your dreams to shine. Happy Birthday from S-Brillet!",
-            "theme_1_msg_2": "",
-            "theme_1_msg_3": "",
-            "theme_2_name": "Joyful Your Day",
-            "theme_2_msg_1": "",
-            "theme_2_msg_2": "",
-            "theme_2_msg_3": "",
-            "theme_3_name": "Couple Love and Affection",
-            "theme_3_msg_1": "",
-            "theme_3_msg_2": "",
-            "theme_3_msg_3": "",
-            "theme_4_name": "Friendly Compliment",
-            "theme_4_msg_1": "",
-            "theme_4_msg_2": "",
-            "theme_4_msg_3": "",
-            "theme_5_name": "Secret Brighten Love",
-            "theme_5_msg_1": "",
-            "theme_5_msg_2": "",
-            "theme_5_msg_3": ""
-          }
+          "settings": {}
         },
         "judge_me_reviews_preview_badge_RygQCb": {
           "type": "shopify://apps/judge-me-reviews/blocks/preview_badge/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
@@ -93,7 +72,6 @@
         },
         "variant_picker": {
           "type": "variant_picker",
-          "disabled": true,
           "settings": {
             "size_title": "Size"
           }
