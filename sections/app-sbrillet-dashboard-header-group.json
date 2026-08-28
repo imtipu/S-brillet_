@@ -1,0 +1,53 @@
+{
+  "type": "custom.sbrillet_dashboard",
+  "name": "SBrillet Dashboard",
+  "sections": {
+    "main": {
+      "type": "app-sbrillet-dashboard-header",
+      "blocks": {
+        "vip_universe": {
+          "type": "menu_item",
+          "settings": {
+            "label": "My VIP Universe",
+            "link": "/pages/my-vip-universe"
+          }
+        },
+        "discover_shop": {
+          "type": "menu_item",
+          "settings": {
+            "label": "Discover & Shop",
+            "link": "/pages/discover-shop"
+          }
+        },
+        "my_orders": {
+          "type": "menu_item",
+          "settings": {
+            "label": "My Orders",
+            "link": "/pages/my-orders"
+          }
+        },
+        "perks_and_community": {
+          "type": "menu_item",
+          "settings": {
+            "label": "Perks & Community",
+            "link": "/pages/perks-community"
+          }
+        }
+      },
+      "block_order": [
+        "vip_universe",
+        "discover_shop",
+        "my_orders",
+        "perks_and_community"
+      ],
+      "settings": {
+        "section_background": "#F7F6F3",
+        "menu_max_width": 1300,
+        "section_padding": 16
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

@@ -1,0 +1,135 @@
+{{ 'app-block-customer-order-list.css' | asset_url | stylesheet_tag: preload: true }}
+
+{% liquid
+  assign app_id = settings.sbrillet_app_id | prepend: 'app--'
+  assign sbrillet_metafields = customer.metafields[app_id]
+  assign current_tier = sbrillet_metafields.loyalty_tier_config.value
+  assign current_tier_key = current_tier.level | default: 'SHINY'
+%}
+
+<block-customer-order-list data-tier-level="{{ current_tier_key }}">
+  <style>
+    :root {
+      --order-card-radius: {{ block.settings.card_radius }}px;
+      --order-list-gap: {{ block.settings.list_gap }}px;
+    }
+  </style>
+  <div class="customer-order-list" {{ block.shopify_attributes }}>
+    {% if request.design_mode %}
+      {% render 'app-customer-order-list-design-mode', block: block %}
+    {% elsif customer %}
+      <div class="customer-order-list__panel">
+        <div class="customer-order-list__header">
+          <div class="customer-order-list__header-content">
+            {% comment %}<p class="customer-order-list__eyebrow">Account {{ customer.orders_count }}</p>{% endcomment %}
+            <h2 class="customer-order-list__heading">{{ block.settings.title }}</h2>
+          </div>
+          <p class="customer-order-list__count">{{ customer.orders_count }} total</p>
+        </div>
+        {% if customer.orders_count %}
+          {% paginate customer.orders by block.settings.orders_per_page %}
+            <div class="customer-order-list__cards" role="list">
+              {% for order in customer.orders %}
+                {% render 'app-order-list-item', order: order %}
+              {% endfor %}
+            </div>
+
+            <div class="customer-order-list__pagination">
+              {% if paginate.previous %}
+                <a class="customer-order-list__page-button" href="{{ paginate.previous.url }}">Prev</a>
+              {% else %}
+                <span class="customer-order-list__page-button is-disabled">Prev</span>
+              {% endif %}
+
+              <span class="customer-order-list__pagination-status"
+                >Page {{ paginate.current_page }} of {{ paginate.pages -}}
+              </span>
+
+              {% if paginate.next %}
+                <a class="customer-order-list__page-button" href="{{ paginate.next.url }}">Next</a>
+              {% else %}
+                <span class="customer-order-list__page-button is-disabled">Next</span>
+              {% endif %}
+            </div>
+          {% endpaginate %}
+        {% else %}
+          <div class="customer-order-list__empty-state">
+            <h3>No orders yet</h3>
+            <p>Your future purchases will appear here with quick access to full order details.</p>
+          </div>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="customer-order-list__panel customer-order-list__panel--empty">
+        <h2 class="customer-order-list__heading">Customer account unavailable</h2>
+        <p class="customer-order-list__empty-copy">This block needs a logged-in customer to show order history.</p>
+      </div>
+    {% endif %}
+  </div>
+</block-customer-order-list>
+
+<script src="{{ 'app-block-customer-order-list.js' | asset_url }}" type="module"></script>
+
+{% schema %}
+{
+  "name": "Customer Order List",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Orders"
+    },
+    {
+      "type": "select",
+      "id": "orders_per_page",
+      "label": "Orders per page",
+      "options": [
+        {
+          "value": "5",
+          "label": "5"
+        },
+        {
+          "value": "10",
+          "label": "10"
+        },
+        {
+          "value": "15",
+          "label": "15"
+        },
+        {
+          "value": "20",
+          "label": "20"
+        }
+      ],
+      "default": "5"
+    },
+    {
+      "type": "range",
+      "id": "list_gap",
+      "label": "List gap",
+      "min": 10,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card radius",
+      "min": 12,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    }
+  ],
+  "presets": [
+    {
+      "name": "Customer Order List",
+      "category": "SBrillet App"
+    }
+  ]
+}
+{% endschema %}

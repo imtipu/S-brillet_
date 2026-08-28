@@ -1,0 +1,333 @@
+{% liquid
+  assign app_id = settings.sbrillet_app_id | prepend: 'app--'
+  assign sbrillet_metafields = customer.metafields[app_id]
+  assign current_tier = sbrillet_metafields.loyalty_tier_config.value
+  assign current_tier_key = current_tier.level | default: 'SHINY'
+  assign full_width = section.settings.enable_full_width
+  assign max_width = section.settings.page_max_width
+
+  assign tier_color_scheme = section.settings.sbrillet_tier_color_scheme
+
+  case current_tier_key
+    when 'SHINY'
+      assign tier_color_scheme = section.settings.shiny_tier_color_scheme
+    when 'STARLIGHT'
+      assign tier_color_scheme = section.settings.starlight_tier_color_scheme
+    when 'GALAXY'
+      assign tier_color_scheme = section.settings.galaxy_tier_color_scheme
+    when 'ULTRA_GALAXY'
+      assign tier_color_scheme = section.settings.ultra_galaxy_tier_color_scheme
+  endcase
+%}
+
+{%- style -%}
+  {{ section.settings.title_font | font_face: font_display: 'swap' }}
+  {{ section.settings.body_font | font_face: font_display: 'swap' }}
+  .font-title {
+    font-family: {{ section.settings.title_font.family }} !important;
+  }
+
+  .font-body {
+    font-family: {{ section.settings.body_font.family }}
+  }
+
+  .sbrillet-app-page-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    background: {{ section.settings.page_color_background }};
+    font-family: "{{ section.settings.body_font.family }}", sans-serif;
+    h1, h2, h3, h4, h5, h6, a, p, span, div {
+      font-family: "{{ section.settings.body_font.family }}", sans-serif;
+    };
+    margin-top: {{ section.settings.margin_top }}px;
+    margin-bottom: {{ section.settings.margin_bottom }}px;
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+  .sbrillet-app-page-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: {{ section.settings.justify_content }};
+    max-width: {% if full_width %}100%{% else %}{{ max_width }}px{% endif %};
+
+    @media screen {
+      @media (max-width: 1280px) {
+        padding-inline: 10px;
+      }
+    }
+  }
+  .sbrillet-app-page-header {}
+  .sbrillet-app-page-blocks {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: {{ section.settings.block_gap_size }}px;
+  }
+  @media screen {
+    @media (max-height: 600px) {
+      .sbrillet-app-page-container {
+      min-height: {{ section.settings.page_min_height_mobile }}px;
+      }
+    }
+    @media (min-height: 601px) {
+      .sbrillet-app-page-container {
+        min-height: {{ section.settings.page_min_height_desktop }}px;
+      }
+    }
+  }
+{%- endstyle -%}
+
+<div
+  id="sbrillet-app-page-{{ section.id }}"
+  class="sbrillet-app-page-wrapper {{ tier_color_scheme }}"
+>
+  <div class="sbrillet-app-page-container">
+    {% if section.settings.enable_page_header %}
+      <div class="sbrillet-app-page-header">
+        <h1 class="sbrillet-app-header__title">{{ page.title }}</h1>
+      </div>
+    {% endif %}
+
+    {% if section.settings.enable_page_content %}
+      <div class="sbrillet-app-page-content">
+        {{ page.content }}
+      </div>
+    {% endif %}
+    {% if customer or request.design_mode %}
+      <div class="sbrillet-app-page-blocks">
+        {% content_for 'blocks' %}
+      </div>
+    {% else %}
+      {% render 'app-page-unauthenticated', redirect: '' %}
+    {% endif %}
+  </div>
+</div>
+{% schema %}
+{
+  "name": "Page SBrillet",
+  "blocks": [
+    {
+      "type": "_block-sbrillet-app-customer-account-profile"
+    },
+    {
+      "type": "_block-sbrillet-app-customer-referral-history"
+    },
+    {
+      "type": "_block-sbrillet-app-customer-referrals"
+    },
+    {
+      "type": "_block-sbrillet-app-customer-order-list"
+    },
+    {
+      "type": "_block-sbrillet-app-customer-return-order-list"
+    },
+    {
+      "type": "_block-sbrillet-app-customer-tier-overview"
+    },
+    {
+      "type": "_block-sbrillet-app-top-voted-products"
+    },
+    {
+      "type": "_block-sbrillet-app-voted-top-product-list"
+    },
+    {
+      "type": "_block-sbrillet-app-vote-collection-products"
+    },
+    {
+      "type": "@theme"
+    }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Page"
+    },
+    {
+      "type": "text",
+      "id": "header_title",
+      "label": "Header title",
+      "default": "Page title"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_page_header",
+      "label": "Enable page header",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Fonts"
+    },
+    {
+      "type": "font_picker",
+      "id": "body_font",
+      "label": "Body Font",
+      "default": "inter_n4"
+    },
+    {
+      "type": "font_picker",
+      "id": "title_font",
+      "label": "Title Font",
+      "default": "libre_caslon_text_n4"
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_page_content",
+      "label": "Enable page content",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "justify_content",
+      "label": "Justify Content",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Top"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "flex-end",
+          "label": "Bottom"
+        }
+      ],
+      "default": "flex-start"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_background",
+      "id": "page_color_background",
+      "label": "Page Background",
+      "default": "#DEDEDE"
+    },
+    {
+      "type": "header",
+      "content": "Tiers"
+    },
+    {
+      "type": "paragraph",
+      "content": "Each tier uses a Shopify color scheme. Its gradient, text, border, and skeleton colors are inherited from that scheme."
+    },
+    {
+      "type": "header",
+      "content": "Gaps"
+    },
+    {
+      "type": "number",
+      "id": "block_gap_size",
+      "label": "Block Gap size",
+      "default": 10
+    },
+    {
+      "type": "header",
+      "content": "Width & Height"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_full_width",
+      "label": "Enable full width",
+      "default": false
+    },
+    {
+      "type": "number",
+      "id": "page_max_width",
+      "label": "Page Max Width",
+      "default": 1300
+    },
+    {
+      "type": "number",
+      "id": "page_min_height_mobile",
+      "label": "Min Height Mobile",
+      "default": 400
+    },
+    {
+      "type": "number",
+      "id": "page_min_height_desktop",
+      "label": "Min Height Desktop",
+      "default": 600
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding Top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 10,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 10,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_left",
+      "label": "Padding Left",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_right",
+      "label": "Padding Right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Margin"
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "label": "Margin Top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "label": "Margin Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 0,
+      "unit": "px"
+    }
+  ]
+}
+{% endschema %}

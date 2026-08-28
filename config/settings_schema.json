@@ -2898,5 +2898,22 @@
         "label": "Theme 5 Message 3"
       }
     ]
+  },
+  {
+    "name": "SBrillet APP",
+    "settings": [
+      {
+        "type": "text",
+        "id": "sbrillet_app_id",
+        "label": "App ID",
+        "default": "389785649153"
+      },
+      {
+        "type": "text",
+        "id": "sbrillet_app_proxy_path",
+        "label": "App Proxy Path",
+        "default": "/apps/sbrillet"
+      }
+    ]
   }
 ]

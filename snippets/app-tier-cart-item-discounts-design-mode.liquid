@@ -1,0 +1,30 @@
+{% liquid
+  assign shape_diamond = 'app-icon-shape-diamond-polygon-gold.png' | asset_img_url
+  assign percentage_items = '10,20,30' | split: ','
+%}
+
+<div class="cart-items-discounts">
+  <div class="percentage-item-list">
+    {% for percentage_item in percentage_items %}
+      <div class="percentage-item">
+        <div class="diamond-box">
+          <span>
+            <img
+              class="diamond-box__shape"
+              src="{{ shape_diamond }}"
+              alt=""
+              width="70"
+              height="54"
+            >
+          </span>
+          <span class="label">{{ percentage_item }}%</span>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="percentage-label-items" data-label-carousel="motion">
+    <span class="label-item">Buy 1st | Save 10%</span>
+    <span class="label-item">Buy 2nd | Save 20%</span>
+    <span class="label-item">Buy 3rd | Save 30%</span>
+  </div>
+</div>

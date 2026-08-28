@@ -1,0 +1,12 @@
+{% liquid
+  assign progress_bar_image = 'app-ProgressLevel1.png' | asset_img_url: '1000x'
+%}
+
+<div class="tier-progress-bar" data-tier-progress-bar data-progress-loading="false">
+  <div class="progress-level-text">
+    <p>You have 50 Sparkles - 50 left to reach SHINY</p>
+  </div>
+  <div class="tier-progress-image-box">
+    <img src="{{ progress_bar_image }}" alt="Tier progress toward SHINY" width="1000" height="auto">
+  </div>
+</div>

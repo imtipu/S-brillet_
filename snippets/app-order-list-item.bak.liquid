@@ -1,0 +1,43 @@
+<article class="order-card" role="listitem" data-order="{{ order.id }}">
+  <div class="order-card__summary">
+    <div class="order-card__summary-main">
+      <div class="order-card__title-row">
+        <h3 class="order-card__title">{{ order.name }}</h3>
+        {% if order.cancelled %}
+          <span class="order-card__badge order-card__badge--cancelled">
+            {{- order.cancel_reason_label | default: 'Cancelled' -}}
+          </span>
+        {% endif %}
+      </div>
+
+      <p class="order-card__meta">
+        {{ order.created_at | date: '%b %d, %Y' }}
+        <span class="order-card__dot"></span>
+        {{ order.item_count }}
+        {{ order.item_count | pluralize: 'item', 'items' }}
+        {% if order.confirmation_number != blank %}
+          <span class="order-card__dot"></span>
+          {{ order.confirmation_number }}
+        {% endif %}
+      </p>
+
+      <div class="order-card__status-row">
+        <span class="order-card__status-chip order-status-{{ order.financial_status }}">
+          {{- order.financial_status_label | default: order.financial_status -}}
+        </span>
+        <span class="order-card__status-chip order-fulfillment-status-{{ order.fulfillment_status}}">
+          {{- order.fulfillment_status_label | default: 'Processing' -}}
+        </span>
+        {% if order.pickup_in_store? %}
+          <span class="order-card__status-chip">Store pickup</span>
+        {% endif %}
+      </div>
+    </div>
+
+   
+  </div>
+
+  <div class="order-action">
+    <a href="{{ order.customer_order_url }}" target="_blank">View Detail</a>
+  </div>
+</article>

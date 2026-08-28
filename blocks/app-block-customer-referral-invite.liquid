@@ -1,0 +1,457 @@
+{{ 'app-block-customer-referral-invite.css' | asset_url | stylesheet_tag }}
+
+{% liquid
+  assign proxy_path = block.settings.proxy_path | default: '/apps/storefront/api/customer/referral-accept'
+%}
+
+<customer-referral-invite
+  class="customer-referral-invite"
+  data-proxy-path="{{ proxy_path | escape }}"
+  data-title="{{ block.settings.title | escape }}"
+  data-loading-label="{{ block.settings.loading_label | escape }}"
+  data-success-label="{{ block.settings.success_label | escape }}"
+  data-login-label="{{ block.settings.login_label | escape }}"
+  data-error-label="{{ block.settings.error_label | escape }}"
+  data-button-label="{{ block.settings.button_label | escape }}"
+  data-button-url="{{ block.settings.button_url | escape }}"
+  style="
+    --invite-max-width: {{ block.settings.max_width }}{{ block.settings.max_width_unit }};
+    --invite-min-height: {{ block.settings.min_height }}px;
+    --invite-padding: {{ block.settings.padding }}px;
+    --invite-radius: {{ block.settings.border_radius }}px;
+    --invite-shadow: {% if block.settings.show_shadow %}0 14px 34px rgb(31 41 51 / {{ block.settings.shadow_opacity | divided_by: 100.0 }}){% else %}none{% endif %};
+    --invite-bg: {{ block.settings.background_color }};
+    --invite-border: {{ block.settings.border_color }};
+    --invite-text: {{ block.settings.text_color }};
+    --invite-title-color: {{ block.settings.title_color }};
+    --invite-title-size: {{ block.settings.title_font_size }}px;
+    --invite-title-weight: {{ block.settings.title_font_weight }};
+    --invite-message-color: {{ block.settings.message_color }};
+    --invite-message-size: {{ block.settings.message_font_size }}px;
+    --invite-message-weight: {{ block.settings.message_font_weight }};
+    --invite-content-gap: {{ block.settings.content_gap }}px;
+    --invite-icon-size: {{ block.settings.icon_size }}px;
+    --invite-icon-bg: {{ block.settings.icon_background_color }};
+    --invite-icon-text: {{ block.settings.icon_text_color }};
+    --invite-icon-border: {{ block.settings.icon_border_color }};
+    --invite-error-bg: {{ block.settings.error_background_color }};
+    --invite-error-text: {{ block.settings.error_text_color }};
+    --invite-error-border: {{ block.settings.error_border_color }};
+    --invite-button-height: {{ block.settings.button_height }}px;
+    --invite-button-padding-x: {{ block.settings.button_padding_x }}px;
+    --invite-button-radius: {{ block.settings.button_border_radius }}px;
+    --invite-button-size: {{ block.settings.button_font_size }}px;
+    --invite-button-weight: {{ block.settings.button_font_weight }};
+    --invite-button-bg: {{ block.settings.button_background_color }};
+    --invite-button-text: {{ block.settings.button_text_color }};
+    --invite-button-border: {{ block.settings.button_border_color }};
+    --invite-button-hover-bg: {{ block.settings.button_hover_background_color }};
+    --invite-button-hover-text: {{ block.settings.button_hover_text_color }};
+    --invite-button-hover-border: {{ block.settings.button_hover_border_color }};
+    --invite-spinner-color: {{ block.settings.spinner_color }};
+    --invite-spinner-track: {{ block.settings.spinner_track_color }};
+    --invite-focus: {{ block.settings.focus_color }};
+  "
+  {{ block.shopify_attributes }}
+>
+  <div class="customer-referral-invite__panel" data-referral-invite-panel>
+    <div class="customer-referral-invite__state">
+      <span class="customer-referral-invite__spinner" aria-hidden="true"></span>
+      <span>{{ block.settings.loading_label | escape }}</span>
+    </div>
+  </div>
+</customer-referral-invite>
+
+<script src="{{ 'app-block-customer-referral-invite.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Referral invite",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Referral Invite"
+    },
+    {
+      "type": "text",
+      "id": "loading_label",
+      "label": "Loading label",
+      "default": "Checking referral invite"
+    },
+    {
+      "type": "text",
+      "id": "success_label",
+      "label": "Success label",
+      "default": "Invitation accepted successfully."
+    },
+    {
+      "type": "text",
+      "id": "login_label",
+      "label": "Login label",
+      "default": "Sign in to accept this referral invite."
+    },
+    {
+      "type": "text",
+      "id": "error_label",
+      "label": "Error label",
+      "default": "Referral invite could not be accepted."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Go to account"
+    },
+    {
+      "type": "url",
+      "id": "button_url",
+      "label": "Button link"
+    },
+    {
+      "type": "select",
+      "id": "design_demo_state",
+      "label": "Theme editor demo state",
+      "options": [
+        { "value": "success", "label": "Success" },
+        { "value": "login", "label": "Login" },
+        { "value": "error", "label": "Error" },
+        { "value": "loading", "label": "Loading" }
+      ],
+      "default": "success"
+    },
+    {
+      "type": "header",
+      "content": "Data"
+    },
+    {
+      "type": "text",
+      "id": "proxy_path",
+      "label": "Proxy path",
+      "default": "/apps/sbrillet/api/customer/referral-accept"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "max_width_unit",
+      "label": "Max width unit",
+      "options": [
+        { "value": "px", "label": "px" },
+        { "value": "%", "label": "%" }
+      ],
+      "default": "px"
+    },
+    {
+      "type": "number",
+      "id": "max_width",
+      "label": "Max width",
+      "default": 760
+    },
+    {
+      "type": "range",
+      "id": "min_height",
+      "label": "Minimum height",
+      "min": 140,
+      "max": 420,
+      "step": 10,
+      "unit": "px",
+      "default": 240
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "label": "Padding",
+      "min": 16,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "content_gap",
+      "label": "Content gap",
+      "min": 8,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shadow",
+      "label": "Show shadow",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "shadow_opacity",
+      "label": "Shadow opacity",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "%",
+      "default": 10
+    },
+    {
+      "type": "header",
+      "content": "Typography and colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border",
+      "default": "#e8e2dd"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#1f2933"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title",
+      "default": "#1f2933"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "label": "Title font size",
+      "min": 18,
+      "max": 42,
+      "step": 1,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "select",
+      "id": "title_font_weight",
+      "label": "Title font weight",
+      "options": [
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semibold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "color",
+      "id": "message_color",
+      "label": "Message",
+      "default": "#4b5563"
+    },
+    {
+      "type": "range",
+      "id": "message_font_size",
+      "label": "Message font size",
+      "min": 13,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "message_font_weight",
+      "label": "Message font weight",
+      "options": [
+        { "value": "400", "label": "Regular" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semibold" }
+      ],
+      "default": "500"
+    },
+    {
+      "type": "header",
+      "content": "Icon and states"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Icon size",
+      "min": 32,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "color",
+      "id": "icon_background_color",
+      "label": "Success icon background",
+      "default": "#dcfce7"
+    },
+    {
+      "type": "color",
+      "id": "icon_text_color",
+      "label": "Success icon text",
+      "default": "#166534"
+    },
+    {
+      "type": "color",
+      "id": "icon_border_color",
+      "label": "Success icon border",
+      "default": "#bbf7d0"
+    },
+    {
+      "type": "color",
+      "id": "error_background_color",
+      "label": "Error icon background",
+      "default": "#ffe4e6"
+    },
+    {
+      "type": "color",
+      "id": "error_text_color",
+      "label": "Error text",
+      "default": "#9f1239"
+    },
+    {
+      "type": "color",
+      "id": "error_border_color",
+      "label": "Error icon border",
+      "default": "#fecdd3"
+    },
+    {
+      "type": "color",
+      "id": "spinner_color",
+      "label": "Spinner color",
+      "default": "#1f2933"
+    },
+    {
+      "type": "color",
+      "id": "spinner_track_color",
+      "label": "Spinner track",
+      "default": "#d1d5db"
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "range",
+      "id": "button_height",
+      "label": "Button height",
+      "min": 34,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "default": 44
+    },
+    {
+      "type": "range",
+      "id": "button_padding_x",
+      "label": "Button horizontal padding",
+      "min": 12,
+      "max": 34,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Button radius",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "label": "Button font size",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "button_font_weight",
+      "label": "Button font weight",
+      "options": [
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semibold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "color",
+      "id": "button_background_color",
+      "label": "Button background",
+      "default": "#1f2933"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_border_color",
+      "label": "Button border",
+      "default": "#1f2933"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_background_color",
+      "label": "Button hover background",
+      "default": "#374151"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_text_color",
+      "label": "Button hover text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_border_color",
+      "label": "Button hover border",
+      "default": "#374151"
+    },
+    {
+      "type": "color",
+      "id": "focus_color",
+      "label": "Focus outline",
+      "default": "#1f2933"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Customer Referral Invite",
+      "category": "SBrillet App"
+    }
+  ]
+}
+{% endschema %}

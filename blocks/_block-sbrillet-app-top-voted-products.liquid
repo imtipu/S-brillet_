@@ -1,0 +1,228 @@
+{{ 'app-block-top-voted-products.css' | asset_url | stylesheet_tag: preload: true }}
+
+{% liquid
+  assign storefront_proxy_path = settings.sbrillet_app_proxy_path | default: '/apps/sbrillet'
+  assign app_id = settings.sbrillet_app_id | prepend: 'app--'
+  assign sbrillet_metafields = customer.metafields[app_id]
+  assign current_tier = sbrillet_metafields.loyalty_tier_config.value
+  assign current_tier_key = current_tier.level | default: 'SHINY'
+  assign icon_star_level_shiny = 'app-icon-star-level-shiny.svg' | inline_asset_content
+  assign icon_star_level_starlight = 'app-icon-star-level-starlight.svg' | inline_asset_content
+  assign icon_star_level_galaxy = 'app-icon-star-level-galaxy.svg' | inline_asset_content
+
+  assign icon_thumbs_up = 'icon-thumbs-up.svg' | asset_url
+
+  assign block_max_width = block.settings.block_max_width | default: "1300" | append: "px"
+  if block.settings.enable_full_width
+    assign block_max_width = "100%"
+  endif
+%}
+
+<block-top-voted-products
+  data-proxy-path="{{ storefront_proxy_path }}"
+  data-tier-level="{{ current_tier_key }}"
+  data-icon-thumbs-up="{{ icon_thumbs_up }}"
+>
+  <style>
+    :root {
+      --block-max-width: {{ block_max_width }};
+      --block-background: {{ block.settings.block_background_color }};
+      --block-padding-top: {{ block.settings.block_padding_top }}px;
+      --block-padding-bottom: {{ block.settings.block_padding_bottom }}px;
+      --block-padding-left: {{ block.settings.block_padding_left }}px;
+      --block-padding-right: {{ block.settings.block_padding_right }}px;
+      --block-margin-top: {{ block.settings.block_margin_top }}px;
+      --block-margin-bottom: {{ block.settings.block_margin_bottom }}px;
+      --top-products-columns-desktop: {{ block.settings.columns_desktop }};
+      --top-products-columns-tablet: {{ block.settings.columns_tablet }};
+      --top-products-columns-mobile: {{ block.settings.columns_mobile }};
+      --top-products-grid-gap: {{ block.settings.grid_gap }}px;
+      --top-products-card-radius: {{ block.settings.card_radius }}px;
+    }
+  </style>
+  <template data-tier-icon="SHINY">{{ icon_star_level_shiny }}</template>
+  <template data-tier-icon="STARLIGHT">{{ icon_star_level_starlight }}</template>
+  <template data-tier-icon="GALAXY">{{ icon_star_level_galaxy }}</template>
+  <template data-tier-icon="ULTRA_GALAXY">{{ icon_star_level_galaxy }}</template>
+
+  <div class="top-voted-products" {{ block.shopify_attributes }}>
+    <div class="top-voted-products__header">
+      <div>
+        <p class="top-voted-products__eyebrow">{{ block.settings.eyebrow }}</p>
+        <h2 class="top-voted-products__heading">{{ block.settings.title }}</h2>
+      </div>
+      {% comment %}<span class="top-voted-products__grid-icon" aria-hidden="true">{% endcomment %}
+        {% comment %}<svg viewBox="0 0 24 24" fill="none">{% endcomment %}
+          {% comment %}<path d="M4 4H10V10H4V4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>{% endcomment %}
+          {% comment %}<path d="M14 4H20V10H14V4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>{% endcomment %}
+          {% comment %}<path d="M4 14H10V20H4V14Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>{% endcomment %}
+          {% comment %}<path d="M14 14H20V20H14V14Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>{% endcomment %}
+        {% comment %}</svg>{% endcomment %}
+      {% comment %}</span>{% endcomment %}
+    </div>
+
+    {% if request.design_mode %}
+      {% render 'app-top-voted-products-design-mode' %}
+    {% else %}
+      <div class="top-voted-products__grid" data-product-list-content aria-live="polite" aria-busy="true">
+        {% for index in (1..4) %}
+          <article class="top-product-card top-product-card--skeleton" aria-hidden="true">
+            <div class="top-product-card__image top-product-skeleton"></div>
+            <div class="top-product-card__body">
+              <span class="top-product-skeleton top-product-skeleton--title"></span>
+              <span class="top-product-skeleton top-product-skeleton--meta"></span>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+      <div class="top-voted-products__empty" data-empty-state hidden></div>
+    {% endif %}
+  </div>
+</block-top-voted-products>
+
+<script src="{{ 'app-block-top-voted-products.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Top Voted Products",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Community picks"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Top Voted Designs"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_full_width",
+      "label": "Enable Full Width",
+      "default": false
+    },
+    {
+      "type": "number",
+      "id": "block_max_width",
+      "label": "Max Width",
+      "default": 1300
+    },
+    {
+      "type": "color_background",
+      "id": "block_background_color",
+      "label": "Background Color",
+      "default": "#fff"
+    },
+    {
+      "type": "range",
+      "id": "block_margin_top",
+      "label": "Margin Top",
+      "default": 0,
+      "min": 0,
+      "max": 100
+    },
+    {
+      "type": "range",
+      "id": "block_margin_bottom",
+      "label": "Margin Bottom",
+      "default": 0,
+      "min": 0,
+      "max": 100
+    },
+    {
+      "type": "range",
+      "id": "block_padding_top",
+      "label": "Padding Top",
+      "default": 15,
+      "min": 0,
+      "max": 100
+    },
+    {
+      "type": "range",
+      "id": "block_padding_bottom",
+      "label": "Padding Bottom",
+      "default": 15,
+      "min": 0,
+      "max": 100
+    },
+    {
+      "type": "range",
+      "id": "block_padding_left",
+      "label": "Padding Left",
+      "default": 0,
+      "min": 0,
+      "max": 100
+    },
+    {
+      "type": "range",
+      "id": "block_padding_right",
+      "label": "Padding Right",
+      "default": 0,
+      "min": 0,
+      "max": 100
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "Columns on desktop",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" },
+        { "value": "5", "label": "5" }
+      ],
+      "default": "4"
+    },
+    {
+      "type": "select",
+      "id": "columns_tablet",
+      "label": "Columns on tablet",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ],
+      "default": "3"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns on mobile",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "label": "Grid gap",
+      "min": 8,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card radius",
+      "min": 8,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    }
+  ],
+  "presets": [
+    {
+      "name": "Top Voted Products",
+      "category": "SBrillet App"
+    }
+  ]
+}
+{% endschema %}

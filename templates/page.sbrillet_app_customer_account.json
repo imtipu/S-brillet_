@@ -1,0 +1,41 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "header": {
+      "type": "app-sbrillet-dashboard-header",
+      "blocks": {
+        "vip_universe": {"type": "menu_item", "settings": {"label": "My VIP Universe", "link": "/pages/my-vip-universe"}},
+        "discover_shop": {"type": "menu_item", "settings": {"label": "Discover & Shop", "link": "/pages/discover-shop"}},
+        "orders": {"type": "menu_item", "settings": {"label": "Orders", "link": "/pages/my-orders"}},
+        "perks_and_community": {"type": "menu_item", "settings": {"label": "Perks & Community", "link": "/pages/perks-community"}}
+      },
+      "block_order": ["vip_universe", "discover_shop", "orders", "perks_and_community"],
+      "settings": {}
+    },
+    "page-sbrillet": {
+      "type": "app-page-sbrillet",
+      "settings": {},
+      "blocks": {
+        "customer_account_profile": {
+          "type": "_block-sbrillet-app-customer-account-profile",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "customer_account_profile"
+      ]
+    }
+  },
+  "order": [
+    "header",
+    "page-sbrillet"
+  ]
+}

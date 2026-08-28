@@ -1,0 +1,11 @@
+[environments.default]
+store = "example-prod.myshopify.com"
+live-relod = "hot-reload"
+
+[environments.staging]
+store = "example-staging.myshopify.com"
+live-relod = "hot-reload"
+
+[environments.example]
+store = "example.myshopify.com"
+live-relod = "hot-reload"

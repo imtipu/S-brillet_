@@ -1,0 +1,128 @@
+<div class="customer-account-profile__panel customer-account-profile__panel--address">
+  <div class="address-list-header">
+    <div class="address-list-header__content">
+      <h3 class="address-list-header__title">{{ block.settings.address_heading }}</h3>
+    </div>
+    <p class="address-list-header__count">{{ customer.addresses_count }} total</p>
+  </div>
+  {% if customer.addresses_count > 0 %}
+    {% paginate customer.addresses by 5 %}
+      <div class="address-list" role="list">
+        {% for address in customer.addresses %}
+          <article class="address-card address-card--compact" role="listitem">
+            <div class="address-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 21C15.5 17.2 19 14.1 19 10A7 7 0 1 0 5 10c0 4.1 3.5 7.2 7 11Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                <circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="1.8"></circle>
+              </svg>
+            </div>
+
+            <div class="address-card__content">
+              <header class="address-card__header">
+                <div class="address-card__header-content">
+                  <div class="address-card__title-row">
+                    <h3 class="address-card__title">{{ address.name | default: customer_name }}</h3>
+                    {% if default_address and default_address.id == address.id %}
+                      <span class="customer-account-profile__badge">Default</span>
+                    {% endif %}
+                  </div>
+
+                  <p class="address-card__contact">
+                    {{ address.phone | default: customer.phone | default: 'No phone' }}
+                    <span class="address-card__dot"></span>
+                    {{ customer.email | default: 'No email' }}
+                  </p>
+                  <p class="address-card__subtitle">{{ address.summary }}</p>
+                </div>
+              </header>
+
+              <div class="address-card__details" data-collapsible>
+                <button
+                  type="button"
+                  class="address-card__details-toggle"
+                  aria-expanded="false"
+                  aria-controls="address-details-{{ address.id }}"
+                >
+                  <span>Full details</span>
+                  {% comment %}
+                    <svg viewBox="0 0 20 20" fill="none">
+                      <path d="M5 8L10 13L15 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                  {% endcomment %}
+                  {{ 'icon-chevron-up.svg' | inline_asset_content }}
+                </button>
+
+                <div
+                  id="address-details-{{ address.id }}"
+                  class="address-card__details-content"
+                  hidden
+                >
+                  <div class="address-card__detail-grid">
+                    <div class="address-card__detail">
+                      <span class="customer-account-profile__label">City</span>
+                      <span class="customer-account-profile__value">{{ address.city | default: 'N/A' }}</span>
+                    </div>
+
+                    <div class="address-card__detail">
+                      <span class="customer-account-profile__label">State</span>
+                      <span class="customer-account-profile__value">{{ address.province | default: 'N/A' }}</span>
+                    </div>
+
+                    <div class="address-card__detail">
+                      <span class="customer-account-profile__label">Country</span>
+                      <span class="customer-account-profile__value">{{ address.country | default: 'N/A' }}</span>
+                    </div>
+
+                    <div class="address-card__detail">
+                      <span class="customer-account-profile__label">Province code</span>
+                      <span class="customer-account-profile__value">
+                        {{- address.province_code | default: 'N/A' -}}
+                      </span>
+                    </div>
+
+                    <div class="address-card__detail">
+                      <span class="customer-account-profile__label">Country code</span>
+                      <span class="customer-account-profile__value">
+                        {{- address.country_code | default: 'N/A' -}}
+                      </span>
+                    </div>
+
+                    <div class="address-card__detail">
+                      <span class="customer-account-profile__label">Postal code</span>
+                      <span class="customer-account-profile__value">{{ address.zip | default: 'N/A' }}</span>
+                    </div>
+                  </div>
+
+                  <div class="address-card__details-footer">
+                    <a href="{{ address.url }}" class="address-card__profile-button"> View address in profile </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+
+      <div class="address-list-pagination">
+        {% if paginate.previous %}
+          <a class="address-card__page-button" href="{{ paginate.previous.url }}">Prev</a>
+        {% else %}
+          <span class="address-card__page-button is-disabled">Prev</span>
+        {% endif %}
+
+        <span class="address-list-pagination__status">Page {{ paginate.current_page }} of {{ paginate.pages -}}</span>
+
+        {% if paginate.next %}
+          <a class="address-card__page-button" href="{{ paginate.next.url }}">Next</a>
+        {% else %}
+          <span class="address-card__page-button is-disabled">Next</span>
+        {% endif %}
+      </div>
+    {% endpaginate %}
+  {% else %}
+    <div class="customer-account-profile__empty-state">
+      <h3>No saved addresses yet</h3>
+      <p>Add an address to make checkout and order updates faster.</p>
+    </div>
+  {% endif %}
+</div>

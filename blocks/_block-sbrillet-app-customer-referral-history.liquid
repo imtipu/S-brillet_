@@ -1,0 +1,58 @@
+{{ 'app-block-customer-account-referral-history.css' | asset_url | stylesheet_tag: preload: true }}
+
+{% liquid
+  assign storefront_proxy_path = settings.sbrillet_app_proxy_path | default: '/apps/sbrillet'
+  assign app_id = settings.sbrillet_app_id | prepend: 'app--'
+  assign sbrillet_metafields = customer.metafields[app_id]
+  assign current_tier = sbrillet_metafields.loyalty_tier_config.value
+  assign current_tier_key = current_tier.level | default: 'SHINY'
+%}
+<customer-account-referral-history
+  data-proxy-path="{{ storefront_proxy_path }}"
+  data-tier-level="{{ current_tier_key }}"
+>
+  <div class="customer-referral-history">
+    <div class="referral-history-header">
+      <p class="referral-history-eyebrow">Referral activity</p>
+      {% comment %} <h1 class="header-title">Referral History</h1> {% endcomment %}
+    </div>
+    <div data-list-container class="list-container" aria-live="polite" aria-busy="true">
+      <div class="table-container">
+        <table data-list-table>
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Code</th>
+              <th>Status</th>
+              <th>Point</th>
+            </tr>
+          </thead>
+          <tbody data-referral-history-body>
+            {% for index in (1..4) %}
+              <tr class="referral-history-skeleton-row" aria-hidden="true">
+                <td><span class="referral-history-skeleton referral-history-skeleton--wide"></span></td>
+                <td><span class="referral-history-skeleton referral-history-skeleton--code"></span></td>
+                <td><span class="referral-history-skeleton referral-history-skeleton--status"></span></td>
+                <td><span class="referral-history-skeleton referral-history-skeleton--points"></span></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</customer-account-referral-history>
+<script src="{{ 'app-block-customer-account-referral-history.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Customer Referral History",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Customer Referral History",
+      "category": "SBrillet App"
+    }
+  ]
+}
+{% endschema %}

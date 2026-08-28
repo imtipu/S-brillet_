@@ -1,0 +1,45 @@
+{% liquid
+  assign default_tier_logo = 'SbrilletFinalLogo.svg' | asset_url
+  assign default_tier_icon = 'tier_level_icon.svg' | asset_url
+  assign tier_level = tier_level | default: 'STARLIGHT'
+  assign tier_name = tier_name | default: 'STARLIGHT'
+  assign total_points = total_points | default: 350
+  assign next_points = next_points | default: 700
+  assign purchase_points = purchase_points | default: 125
+  assign referral_points = referral_points | default: 125
+  assign tier_logo = tier_logo | default: default_tier_logo
+  assign tier_icon = tier_icon | default: default_tier_icon
+%}
+
+<article class="lpc-card" data-lpc-card>
+  <div class="lpc-card__summary">
+    <div class="lpc-card__badge" aria-hidden="true">
+      <span class="lpc-card__badge-ring">
+        <img src="{{ tier_logo }}" alt="" width="100" height="100" loading="lazy">
+      </span>
+    </div>
+
+    <div class="lpc-card__points">
+      <h2 class="lpc-card__heading">{{ heading | default: 'VIP Status' | escape }}</h2>
+      <strong>{{ total_points }}</strong>
+      <span>{{ points_label | default: 'Sparkle Points' | escape }}</span>
+    </div>
+  </div>
+
+  <section class="lpc-card__benefits" aria-label="{{ tier_name | escape }} benefits">
+    <header class="lpc-card__tier">
+      <span class="lpc-card__tier-name">
+        <img src="{{ tier_icon }}" alt="" width="100" height="100" loading="lazy">
+        {{ tier_name | escape }}
+      </span>
+      <strong>({{ next_points }} {{ points_label | default: 'Sparkle Points' | escape }})</strong>
+    </header>
+
+    <div class="lpc-card__benefit-grid">
+      <div class="lpc-card__benefit-label"><span></span>{{ purchase_label | default: 'Purchase Items' | escape }}</div>
+      <div class="lpc-card__benefit-value">{{ currency_symbol | default: '$' }}100 = +{{ purchase_points }} {{ points_label | default: 'Sparkle Points' | escape }}</div>
+      <div class="lpc-card__benefit-label"><span></span>{{ referral_label | default: 'Refer a Friend' | escape }}</div>
+      <div class="lpc-card__benefit-value">+ {{ referral_points }} {{ points_label | default: 'Sparkle Points' | escape }}</div>
+    </div>
+  </section>
+</article>

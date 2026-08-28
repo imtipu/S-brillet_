@@ -1,0 +1,31 @@
+{{ 'app-block-customer-discounts.css' | asset_url | stylesheet_tag: preload: true }}
+
+<customer-discount-list>
+  <div class="customer-discounts" data-discounts-root>
+    <div class="customer-discounts__status" data-discounts-status>Loading discounts...</div>
+    <div class="customer-discounts__items" data-discounts-items></div>
+  </div>
+</customer-discount-list>
+
+<script src="{{ 'app-block-customer-discounts.js' | asset_url }}" defer></script>
+
+
+{% schema %}
+{
+  "name": "Customer Discount List",
+  "settings": [
+    {
+      "type": "number",
+      "id": "items_gap",
+      "label": "Items Gap",
+      "default": 10
+    }
+  ],
+  "presets": [
+    {
+      "name": "Customer Discount List",
+      "category": "SBrillet App"
+    }
+  ]
+}
+{% endschema %}

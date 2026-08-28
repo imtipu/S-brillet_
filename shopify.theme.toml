@@ -1,0 +1,11 @@
+[environments.default]
+store = "zerogear.myshopify.com"
+live-relod = "hot-reload"
+
+[environments.staging]
+store = "sbrillet-theme-dev.myshopify.com"
+live-relod = "hot-reload"
+
+[environments.example]
+store = "example.myshopify.com"
+live-relod = "hot-reload"

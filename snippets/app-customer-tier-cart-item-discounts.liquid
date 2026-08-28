@@ -1,0 +1,95 @@
+{% liquid
+  assign shape_diamond = 'app-icon-shape-diamond-polygon-gold.png' | asset_img_url
+  assign icon_star_white = 'app-icon-star-white.svg' | asset_url
+
+  if tier_level contains 'GALAXY'
+    assign shape_diamond = 'app-icon-shape-diamond-polygon-galaxy.png' | asset_img_url
+  endif
+%}
+<div class="cart-items-discounts">
+  {% if percentages.size > 0 %}
+    <div class="percentage-item-list">
+      {% for percentage_item in percentages %}
+        <div class="percentage-item">
+          <div class="diamond-box">
+            <span>
+              <img
+                class="diamond-box__shape"
+                src="{{ shape_diamond }}"
+                alt="Tier Shape"
+                width="70"
+                height="54"
+              >
+            </span>
+            <span class="label">{{ percentage_item }}%</span>
+          </div>
+        </div>
+      {% endfor %}
+      {% if tier_level contains 'GALAXY' or tier_level contains 'STARLIGHT' %}
+        <div class="percentage-item">
+          <div class="diamond-box">
+            <span>
+              <img
+                class="diamond-box__shape"
+
+                src="{{ shape_diamond }}"
+                alt="Tier Shape"
+                width="70"
+                height="54"
+              >
+            </span>
+            <span class="label">
+              <img
+                src="{{ icon_star_white }}"
+                width="20"
+                height="20"
+                alt=""
+                style="width: 26px; height: 26px"
+              />
+            </span>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+    <div class="percentage-label-items">
+      {% for percentage_item in percentages %}
+        <span
+          class="label-item"
+          data-percentage-label-item
+          data-percentage-index="{{ forloop.index }}"
+          data-percentage-value="{{ percentage_item }}"
+        ></span>
+      {% endfor %}
+    </div>
+    {% if tier_level contains 'GALAXY' or tier_level contains 'STARLIGHT' %}
+      <div class="additional-item">
+        <span class="label-item">Buy 1 + GET 1 Free Gift Item Next Order</span>
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="percentage-item-list">
+      {% for index in (1..4) %}
+        <div class="percentage-item">
+          <div class="diamond-box">
+            <span>
+              <img
+                class="diamond-box__shape"
+                src="{{ icon_shape_diamond_white }}"
+                alt="Tier Shape"
+                width="70"
+                height="54"
+              >
+            </span>
+            <img
+              class="lock-icon"
+              src="{{ lock_icon }}"
+              alt=""
+              width="20"
+              height="20"
+            >
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>

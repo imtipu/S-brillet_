@@ -1,0 +1,66 @@
+<customer-point-history-overview
+  data-proxy-path="{{ proxy_path | default: '/apps/sbrillet' }}"
+  data-limit="20"
+  aria-live="polite"
+  data-icon-plus="{{ icon_plus }}"
+  data-icon-minus="{{ icon_minus }}"
+>
+  <h3 class="customer-point-history-overview__title font-inter">Sparkles History</h3>
+  <div data-point-history-content tabindex="0" aria-label="Sparkles history">
+    {% if request.design_mode %}
+      <div class="customer-point-history-overview__items">
+        {% assign history_items = 'EARN|CONFIRMED|120|false,REDEEM|CONFIRMED|50|true,EARN|PENDING|75|false'
+          | split: ','
+        %}
+        {% for history_item in history_items %}
+          {% assign history_parts = history_item | split: '|' %}
+          {% assign history_type = history_parts[0] %}
+          {% assign history_icon = icon_plus %}
+          {% if history_type == 'REDEEM' %}
+            {% assign history_icon = icon_minus %}
+          {% endif %}
+          <div class="customer-point-history-overview__item feature-item font-inter">
+            <div class="item-label">
+              <span class="customer-point-history-overview__type" aria-hidden="true">
+                <img src="{{ history_icon }}" alt="" width="12" height="12">
+              </span>
+              <span class="customer-point-history-overview__point-type label">{{ history_type }}</span>
+              <span class="customer-point-history-overview__badge">{{ history_parts[1] }}</span>
+              {% if history_parts[3] == 'true' %}
+                <span class="customer-point-history-overview__order-context">Used for order</span>
+              {% endif %}
+            </div>
+            <div class="point-amount text-gradient">
+              {% if history_type == 'REDEEM' %}-{% else %}+{% endif -%}
+              {{- history_parts[2] }}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div
+        class="customer-point-history-overview__items customer-point-history-overview__items--skeleton"
+        aria-hidden="true"
+      >
+        {% for index in (1..3) %}
+          <div class="customer-point-history-overview__item feature-item font-inter customer-point-history-overview__item--skeleton">
+            <div class="item-label">
+              <span
+                class="customer-point-history-overview__skeleton customer-point-history-overview__skeleton--icon"
+              ></span>
+              <span
+                class="customer-point-history-overview__skeleton customer-point-history-overview__skeleton--label"
+              ></span>
+              <span
+                class="customer-point-history-overview__skeleton customer-point-history-overview__skeleton--badge"
+              ></span>
+            </div>
+            <span
+              class="customer-point-history-overview__skeleton customer-point-history-overview__skeleton--points"
+            ></span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</customer-point-history-overview>

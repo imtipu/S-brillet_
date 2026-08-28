@@ -1,0 +1,242 @@
+customer-account-referral-history {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    font-family: "Inter", sans-serif;
+    --tier-border-color: rgb(230 215 203);
+    --tier-accent: #947863;
+    --tier-tint: rgb(230 215 203 / 8%);
+    --tier-text-color: #2c2c2c;
+    --profile-soft-border: var(--tier-border-color);
+    --profile-counter-surface: #fff;
+    --profile-muted-strong: rgb(44 44 44 / 82%);
+    --profile-muted-soft: rgb(44 44 44 / 70%);
+    --referral-card-bg: #fff;
+    --referral-link-surface: #fff;
+    --referral-link-text: var(--tier-text-color);
+    --referral-divider: var(--tier-border-color);
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    .customer-referral-history {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+        min-width: 0;
+        padding: clamp(0.85rem, 1.6vw, 1rem);
+        border: 1px solid var(--profile-soft-border, rgba(229, 226, 221, 1));
+        border-radius: 0.8rem;
+        background: var(--referral-card-bg, rgba(255, 255, 255, 0.94));
+        box-shadow: none;
+        backdrop-filter: blur(10px);
+        color: var(--tier-text-color, inherit);
+    }
+
+    .referral-history-header {
+        display: grid;
+        gap: 0.2rem;
+    }
+
+    .referral-history-eyebrow {
+        margin: 0;
+        color: var(--profile-muted-soft, rgba(44, 44, 44, 0.7));
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        line-height: 1.2;
+        text-transform: uppercase;
+    }
+
+    .header-title {
+        margin: 0;
+        color: var(--profile-muted-strong, rgba(44, 44, 44, 0.82));
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.25;
+    }
+
+    .list-container {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        min-width: 0;
+        border: 1px solid var(--profile-soft-border, rgba(229, 226, 221, 1));
+        border-radius: 0.7rem;
+        background: var(--profile-counter-surface, #fff);
+        overflow: hidden;
+    }
+
+    .table-container {
+        overflow: auto;
+        width: 100%;
+        background: transparent;
+    }
+
+    table {
+        width: 100%;
+        min-width: 34rem;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background: var(--referral-link-surface, #fff);
+    }
+
+    th {
+        padding: 0.65rem 0.8rem;
+        border-bottom: 1px solid var(--referral-divider, rgba(44, 44, 44, 0.12));
+        color: var(--profile-muted-soft, rgba(44, 44, 44, 0.7));
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-align: left;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    td {
+        padding: 0.7rem 0.8rem;
+        border-top: 1px solid var(--referral-divider, rgba(44, 44, 44, 0.12));
+        color: var(--profile-muted-strong, rgba(44, 44, 44, 0.82));
+        font-size: 0.82rem;
+        line-height: 1.35;
+        text-align: left;
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+
+    tbody tr:first-child td {
+        border-top: 0;
+    }
+
+    tbody tr {
+        transition: background-color 160ms ease;
+    }
+
+    tbody tr:nth-child(even) {
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    tbody tr:hover {
+        background: var(--tier-tint);
+    }
+
+    .referral-history-code,
+    .referral-history-status {
+        display: inline-flex;
+        align-items: center;
+        min-height: 1.5rem;
+        border-radius: 999px;
+        font-size: 0.74rem;
+        font-weight: 700;
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+    .referral-history-code {
+        padding: 0.28rem 0.52rem;
+        background: var(--referral-link-surface, rgba(244, 243, 241, 1));
+        color: var(--referral-link-text, rgba(44, 44, 44, 0.72));
+        letter-spacing: 0.04em;
+    }
+
+    .referral-history-status {
+        padding: 0.28rem 0.58rem;
+        border: 1px solid var(--profile-soft-border, rgba(229, 226, 221, 1));
+        color: var(--profile-muted-strong, rgba(44, 44, 44, 0.82));
+    }
+
+    .referral-history-points {
+        font-weight: 700;
+    }
+
+    .referral-history-message {
+        color: var(--profile-muted-soft, rgba(44, 44, 44, 0.7));
+        text-align: center;
+    }
+
+    .referral-history-skeleton {
+        display: block;
+        height: 0.85rem;
+        border-radius: 999px;
+        background:
+            linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent),
+            color-mix(in srgb, var(--profile-muted-soft, rgba(44, 44, 44, 0.7)) 16%, transparent);
+        background-size: 200% 100%;
+        animation: referral-history-skeleton-pulse 1.2s ease-in-out infinite;
+    }
+
+    .referral-history-skeleton--wide {
+        width: min(13rem, 100%);
+    }
+
+    .referral-history-skeleton--code {
+        width: 5.5rem;
+    }
+
+    .referral-history-skeleton--status {
+        width: 4.75rem;
+    }
+
+    .referral-history-skeleton--points {
+        width: 2.5rem;
+    }
+}
+
+customer-account-referral-history[data-tier-level="SHINY"] {
+    --tier-border-color: rgb(214 194 179);
+    --tier-accent: #80624e;
+    --tier-tint: rgb(214 194 179 / 8%);
+}
+
+customer-account-referral-history[data-tier-level="STARLIGHT"] {
+    --tier-border-color: rgb(183 154 137);
+    --tier-accent: #735744;
+    --tier-tint: rgb(183 154 137 / 8%);
+}
+
+customer-account-referral-history[data-tier-level="GALAXY"],
+customer-account-referral-history[data-tier-level="ULTRA_GALAXY"] {
+    --tier-border-color: rgb(46 37 58);
+    --tier-accent: #2e253a;
+    --tier-tint: rgb(104 82 110 / 8%);
+}
+
+@keyframes referral-history-skeleton-pulse {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+@media (max-width: 749px) {
+    customer-account-referral-history {
+        .customer-referral-history {
+            padding: 0.85rem;
+        }
+
+        table {
+            min-width: 30rem;
+        }
+
+        th,
+        td {
+            padding: 0.62rem 0.7rem;
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    customer-account-referral-history {
+        .referral-history-skeleton {
+            animation: none;
+        }
+    }
+}

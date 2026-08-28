@@ -1,0 +1,217 @@
+<div class="order-full-detail">
+  <div class="order-detail__content">
+    <button type="button" class="btn-detail-close">
+      {{ 'icon-x-close.svg' | inline_asset_content }}
+    </button>
+
+    <div class="order-detail__header">
+      <div class="header-item">
+        <p class="label">Order</p>
+        <p class="value">{{ order.name }}</p>
+      </div>
+      <div class="header-item">
+        <p class="label">Order Date</p>
+        <p class="value">{{ order.created_at | date: '%b %d, %y' }}</p>
+      </div>
+      <div class="header-item header-item__status">
+        <p class="label">Status</p>
+        <div class="status-badges">
+          <span class="status-badge order-status-{{ order.financial_status }}">
+            {{ order.financial_status_label }}
+          </span>
+          <span class="status-badge order-fulfillment-status-{{ order.fulfillment_status }}">
+            {{ order.fulfillment_status_label }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p>Total: {{ order.total_price | money_with_currency }}</p>
+    </div>
+
+    <div class="order-detail__line-items">
+      <p class="total-item-label">Total Items: {{ order.item_count }}</p>
+      <div class="line-item__list">
+        {% for line_item in order.line_items %}
+          <div class="line-item" data-line-item-id="{{ line_item.id }}">
+            <div class="line-item__image">
+              {% if line_item.image %}
+                <img src="{{ line_item.image | image_url: width: 250 }}" width="100" height="100" alt="">
+              {% else %}
+                <div class="no-image"></div>
+              {% endif %}
+            </div>
+            <div class="line-item__content">
+              <div>
+                <h2>{{ line_item.title }}</h2>
+                <p>Quantity: {{ line_item.quantity }}</p>
+              </div>
+              <div>
+                <p>{{ line_item.final_price | money_with_currency }}</p>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% comment %}
+  <div class="order-card__summary-side">
+    <p class="order-card__amount">{{ order.total_price | money_with_currency }}</p>
+
+    <div class="order-card__details" data-collapsible>
+      <button
+        type="button"
+        class="order-card__details-toggle"
+        aria-expanded="false"
+        aria-controls="order-details-{{ order.id }}"
+      >
+        <span>Full order details</span>
+        <svg viewBox="0 0 20 20" fill="none">
+          <path d="M5 8L10 13L15 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+
+      <div
+        id="order-details-{{ order.id }}"
+        class="order-card__details-content"
+        hidden
+      >
+        <div class="order-card__detail-grid">
+          <div class="order-card__detail">
+            <span class="order-card__detail-label">Subtotal</span>
+            <span class="order-card__detail-value">{{ order.line_items_subtotal_price | money_with_currency }}</span>
+          </div>
+
+          <div class="order-card__detail">
+            <span class="order-card__detail-label">Total</span>
+            <span class="order-card__detail-value">{{ order.total_price | money_with_currency }}</span>
+          </div>
+
+          <div class="order-card__detail">
+            <span class="order-card__detail-label">Shipping</span>
+            <span class="order-card__detail-value">{{ order.shipping_price | money_with_currency }}</span>
+          </div>
+
+          <div class="order-card__detail">
+            <span class="order-card__detail-label">Refunded</span>
+            <span class="order-card__detail-value">
+              {{- order.total_refunded_amount | default: 0 | money_with_currency -}}
+            </span>
+          </div>
+
+          <div class="order-card__detail">
+            <span class="order-card__detail-label">Payment</span>
+            <span class="order-card__detail-value">
+              {{- order.financial_status_label | default: order.financial_status -}}
+            </span>
+          </div>
+
+          <div class="order-card__detail">
+            <span class="order-card__detail-label">Fulfillment</span>
+            <span class="order-card__detail-value">{{ order.fulfillment_status_label | default: 'Processing' }}</span>
+          </div>
+        </div>
+
+        <div class="order-card__line-items">
+          <p class="order-card__section-title">Items</p>
+          <div class="order-card__line-item-list">
+            {% for line_item in order.line_items %}
+              <div class="order-card__line-item">
+                <div class="order-card__line-item-media">
+                  {% if line_item.image %}
+                    {{
+                      line_item.image
+                      | image_url: width: 120
+                      | image_tag: class: 'order-card__line-item-image', loading: 'lazy', widths: '80, 120'
+                    }}
+                  {% else %}
+                    <div class="order-card__line-item-placeholder" aria-hidden="true"></div>
+                  {% endif %}
+                </div>
+
+                <div class="order-card__line-item-body">
+                  <div class="order-card__line-item-top">
+                    <div class="order-card__line-item-copy">
+                      <p class="order-card__line-item-title">{{ line_item.title }}</p>
+                      <p class="order-card__line-item-meta">
+                        Qty {{ line_item.quantity }}
+                        {% if line_item.sku != blank %}
+                          <span class="order-card__dot"></span>
+                          {{ line_item.sku }}
+                        {% endif %}
+                      </p>
+                    </div>
+
+                    <div class="order-card__line-item-pricing">
+                      <p class="order-card__line-item-price">
+                        {{ line_item.final_line_price | money_with_currency }}
+                      </p>
+                      {% if line_item.quantity > 1 %}
+                        <p class="order-card__line-item-unit-price">
+                          {{ line_item.final_price | money_with_currency }} each
+                        </p>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  {% unless line_item.product.has_only_default_variant %}
+                    <div class="order-card__line-item-options">
+                      {% for option in line_item.options_with_values %}
+                        <span class="order-card__option-chip">{{ option.name }}: {{ option.value }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endunless %}
+
+                  {% if line_item.line_level_total_discount > 0 %}
+                    <p class="order-card__line-item-discount">
+                      Saved {{ line_item.line_level_total_discount | money_with_currency }}
+                    </p>
+                  {% endif %}
+
+                  {% if line_item.message != blank %}
+                    <p class="order-card__line-item-message">{{ line_item.message }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="order-card__address-grid">
+          {% if order.shipping_address %}
+            <div class="order-card__address-card">
+              <p class="order-card__section-title">Shipping</p>
+              <p class="order-card__address-copy">{{ order.shipping_address.name }}</p>
+              <p class="order-card__address-copy">{{ order.shipping_address.summary }}</p>
+            </div>
+          {% endif %}
+
+          {% if order.billing_address %}
+            <div class="order-card__address-card">
+              <p class="order-card__section-title">Billing</p>
+              <p class="order-card__address-copy">{{ order.billing_address.name }}</p>
+              <p class="order-card__address-copy">{{ order.billing_address.summary }}</p>
+            </div>
+          {% endif %}
+        </div>
+
+        {% if order.note != blank %}
+          <div class="order-card__note">
+            <p class="order-card__section-title">Note</p>
+            <p class="order-card__note-copy">{{ order.note }}</p>
+          </div>
+        {% endif %}
+
+        <div class="order-card__details-footer">
+          <a href="{{ order.customer_order_url | default: order.customer_url }}" class="order-card__profile-button">
+            View order in profile
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endcomment %}

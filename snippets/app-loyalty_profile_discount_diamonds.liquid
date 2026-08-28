@@ -1,0 +1,23 @@
+{% liquid
+  assign default_active_diamond = 'diamond_polygon_black.svg' | asset_url
+  assign default_inactive_diamond = 'diamond_polygon_white.svg' | asset_url
+  assign discount_values = discount_values | default: '20,25,35' | split: ','
+  assign active_diamond = active_diamond | default: default_active_diamond
+  assign inactive_diamond = inactive_diamond | default: default_inactive_diamond
+%}
+
+<section class="lpc-discounts" aria-label="First order item discounts">
+  <div class="lpc-discounts__diamonds">
+    {% for discount in discount_values limit: 3 %}
+      <span class="lpc-discounts__diamond{% if forloop.first %} is-active{% endif %}">
+        <img src="{% if forloop.first %}{{ active_diamond }}{% else %}{{ inactive_diamond }}{% endif %}" alt="" width="50" height="50" loading="lazy">
+        <strong>{{ discount }}<small>%</small></strong>
+      </span>
+    {% endfor %}
+    <span class="lpc-discounts__diamond lpc-discounts__diamond--icon">
+      <img src="{{ inactive_diamond }}" alt="" width="50" height="40" loading="lazy">
+      <b aria-hidden="true">✦</b>
+    </span>
+  </div>
+  <p>{{ prefix | default: 'BUY 1ST' | escape }} <span>{{ separator | default: '|' | escape }}</span> {{ suffix | default: 'SAVE' | escape }} {{ discount_values.first }}%</p>
+</section>

@@ -1,0 +1,45 @@
+{% doc %}
+  image0: points == 0
+  image1: 0 < points < 50
+  image2: 50 <= points < 100
+  image3: points == 100
+  image4: 100 < points < 700
+  image5: points == 700
+  image6: 700 < points <= 850
+  image7: points > 850
+
+  No need to show for ultra galaxy
+{% enddoc %}
+
+{% liquid
+
+  assign progress_bar_image0 = 'app-ProgressLevel0.png' | asset_img_url: '1000x'
+  assign progress_bar_image1 = 'app-ProgressLevel1.png' | asset_img_url: '1000x'
+  assign progress_bar_image2 = 'app-ProgressLevel2.png' | asset_img_url: '1000x'
+  assign progress_bar_image3 = 'app-ProgressLevel3.png' | asset_img_url: '1000x'
+  assign progress_bar_image4 = 'app-ProgressLevel4.png' | asset_img_url: '1000x'
+  assign progress_bar_image5 = 'app-ProgressLevel5.png' | asset_img_url: '1000x'
+  assign progress_bar_image6 = 'app-ProgressLevel6.png' | asset_img_url: '1000x'
+  assign progress_bar_image7 = 'app-ProgressLevel7.png' | asset_img_url: '1000x'
+%}
+
+<div class="tier-progress-bar" data-tier-progress-bar data-progress-loading="true">
+  <div class="progress-level-text">
+    <span class="progress-skeleton progress-skeleton--text"></span>
+  </div>
+  <div class="tier-progress-image-box">
+    <span class="progress-skeleton progress-skeleton--bar"></span>
+  </div>
+</div>
+<script type="application/json" data-tier-progress-bar-images>
+  [
+    "{{ progress_bar_image0 }}",
+    "{{ progress_bar_image1 }}",
+    "{{ progress_bar_image2 }}",
+    "{{ progress_bar_image3 }}",
+    "{{ progress_bar_image4 }}",
+    "{{ progress_bar_image5 }}",
+    "{{ progress_bar_image6 }}",
+    "{{ progress_bar_image7 }}"
+  ]
+</script>

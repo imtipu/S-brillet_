@@ -1,0 +1,199 @@
+{{ 'app-block-voted-top-product-list.css' | asset_url | stylesheet_tag: preload: true }}
+
+{% liquid
+  assign storefront_proxy_path = settings.sbrillet_app_proxy_path | default: '/apps/sbrillet'
+  assign app_id = settings.sbrillet_app_id | prepend: 'app--'
+  assign sbrillet_metafields = customer.metafields[app_id]
+  assign current_tier = sbrillet_metafields.loyalty_tier_config.value
+  assign current_tier_key = current_tier.level | default: 'SHINY'
+  assign icon_star_level_shiny = 'app-icon-star-level-shiny.svg' | inline_asset_content
+  assign icon_star_level_starlight = 'app-icon-star-level-starlight.svg' | inline_asset_content
+  assign icon_star_level_galaxy = 'app-icon-star-level-galaxy.svg' | inline_asset_content
+
+  assign icon_thumbs_up = 'app-icon-thumbs-up.svg' | asset_url
+
+  assign block_max_width = block.settings.block_max_width | default: 1300 | append: 'px'
+  if block.settings.enable_full_width
+    assign block_max_width = '100%'
+  endif
+%}
+
+<block-sbrillet-app-voted-top-product-list
+  data-proxy-path="{{ storefront_proxy_path }}"
+  data-tier-level="{{ current_tier_key }}"
+  data-icon-thumbs-up="{{ icon_thumbs_up }}"
+  style="
+    --voted-list-max-width: {{ block_max_width }};
+    --voted-list-background: {{ block.settings.block_background_color }};
+    --voted-list-padding-top: {{ block.settings.block_padding_top }}px;
+    --voted-list-padding-bottom: {{ block.settings.block_padding_bottom }}px;
+    --voted-list-padding-left: {{ block.settings.block_padding_left }}px;
+    --voted-list-padding-right: {{ block.settings.block_padding_right }}px;
+    --voted-list-margin-top: {{ block.settings.block_margin_top }}px;
+    --voted-list-margin-bottom: {{ block.settings.block_margin_bottom }}px;
+    --voted-list-gap: {{ block.settings.list_gap }}px;
+    --voted-list-card-radius: {{ block.settings.card_radius }}px;
+    --voted-list-image-size: {{ block.settings.image_size }}px;
+  "
+>
+  <template data-tier-icon="SHINY">{{ icon_star_level_shiny }}</template>
+  <template data-tier-icon="STARLIGHT">{{ icon_star_level_starlight }}</template>
+  <template data-tier-icon="GALAXY">{{ icon_star_level_galaxy }}</template>
+  <template data-tier-icon="ULTRA_GALAXY">{{ icon_star_level_galaxy }}</template>
+
+  <div class="voted-top-product-list" {{ block.shopify_attributes }}>
+    <div class="voted-top-product-list__panel">
+      <div class="voted-top-product-list__header">
+        <div class="voted-top-product-list__header-content">
+          {% comment %}<p class="voted-top-product-list__eyebrow">{{ block.settings.eyebrow }}</p>{% endcomment %}
+          <h2 class="voted-top-product-list__heading">{{ block.settings.title }}</h2>
+        </div>
+        <p class="voted-top-product-list__count" data-product-count hidden></p>
+      </div>
+
+      <div class="voted-top-product-list__cards" data-product-list-content aria-live="polite" aria-busy="true">
+        {% for index in (1..3) %}
+          <article class="voted-product-card voted-product-card--skeleton" aria-hidden="true">
+            <div class="voted-product-card__image voted-product-skeleton"></div>
+            <div class="voted-product-card__content">
+              <span class="voted-product-skeleton voted-product-skeleton--title"></span>
+              <span class="voted-product-skeleton voted-product-skeleton--meta"></span>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+
+      <div class="voted-top-product-list__empty" data-empty-state hidden></div>
+    </div>
+  </div>
+</block-sbrillet-app-voted-top-product-list>
+
+<script src="{{ 'app-block-voted-top-product-list.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Top Voted Product List",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Community picks"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Top Voted Designs"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_full_width",
+      "label": "Enable Full Width",
+      "default": false
+    },
+    {
+      "type": "number",
+      "id": "block_max_width",
+      "label": "Max Width",
+      "default": 1300
+    },
+    {
+      "type": "color_background",
+      "id": "block_background_color",
+      "label": "Background Color",
+      "default": "#f7f6f3"
+    },
+    {
+      "type": "range",
+      "id": "block_margin_top",
+      "label": "Margin Top",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "block_margin_bottom",
+      "label": "Margin Bottom",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "block_padding_top",
+      "label": "Padding Top",
+      "default": 16,
+      "min": 0,
+      "max": 100,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "block_padding_bottom",
+      "label": "Padding Bottom",
+      "default": 16,
+      "min": 0,
+      "max": 100,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "block_padding_left",
+      "label": "Padding Left",
+      "default": 24,
+      "min": 0,
+      "max": 100,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "block_padding_right",
+      "label": "Padding Right",
+      "default": 24,
+      "min": 0,
+      "max": 100,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "list_gap",
+      "label": "List gap",
+      "min": 6,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card radius",
+      "min": 8,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "image_size",
+      "label": "Image size",
+      "min": 40,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 88
+    }
+  ],
+  "presets": [
+    {
+      "name": "Top Voted Product List",
+      "category": "SBrillet App"
+    }
+  ]
+}
+{% endschema %}

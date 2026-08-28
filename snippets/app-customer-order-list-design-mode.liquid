@@ -1,0 +1,131 @@
+{% doc %}
+  Renders a design mode preview for the customer order list block.
+
+  @param {block} block - The block instance used for preview settings
+{% enddoc %}
+
+{% liquid
+  assign preview_payment_status = 'Paid'
+  assign preview_fulfillment_status = 'Partially fulfilled'
+  assign preview_payment_key = 'paid'
+  assign preview_fulfillment_key = 'partial'
+%}
+
+<div class="customer-order-list__panel">
+  <div class="customer-order-list__header">
+    <div class="customer-order-list__header-content">
+      <p class="customer-order-list__eyebrow">{{ block.settings.title }}</p>
+      <h2 class="customer-order-list__heading">Recent orders</h2>
+    </div>
+    <p class="customer-order-list__count">12 total</p>
+  </div>
+
+  <div class="customer-order-list__cards" role="list">
+    <article class="order-card" role="listitem">
+      <div class="order-card__header">
+        <div class="order-card__identity">
+          <p class="order-card__label">Order</p>
+          <div class="order-card__title-row">
+            <h3 class="order-card__title">#1042</h3>
+          </div>
+          <p class="order-card__date">
+            Placed Jul 06, 2026
+            <span aria-hidden="true">|</span>
+            Confirmation XPAV284CT
+          </p>
+        </div>
+
+        <div class="order-card__statuses" aria-label="Order statuses">
+          <span class="order-card__badge order-card__badge--payment order-financial-status-{{ preview_payment_key }}">
+            <span class="order-card__badge-label">Payment</span>
+            {{ preview_payment_status }}
+          </span>
+          <span class="order-card__badge order-card__badge--shipping order-fulfillment-status-{{ preview_fulfillment_key }}">
+            <span class="order-card__badge-label">Shipping</span>
+            {{ preview_fulfillment_status }}
+          </span>
+        </div>
+      </div>
+
+      <dl class="order-card__details">
+        <div class="order-card__detail">
+          <dt>Total</dt>
+          <dd>$148.00 USD</dd>
+        </div>
+        <div class="order-card__detail">
+          <dt>Items</dt>
+          <dd>3 items</dd>
+        </div>
+        <div class="order-card__detail">
+          <dt>Discounts</dt>
+          <dd>$6.00 USD</dd>
+        </div>
+        <div class="order-card__detail">
+          <dt>Shipping</dt>
+          <dd>Delivered</dd>
+        </div>
+      </dl>
+
+      <div class="order-card__action">
+        <a href="#" class="order-card__button">View order</a>
+      </div>
+    </article>
+
+    <article class="order-card" role="listitem">
+      <div class="order-card__header">
+        <div class="order-card__identity">
+          <p class="order-card__label">Order</p>
+          <div class="order-card__title-row">
+            <h3 class="order-card__title">#1038</h3>
+            <span class="order-card__badge order-card__badge--cancelled">Cancelled</span>
+          </div>
+          <p class="order-card__date">
+            Placed Jun 28, 2026
+            <span aria-hidden="true">|</span>
+            Confirmation R50KELTJP
+          </p>
+        </div>
+
+        <div class="order-card__statuses" aria-label="Order statuses">
+          <span class="order-card__badge order-card__badge--payment order-financial-status-refunded">
+            <span class="order-card__badge-label">Payment</span>
+            Refunded
+          </span>
+          <span class="order-card__badge order-card__badge--shipping order-fulfillment-status-unfulfilled">
+            <span class="order-card__badge-label">Shipping</span>
+            Unfulfilled
+          </span>
+        </div>
+      </div>
+
+      <dl class="order-card__details">
+        <div class="order-card__detail">
+          <dt>Total</dt>
+          <dd>$56.00 USD</dd>
+        </div>
+        <div class="order-card__detail">
+          <dt>Items</dt>
+          <dd>1 item</dd>
+        </div>
+        <div class="order-card__detail">
+          <dt>Discounts</dt>
+          <dd>$0.00 USD</dd>
+        </div>
+        <div class="order-card__detail">
+          <dt>Shipping</dt>
+          <dd>Standard shipping</dd>
+        </div>
+      </dl>
+
+      <div class="order-card__action">
+        <a href="#" class="order-card__button">View order</a>
+      </div>
+    </article>
+  </div>
+
+  <div class="customer-order-list__pagination">
+    <span class="customer-order-list__page-button is-disabled">Prev</span>
+    <span class="customer-order-list__pagination-status">Page 1 of 3</span>
+    <a href="#" class="customer-order-list__page-button">Next</a>
+  </div>
+</div>

@@ -1,0 +1,705 @@
+{{ 'app-block-vote-collection-products.css' | asset_url | stylesheet_tag: preload: true }}
+
+{% liquid
+    assign storefront_proxy_path = settings.sbrillet_app_proxy_path | default: '/apps/sbrillet'
+    assign app_id = settings.sbrillet_app_id | prepend: 'app--'
+    assign current_tier = customer.metafields[app_id].loyalty_tier_config.value
+    assign current_tier_key = current_tier.level | default: 'SHINY'
+    assign selected_collection = block.settings.collection
+    assign icon_star_level_shiny = 'app-icon-star-level-shiny.svg' | inline_asset_content
+    assign icon_star_level_starlight = 'app-icon-star-level-starlight.svg' | inline_asset_content
+    assign icon_star_level_galaxy = 'app-icon-star-level-galaxy.svg' | inline_asset_content
+    assign icon_thumbs_up = 'app-icon-thumbs-up.svg' | asset_url
+    assign icon_thumbs_down = 'app-icon-thumbs-down.svg' | asset_url
+
+    assign block_max_width = block.settings.block_max_width | default: 1300 | append: 'px'
+    if block.settings.enable_full_width
+        assign block_max_width = 'none'
+    endif
+%}
+
+<block-vote-collection-products
+        class="vote-collection-products {% if block.settings.enable_full_width %}vote-collection-products--full{% endif %}"
+        data-proxy-path="{{ storefront_proxy_path }}"
+        data-tier-level="{{ current_tier_key }}"
+        data-icon-thumbs-up="{{ icon_thumbs_up }}"
+        data-icon-thumbs-down="{{ icon_thumbs_down }}"
+        style="
+                --vote-collection-max-width: {{ block_max_width }};
+                --vote-collection-background: {{ block.settings.block_background_color }};
+                --vote-collection-block-radius: {{ block.settings.block_radius }}px;
+                --vote-collection-border-width: {% if block.settings.show_tier_border %}1px{% else %}0px{% endif %};
+                --vote-collection-margin-top-desktop: {{ block.settings.margin_top_desktop }}px;
+                --vote-collection-margin-right-desktop: {{ block.settings.margin_right_desktop }}px;
+                --vote-collection-margin-bottom-desktop: {{ block.settings.margin_bottom_desktop }}px;
+                --vote-collection-margin-left-desktop: {{ block.settings.margin_left_desktop }}px;
+                --vote-collection-padding-top-desktop: {{ block.settings.padding_top_desktop }}px;
+                --vote-collection-padding-right-desktop: {{ block.settings.padding_right_desktop }}px;
+                --vote-collection-padding-bottom-desktop: {{ block.settings.padding_bottom_desktop }}px;
+                --vote-collection-padding-left-desktop: {{ block.settings.padding_left_desktop }}px;
+                --vote-collection-margin-top-mobile: {{ block.settings.margin_top_mobile }}px;
+                --vote-collection-margin-right-mobile: {{ block.settings.margin_right_mobile }}px;
+                --vote-collection-margin-bottom-mobile: {{ block.settings.margin_bottom_mobile }}px;
+                --vote-collection-margin-left-mobile: {{ block.settings.margin_left_mobile }}px;
+                --vote-collection-padding-top-mobile: {{ block.settings.padding_top_mobile }}px;
+                --vote-collection-padding-right-mobile: {{ block.settings.padding_right_mobile }}px;
+                --vote-collection-padding-bottom-mobile: {{ block.settings.padding_bottom_mobile }}px;
+                --vote-collection-padding-left-mobile: {{ block.settings.padding_left_mobile }}px;
+                --vote-collection-columns-large: {{ block.settings.columns_large }};
+                --vote-collection-columns-tablet: {{ block.settings.columns_tablet }};
+                --vote-collection-columns-small-tablet: {{ block.settings.columns_small_tablet }};
+                --vote-collection-columns-mobile: {{ block.settings.columns_mobile }};
+                --vote-collection-gap-large: {{ block.settings.gap_large }}px;
+                --vote-collection-gap-tablet: {{ block.settings.gap_tablet }}px;
+                --vote-collection-gap-small-tablet: {{ block.settings.gap_small_tablet }}px;
+                --vote-collection-gap-mobile: {{ block.settings.gap_mobile }}px;
+                --vote-collection-card-padding: {{ block.settings.card_padding }}px;
+                --vote-collection-card-radius: {{ block.settings.card_radius }}px;
+                --vote-collection-image-radius: {{ block.settings.image_radius }}px;
+                --vote-collection-title-size: {{ block.settings.title_size }}px;
+                --vote-collection-title-weight: {{ block.settings.title_weight }};
+                --vote-collection-price-size: {{ block.settings.price_size }}px;
+                --vote-collection-price-weight: {{ block.settings.price_weight }};
+                --vote-collection-button-padding-y: {{ block.settings.button_padding_y }}px;
+                --vote-collection-button-padding-x: {{ block.settings.button_padding_x }}px;
+                --vote-collection-button-min-height: {{ block.settings.button_min_height }}px;
+                --vote-collection-button-radius: {{ block.settings.button_radius }}px;
+                --vote-collection-button-size: {{ block.settings.button_size }}px;
+                --vote-collection-button-weight: {{ block.settings.button_weight }};
+                "
+>
+    <template data-tier-icon="SHINY">{{ icon_star_level_shiny }}</template>
+    <template data-tier-icon="STARLIGHT">{{ icon_star_level_starlight }}</template>
+    <template data-tier-icon="GALAXY">{{ icon_star_level_galaxy }}</template>
+    <template data-tier-icon="ULTRA_GALAXY">{{ icon_star_level_galaxy }}</template>
+
+    <div
+            class="vote-collection-products__inner {% if block.settings.enable_full_width %}vote-collection-products__inner--full{% endif %}"
+            {{ block.shopify_attributes }}
+    >
+        {% if current_tier.viewNewCollection %}
+            <div class="vote-collection-products__header">
+                <div>
+                    {% if selected_collection != blank %}
+                        <p class="vote-collection-products__meta">{{ selected_collection.title }}</p>
+                    {% endif %}
+
+                    {% if block.settings.heading != blank %}
+                        <h2 class="vote-collection-products__heading">{{ block.settings.heading }}</h2>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if selected_collection != blank and selected_collection.products_count > 0 %}
+                <div class="vote-collection-products__grid" data-product-grid aria-live="polite">
+                    {% for product in selected_collection.products %}
+                        {% liquid
+                            assign image_alt = product.featured_image.alt | default: product.title
+                        %}
+                        <article class="vote-collection-card" data-product-card data-product-id="{{ product.id }}">
+                            <a class="vote-collection-card__media" href="{{ product.url }}"
+                               aria-label="{{ product.title | escape }}">
+                                {% if product.featured_image %}
+                                    {{
+                                    product.featured_image
+                                    | image_url: width: 700
+                                    | image_tag:
+                                    loading: 'lazy',
+                                    widths: '240, 360, 480, 700',
+                                    sizes: '(min-width: 1200px) 25vw, (min-width: 900px) 33vw, (min-width: 640px) 50vw, 100vw',
+                                    alt: image_alt
+                                    }}
+                                {% else %}
+                                    {{ 'product-1' | placeholder_svg_tag: 'vote-collection-card__placeholder' }}
+                                {% endif %}
+                            </a>
+
+                            <div class="vote-collection-card__body">
+                                <a class="vote-collection-card__title-link" href="{{ product.url }}">
+                                    <h3 class="vote-collection-card__title">{{ product.title }}</h3>
+                                </a>
+                                <p class="vote-collection-card__price">
+                                    {% if product.compare_at_price > product.price %}
+                                        <s>{{ product.compare_at_price | money }}</s>
+                                    {% endif %}
+                                    {{ product.price | money }}
+                                </p>
+
+                                <div class="vote-collection-card__actions">
+                                    <div class="vote-collection-card__vote" data-vote-content>
+                                        <div class="vote-collection-card__skeleton" aria-hidden="true">
+                                            <span></span>
+                                            <span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="vote-collection-products__empty">
+                    Select a collection with products.
+                </div>
+            {% endif %}
+        {% else %}
+          <div class="vote-collection-products__locked">
+            <div class="vote-collection-products__header">
+              {% if block.settings.heading != blank %}
+                <h2 class="vote-collection-products__heading">{{ block.settings.heading }}</h2>
+              {% endif %}
+            </div>
+            <p class="locked-message">Earn more rewards to reach STARLIGHT, GALAXY to unlock this feature.</p>
+          </div>
+        {% endif %}
+    </div>
+</block-vote-collection-products>
+
+<script src="{{ 'app-block-vote-collection-products.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Vote collection products",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Vote New Collection"
+    },
+    {
+      "type": "header",
+      "content": "Block layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_full_width",
+      "label": "Full-width content",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "block_max_width",
+      "label": "Maximum content width",
+      "min": 960,
+      "max": 1800,
+      "step": 20,
+      "unit": "px",
+      "default": 1300
+    },
+    {
+      "type": "color_background",
+      "id": "block_background_color",
+      "label": "Full block background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "block_radius",
+      "label": "Full block radius",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tier_border",
+      "label": "Show tier-colored border",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Desktop spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin_top_desktop",
+      "label": "Margin top",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_right_desktop",
+      "label": "Margin right",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom_desktop",
+      "label": "Margin bottom",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_left_desktop",
+      "label": "Margin left",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_top_desktop",
+      "label": "Padding top",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_right_desktop",
+      "label": "Padding right",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_desktop",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_left_desktop",
+      "label": "Padding left",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "Mobile spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin_top_mobile",
+      "label": "Margin top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_right_mobile",
+      "label": "Margin right",
+      "min": 0,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom_mobile",
+      "label": "Margin bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_left_mobile",
+      "label": "Margin left",
+      "min": 0,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_right_mobile",
+      "label": "Padding right",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_left_mobile",
+      "label": "Padding left",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Product grid"
+    },
+    {
+      "type": "select",
+      "id": "columns_large",
+      "label": "Cards per row - large desktop",
+      "options": [
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        },
+        {
+          "value": "4",
+          "label": "4"
+        },
+        {
+          "value": "5",
+          "label": "5"
+        },
+        {
+          "value": "6",
+          "label": "6"
+        }
+      ],
+      "default": "4"
+    },
+    {
+      "type": "range",
+      "id": "gap_large",
+      "label": "Gap - large desktop",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "select",
+      "id": "columns_tablet",
+      "label": "Cards per row - tablet",
+      "options": [
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        },
+        {
+          "value": "4",
+          "label": "4"
+        }
+      ],
+      "default": "3"
+    },
+    {
+      "type": "range",
+      "id": "gap_tablet",
+      "label": "Gap - tablet",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "columns_small_tablet",
+      "label": "Cards per row - small tablet",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "range",
+      "id": "gap_small_tablet",
+      "label": "Gap - small tablet",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Cards per row - mobile",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "label": "Gap - mobile",
+      "min": 0,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Product card"
+    },
+    {
+      "type": "range",
+      "id": "card_padding",
+      "label": "Card padding",
+      "min": 0,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card radius",
+      "min": 0,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "image_radius",
+      "label": "Image radius",
+      "min": 0,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Title size",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "select",
+      "id": "title_weight",
+      "label": "Product title weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "range",
+      "id": "price_size",
+      "label": "Price size",
+      "min": 11,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "price_weight",
+      "label": "Price weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "header",
+      "content": "Vote button"
+    },
+    {
+      "type": "range",
+      "id": "button_padding_y",
+      "label": "Vertical padding",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "button_padding_x",
+      "label": "Horizontal padding",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "button_min_height",
+      "label": "Minimum height",
+      "min": 32,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 44
+    },
+    {
+      "type": "range",
+      "id": "button_radius",
+      "label": "Button radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "button_size",
+      "label": "Button text size",
+      "min": 11,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 13
+    },
+    {
+      "type": "select",
+      "id": "button_weight",
+      "label": "Button text weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "700"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Vote collection products",
+      "category": "SBrillet App"
+    }
+  ]
+}
+{% endschema %}

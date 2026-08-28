@@ -1,0 +1,37 @@
+{% liquid
+  assign icon_cirlce_mark_checked = 'app-icon-circle-mark-checked.svg' | asset_url
+%}
+<div class="tier-point-features">
+  <div class="feature-item font-inter" data-tier-feature>
+    <div class="item-label">
+      <img
+        class="label-icon"
+        src="{{ icon_cirlce_mark_checked }}"
+        alt=""
+        width="30"
+        height="30"
+      >
+      <span class="label">Purchase Items</span>
+    </div>
+    <div class="point-amount text-gradient">
+      <span data-earning-point-rate> +{{ current_tier.sparklesPerDollar }} </span>
+      Sparkle Points
+    </div>
+  </div>
+  <div class="feature-item font-inter" data-tier-feature>
+    <div class="item-label">
+      <img
+        class="label-icon"
+        src="{{ icon_cirlce_mark_checked }}"
+        alt=""
+        width="30"
+        height="30"
+      >
+      <span class="label">Refer a Friend</span>
+    </div>
+    <div class="point-amount text-gradient">
+      <span data-referral-earning-rate>+{{ current_tier.referralRewardSparkles }}</span>
+      Sparkle Points
+    </div>
+  </div>
+</div>

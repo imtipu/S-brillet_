@@ -1,0 +1,120 @@
+customer-referral-invite.customer-referral-invite {
+    display: block;
+    width: 100%;
+    max-width: var(--invite-max-width, 760px);
+    margin-inline: auto;
+    color: var(--invite-text, #1f2933);
+    font-family: var(--font-body-family, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif), sans-serif;
+    font-size: var(--invite-body-size, 15px);
+}
+
+.customer-referral-invite__panel {
+    min-height: var(--invite-min-height, 240px);
+    display: grid;
+    place-items: center;
+    padding: var(--invite-padding, 32px);
+    color: var(--invite-text, #1f2933);
+    background: var(--invite-bg, #ffffff);
+    border: 1px solid var(--invite-border, #e8e2dd);
+    border-radius: var(--invite-radius, 16px);
+    box-shadow: var(--invite-shadow, 0 14px 34px rgb(31 41 51 / 10%));
+}
+
+.customer-referral-invite__content,
+.customer-referral-invite__state {
+    display: grid;
+    justify-items: center;
+    gap: var(--invite-content-gap, 14px);
+    max-width: 640px;
+    text-align: center;
+}
+
+.customer-referral-invite__icon {
+    width: var(--invite-icon-size, 48px);
+    height: var(--invite-icon-size, 48px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--invite-icon-text, #166534);
+    background: var(--invite-icon-bg, #dcfce7);
+    border: 1px solid var(--invite-icon-border, #bbf7d0);
+    border-radius: var(--invite-icon-radius, 999px);
+    font-size: calc(var(--invite-icon-size, 48px) * 0.48);
+    font-weight: 700;
+    line-height: 1;
+}
+
+.customer-referral-invite__icon--error {
+    color: var(--invite-error-text, #9f1239);
+    background: var(--invite-error-bg, #ffe4e6);
+    border-color: var(--invite-error-border, #fecdd3);
+}
+
+.customer-referral-invite__title {
+    margin: 0;
+    color: var(--invite-title-color, var(--invite-text, #1f2933));
+    font-size: var(--invite-title-size, 30px);
+    font-weight: var(--invite-title-weight, 700);
+    line-height: 1.15;
+    letter-spacing: 0;
+}
+
+.customer-referral-invite__message {
+    margin: 0;
+    color: var(--invite-message-color, #4b5563);
+    font-size: var(--invite-message-size, 16px);
+    font-weight: var(--invite-message-weight, 500);
+    line-height: 1.45;
+}
+
+.customer-referral-invite__message--error {
+    color: var(--invite-error-text, #9f1239);
+}
+
+.customer-referral-invite__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--invite-button-height, 44px);
+    padding: 0 var(--invite-button-padding-x, 18px);
+    color: var(--invite-button-text, #ffffff);
+    background: var(--invite-button-bg, #1f2933);
+    border: 1px solid var(--invite-button-border, #1f2933);
+    border-radius: var(--invite-button-radius, 10px);
+    font-size: var(--invite-button-size, 14px);
+    font-weight: var(--invite-button-weight, 650);
+    line-height: 1;
+    text-decoration: none;
+}
+
+.customer-referral-invite__button:hover {
+    color: var(--invite-button-hover-text, var(--invite-button-text, #ffffff));
+    background: var(--invite-button-hover-bg, #374151);
+    border-color: var(--invite-button-hover-border, #374151);
+}
+
+.customer-referral-invite__button:focus-visible {
+    outline: 2px solid var(--invite-focus, #1f2933);
+    outline-offset: 3px;
+}
+
+.customer-referral-invite__spinner {
+    width: var(--invite-spinner-size, 24px);
+    height: var(--invite-spinner-size, 24px);
+    border: 2px solid var(--invite-spinner-track, rgb(107 114 128 / 25%));
+    border-top-color: var(--invite-spinner-color, #1f2933);
+    border-radius: 999px;
+    animation: customer-referral-invite-spin 0.8s linear infinite;
+}
+
+@media screen and (max-width: 640px) {
+    .customer-referral-invite__panel {
+        padding: max(18px, calc(var(--invite-padding, 32px) * 0.72));
+    }
+}
+
+@keyframes customer-referral-invite-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

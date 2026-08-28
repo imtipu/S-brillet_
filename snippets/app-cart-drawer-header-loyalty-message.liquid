@@ -1,0 +1,74 @@
+{% liquid
+    assign country_name = localization.country.name | default: 'your location'
+    assign gift_card_count_in_cart = 0
+    assign bundles_count_in_cart = 0
+
+    for item in cart.items
+        if item.gift_card
+            assign gift_card_count_in_cart = gift_card_count_in_cart |  plus: 1
+        endif
+        if item.item_components.size > 0
+            assign bundles_count_in_cart = bundles_count_in_cart |  plus: 1
+        endif
+    endfor
+
+    assign unqualified_item_count = gift_card_count_in_cart | plus: bundles_count_in_cart
+
+    assign qualifying_item_count = cart.items.size | minus: unqualified_item_count
+    assign free_shipping_threshold = 10000
+    assign cart_total = cart.total_price | default: 0
+    assign app_id = settings.sbrillet_app_id | prepend: 'app--'
+    assign current_tier = customer.metafields[app_id].loyalty_tier_config.value
+    assign current_tier_key = current_tier.level | default: 'SHINY'
+%}
+
+<div>
+    <p class="m-cart-drawer__text">
+        {% if customer == blank %}
+            {% if cart_total < free_shipping_threshold %}
+                <span class="m-cart-drawer__text-content">FREE Shipping to {{ country_name }} on orders over $100!</span>
+                Unlock unlimited free shipping by joining the Starlight Tier!
+            {% else %}
+                <span class="m-cart-drawer__text-content">Enjoy FREE Shipping to {{ country_name }}!</span>
+                Join Universe VIP Club to unlock even more rewards!
+            {% endif %}
+        {% elsif current_tier_key == 'SHINY' %}
+            {% if cart_total < free_shipping_threshold %}
+                <span class="m-cart-drawer__text-content">FREE Shipping to {{ country_name }} on orders over $100!</span>
+                {% if cart_total == 0 %}
+                    Unlock unlimited free shipping by joining the Starlight Tier!
+                {% else %}
+                    Complete your order to unlock unlimited free shipping on next orders.
+                {% endif %}
+            {% else %}
+                <span class="m-cart-drawer__text-content">Enjoy FREE Shipping to {{ country_name }}!</span>
+                Complete your order to unlock unlimited free shipping on next orders.
+            {% endif %}
+        {% elsif current_tier_key == 'STARLIGHT' %}
+            <span class="m-cart-drawer__text-content">Enjoy FREE Shipping to {{ country_name }}!</span>
+            {% if qualifying_item_count == 0 %}
+                Bundle discounts are now available with your Starlight Tier!
+            {% elsif qualifying_item_count == 1 %}
+                Just add 2 more jewelry items to activate your Starlight bundle discounts.
+            {% elsif qualifying_item_count == 2 %}
+                Just add 1 more jewelry item to activate your Starlight bundle discounts.
+            {% else %}
+                Discounts Applied. Enjoy a free 1 + 1 Ready-To-Ship jewelry on next order!
+            {% endif %}
+        {% elsif current_tier_key == 'GALAXY' or current_tier_key == 'ULTRA_GALAXY' %}
+            <span class="m-cart-drawer__text-content">Enjoy FREE Shipping to {{ country_name }}!</span>
+            {% if qualifying_item_count == 0 %}
+                Bundle discounts &amp; Cash Rewards are now available with your Galaxy Tier!
+            {% elsif qualifying_item_count == 1 %}
+                Just add 2 more jewelry items to activate your Starlight Galaxy discounts.
+            {% elsif qualifying_item_count == 2 %}
+                Just add 1 more jewelry item to activate your Starlight Galaxy discounts.
+            {% else %}
+                Discounts Applied. Enjoy a free 1 + 1 Ready-To-Ship jewelry on next order!
+            {% endif %}
+        {% else %}
+            <span class="m-cart-drawer__text-content">GET Rewards.</span>
+            Get Sparkles by completing your order to unlock the Shiny Tier.
+        {% endif %}
+    </p>
+</div>

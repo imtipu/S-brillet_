@@ -1,0 +1,86 @@
+<!-- CUSTOM MESSAGE CARD MODAL -->
+
+{% liquid
+  assign product_theme_message_card = section_settings.product_theme_message_card
+  assign theme_message_card_button_label = section_settings.theme_message_card_button_label
+%}
+<div id="MessageCardModal" class="m-cart-modal" style="display:none;">
+  <div class="m-cart-modal-overlay"></div>
+  <div class="m-cart-modal-content" onclick="event.stopPropagation()">
+    <button
+      type="button"
+      class="m-cart-modal-close"
+      onclick="document.getElementById('MessageCardModal').style.display='none'"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    <div class="m-cart-modal-body" style="height: 100%;">
+      {% assign msg_product = product_theme_message_card %}
+      {% if msg_product == blank %}
+        {% assign msg_product = all_products['message-card'] %}
+      {% endif %}
+      {% if msg_product != blank %}
+        <div class="m:flex m:flex-wrap" style="height: 100%;">
+          <div class="m:w-full md:m:w-1/2" style="height: 100%;">
+            <img
+              src="{{ msg_product.featured_image | image_url: width: 800 }}"
+              style="width:100%; height:100%; object-fit:cover;"
+              alt="{{ msg_product.title | escape }}"
+              width=""
+              height=""
+            >
+          </div>
+          <div class="m:w-full md:m:w-1/2 msg-modal-right">
+            <h2 class="m:text-4xl m:mb-2 m:font-medium" style="font-family: serif;">{{ msg_product.title }}</h2>
+            <div class="m:text-lg m:mb-8">{{ msg_product.price | money }}</div>
+
+            <product-form class="product-form">
+              <form
+                method="post"
+                action="/cart/add"
+                id="MessageCardForm"
+                accept-charset="UTF-8"
+                class="form"
+                enctype="multipart/form-data"
+                data-type="add-to-cart-form"
+                onsubmit="setTimeout(() => { document.getElementById('MessageCardModal').style.display='none' }, 800)"
+              >
+                <input type="hidden" name="id" value="{{ msg_product.variants.first.id }}">
+                <input type="hidden" name="quantity" value="1">
+
+                <div style="margin-bottom: 25px;">
+                  {% render 'message-card-recipient-box', product_form_id: 'MessageCardForm' %}
+                </div>
+
+                <button
+                  type="submit"
+                  name="add"
+                  class="m-button m-button--primary m:w-full uppercase"
+                  style="padding: 16px; font-size:16px; font-weight: 500; text-transform: uppercase;"
+                >
+                  <span>Add to cart</span>
+                </button>
+              </form>
+            </product-form>
+          </div>
+        </div>
+      {% else %}
+        <div style="padding: 30px; text-align: center;">
+          Message Card product not found! Make sure the handle is 'message-card'.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>

@@ -1,0 +1,357 @@
+{{ 'app-block-customer-account-profile.css' | asset_url | stylesheet_tag: preload: true }}
+
+{% liquid
+  assign customer_name = customer.name
+
+  if customer_name == blank
+    assign customer_name = customer.first_name
+
+    if customer.last_name != blank
+      assign customer_name = customer_name | append: ' ' | append: customer.last_name
+    endif
+  endif
+
+  if customer_name == blank
+    assign customer_name = customer.email
+  endif
+
+  assign profile_initial = customer_name | strip | slice: 0, 1 | upcase
+  assign default_address = customer.default_address
+
+  assign app_id = settings.sbrillet_app_id | prepend: 'app--'
+  assign sbrillet_metafields = customer.metafields[app_id]
+  assign current_tier = sbrillet_metafields.loyalty_tier_config.value
+  assign current_tier_key = current_tier.level | default: 'SHINY'
+  assign customer_app_profile = sbrillet_metafields.profile.value
+  assign customer_date_of_birth = customer_app_profile.dateOfBirth | default: ''
+
+  assign icon_point_star_level = 'app-icon-point-star-level-default.svg' | asset_url
+
+  if current_tier.level contains 'GALAXY'
+    assign icon_point_star_level = 'app-icon-point-star-level-galaxy.svg' | asset_url
+  endif
+%}
+
+<block-customer-account-profile
+  data-tier-level="{{ current_tier_key }}"
+  data-proxy-path="{{ settings.sbrillet_app_proxy_path | default: '/apps/sbrillet' }}"
+  style=""
+>
+  <style>
+    :root {
+        --profile-grid-left: {{ block.settings.grid_left }}fr;
+        --profile-grid-right: {{ block.settings.grid_right }}fr;
+        --profile-grid-gap: {{ block.settings.grid_gap }}px;
+        --profile-card-radius: {{ block.settings.card_radius }}px;
+        --profile-card-background: {{ block.settings.card_background }};
+    }
+  </style>
+
+  <script type="application/json" data-sbrillet-metafields-json>
+    {{ sbrillet_metafields | json }}
+  </script>
+  {% comment %}
+    <div
+      class="customer-account-profile profile-density-{{ block.settings.profile_density }}"
+      {{ block.shopify_attributes }}
+    >
+  {% endcomment %}
+  <div
+    class="customer-account-profile"
+    {{ block.shopify_attributes }}
+  >
+    {% if request.design_mode %}
+      {% render 'app-customer-profile-design-mode', block: block %}
+    {% elsif customer %}
+      <div class="customer-account-profile__panel customer-account-profile__panel--profile">
+        <p class="customer-account-profile__eyebrow">{{ block.settings.profile_heading }}</p>
+
+        <div class="customer-account-profile__container">
+          <div class="customer-account-profile__hero">
+            <div class="customer-account-profile__avatar" data-profile-avatar aria-hidden="true">
+              {{ profile_initial }}
+            </div>
+            <div class="customer-account-profile__hero-content">
+              <h2 class="customer-account-profile__name" data-profile-name>{{ customer_name }}</h2>
+              <p class="customer-account-profile__status" data-profile-email>
+                {{ customer.email | default: 'Not provided' }}
+              </p>
+              <p class="customer-account-profile__status" data-profile-phone>
+                {{ customer.phone | default: 'No phone saved' }}
+              </p>
+              <p
+                class="customer-account-profile__status"
+                data-profile-date-of-birth
+              >
+                {% if customer_date_of_birth == blank %}
+                  <span>Add your Date of Birth to get Birthday Reward</span>
+                {% else %}
+                  DOB:
+                  <time data-profile-date-of-birth-value datetime="{{ customer_date_of_birth | date: '%Y-%m-%d' }}">
+                    {{- customer_date_of_birth | date: '%B %d, %Y' -}}
+                  </time>
+                {% endif %}
+              </p>
+
+              <div style="display: flex; margin-top: 10px;">
+                <button class="customer-account-profile__button" type="button" data-open-profile-modal>
+                  Edit Profile
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="profile-stat-counters">
+            <div class="profile-stat-counter profile-stat-counter--accent">
+              <span class="profile-stat-counter__amount text-gradient">{{ customer.orders_count }}</span>
+              <span class="profile-stat-counter__label">Orders</span>
+            </div>
+
+            {% comment %}
+              <div class="profile-stat-counter profile-stat-counter--accent">
+                <span
+                  class="profile-stat-counter__amount text-gradient"
+                >
+                  {{ customer.total_spent | money_without_trailing_zeros }}
+                </span>
+                <span class="profile-stat-counter__label">Spent</span>
+              </div>
+            {% endcomment %}
+            <div class="profile-stat-counter profile-stat-counter--accent">
+              <app-customer-redeemed-sparkles
+                class="profile-stat-counter__amount text-gradient"
+              >
+                <span data-total-sparkles-spent>0</span>
+                <img class="icon-counter-level" src="{{ icon_point_star_level }}" alt="" width="30" height="30">
+              </app-customer-redeemed-sparkles>
+              <span class="profile-stat-counter__label">Sparkles Spent</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <dialog class="customer-account-profile__modal" data-profile-modal aria-labelledby="profile-modal-title">
+        <form class="customer-account-profile__modal-card" data-profile-form method="dialog">
+          <div class="customer-account-profile__modal-header">
+            <div>
+              <p class="customer-account-profile__eyebrow">Account details</p>
+              <h2 id="profile-modal-title" class="customer-account-profile__modal-title">Edit Profile</h2>
+            </div>
+            <button
+              class="customer-account-profile__modal-close"
+              type="button"
+              data-close-profile-modal
+              aria-label="Close edit profile form"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m7 7 10 10M17 7 7 17" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8"/>
+              </svg>
+            </button>
+          </div>
+          <div class="customer-account-profile__form-grid">
+            <div class="customer-account-profile__field">
+              <label for="input-firstName">First name</label>
+              <input
+                id="input-firstName"
+                name="firstName"
+                type="text"
+                autocomplete="given-name"
+                value="{{ customer.first_name | escape }}"
+                required
+              >
+            </div>
+            <div class="customer-account-profile__field">
+              <label>Last name</label>
+              <input
+                id="input-lastName"
+                name="lastName"
+                type="text"
+                autocomplete="family-name"
+                value="{{ customer.last_name | escape }}"
+              >
+            </div>
+            <div class="customer-account-profile__field">
+              <label id="input-email">Email</label>
+              <input name="email" type="email" autocomplete="email" value="{{ customer.email | escape }}" required>
+            </div>
+            <div class="customer-account-profile__field">
+              <label id="input-phone">Phone</label>
+              <input name="phone" type="tel" autocomplete="tel" value="{{ customer.phone | escape }}">
+            </div>
+            <div class="customer-account-profile__field">
+              <label id="input-dateOfBirth">Date of birth</label>
+              <input
+                name="dateOfBirth"
+                type="date"
+                autocomplete="bday"
+                value="{{ customer_date_of_birth | date: '%Y-%m-%d' }}"
+              >
+            </div>
+            {% comment %}
+              <label class="customer-account-profile__field">
+                <span>First name</span>
+                <input
+                  name="firstName"
+                  type="text"
+                  autocomplete="given-name"
+                  value="{{ customer.first_name | escape }}"
+                  required
+                >
+              </label>
+              <label class="customer-account-profile__field">
+                <span>Last name</span>
+                <input name="lastName" type="text" autocomplete="family-name" value="{{ customer.last_name | escape }}">
+              </label>
+              <label class="customer-account-profile__field customer-account-profile__field--full">
+                <span>Email</span>
+                <input name="email" type="email" autocomplete="email" value="{{ customer.email | escape }}" required>
+              </label>
+              <label class="customer-account-profile__field">
+                <span>Phone</span>
+                <input name="phone" type="tel" autocomplete="tel" value="{{ customer.phone | escape }}">
+              </label>
+              <label class="customer-account-profile__field">
+                <span>Date of birth</span>
+                <input
+                  name="dateOfBirth"
+                  type="date"
+                  autocomplete="bday"
+                  value="{{ customer_date_of_birth | date: '%Y-%m-%d' }}"
+                >
+              </label>
+            {% endcomment %}
+          </div>
+          <p
+            class="customer-account-profile__form-message"
+            data-profile-form-message
+            role="status"
+            aria-live="polite"
+          ></p>
+          <div class="customer-account-profile__modal-actions">
+            <button class="customer-account-profile__modal-cancel" type="button" data-close-profile-modal>
+              Cancel
+            </button>
+            <button class="customer-account-profile__modal-submit" type="submit" data-profile-submit>
+              Save changes
+            </button>
+          </div>
+        </form>
+      </dialog>
+      {% render 'app-customer-address-list' %}
+
+    {% else %}
+      <div class="customer-account-profile__panel customer-account-profile__panel--empty">
+        <h2 class="customer-account-profile__name">Customer account unavailable</h2>
+        <p class="customer-account-profile__status">This block needs a logged-in customer to show profile details.</p>
+      </div>
+    {% endif %}
+  </div>
+</block-customer-account-profile>
+
+<script src="{{ 'app-block-customer-account-profile.js' | asset_url }}" type="module"></script>
+
+{% schema %}
+{
+  "name": "Customer Account Profile",
+  "settings": [
+    {
+      "type": "text",
+      "id": "profile_heading",
+      "label": "Profile heading",
+      "default": "Profile overview"
+    },
+    {
+      "type": "text",
+      "id": "address_heading",
+      "label": "Address heading",
+      "default": "Adresses"
+    },
+    {
+      "type": "select",
+      "id": "profile_density",
+      "label": "Card density",
+      "options": [
+        {
+          "value": "compact",
+          "label": "Compact"
+        },
+        {
+          "value": "comfortable",
+          "label": "Comfortable"
+        }
+      ],
+      "default": "compact"
+    },
+    {
+      "type": "select",
+      "id": "grid_left",
+      "label": "Left column size",
+      "options": [
+        {
+          "value": "1",
+          "label": "1fr"
+        },
+        {
+          "value": "2",
+          "label": "2fr"
+        },
+        {
+          "value": "3",
+          "label": "3fr"
+        }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "select",
+      "id": "grid_right",
+      "label": "Right column size",
+      "options": [
+        {
+          "value": "1",
+          "label": "1fr"
+        },
+        {
+          "value": "2",
+          "label": "2fr"
+        },
+        {
+          "value": "3",
+          "label": "3fr"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "label": "Grid gap",
+      "min": 12,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card radius",
+      "min": 12,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "color_background",
+      "id": "card_background",
+      "label": "Card Background",
+      "default": "rgba(255, 255, 255, 0.6)"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Customer Account Profile",
+      "category": "SBrillet App"
+    }
+  ]
+}
+{% endschema %}

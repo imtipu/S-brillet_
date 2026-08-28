@@ -1,0 +1,61 @@
+{% liquid
+  assign starter_logo = 'SbrilletFinalLogo.svg' | asset_url
+  assign shiny_logo = 'ShinyFinalLogo.svg' | asset_url
+  assign starlight_logo = 'StarlightFinalLogo.svg' | asset_url
+  assign galaxy_logo = 'GalaxyFinalLogo.svg' | asset_url
+  assign ultra_galaxy_logo = 'UltraGalaxyFinalLogo.svg' | asset_url
+  assign tier_level_icon = 'tier_level_icon.svg' | asset_url
+  assign diamond_active_icon = 'diamond_polygon_black.svg' | asset_url
+  assign diamond_inactive_icon = 'diamond_polygon_white.svg' | asset_url
+  assign demo_discount_values = '20,25,35' | split: ','
+
+%}
+
+{% render 'loyalty_profile_card_shell',
+  heading: block.settings.heading,
+  points_label: block.settings.points_label,
+  purchase_label: block.settings.purchase_label,
+  referral_label: block.settings.referral_label,
+  currency_symbol: block.settings.currency_symbol,
+  tier_name: block.settings.starlight_label,
+  total_points: 350,
+  next_points: 700,
+  purchase_points: 125,
+  referral_points: 125,
+  tier_logo: tier_logo,
+  tier_icon: tier_icon
+%}
+
+<section class="lpc-progress" aria-label="Loyalty tier progress" style="--lpc-progress: 50%;">
+  <p>You past 100 Sparkles - {{ block.settings.starlight_label | escape }} Tier Rewards is waiting</p>
+  <div class="lpc-progress__rail">
+    <span class="lpc-progress__fill"></span>
+    <div class="lpc-progress__tier is-active" style="--lpc-tier-position: 0%;">
+      <img src="{{ starter_logo }}" alt="".
+        width="200" height="200"
+         loading="lazy">
+      <strong>{{ block.settings.starter_label | escape }}</strong>
+    </div>
+    <div class="lpc-progress__tier is-active" style="--lpc-tier-position: 33%;">
+      <img src="{{ shiny_logo }}" alt="" width="200" height="200" loading="lazy">
+      <strong>{{ block.settings.shiny_label | escape }}</strong>
+    </div>
+    <div class="lpc-progress__tier" style="--lpc-tier-position: 66%;">
+      <img src="{{ tier_logo }}" alt="" width="200" height="200" loading="lazy">
+      <strong>{{ block.settings.starlight_label | escape }}</strong>
+    </div>
+    <div class="lpc-progress__tier" style="--lpc-tier-position: 100%;">
+      <img src="{{ galaxy_logo }}" alt="" width="200" height="200" loading="lazy">
+      <strong>{{ block.settings.galaxy_label | escape }}</strong>
+    </div>
+  </div>
+</section>
+
+{% comment %} {% render 'loyalty_profile_discount_diamonds',
+  discount_values: demo_discount_values,
+  active_diamond: active_diamond,
+  inactive_diamond: inactive_diamond,
+  prefix: block.settings.discount_prefix,
+  separator: block.settings.discount_separator,
+  suffix: block.settings.discount_suffix
+%} {% endcomment %}

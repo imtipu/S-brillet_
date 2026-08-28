@@ -1,0 +1,25 @@
+
+<div>
+    {% form 'customer' %}
+        <div className="email">
+            <label for="email">Email</label>
+            <input type="email" name="contact[email]" />
+        </div>
+
+        <div className="submit">
+            <input type="submit" value="Sign up" />
+        </div>
+    {% endform %}
+</div>
+{% schema %}
+{
+  "name": "App Newsletter Form",
+  "settings": [],
+  "presets": [
+    {
+      "name": "App Newsletter Form",
+      "category": "SBrillet App"
+    }
+  ]
+}
+{% endschema %}

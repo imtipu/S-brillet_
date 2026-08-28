@@ -1,0 +1,139 @@
+{{ 'sbrillet-dashboard-header.css' | asset_url | stylesheet_tag }}
+
+{% liquid
+    assign app_id = settings.sbrillet_app_id | prepend: 'app--'
+    assign sbrillet_metafields = customer.metafields[app_id]
+    assign current_tier = sbrillet_metafields.loyalty_tier_config.value
+    assign current_tier_key = current_tier.level | default: 'SHINY'
+%}
+
+<section
+        class="sbrillet-dashboard-header-container"
+        data-tier-level="{{ current_tier_key }}"
+        style="
+                --dashboard-section-background: {{ section.settings.section_background }};
+                --dashboard-menu-max-width: {{ section.settings.menu_max_width }}px;
+                --dashboard-section-padding: {{ section.settings.section_padding }}px;
+                "
+        {{ section.shopify_attributes }}
+>
+    <div class="sbrillet-dashboard-header">
+        <nav class="sbrillet-tab-navigation" aria-label="Dashboard navigation">
+            {% for block in section.blocks %}
+                {% liquid
+                    assign block_url = block.settings.link | default: '#'
+                    assign is_active = false
+
+                    if request.path == block_url
+                        assign is_active = true
+                    endif
+                %}
+                <a
+                        class="sbrillet-tab-link{% if is_active %} is-active{% endif %}"
+                        href="{{ block_url }}"
+                        {% if is_active %}
+                            aria-current="page"
+                        {% endif %}
+                        {{ block.shopify_attributes }}
+                >
+                    <span class="sbrillet-tab-link__label">{{ block.settings.label }}</span>
+                </a>
+            {% endfor %}
+        </nav>
+    </div>
+</section>
+
+{% schema %}
+{
+  "name": "SBrillet Dashboard Header",
+  "tag": "section",
+  "limit": 1,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "color_background",
+      "id": "section_background",
+      "label": "Background",
+      "default": "#F7F6F3"
+    },
+    {
+      "type": "range",
+      "id": "menu_max_width",
+      "label": "Menu width",
+      "min": 960,
+      "max": 1800,
+      "step": 20,
+      "default": 1300,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "label": "Vertical spacing",
+      "min": 0,
+      "max": 48,
+      "step": 4,
+      "default": 16,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "menu_item",
+      "name": "Menu item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "My VIP Universe"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Page link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "SBrillet Dashboard Header",
+      "category": "SBrillet App",
+      "blocks": [
+        {
+          "type": "menu_item",
+          "settings": {
+            "label": "My VIP Universe",
+            "link": "/pages/my-vip-universe"
+          }
+        },
+        {
+          "type": "menu_item",
+          "settings": {
+            "label": "Discover & Shop",
+            "link": "/pages/discover-shop"
+          }
+        },
+        {
+          "type": "menu_item",
+          "settings": {
+            "label": "Orders",
+            "link": "/pages/my-orders"
+          }
+        },
+        {
+          "type": "menu_item",
+          "settings": {
+            "label": "Perks & Community",
+            "link": "/pages/perks-community"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,1 +1,47 @@
-{% render 'cart-drawer' %}
+{% liquid
+  assign app_id = settings.sbrillet_app_id | prepend: 'app--'
+  assign customer_metafields = customer.metafields[app_id]
+  assign current_tier = customer_metafields.loyalty_tier_config.value
+%}
+
+{% render 'cart-drawer', current_tier: current_tier, section_settings: section.settings %}
+
+{% schema %}
+{
+  "name": "Cart Drawer",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Theme Message Card Product"
+    },
+    {
+      "type": "product",
+      "id": "product_theme_message_card",
+      "label": "Theme Message Card Product",
+      "info": "Select the product for theme message card, which must be a gift card"
+    },
+    {
+      "type": "text",
+      "id": "theme_message_card_button_label",
+      "label": "Button Label",
+      "default": "Shop Theme Message Card"
+    },
+    {
+      "type": "header",
+      "content": "Ready To Ship"
+    },
+    {
+      "type": "collection",
+      "id": "ready_to_ship_collection",
+      "label": "Ready to Ship Collection",
+      "info": "Add Collection for Read To Ship to show the lowest price product"
+    },
+    {
+      "type": "text",
+      "id": "ready_to_ship_button_label",
+      "label": "Button Label",
+      "default": "Free READY-To-SHIP Jewellery Item"
+    }
+  ]
+}
+{% endschema %}

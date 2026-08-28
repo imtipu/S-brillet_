@@ -1,0 +1,101 @@
+{{ 'app-block-customer-order-return-list.css' | asset_url | stylesheet_tag }}
+{% liquid
+  assign proxy_path = block.settings.proxy_path | default: '/apps/sbrillet/api/customer/return-orders'
+  assign app_id = settings.sbrillet_app_id | prepend: 'app--'
+  assign sbrillet_metafields = customer.metafields[app_id]
+  assign current_tier = sbrillet_metafields.loyalty_tier_config.value
+  assign current_tier_key = current_tier.level | default: 'SHINY'
+%}
+
+<block-customer-order-return-list
+  class="customer-order-return-list"
+  data-proxy-path="{{ proxy_path }}"
+  data-loading-label="{{ block.settings.loading_label | escape }}"
+  data-login-message="{{ block.settings.login_message | escape }}"
+  data-error-message="{{ block.settings.error_message | escape }}"
+  data-empty-message="{{ block.settings.empty_message | escape }}"
+  data-design-mode="{% if request.design_mode %}true{% else %}false{% endif %}"
+  data-enable-full-width="{{ block.settings.enable_full_width }}"
+  data-tier-level="{{ current_tier_key }}"
+  style="--block-max-width: {{ block.settings.max_width }}px"
+>
+  <div class="customer-order-return-list__panel">
+    <div class="customer-order-return-list__header">
+      <div class="customer-order-return-list__header-content">
+        <h2 class="customer-order-return-list__heading">{{ block.settings.title | escape }}</h2>
+      </div>
+      <p class="customer-order-return-list__count" data-return-count hidden></p>
+    </div>
+    <p class="customer-order-return-list__state" data-return-state hidden></p>
+    <div class="customer-order-return-list__items" data-return-items></div>
+  </div>
+</block-customer-order-return-list>
+
+<script src="{{ 'app-block-customer-order-return-list.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Return order list",
+  "blocks": [{ "type": "@theme" }],
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Returns"
+    },
+    {
+      "type": "text",
+      "id": "loading_label",
+      "label": "Loading label",
+      "default": "Loading return orders"
+    },
+    {
+      "type": "text",
+      "id": "login_message",
+      "label": "Login message",
+      "default": "Sign in to view your returns."
+    },
+    {
+      "type": "text",
+      "id": "error_message",
+      "label": "Error message",
+      "default": "Return orders could not be loaded."
+    },
+    {
+      "type": "text",
+      "id": "empty_message",
+      "label": "Empty message",
+      "default": "No returns yet."
+    },
+    {
+      "type": "text",
+      "id": "proxy_path",
+      "label": "Storefront proxy API path",
+      "default": "/apps/sbrillet/api/customer/return-orders"
+    },
+    {
+      "type": "header",
+      "content": "Styles"
+    },
+    {
+      "type": "number",
+      "id": "max_width",
+      "label": "Max width",
+      "default": 1600
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_full_width",
+      "label": "Enable full width",
+      "default": false
+    }
+  ],
+  "presets": [
+    { 
+      "name": "Return order list",
+      "category": "SBrillet App"
+    }
+  ]
+}
+{% endschema %}

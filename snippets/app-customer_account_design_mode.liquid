@@ -1,0 +1,27 @@
+{% liquid
+  assign first_name = 'Sbrillet'
+  assign last_name = 'Sbrillet'
+  assign email = 'Sbrillet.official@gmail.com'
+  assign phone = '+1 555 012 3344'
+%}
+
+<div class="profile-info">
+  <div class="name-row">
+    <div class="info-box">
+      <span>First Name</span>
+      <strong>{{ first_name }}</strong>
+    </div>
+    <div class="info-box">
+      <span>Last Name</span>
+      <strong>{{ last_name }}</strong>
+    </div>
+  </div>
+  <div class="info-box">
+    <span>Your Email</span>
+    <strong>{{ email }}</strong>
+  </div>
+  <div class="info-box">
+    <span>Phone</span>
+    <strong>{{ phone }}</strong>
+  </div>
+</div>

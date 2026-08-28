@@ -1,0 +1,113 @@
+{{ 'app-block-customer-account-referral.css' | asset_url | stylesheet_tag: preload: true }}
+
+{% liquid
+  assign storefront_proxy_path = settings.sbrillet_app_proxy_path | default: '/apps/sbrillet'
+  assign app_id = settings.sbrillet_app_id | prepend: 'app--'
+  assign sbrillet_metafields = customer.metafields[app_id]
+  assign current_tier = sbrillet_metafields.loyalty_tier_config.value
+  assign current_tier_key = current_tier.level | default: 'SHINY'
+
+  assign icon_social_instagram = 'app-icon-social-instagram.svg' | inline_asset_content
+  assign icon_social_facebook = 'app-icon-social-facebook.svg' | inline_asset_content
+  assign icon_social_whatsapp = 'app-icon-social-whatsapp.svg' | inline_asset_content
+  assign icon_social_tiktok = 'app-icon-social-tiktok.svg' | inline_asset_content
+%}
+<block-customer-account-referral
+  data-proxy-path="{{ storefront_proxy_path }}"
+  data-tier-level="{{ current_tier_key }}"
+>
+  <div class="customer-account-referral">
+    <div class="customer-account-referral__header">
+      <p class="customer-account-referral__eyebrow">Rewards sharing</p>
+      <h1 class="customer-account-referral__title">Refer a Friend</h1>
+      <p class="customer-account-referral__description">
+        Share your personal referral link and earn Sparkle Points when a friend completes their registration.
+      </p>
+    </div>
+
+    <div class="referral-profile">
+      <div class="referral-link-box">
+        <div class="referral-link-box__header">
+          {% comment %} <p class="referral-link-box__eyebrow">Personal link</p> {% endcomment %}
+          <h4 class="referral-link-box__title">Your Referral Link</h4>
+          <p class="referral-link-box__copy">Copy the link or share it directly on your favorite channel.</p>
+        </div>
+        <div class="link-box">
+          <p class="referral-link" data-referral-link></p>
+          <button
+            type="button"
+            class="referral-copy-button"
+            data-copy-referral-link
+            data-default-label="Copy Link"
+          >
+            Copy Link
+          </button>
+        </div>
+        <div class="social-icons" aria-label="Share referral link">
+          <a href="{{block.settings.facebook_link}}" aria-label="Share on Facebook" data-share-platform="facebook">
+            {{ icon_social_facebook }}
+          </a>
+          <a href="{{block.settings.instagram_link}}" aria-label="Share on Instagram" data-share-platform="instagram">
+            {{ icon_social_instagram }}
+          </a>
+          {% comment %}
+            <a href="#" aria-label="Share on WhatsApp" data-share-platform="whatsapp">
+              {{ icon_social_whatsapp }}
+            </a>
+            <a href="#" aria-label="Share on TikTok" data-share-platform="tiktok">
+              {{ icon_social_tiktok }}
+            </a>
+          {% endcomment %}
+        </div>
+        <p class="referral-share-status" data-share-status role="status" aria-live="polite"></p>
+      </div>
+      <div class="referral-stats">
+        <div class="referral-stats__header">
+          <p class="referral-stats__eyebrow">Referral progress</p>
+          <h4 class="referral-stats__title">Invite your first friend to start earning Sparkle Points</h4>
+        </div>
+        <div class="divider"></div>
+        <div class="referral-stat-list">
+          <div class="referral-stat">
+            <p class="referral-stat__label">Successful Referrals</p>
+            <p class="referral-stat__value" data-referral-count>0</p>
+          </div>
+          <div class="referral-stat">
+            <p class="referral-stat__label">Sparkle Points Earned</p>
+            <p class="referral-stat__value" data-reward-points-earned>0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</block-customer-account-referral>
+
+<script src="{{ 'app-block-customer-account-referral.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Customer Referral",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Social Links"
+    },
+    {
+      "type": "url",
+      "id": "instagram_link",
+      "label": "Instagram Profile Link"
+    },
+    {
+      "type": "url",
+      "id": "facebook_link",
+      "label": "Facebook Profile Link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Customer Referral",
+      "category": "SBrillet App"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,37 @@
+{
+	"sections": {
+		"header": {
+			"type": "app-sbrillet-dashboard-header",
+			"blocks": {
+				"vip_universe": {"type": "menu_item", "settings": {"label": "My VIP Universe", "link": "/pages/my-vip-universe"}},
+				"discover_shop": {"type": "menu_item", "settings": {"label": "Discover & Shop", "link": "/pages/discover-shop"}},
+				"orders": {"type": "menu_item", "settings": {"label": "Orders", "link": "/pages/my-orders"}},
+				"perks_and_community": {"type": "menu_item", "settings": {"label": "Perks & Community", "link": "/pages/perks-community"}}
+			},
+			"block_order": ["vip_universe", "discover_shop", "orders", "perks_and_community"],
+			"settings": {}
+		},
+		"page-sbrillet": {
+			"type": "app-page-sbrillet",
+			"settings": {},
+			"blocks": {
+				"top-voted-products": {
+					"type": "_block-sbrillet-app-voted-top-product-list",
+					"settings": {}
+				},
+				"vote-collection-products": {
+					"type": "_block-sbrillet-app-vote-collection-products",
+					"settings": {}
+				}
+			},
+			"block_order": [
+				"vote-collection-products",
+				"top-voted-products"
+			]
+		}
+	},
+	"order": [
+		"header",
+		"page-sbrillet"
+	]
+}

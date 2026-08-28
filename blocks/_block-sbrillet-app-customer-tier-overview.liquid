@@ -1,0 +1,412 @@
+{{ 'app-block-customer-tier-overview.css' | asset_url | stylesheet_tag: preload: true }}
+{% liquid
+  assign storefront_proxy_path = settings.sbrillet_app_proxy_path | default: '/apps/sbrillet'
+  assign shiny_logo = 'app-ShinyFinalLogo.svg' | asset_url
+  assign starlight_logo = 'app-StarlightFinalLogo.svg' | asset_url
+  assign galaxy_logo = 'app-GalaxyFinalLogo.svg' | asset_url
+  assign ultra_galaxy_logo = 'app-UltraGalaxyFinalLogo.svg' | asset_url
+  assign tier_level_icon = 'app-icon-star-level-shiny.svg' | asset_url
+  assign lock_icon = 'app-icon_lock.svg' | asset_url
+  assign icon_shape_diamond_white = 'app-icon-shape-diamond-white.png' | asset_url
+  assign shape_white_octagon = 'app-shape-white-octagon.svg' | asset_url
+  assign shape_fill_octagon = 'app-icon-shape-fill-octagon.svg' | asset_url
+
+  assign app_icon_plus = 'app-icon-plus.svg' | asset_url
+  assign app_icon_minus = 'app-icon-minus.svg' | asset_url
+
+  assign app_id = settings.sbrillet_app_id | prepend: 'app--'
+  assign sbrillet_metafields = customer.metafields[app_id]
+  assign current_tier = sbrillet_metafields.loyalty_tier_config.value
+  assign next_tier = sbrillet_metafields.loyalty_next_tier_config.value
+  assign current_tier_key = current_tier.level | default: 'SHINY'
+  assign current_tier_logo = shiny_logo
+  assign customer_profile = sbrillet_metafields.profile.value
+
+  case current_tier_key
+    when 'SHINY'
+      assign current_tier_logo = shiny_logo
+    when 'STARLIGHT'
+      assign current_tier_logo = starlight_logo
+    when 'GALAXY'
+      assign current_tier_logo = galaxy_logo
+    when 'ULTRA_GALAXY'
+      assign current_tier_logo = ultra_galaxy_logo
+  endcase
+
+  assign icon_cirlce_mark_checked = 'app-icon-circle-mark-checked.svg' | asset_url
+
+  assign icon_point_star_level = 'app-icon-point-star-level-default.svg' | asset_url
+  if current_tier.level contains 'SHINY'
+    assign tier_level_icon = 'app-icon-star-level-shiny.svg' | asset_url
+  endif
+  if current_tier.level contains 'STARLIGHT'
+    assign tier_level_icon = 'app-icon-star-level-starlight.svg' | asset_url
+  endif
+  if current_tier.level contains 'GALAXY'
+    assign tier_level_icon = 'app-icon-star-level-galaxy.svg' | asset_url
+    assign shape_fill_octagon = 'app-icon-shape-galaxy-fill-octagon.svg' | asset_url
+    assign icon_cirlce_mark_checked = 'app-icon-circle-mark-checked-galaxy.svg' | asset_url
+    assign icon_point_star_level = 'app-icon-point-star-level-galaxy.svg' | asset_url
+  endif
+
+  assign icon_welcome_gift = 'app-WelcomGiftIcon.svg' | asset_url
+  assign enableWelcomeGift = false
+  if current_tier.welcomeGiftPercentage > 0
+    assign enableWelcomeGift = true
+  endif
+
+  assign icon_free_shipping = 'app-icon-free-shipping.svg' | asset_url
+  assign enableFreeShipping = false
+  if current_tier.freeShipping or current_tier.freeShippingOnOrder > 0
+    assign enableFreeShipping = true
+  endif
+
+  assign icon_theme_message_card = 'app-icon-theme-message-card.svg' | asset_url
+  assign enableThemeMessageCard = false
+  if current_tier.hasFreeThemeMessageCard
+    assign enableThemeMessageCard = true
+  endif
+
+  assign icon_birthday_gift = 'app-icon-birthday-gift.svg' | asset_url
+  assign enableBirthdayGift = false
+  if current_tier.birthdayGiftAmount > 0
+    assign enableBirthdayGift = true
+  endif
+
+  assign icon_member_savings = 'app-icon-member-savings.svg' | asset_url
+  assign enableMemberSavings = false
+  if current_tier.memberSavingPercentage > 0
+    assign enableMemberSavings = true
+  endif
+
+  assign icon_jewelry_warranty = 'app-icon-jewelry-warranty.svg' | asset_url
+  assign enableJewelryWarranty = false
+  if current_tier.jewelryWararnty > 0
+    assign enableJewelryWarranty = true
+  endif
+
+  assign icon_view_collection = 'app-icon-view-collection.svg' | asset_url
+  assign enableViewNewCollection = false
+  if current_tier.viewNewCollection
+    assign enableViewNewCollection = true
+  endif
+
+  assign icon_vote_collection = 'app-icon-vote-collection.svg' | asset_url
+  assign enableVoteNewCollection = false
+  if current_tier.voteNewCollection
+    assign enableVoteNewCollection = true
+  endif
+
+  assign freeShippingLabel = 'Free Shipping <br> on orders $100+'
+  if current_tier.freeShipping
+    assign freeShippingLabel = 'Free Shipping <br> on All Orders'
+  endif
+
+  assign welcome_gift_label = 'Welcome Gift <br> one-time ' | append: current_tier.welcomeGiftPercentage | append: '% Off'
+  assign birthday_gift_label = 'BIRTHDAY Gift <br> REWARD ' | append: current_tier.birthdayGiftAmount | append: '$'
+  if current_tier.birthdayGiftAmount == 0
+    assign birthday_gift_label = 'BIRTHDAY Gift REWARD'
+  endif
+  assign member_saving_label = 'Member Saving'
+  if current_tier.memberSavingPercentage > 0
+    assign member_saving_label = 'Member <br> Saving ' | append: current_tier.memberSavingPercentage | append: '% Off'
+  endif
+%}
+
+<customer-tier-overview
+  data-proxy-path="{{ storefront_proxy_path }}"
+  data-tier-block="{{ block.id }}"
+  data-design-mode="{{ request.design_mode }}"
+  data-tier-level="{{ current_tier_key }}"
+  data-next-tier-level="{{ next_tier.level | default: "" }}"
+  data-next-tier-point-required="{{ next_tier.pointsRequired | default: '' }}"
+  data-lock-icon-url="{{ lock_icon }}"
+  data-shape-white-octagon-url="{{ shape_white_octagon }}"
+  data-shape-fill-octagon-url="{{ shape_fill_octagon }}"
+  {{ block.shopify_attributes }}
+>
+  <script type="application/json" data-sbrillet-metafields-json>
+    {{ sbrillet_metafields | json }}
+  </script>
+  <script type="application/json" data-tier-logos-json>
+    {
+      "SHINY": {
+        "logo": "{{ shiny_logo }}",
+        "level_icon": ""
+      },
+      "STARLIGHT": {
+        "logo": "{{ starlight_logo }}",
+        "level_icon": ""
+      },
+      "GALAXY": {
+        "logo": "{{ galaxy_logo }}",
+        "level_icon": ""
+      },
+      "ULTRA_GALAXY": {
+        "logo": "{{ ultra_galaxy_logo }}",
+        "level_icon": ""
+      }
+    }
+  </script>
+  <script
+    type="application/json"
+    data-tier-rewards-json
+    id="{{ block.id }}"
+  >
+     {
+        "tier_rewards": [
+            {
+                "label": "{{ welcome_gift_label }}",
+                "enabled": {{ enableWelcomeGift }},
+                "logo": "{{ icon_welcome_gift }}"
+            },
+            {
+                "label": "{{ freeShippingLabel }}",
+                "iconLock": "{{ lock_icon }}",
+                "enabled": {{ enableFreeShipping }},
+                "logo": "{{ icon_free_shipping }}"
+            },
+            {
+                "label": "Free Theme <br> Message Card",
+                "iconLock": "{{ lock_icon }}",
+                "enabled": {{ enableThemeMessageCard }},
+                "logo": "{{ icon_theme_message_card }}"
+            },
+            {
+                "label": "{{ birthday_gift_label }}",
+                "iconLock": "{{ lock_icon }}",
+                "enabled": {{ enableBirthdayGift }},
+                "logo": "{{ icon_birthday_gift }}"
+            },
+            {
+                "label": "{{ member_saving_label }}",
+                "iconLock": "{{ lock_icon }}",
+                "enabled": {{ enableMemberSavings }},
+                "logo": "{{ icon_member_savings }}"
+            },
+            {
+                "label": "2-YEAR JEWELRY <br> WARRANTY",
+                "iconLock": "{{ lock_icon }}",
+                "enabled": {{ enableJewelryWarranty }},
+                "logo": "{{ icon_jewelry_warranty }}"
+            },
+            {
+                "label": "View New <br> Collections",
+                "iconLock": "{{ lock_icon }}",
+                "enabled": {{ enableViewNewCollection }},
+                "logo": "{{ icon_view_collection }}"
+            },
+            {
+                "label": "Vote New <br> Collections",
+                "iconLock": "{{ lock_icon }}",
+                "enabled": {{ enableVoteNewCollection }},
+                "logo": "{{ icon_vote_collection }}"
+            }
+        ]
+    }
+  </script>
+  <div class="sb-block-wrapper">
+    <div class="sb-block-content">
+      <div class="section-tier-overview">
+        {% if request.design_mode %}
+          <div class="tier-content-block">
+            {% render 'app-tier-card-design-mode',
+              logo: shiny_logo,
+              level_icon: tier_level_icon,
+              point_icon: icon_point_star_level,
+              checked_icon: icon_cirlce_mark_checked
+            %}
+            {% render 'app-tier-cart-item-discounts-design-mode' %}
+          </div>
+        {% else %}
+          <div class="tier-content-block">
+            <div class="tier-status-content" data-tier-card>
+              <div class="sparkle-points-stats">
+                <div class="logo-box" data-tier-logo-box>
+                  <img
+                    data-tier-logo
+                    src="{{ current_tier_logo }}"
+                    alt="SBrillet Logo"
+                    width="200"
+                    height="200"
+                  >
+                </div>
+                <div class="sparkle-stats" data-tier-stats>
+                  <div class="point-box" data-tier-points>
+                    <div class="points-with-icon">
+                      <app-customer-total-sparkles class="amount text-gradient">
+                        <span data-total-sparkle-points></span>
+                      </app-customer-total-sparkles>
+                      <img src="{{ icon_point_star_level }}" alt="" width="30" height="30">
+                    </div>
+                    <span class="label">Sparkle Points</span>
+                  </div>
+                  <div class="point-box" data-tier-points>
+                    <span class="amount text-gradient" data-total-discount-amount>0</span>
+                    <span class="label">Saved</span>
+                  </div>
+                </div>
+              </div>
+              <div class="tier-level-content" data-tier-content>
+                <div class="tier-level" data-tier-row>
+                  <div class="level-with-icon">
+                    <img
+                      src="{{ tier_level_icon }}"
+                      alt="SBrillet Level"
+                      width="100"
+                      height="100"
+                      class="icon"
+                    >
+                    <span
+                      class="font-title level-title"
+                      data-tier-level-title
+                    >
+                      {{- current_tier.level | replace: '_', ' ' -}}
+                    </span>
+                  </div>
+                  {% comment %} <div></div> {% endcomment %}
+                </div>
+                <div class="divider bg-tier-gradient" data-tier-divider></div>
+                <div
+                  class="tier-point-panel-switcher"
+                  tabindex="0"
+                  aria-label="Tier benefits and Sparkles history"
+                >
+                  {% if block.settings.show_tier_features %}
+                    {% render 'app-tier-overview-point-features' %}
+                  {% endif %}
+                  {% render 'app-tier-overview-additional-point',
+                    block_settings: block.settings,
+                    customer_profile: customer_profile
+                  %}
+                  <div class="tier-point-history">
+                    {% render 'app-customer-point-history-overview',
+                      proxy_path: storefront_proxy_path,
+                      icon_plus: app_icon_plus,
+                      icon_minus: app_icon_minus
+                    %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% render 'app-customer-tier-cart-item-discounts',
+              tier_level: current_tier.level,
+              percentages: current_tier.cartLineItemPercentages,
+              lock_icon: lock_icon,
+              icon_shape_diamond_white: icon_shape_diamond_white
+            %}
+          </div>
+        {% endif %}
+        <div class="tier-level-content">
+          <div class="tier-reward-content" data-tier-reward-content>
+            <div class="tier-reward-items" data-tier-reward-items data-rewards-loading="true">
+              {% if request.design_mode %}
+                {% render 'app-tier_rewards_design_mode',
+                  lock_icon: lock_icon,
+                  shape_white_octagon: shape_white_octagon
+                %}
+              {% endif %}
+              {% unless request.design_mode %}
+                {% for index in (1..8) %}
+                  <div class="reward-item reward-item--skeleton" aria-hidden="true">
+                    <div class="reward-icon reward-icon--skeleton">
+                      <span class="reward-skeleton reward-skeleton--icon"></span>
+                    </div>
+                    <span class="reward-skeleton reward-skeleton--label"></span>
+                  </div>
+                {% endfor %}
+              {% endunless %}
+            </div>
+          </div>
+          {% if request.design_mode %}
+            {% render 'app-tier-level-progress-bar-design-mode' %}
+          {% elsif current_tier_key == 'ULTRA_GALAXY' %}
+            {% render 'app-tier-ultra-galaxy-progress-bar' %}
+          {% else %}
+            {% render 'app-tier-level-progress-bar' %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</customer-tier-overview>
+
+<script src="{{ 'app-block-customer-tier-overview.js' | asset_url }}" defer type="module"></script>
+
+{% schema %}
+{
+  "name": "Tier Overview",
+  "settings": [
+    {
+      "type": "font_picker",
+      "id": "body_font",
+      "label": "Body Font",
+      "default": "assistant_n4"
+    },
+    {
+      "type": "font_picker",
+      "id": "title_font",
+      "label": "Title Font",
+      "default": "assistant_n4"
+    },
+    {
+      "type": "text",
+      "id": "overview_title",
+      "label": "Overview Title",
+      "default": "Tier Overview"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overview_title",
+      "label": "Show Overview Title",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tier_features",
+      "label": "Show Tier Features",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Addition Point Earn"
+    },
+    {
+      "type": "header",
+      "content": "Instagram"
+    },
+    {
+      "type": "text",
+      "id": "instagram_link_label",
+      "label": "Link Label",
+      "default": "Follow us on Instagram"
+    },
+    {
+      "type": "url",
+      "id": "instagram_link",
+      "label": "Profile Link"
+    },
+    {
+      "type": "header",
+      "content": "Newsletter"
+    },
+    {
+      "type": "text",
+      "id": "newsletter_signup_link_label",
+      "label": "Link Label",
+      "default": "Subscribe to Newsletter"
+    },
+    {
+      "type": "url",
+      "id": "newsletter_signup_link",
+      "label": "Newsletter Signup Link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tier Overview",
+      "category": "SBrillet App"
+    }
+  ]
+}
+{% endschema %}

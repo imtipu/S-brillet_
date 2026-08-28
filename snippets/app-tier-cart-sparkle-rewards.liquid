@@ -1,0 +1,42 @@
+{% liquid
+    assign app_id = settings.sbrillet_app_id | prepend: 'app--'
+    assign sbrillet_metafields = customer.metafields[app_id]
+    assign current_tier = sbrillet_metafields.loyalty_tier_config.value
+    assign next_tier = sbrillet_metafields.loyalty_next_tier_config.value
+    assign shiny_star_level_icon = 'app-icon-star-level-shiny.svg' | asset_url
+    assign starlight_star_level_icon = 'app-icon-star-level-starlight.svg' | asset_url
+    assign galaxy_star_level_icon = 'app-icon-star-level-galaxy.svg' | asset_url
+    assign ultra_galaxy_star_level_icon = 'app-icon-star-level-galaxy.svg' | asset_url
+    assign galaxy_bar_stars = 'app-sb-icon-only-stars.png' | asset_img_url: '200x'
+    assign point_star_icon = 'app-icon-star-white.svg' | asset_url
+
+%}
+
+<tier-cart-sparkle-rewards data-proxy-path="{{ settings.sbrillet_app_proxy_path | default: '/apps/sbrillet' }}">
+    <script type="application/json" data-loyalty-config>
+        {
+          "currentTier": {{ current_tier | json }},
+          "nextTier": {{ next_tier | json }},
+          "shiny_star_level_icon": "{{ shiny_star_level_icon }}",
+          "starlight_star_level_icon": "{{ starlight_star_level_icon }}",
+          "galaxy_star_level_icon": "{{ galaxy_star_level_icon }}",
+          "ultra_galaxy_star_level_icon": "{{ ultra_galaxy_star_level_icon }}",
+          "galaxyBarStars": "{{ galaxy_bar_stars }}",
+          "pointStarIcon": "{{ point_star_icon }}"
+        }
+    </script>
+    <div class="tier-cart-sparkle-rewards__panel" data-points-projection aria-busy="false">
+        <div class="tier-cart-sparkle-rewards__heading">
+            <span>Universe Sparkle Points Rewards</span>
+            <span data-projected-points>+0</span>
+        </div>
+        <div class="tier-cart-sparkle-rewards__progress" data-tier-progress aria-hidden="true"></div>
+        <div class="tier-cart-sparkle-rewards__galaxy-progress" data-galaxy-progress hidden aria-hidden="true">
+            <div class="tier-cart-sparkle-rewards__galaxy-track" data-galaxy-track style="--galaxy-star-texture: url('{{ galaxy_bar_stars }}');">
+                <span class="tier-cart-sparkle-rewards__galaxy-fill" data-galaxy-progress-fill></span>
+                <div class="tier-cart-sparkle-rewards__milestones" data-galaxy-milestones></div>
+            </div>
+        </div>
+        <p class="tier-cart-sparkle-rewards__summary" data-points-projection-summary></p>
+    </div>
+</tier-cart-sparkle-rewards>

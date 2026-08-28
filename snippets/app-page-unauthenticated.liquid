@@ -1,0 +1,30 @@
+{% liquid
+  assign login_redirect = redirect | default: request.path
+%}
+
+<section class="sb-app-page-unauthenticated" aria-labelledby="sb-app-login-title">
+  <div class="sb-app-page-unauthenticated__card">
+    <div class="sb-app-page-unauthenticated__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" focusable="false">
+        <path d="M7.5 10V7.75a4.5 4.5 0 0 1 9 0V10M6.75 10h10.5c.69 0 1.25.56 1.25 1.25v7.5c0 .69-.56 1.25-1.25 1.25H6.75c-.69 0-1.25-.56-1.25-1.25v-7.5c0-.69.56-1.25 1.25-1.25Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="sb-app-page-unauthenticated__content">
+      <p class="sb-app-page-unauthenticated__eyebrow">SBrillet Member Area</p>
+      <h2 id="sb-app-login-title" class="sb-app-page-unauthenticated__title">Sign in to your account</h2>
+      <p class="sb-app-page-unauthenticated__description">
+        Log in to view your Sparkle Points, tier rewards, and member-only benefits.
+      </p>
+    </div>
+    <a
+      class="sb-app-page-unauthenticated__button"
+      href="/customer_authentication/login?return_to={{ login_redirect | url_encode }}"
+      data-login-return-link
+    >
+      Log in to continue
+      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" focusable="false">
+        <path d="M4 10h11M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+</section>

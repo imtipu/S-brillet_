@@ -1,0 +1,930 @@
+block-customer-order-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border: 1px solid var(--order-tier-border-color, #e7e2db);
+    border-radius: calc(var(--order-card-radius) + 6px);
+    background: #f7f6f3;
+    color: #292725;
+    font-family: "Inter", system-ui, sans-serif;
+    --order-border: #e4e0da;
+    --order-muted: #77726c;
+    --order-tier-action-color: #947863;
+    --order-tier-border-color: rgba(230, 215, 203, 1);
+    --order-tier-gradient-light: linear-gradient(90deg, #947863 0%, #E9DDD4 50%, #947863 100%);
+    --order-tier-gradient-dark: linear-gradient(260.83deg, #2E253A 0%, #68526E 50%, #2E253A 100%);
+    --order-surface: rgba(255, 255, 255, 0.92);
+    --order-surface-soft: rgba(255, 255, 255, 0.72);
+    --order-surface-strong: rgba(255, 255, 255, 0.96);
+    --order-border-soft: rgba(229, 226, 221, 1);
+    --order-text: rgba(44, 44, 44, 0.92);
+    --order-muted: rgba(44, 44, 44, 0.68);
+    --order-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+    --order-bg-financial-status-authorized: #DBEAFE;
+    /* Blue */
+    --order-bg-financial-status-expired: #E5E7EB;
+    /* Gray */
+    --order-bg-financial-status-paid: #DCFCE7;
+    /* Green */
+    --order-bg-financial-status-partially-paid: #FEF3C7;
+    /* Amber */
+    --order-bg-financial-status-partially-refunded: #FFEDD5;
+    /* Orange */
+    --order-bg-financial-status-pending: #FEF9C3;
+    /* Yellow */
+    --order-bg-financial-status-refunded: #F3E8FF;
+    /* Purple */
+    --order-bg-financial-status-unpaid: #FEE2E2;
+    /* Red */
+    --order-bg-financial-status-voided: #E2E8F0;
+    /* Slate */
+    --order-text-financial-status-authorized: #1D4ED8;
+    --order-text-financial-status-expired: #4B5563;
+    --order-text-financial-status-paid: #166534;
+    --order-text-financial-status-partially-paid: #92400E;
+    --order-text-financial-status-partially-refunded: #C2410C;
+    --order-text-financial-status-pending: #A16207;
+    --order-text-financial-status-refunded: #7E22CE;
+    --order-text-financial-status-unpaid: #B91C1C;
+    --order-text-financial-status-voided: #475569;
+
+    --order-bg-fulfillment-status-complete: #DCFCE7;
+    /* Green */
+    --order-text-fulfillment-status-complete: #166534;
+    --order-bg-fulfillment-status-fulfilled: #DBEAFE;
+    /* Blue */
+    --order-text-fulfillment-status-fulfilled: #1D4ED8;
+    --order-bg-fulfillment-status-partial: #FEF3C7;
+    /* Amber */
+    --order-text-fulfillment-status-partial: #92400E;
+    --order-bg-fulfillment-status-restocked: #F3E8FF;
+    /* Purple */
+    --order-text-fulfillment-status-restocked: #7E22CE;
+    --order-bg-fulfillment-status-unfulfilled: #FEE2E2;
+    /* Red */
+    --order-text-fulfillment-status-unfulfilled: #B91C1C;
+
+    @media screen {
+        padding: 1rem 1rem;
+        @media (min-width: 1024px) {
+            padding: 1rem 1.5rem;
+        }
+    }
+
+    .order-financial-status-authorized {
+        background-color: var(--order-bg-financial-status-authorized);
+        color: var(--order-text-financial-status-authorized);
+    }
+
+    .order-financial-status-expired {
+        background-color: var(--order-bg-financial-status-expired);
+        color: var(--order-text-financial-status-expired);
+    }
+
+    .order-financial-status-paid {
+        background-color: var(--order-bg-financial-status-paid);
+        color: var(--order-text-financial-status-paid);
+    }
+
+    .order-financial-status-partially-paid {
+        background-color: var(--order-bg-financial-status-partially-paid);
+        color: var(--order-text-financial-status-partially-paid);
+    }
+
+    .order-financial-status-partially-refunded {
+        background-color: var(--order-bg-financial-status-partially-refunded);
+        color: var(--order-text-financial-status-partially-refunded);
+    }
+
+    .order-financial-status-pending {
+        background-color: var(--order-bg-financial-status-pending);
+        color: var(--order-text-financial-status-pending);
+    }
+
+    .order-financial-status-refunded {
+        background-color: var(--order-bg-financial-status-refunded);
+        color: var(--order-text-financial-status-refunded);
+    }
+
+    .order-financial-status-unpaid {
+        background-color: var(--order-bg-financial-status-unpaid);
+        color: var(--order-text-financial-status-unpaid);
+    }
+
+    .order-financial-status-voided {
+        background-color: var(--order-bg-financial-status-voided);
+        color: var(--order-text-financial-status-voided);
+    }
+
+    .order-fulfillment-status-complete {
+        background-color: var(--order-bg-fulfillment-status-complete);
+        color: var(--order-text-fulfillment-status-complete);
+    }
+
+    .order-fulfillment-status-fulfilled {
+        background-color: var(--order-bg-fulfillment-status-fulfilled);
+        color: var(--order-text-fulfillment-status-fulfilled);
+    }
+
+    .order-fulfillment-status-partial {
+        background-color: var(--order-bg-fulfillment-status-partial);
+        color: var(--order-text-fulfillment-status-partial);
+    }
+
+    .order-fulfillment-status-restocked {
+        background-color: var(--order-bg-fulfillment-status-restocked);
+        color: var(--order-text-fulfillment-status-restocked);
+    }
+
+    .order-fulfillment-status-unfulfilled {
+        background-color: var(--order-bg-fulfillment-status-unfulfilled);
+        color: var(--order-text-fulfillment-status-unfulfilled);
+    }
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    p,
+    h2,
+    h3,
+    dl {
+        margin: 0;
+    }
+
+    .customer-order-list__panel {
+        display: grid;
+        gap: 0.8rem;
+    }
+
+    .customer-order-list__header,
+    .customer-order-list__pagination {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .customer-order-list__header-content {
+        display: grid;
+        gap: 0.25rem;
+    }
+
+    .customer-order-list__eyebrow,
+    .order-card__label {
+        color: var(--order-muted);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .customer-order-list__heading {
+        font-size: 0.9rem;
+        line-height: 1.2;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        @media screen and (min-width: 1024px) {
+            font-size: 1rem;
+            letter-spacing: 0.1em;
+        }
+    }
+
+    .customer-order-list__count,
+    .customer-order-list__pagination-status {
+        color: var(--order-muted);
+        font-size: 0.85rem;
+    }
+
+    .customer-order-list__cards {
+        display: grid;
+        gap: var(--order-list-gap);
+    }
+
+    .order-card {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.5rem 0.8rem;
+        padding: 0.8rem 1rem;
+        border: 1px solid var(--order-tier-border-color);
+        border-radius: var(--order-card-radius);
+        background: #fff;
+        box-shadow: 0 1px 2px rgb(35 31 27 / 4%);
+        transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+
+        &:hover {
+            border-color: var(--order-tier-action-color);
+            box-shadow: 0 10px 28px rgb(35 31 27 / 7%);
+            transform: translateY(-1px);
+        }
+
+        .order-card__header {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.7rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid #eeeae5;
+        }
+
+        .order-card__identity {
+            display: grid;
+            gap: 0.35rem;
+        }
+
+        .order-card__title-row,
+        .order-card__statuses {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            max-width: 100%;
+            min-width: 0;
+        }
+
+        .order-card__statuses {
+            justify-content: flex-end;
+        }
+
+        .order-card__title-row {
+            justify-content: flex-start;
+        }
+
+        .order-card__title {
+            font-size: 0.85rem;
+            line-height: 1.2;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .order-card__date {
+            color: var(--order-muted);
+            font-size: 0.7rem;
+            line-height: 1.1;
+        }
+
+        .order-card__badge {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            width: fit-content;
+            min-height: 1.75rem;
+            padding: 0.3rem 0.65rem;
+            border-radius: 999px;
+            background: #f2f0ed;
+            color: #56514c;
+            font-size: 0.72rem;
+            font-weight: 600;
+            white-space: nowrap;
+            letter-spacing: 0.4px;
+
+            &.order-financial-status-authorized {
+                background: var(--order-bg-financial-status-authorized);
+                color: var(--order-text-financial-status-authorized);
+            }
+
+            &.order-financial-status-expired {
+                background: var(--order-bg-financial-status-expired);
+                color: var(--order-text-financial-status-expired);
+            }
+
+            &.order-financial-status-paid {
+                background: var(--order-bg-financial-status-paid);
+                color: var(--order-text-financial-status-paid);
+            }
+
+            &.order-financial-status-partially-paid {
+                background: var(--order-bg-financial-status-partially-paid);
+                color: var(--order-text-financial-status-partially-paid);
+            }
+
+            &.order-financial-status-partially-refunded {
+                background: var(--order-bg-financial-status-partially-refunded);
+                color: var(--order-text-financial-status-partially-refunded);
+            }
+
+            &.order-financial-status-pending {
+                background: var(--order-bg-financial-status-pending);
+                color: var(--order-text-financial-status-pending);
+            }
+
+            &.order-financial-status-refunded {
+                background: var(--order-bg-financial-status-refunded);
+                color: var(--order-text-financial-status-refunded);
+            }
+
+            &.order-financial-status-unpaid {
+                background: var(--order-bg-financial-status-unpaid);
+                color: var(--order-text-financial-status-unpaid);
+            }
+
+            &.order-financial-status-voided {
+                background: var(--order-bg-financial-status-voided);
+                color: var(--order-text-financial-status-voided);
+            }
+
+            &.order-fulfillment-status-complete {
+                background: var(--order-bg-fulfillment-status-complete);
+                color: var(--order-text-fulfillment-status-complete);
+            }
+
+            &.order-fulfillment-status-fulfilled {
+                background: var(--order-bg-fulfillment-status-fulfilled);
+                color: var(--order-text-fulfillment-status-fulfilled);
+            }
+
+            &.order-fulfillment-status-partial {
+                background: var(--order-bg-fulfillment-status-partial);
+                color: var(--order-text-fulfillment-status-partial);
+            }
+
+            &.order-fulfillment-status-restocked {
+                background: var(--order-bg-fulfillment-status-restocked);
+                color: var(--order-text-fulfillment-status-restocked);
+            }
+
+            &.order-fulfillment-status-unfulfilled {
+                background: var(--order-bg-fulfillment-status-unfulfilled);
+                color: var(--order-text-fulfillment-status-unfulfilled);
+            }
+        }
+
+        .order-card__badge--cancelled {
+            background: #fbe9e7;
+            color: #9b3b32;
+        }
+
+        .order-card__badge-label {
+            opacity: 0.7;
+
+            &::after {
+                content: ":";
+            }
+        }
+
+        .order-card__details {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(6rem, 1fr));
+            gap: 0.5rem;
+            min-width: 0;
+        }
+
+        .order-card__detail {
+            display: grid;
+            align-content: center;
+            gap: 0.3rem;
+            min-width: 0;
+            padding: 0.3rem 0.7rem;
+            border-radius: calc(var(--order-card-radius) - 8px);
+            background: #faf9f7;
+
+            dt {
+                color: var(--order-muted);
+                font-size: 0.7rem;
+                font-weight: 500;
+                letter-spacing: 0.6px;
+            }
+
+            dd {
+                margin: 0;
+                overflow-wrap: anywhere;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+        }
+
+        .order-card__action {
+            display: flex;
+            align-items: center;
+        }
+
+        .order-card__button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            height: 36px;
+            padding: 0.7rem 1rem;
+            border: 1px solid var(--order-tier-action-color);
+            border-radius: 999px;
+            background: var(--order-tier-action-color);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.05rem;
+            line-height: 1;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: opacity 160ms ease, transform 160ms ease;
+
+            &:hover {
+                opacity: 0.86;
+                transform: translateX(1px);
+            }
+
+            &:focus-visible {
+                outline: 2px solid var(--order-tier-action-color);
+                outline-offset: 3px;
+            }
+        }
+    }
+
+    .customer-order-list__page-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 36px;
+        min-width: 80px;
+        padding: 0.65rem 0.9rem;
+        border: 1px solid var(--order-border);
+        border-radius: 20px;
+        background: #fff;
+        color: var(--order-tier-action-color);
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-decoration: none;
+
+        &:hover {
+            border-color: var(--order-tier-action-color);
+        }
+
+        &.is-disabled {
+            cursor: not-allowed;
+            opacity: 0.45;
+        }
+    }
+
+    .customer-order-list__empty-state {
+        padding: 2rem;
+        border: 1px dashed var(--order-border);
+        border-radius: var(--order-card-radius);
+        text-align: center;
+    }
+
+    .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+}
+
+block-customer-order-list[data-tier-level="SHINY"] {
+    --order-tier-border-color: rgb(214 194 179);
+    --order-tier-action-color: #80624e;
+}
+
+block-customer-order-list[data-tier-level="STARLIGHT"] {
+    --order-tier-border-color: rgb(183 154 137);
+    --order-tier-action-color: #735744;
+}
+
+block-customer-order-list[data-tier-level="GALAXY"],
+block-customer-order-list[data-tier-level="ULTRA_GALAXY"] {
+    --order-tier-border-color: rgb(46 37 58);
+    --order-tier-action-color: #2e253a;
+}
+
+@media (max-width: 900px) {
+    block-customer-order-list {
+        .order-card {
+            .order-card__header {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .order-card__statuses {
+                justify-content: flex-start;
+            }
+
+            .order-card__details {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+    }
+}
+
+@media (max-width: 620px) {
+    block-customer-order-list {
+        .customer-order-list__header {
+            align-items: flex-start;
+        }
+
+        .order-card {
+            grid-template-columns: 1fr;
+
+            /*.order-card__statuses {*/
+            /*    display: grid;*/
+            /*    grid-template-columns: 1fr;*/
+            /*    width: 100%;*/
+            /*}*/
+
+            .order-card__badge {
+                justify-content: space-between;
+                /* width: 100%; */
+                width: fit-content;
+                white-space: normal;
+            }
+
+            .order-card__details {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .order-card__action,
+            .order-card__button {
+                width: 100%;
+            }
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    block-customer-order-list {
+
+        .order-card,
+        .order-card__button {
+            transition: none;
+        }
+    }
+}
+
+block-customer-order-list {
+    .order-card__badge--warranty {
+        border: 1px solid var(--order-tier-action-color);
+        background: transparent;
+        color: var(--order-tier-action-color);
+        font: inherit;
+    }
+
+    button.order-card__badge--warranty {
+        cursor: pointer;
+
+        &:hover {
+            background: var(--order-tier-action-color);
+            color: #fff;
+        }
+    }
+
+    .order-card__badge--warranty-empty {
+        border-color: var(--order-border);
+        color: var(--order-muted);
+    }
+
+    .order-warranty-modal {
+        inset: 0;
+        width: min(34rem, calc(100vw - 2rem));
+        max-width: calc(100vw - 2rem);
+        height: fit-content;
+        max-height: min(38rem, calc(100dvh - 2rem));
+        margin: auto;
+        padding: 0;
+        border: 1px solid var(--order-border);
+        border-radius: 1rem;
+        color: var(--order-text);
+        background: #fff;
+        box-shadow: 0 24px 64px rgb(35 31 27 / 18%);
+        overflow: hidden;
+        position: fixed;
+
+        &[open] {
+            display: flex;
+            flex-direction: column;
+        }
+
+        &::backdrop {
+            background: rgb(35 31 27 / 36%);
+            backdrop-filter: blur(3px);
+        }
+    }
+
+    .order-warranty-modal__card {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-height: inherit;
+        min-height: 0;
+        overflow: hidden;
+        will-change: opacity, transform;
+    }
+
+    .order-warranty-modal__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1rem 1.1rem .9rem;
+        border-bottom: 1px solid var(--order-border);
+
+        h2 {
+            margin: .2rem 0 0;
+            font-size: 1.05rem;
+            font-weight: 650;
+            letter-spacing: -.01em;
+        }
+    }
+
+    .order-warranty-modal__close {
+        display: grid;
+        flex: 0 0 auto;
+        width: 1.9rem;
+        height: 1.9rem;
+        padding: .45rem;
+        border: 0;
+        border-radius: .5rem;
+        color: inherit;
+        background: #f5f4f2;
+        cursor: pointer;
+        transition: background 160ms ease, transform 160ms ease;
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        &:hover {
+            background: #ece9e5;
+            transform: rotate(4deg);
+        }
+    }
+
+    .order-warranty-modal__items {
+        display: block;
+        width: 100%;
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        padding: .15rem 1.1rem .5rem;
+    }
+
+    .order-warranty-item {
+        display: flex;
+        flex-direction: column;
+        gap: .55rem;
+        width: 100%;
+        min-width: 0;
+        padding: .75rem 0;
+        border-bottom: 1px solid var(--order-border);
+        background: transparent;
+
+        &:last-child {
+            border-bottom: 0;
+        }
+    }
+
+    .order-warranty-item__head {
+        display: flex;
+        align-items: center;
+        gap: .7rem;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .order-warranty-item__media,
+    .order-warranty-item__placeholder {
+        display: grid;
+        flex: 0 0 auto;
+        width: 2.85rem;
+        height: 2.85rem;
+        overflow: hidden;
+        border-radius: .55rem;
+        background: #f5f4f2;
+        place-items: center;
+    }
+
+    .order-warranty-item__placeholder {
+        color: var(--order-tier-action-color);
+        font-size: .9rem;
+        font-weight: 650;
+    }
+
+    .order-warranty-item__image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .order-warranty-item__head-content {
+        display: grid;
+        gap: .28rem;
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .order-warranty-item__title {
+        margin: 0;
+        min-width: 0;
+        font-size: .72rem;
+        font-weight: 600;
+        line-height: 1.35;
+        letter-spacing: -.01em;
+    }
+
+    .order-warranty-item__title-text {
+        overflow-wrap: anywhere;
+        min-width: 0;
+    }
+
+    .order-warranty-item__meta {
+        min-width: 0;
+
+        dl {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .25rem .65rem;
+            margin: 0;
+
+            div {
+                display: flex;
+                align-items: baseline;
+                gap: .3rem;
+                min-width: 0;
+            }
+        }
+
+        dt {
+            color: var(--order-muted);
+            font-size: .58rem;
+            font-weight: 600;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+
+            div {
+                white-space: nowrap;
+            }
+        }
+
+        dd {
+            margin: 0;
+            font-size: .66rem;
+            font-weight: 500;
+
+            div {
+                overflow-wrap: anywhere;
+            }
+        }
+    }
+
+    .order-warranty-item__warranty {
+        width: 100%;
+        min-width: 0;
+        padding: .5rem .6rem;
+        border: 1px solid var(--order-border);
+        border-radius: .55rem;
+        background: #faf9f7;
+
+        dl {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: .35rem .6rem;
+            margin: 0;
+
+            div {
+                min-width: 0;
+            }
+        }
+
+        dt {
+            color: var(--order-muted);
+            font-size: .58rem;
+            font-weight: 600;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+        }
+
+        dd {
+            margin: .15rem 0 0;
+            font-size: .68rem;
+            font-weight: 550;
+
+            div {
+                overflow-wrap: anywhere;
+            }
+        }
+    }
+
+    @media (max-width: 520px) {
+        .order-warranty-modal {
+            inset: 0;
+            width: min(34rem, calc(100vw - 1.25rem));
+            max-width: calc(100vw - 1.25rem);
+            max-height: min(72dvh, calc(100dvh - 1.25rem));
+            margin: auto;
+            border: 1px solid var(--order-border);
+            border-radius: .85rem;
+        }
+
+        .order-warranty-modal__header {
+            gap: .65rem;
+            padding: .7rem .85rem .6rem;
+
+            h2 {
+                font-size: .92rem;
+            }
+
+            .order-card__label {
+                font-size: .62rem;
+            }
+        }
+
+        .order-warranty-modal__close {
+            width: 1.65rem;
+            height: 1.65rem;
+            padding: .35rem;
+            border-radius: .4rem;
+        }
+
+        .order-warranty-modal__items {
+            padding: .1rem .85rem .35rem;
+        }
+
+        .order-warranty-item {
+            gap: .45rem;
+            padding: .6rem 0;
+        }
+
+        .order-warranty-item__head {
+            gap: .55rem;
+        }
+
+        .order-warranty-item__media,
+        .order-warranty-item__placeholder {
+            width: 2.45rem;
+            height: 2.45rem;
+            border-radius: .45rem;
+        }
+
+        .order-warranty-item__placeholder {
+            font-size: .78rem;
+        }
+
+        .order-warranty-item__title {
+            font-size: .68rem;
+        }
+
+        .order-warranty-item__meta {
+            dl {
+                gap: .22rem .5rem;
+            }
+
+            dt {
+                font-size: .54rem;
+            }
+
+            dd {
+                font-size: .62rem;
+            }
+        }
+
+        .order-warranty-item__warranty {
+            padding: .42rem .5rem;
+            border-radius: .5rem;
+
+            dl {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: .28rem .45rem;
+            }
+
+            dt {
+                font-size: .54rem;
+            }
+
+            dd {
+                font-size: .62rem;
+            }
+        }
+    }
+
+    @media (max-width: 380px) {
+        .order-warranty-modal__items {
+            padding-inline: .75rem;
+        }
+
+        .order-warranty-item__media,
+        .order-warranty-item__placeholder {
+            width: 2.3rem;
+            height: 2.3rem;
+        }
+
+        .order-warranty-item__warranty dl {
+            grid-template-columns: 1fr;
+            gap: .3rem;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .order-warranty-modal__card,
+        .order-warranty-modal__close {
+            transition: none;
+        }
+    }
+}

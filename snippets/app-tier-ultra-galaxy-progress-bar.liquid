@@ -1,0 +1,26 @@
+{% liquid
+  assign sb_icon_only_stars = 'app-sb-icon-only-stars.png' | asset_img_url: '200x'
+  assign point_star_icon = 'app-icon-star-white.svg' | asset_url
+%}
+<div class="tier-progress-bar" data-tier-progress-bar>
+  <div class="sparkle-point-spend-bar-content" aria-label="Sparkle point spending milestones">
+    <div class="bar-bg" style="background-image: url({{ sb_icon_only_stars }})" aria-hidden="true"></div>
+    <div class="full-bar" aria-hidden="true"></div>
+    <div class="spending-amount-list" role="list">
+      {% for index in (1..5) %}
+        {% assign spend_amount = index | times: 5 %}
+        {% assign point_amount = index | times: 100 %}
+        <div class="amount-box" role="listitem">
+          <span class="amount-label">${{ spend_amount }}</span>
+          <img class="step-marker" src="{{ point_star_icon }}" alt="" aria-hidden="true" width="19" height="19">
+          <span class="point-label">{{ point_amount }} Points</span>
+        </div>
+      {% endfor %}
+      <div class="amount-box" role="listitem">
+        <span class="amount-label">$50</span>
+        <img class="step-marker" src="{{ point_star_icon }}" alt="" aria-hidden="true" width="19" height="19">
+        <span class="point-label">750 Points</span>
+      </div>
+    </div>
+  </div>
+</div>

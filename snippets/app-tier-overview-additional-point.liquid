@@ -1,0 +1,44 @@
+{% liquid
+  assign icon_cirlce_mark_checked = 'app-icon-circle-mark-checked.svg' | asset_url
+%}
+<div class="tier-point-features">
+  {% if customer_profile.instagramSharePointRedeemed == false and block_settings.instagram_link %}
+    <div
+      class="feature-item font-inter"
+      data-instagram-link
+      data-link="{{ block_settings.instagram_link }}"
+      style="cursor: pointer"
+    >
+      <div class="item-label">
+        <img
+          class="label-icon"
+          src="{{ icon_cirlce_mark_checked }}"
+          alt=""
+          width="30"
+          height="30"
+        >
+        <span class="label">{{ block_settings.instagram_link_label }}</span>
+      </div>
+      <div class="point-amount text-gradient">+30 Sparkle Points</div>
+    </div>
+  {% endif %}
+  {% if customer_profile.emailMarketingConsentRewardGifted == false and block_settings.newsletter_signup_link %}
+    <a
+      class="feature-item font-inter"
+      data-newsletter-link
+      href="{{ block_settings.newsletter_signup_link }}"
+    >
+      <div class="item-label">
+        <img
+          class="label-icon"
+          src="{{ icon_cirlce_mark_checked }}"
+          alt=""
+          width="30"
+          height="30"
+        >
+        <span class="label">{{ block_settings.newsletter_signup_link_label }}</span>
+      </div>
+      <div class="point-amount text-gradient">+30 Sparkle Points</div>
+    </a>
+  {% endif %}
+</div>

@@ -1,0 +1,70 @@
+{% doc %}
+  Renders a design mode preview for the top voted products block.
+{% enddoc %}
+
+{% liquid
+  assign icon_star_level_shiny = 'icon-star-level-shiny.svg' | inline_asset_content
+  assign icon_star_level_starlight = 'icon-star-level-starlight.svg' | inline_asset_content
+  assign icon_star_level_galaxy = 'icon-star-level-galaxy.svg' | inline_asset_content
+%}
+
+<div class="top-voted-products__grid" aria-hidden="true">
+  <article class="top-product-card">
+    <div class="top-product-card__image">
+      <img
+        src="https://sbrillet.com/cdn/shop/files/68d383c8ac6bcc5dadbe035bc07cf1740522e243_3.png?v=1778492866&width=810"
+        width="400"
+        height="400"
+        alt=""
+        loading="lazy"
+      >
+    </div>
+    <div class="top-product-card__body">
+      <h3 class="top-product-card__title">iPhone 17 Pro Max Premium Leather Case</h3>
+      <div class="top-product-card__stats">
+        <span class="top-product-card__total">24 Likes</span>
+        <span class="top-product-card__tier-counts">
+          <span class="top-product-card__tier-count">{{ icon_star_level_shiny }}<span>8 Likes</span></span>
+          <span class="top-product-card__tier-count">{{ icon_star_level_starlight }}<span>5 Likes</span></span>
+          <span class="top-product-card__tier-count">{{ icon_star_level_galaxy }}<span>2 Likes</span></span>
+        </span>
+      </div>
+      <button class="top-product-card__like-button" type="button">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M7 10V21H5C3.9 21 3 20.1 3 19V12C3 10.9 3.9 10 5 10H7Z" fill="currentColor"></path>
+          <path d="M10 21H17.7C18.5 21 19.2 20.5 19.5 19.8L21 15.9C21.6 14.3 20.4 12.5 18.7 12.5H15.2L15.8 9.4C16 8.3 15.6 7.2 14.8 6.4L14.3 5.9L9.5 10.7C9.2 11 9 11.5 9 12V20C9 20.6 9.4 21 10 21Z" fill="currentColor"></path>
+        </svg>
+        <span>Like</span>
+      </button>
+    </div>
+  </article>
+
+  <article class="top-product-card">
+    <div class="top-product-card__image">
+      <img
+        src="https://sbrillet.com/cdn/shop/files/68d383c8ac6bcc5dadbe035bc07cf1740522e243_3.png?v=1778492866&width=810"
+        width="400"
+        height="400"
+        alt=""
+        loading="lazy"
+      >
+    </div>
+    <div class="top-product-card__body">
+      <h3 class="top-product-card__title">Clear MagSafe Case</h3>
+      <div class="top-product-card__stats">
+        <span class="top-product-card__total">17 Likes</span>
+        <span class="top-product-card__tier-counts">
+          <span class="top-product-card__tier-count">{{ icon_star_level_starlight }}<span>9 Likes</span></span>
+          <span class="top-product-card__tier-count">{{ icon_star_level_galaxy }}<span>4 Likes</span></span>
+        </span>
+      </div>
+      <button class="top-product-card__like-button" type="button">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M7 10V21H5C3.9 21 3 20.1 3 19V12C3 10.9 3.9 10 5 10H7Z" fill="currentColor"></path>
+          <path d="M10 21H17.7C18.5 21 19.2 20.5 19.5 19.8L21 15.9C21.6 14.3 20.4 12.5 18.7 12.5H15.2L15.8 9.4C16 8.3 15.6 7.2 14.8 6.4L14.3 5.9L9.5 10.7C9.2 11 9 11.5 9 12V20C9 20.6 9.4 21 10 21Z" fill="currentColor"></path>
+        </svg>
+        <span>Like</span>
+      </button>
+    </div>
+  </article>
+</div>

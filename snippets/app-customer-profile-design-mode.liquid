@@ -1,0 +1,114 @@
+{% doc %}
+  Renders the theme-editor preview for the customer account profile block.
+
+  @param {block} block - The block instance used for preview settings
+{% enddoc %}
+
+<div class="customer-account-profile__panel customer-account-profile__panel--profile">
+  <p class="customer-account-profile__eyebrow">{{ block.settings.profile_heading }}</p>
+
+  <div class="customer-account-profile__container">
+    <div class="customer-account-profile__hero">
+      <div class="customer-account-profile__avatar" aria-hidden="true">J</div>
+      <div class="customer-account-profile__hero-content">
+        <h2 class="customer-account-profile__name">John Doe</h2>
+        <p class="customer-account-profile__status">john@example.com</p>
+        <p class="customer-account-profile__status">+1 555 0142</p>
+        <p class="customer-account-profile__status">
+          DOB: <time datetime="1990-01-15">January 15, 1990</time>
+        </p>
+
+        <div style="display: flex; margin-top: 10px;">
+          <button class="customer-account-profile__button" type="button">
+            Edit Profile
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-stat-counters">
+      <div class="profile-stat-counter profile-stat-counter--accent">
+        <span class="profile-stat-counter__amount text-gradient">12</span>
+        <span class="profile-stat-counter__label">Orders</span>
+      </div>
+
+      <div class="profile-stat-counter profile-stat-counter--accent">
+        <span class="profile-stat-counter__amount text-gradient">$1,250</span>
+        <span class="profile-stat-counter__label">Spent</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="customer-account-profile__panel customer-account-profile__panel--address">
+  <div class="address-list-header">
+    <div class="address-list-header__content">
+      <p class="customer-account-profile__eyebrow">{{ block.settings.address_heading }}</p>
+      <h3 class="address-list-header__title">Saved addresses</h3>
+    </div>
+    <p class="address-list-header__count">2 total</p>
+  </div>
+
+  <div class="address-list" role="list">
+    <article class="address-card address-card--compact" role="listitem">
+      <div class="address-card__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 21C15.5 17.2 19 14.1 19 10A7 7 0 1 0 5 10c0 4.1 3.5 7.2 7 11Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+          <circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="1.8"></circle>
+        </svg>
+      </div>
+      <div class="address-card__content">
+        <header class="address-card__header">
+          <div class="address-card__header-content">
+            <div class="address-card__title-row">
+              <h3 class="address-card__title">John Doe</h3>
+              <span class="customer-account-profile__badge">Default</span>
+            </div>
+            <p class="address-card__contact">+1 555 0142 <span class="address-card__dot"></span> john@example.com</p>
+            <p class="address-card__subtitle">123 Main Street, Dhaka 1212, Bangladesh</p>
+          </div>
+        </header>
+        <div class="address-card__details" data-collapsible>
+          <button type="button" class="address-card__details-toggle" aria-expanded="false" aria-controls="preview-address-details-1">
+            <span>Full details</span>
+            {{ 'icon-chevron-up.svg' | inline_asset_content }}
+          </button>
+          <div id="preview-address-details-1" class="address-card__details-content" hidden></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="address-card address-card--compact" role="listitem">
+      <div class="address-card__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 21C15.5 17.2 19 14.1 19 10A7 7 0 1 0 5 10c0 4.1 3.5 7.2 7 11Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+          <circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="1.8"></circle>
+        </svg>
+      </div>
+      <div class="address-card__content">
+        <header class="address-card__header">
+          <div class="address-card__header-content">
+            <div class="address-card__title-row">
+              <h3 class="address-card__title">John Doe</h3>
+            </div>
+            <p class="address-card__contact">+1 555 0188 <span class="address-card__dot"></span> john@example.com</p>
+            <p class="address-card__subtitle">45 Lake Road, Chittagong 4000, Bangladesh</p>
+          </div>
+        </header>
+        <div class="address-card__details" data-collapsible>
+          <button type="button" class="address-card__details-toggle" aria-expanded="false" aria-controls="preview-address-details-2">
+            <span>Full details</span>
+            {{ 'icon-chevron-up.svg' | inline_asset_content }}
+          </button>
+          <div id="preview-address-details-2" class="address-card__details-content" hidden></div>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <div class="address-list-pagination">
+    <span class="address-card__page-button is-disabled">Prev</span>
+    <span class="address-list-pagination__status">Page 1 of 1</span>
+    <span class="address-card__page-button is-disabled">Next</span>
+  </div>
+</div>

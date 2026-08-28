@@ -1,0 +1,37 @@
+{% liquid
+  assign app_id = settings.sbrillet_app_id | prepend: 'app--'
+  assign sbrillet_metafields = customer.metafields[app_id]
+  assign current_tier = sbrillet_metafields.loyalty_tier_config.value
+  assign current_tier_key = current_tier.level | default: 'SHINY'
+%}
+
+<style>
+  :root {
+    {% case current_tier_key %}
+      {% when 'SHINY' %}
+        --app-tier-text-color: rgba(124, 94, 79, 1);
+        --app-tier-border-color: rgba(214, 194, 179, 1);
+        --app-tier-primary-gradient: linear-gradient(90deg, #947863 0%, #e9ddd4 50%, #947863 100%);
+        --app-tier-skeleton-base: rgba(214, 194, 179, 0.78);
+        --app-tier-skeleton-highlight: rgba(255, 250, 246, 0.85);
+      {% when 'STARLIGHT' %}
+        --app-tier-text-color: rgba(124, 94, 79, 1);
+        --app-tier-border-color: rgba(183, 154, 137, 1);
+        --app-tier-primary-gradient: linear-gradient(90deg, #947863 0%, #e9ddd4 50%, #947863 100%);
+        --app-tier-skeleton-base: rgba(183, 154, 137, 0.78);
+        --app-tier-skeleton-highlight: rgba(255, 249, 244, 0.84);
+      {% when 'GALAXY' %}
+        --app-tier-text-color: rgba(46, 37, 58, 1);
+        --app-tier-border-color: rgba(46, 37, 58, 1);
+        --app-tier-primary-gradient: linear-gradient(260.83deg, #2e253a 0%, #68526e 50%, #2e253a 100%);
+        --app-tier-skeleton-base: rgba(104, 82, 110, 0.8);
+        --app-tier-skeleton-highlight: rgba(224, 214, 228, 0.7);
+      {% when 'ULTRA_GALAXY' %}
+        --app-tier-text-color: rgba(46, 37, 58, 1);
+        --app-tier-border-color: rgba(46, 37, 58, 1);
+        --app-tier-primary-gradient: linear-gradient(260.83deg, #2e253a 0%, #68526e 50%, #2e253a 100%);
+        --app-tier-skeleton-base: rgba(104, 82, 110, 0.82);
+        --app-tier-skeleton-highlight: rgba(232, 223, 237, 0.72);
+    {% endcase %}
+  }
+</style>

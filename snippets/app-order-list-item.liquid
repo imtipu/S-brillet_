@@ -1,0 +1,153 @@
+{% doc %}
+  Renders a compact customer order overview.
+
+  @param {order} order - The customer order to summarize
+
+  @example
+  {% render 'order-list-item', order: order %}
+{% enddoc %}
+
+{% liquid
+  assign fulfillment_label = order.fulfillment_status_label | default: 'Processing'
+  assign financial_label = order.financial_status_label | default: order.financial_status
+  assign financial_status_key = order.financial_status | default: 'pending' | downcase | replace: '_', '-'
+  assign fulfillment_status_key = order.fulfillment_status | default: 'unfulfilled' | downcase | replace: '_', '-'
+  assign order_url = order.customer_order_url | default: order.customer_url
+  assign warranty_metafield = order.metafields['$app'].warranty
+  if warranty_metafield == blank
+    assign warranty_metafield = order.metafields.custom.warranty
+  endif
+  assign warranty_entries = warranty_metafield.value
+  assign has_warranty = false
+  if warranty_entries != blank
+    if warranty_entries.size > 0
+      assign has_warranty = true
+    endif
+  endif
+%}
+
+<article class="order-card" role="listitem" data-order="{{ order.id }}">
+  <div class="order-card__header">
+    <div class="order-card__identity">
+      <p class="order-card__label">Order</p>
+      <div class="order-card__title-row">
+        <h3 class="order-card__title">{{ order.name }}</h3>
+        {% if order.cancelled %}
+          <span class="order-card__badge order-card__badge--cancelled">Cancelled</span>
+        {% endif %}
+      </div>
+      <p class="order-card__date">
+        Placed {{ order.created_at | date: '%b %d, %Y' }}
+        {% if order.confirmation_number != blank %}
+          <span aria-hidden="true">·</span>
+          Confirmation {{ order.confirmation_number }}
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="order-card__statuses" aria-label="Order statuses">
+      <span class="order-card__badge order-card__badge--payment order-financial-status-{{ financial_status_key }}">
+        <span class="order-card__badge-label">Payment</span>
+        {{ financial_label }}
+      </span>
+      <span class="order-card__badge order-card__badge--shipping order-fulfillment-status-{{ fulfillment_status_key }}">
+        <span class="order-card__badge-label">Shipping</span>
+        {{ fulfillment_label }}
+      </span>
+      {% if has_warranty %}
+        <button
+          class="order-card__badge order-card__badge--warranty"
+          type="button"
+          data-open-warranty-modal
+          aria-haspopup="dialog"
+          aria-controls="order-warranty-modal-{{ order.id }}"
+        >
+          <span class="order-card__badge-label">Warranty</span>
+          Yes
+        </button>
+      {% else %}
+        <span class="order-card__badge order-card__badge--warranty order-card__badge--warranty-empty">
+          <span class="order-card__badge-label">Warranty</span>
+          No
+        </span>
+      {% endif %}
+    </div>
+  </div>
+
+  <dl class="order-card__details">
+    <div class="order-card__detail">
+      <dt>Total</dt>
+      <dd>{{ order.total_price | money }}</dd>
+    </div>
+    <div class="order-card__detail">
+      <dt>Items</dt>
+      <dd>
+        {{ order.item_count }}
+        {{ order.item_count | pluralize: 'item', 'items' }}
+      </dd>
+    </div>
+    <div class="order-card__detail">
+      <dt>Discounts</dt>
+      <dd>{{ order.total_discounts | money }}</dd>
+    </div>
+    <div class="order-card__detail">
+      <dt>Delivery</dt>
+      <dd>
+        {% if order.pickup_in_store? %}
+          Store pickup
+        {% elsif order.shipping_methods.first.title != blank %}
+          {{ order.shipping_methods.first.title }}
+        {% else %}
+          Standard shipping
+        {% endif %}
+      </dd>
+    </div>
+  </dl>
+
+  <div class="order-card__action">
+    <a class="order-card__button" href="{{ order_url }}">View order</a>
+  </div>
+</article>
+
+{% if has_warranty %}
+  {% for line_item in order.line_items %}
+    <script type="application/json" data-order-line-item-json data-order-id="{{ order.id }}">
+      {
+        "id": {{ line_item.id | json }},
+        "gid": {{ 'gid://shopify/LineItem/' | append: line_item.id | json }},
+        "productId": {{ line_item.product_id | json }},
+        "title": {{ line_item.title | json }},
+        "variantTitle": {{ line_item.variant.title | default: line_item.variant_title | json }},
+        "sku": {{ line_item.sku | json }},
+        "quantity": {{ line_item.quantity | json }},
+        "image": {
+          "url": {{ line_item.image | image_url: width: 160 | json }},
+          "altText": {{ line_item.image.alt | default: line_item.title | json }}
+        }
+      }
+    </script>
+  {% endfor %}
+  <script type="application/json" data-order-warranty-json data-order-id="{{ order.id }}">
+      {{ warranty_entries | json }}
+  </script>
+  <dialog
+    id="order-warranty-modal-{{ order.id }}"
+    class="order-warranty-modal"
+    data-order-warranty-modal
+    data-order-id="{{ order.id }}"
+    aria-labelledby="order-warranty-modal-title-{{ order.id }}"
+  >
+    <div class="order-warranty-modal__card">
+      <div class="order-warranty-modal__header">
+        <div>
+          <p class="order-card__label">Order {{ order.name }}</p>
+          <h2 id="order-warranty-modal-title-{{ order.id }}">Warranty details</h2>
+        </div>
+        <button class="order-warranty-modal__close" type="button" data-close-warranty-modal aria-label="Close warranty details">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8"/></svg>
+        </button>
+      </div>
+      <div class="order-warranty-modal__items" data-warranty-items></div>
+    </div>
+  </dialog>
+{% endif %}

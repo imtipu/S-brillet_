@@ -1,0 +1,67 @@
+{% liquid
+  assign app_id = settings.sbrillet_app_id | prepend: 'app--'
+  assign sbrillet_metafields = customer.metafields[app_id]
+  assign current_tier = sbrillet_metafields.loyalty_tier_config.value
+  assign current_tier_key = current_tier.level | default: 'SHINY'
+
+  assign ready_top_ship_collection = section_settings.ready_to_ship_collection
+  assign ready_to_ship_button_label = section_settings.ready_to_ship_button_label
+%}
+<customer-discount-list
+  data-ready-to-ship-collection="{{ ready_top_ship_collection.id | default: "" }}"
+  data-ready-to-ship-button-label="{{ ready_to_ship_button_label | default: 'Free READY-To-SHIP Jewellery Item' | escape }}"
+  data-has-free-item-in-order="{{ current_tier.hasFreeItemInOrder | default: false }}"
+>
+  <div class="customer-discount-list__header">
+    <div class="customer-discount-list__content">
+      <button type="button" data-scroll-direction="previous" aria-label="Scroll left" disabled>
+        {{ 'app-icon-right-arrow.svg' | inline_asset_content }}
+      </button>
+      <div class="customer-discounts" data-discounts-root>
+        <div class="customer-discounts__status" data-discounts-status aria-live="polite"></div>
+        <div class="customer-discounts__items" data-discounts-items aria-busy="true">
+          <span class="customer-discounts__skeleton"></span>
+          <span class="customer-discounts__skeleton"></span>
+          <span class="customer-discounts__skeleton"></span>
+        </div>
+      </div>
+      <button type="button" data-scroll-direction="next" aria-label="Scroll right" disabled>
+        {{ 'app-icon-right-arrow.svg' | inline_asset_content }}
+      </button>
+    </div>
+    {% if current_tier_key == 'ULTRA_GALAXY' %}
+      <button
+        type="button"
+        class="btn-point-redeem-toggle"
+        data-point-redeem-toggle
+        aria-expanded="false"
+        aria-controls="CustomerPointRedeemPanel"
+      >
+        Redeem Points
+      </button>
+    {% endif %}
+  </div>
+  {% if current_tier_key == 'ULTRA_GALAXY' %}
+    <div class="customer-point-redeem" id="CustomerPointRedeemPanel" data-point-redeem-panel aria-hidden="true">
+      <div class="customer-point-redeem__content">
+        <form class="point-redeem-form" data-point-redeem-form>
+          <div class="point-redeem-choices" data-point-redeem-choices aria-live="polite" aria-busy="false"></div>
+          <button
+            type="button"
+            class="btn-point-redeem-close"
+            data-point-redeem-close
+            aria-label="Close point redemption"
+            hidden
+            disabled
+          >
+            {{ 'icon-close.svg' | inline_asset_content }}
+          </button>
+        </form>
+        <div class="point-redeem-messages" aria-live="polite">
+          <div class="point-redeem-message point-redeem-message--error" data-point-redeem-error></div>
+          <div class="point-redeem-message point-redeem-message--success" data-point-redeem-success></div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</customer-discount-list>
