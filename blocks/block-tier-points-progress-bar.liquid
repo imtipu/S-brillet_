@@ -1,0 +1,156 @@
+{{ 'app-block-tier-points-progress-bar.css' | asset_url | stylesheet_tag: preload: true }}
+<script src="{{ 'app-block-tier-points-progress-bar.js' | asset_url }}" defer="defer"></script>
+
+{% liquid
+  assign icon_point_position = 'app-icon-progress-position-star.svg' | asset_url
+
+  assign img_only_stars = 'app-sb-icon-only-stars.png' | asset_img_url: '200x'
+
+  assign app_icon_progress_shiny = 'app-icon-progress-shiny.svg' | asset_url
+  assign app_icon_progress_starlight = 'app-icon-progress-starlight.svg' | asset_url
+  assign app_icon_progress_galaxy = 'app-icon-progress-galaxy.svg' | asset_url
+  assign app_icon_progress_ultra_galaxy = 'app-icon-progress-ultra-galaxy.svg' | asset_url
+%}
+
+<style>
+  .block-{{ block.id }} {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    justify-content: center;
+    background: {{ block.settings.block_background }};
+    min-height: {{ block.settings.block_min_height }}px;
+    border-radius: {{ block.settings.block_border_radius }}px;
+    border-width: {{ block.settings.block_border_width }}px;
+    border-style: solid;
+    border-color: {{ block.settings.block_border_color }};
+    padding-inline: {{ block.settings.block_padding_inline }}px;
+    padding-block: {{ block.settings.block_padding_block }}px;
+  }
+</style>
+
+<div class="block-{{ block.id }}" {{ block.shopify_attributes }}>
+  <tier-points-progress-bar
+    class="tier-points-progress-bar"
+    data-progress="{{ block.settings.progress_percentage }}"
+    style="--tier-progress: {{ block.settings.progress_percentage }}%;"
+    aria-label="Tier progress: {{ block.settings.progress_percentage }} percent"
+  >
+    <div class="tier-points-progress-bar__track">
+      <div
+        class="tier-points-progress-bar__bar-bg"
+        style="background-image: url('{{ img_only_stars }}');"
+        aria-hidden="true"
+      ></div>
+      <span class="tier-points-progress-bar__fill" aria-hidden="true"></span>
+      <img
+        class="tier-points-progress-bar__marker"
+        src="{{ icon_point_position }}"
+        width="36"
+        height="36"
+        alt=""
+        aria-hidden="true"
+      >
+      <div class="tier-points-progress-bar__tiers" aria-hidden="true">
+        <img class="tier-points-progress-bar__tier" src="{{ app_icon_progress_shiny }}" width="62" height="62" alt="">
+        <img class="tier-points-progress-bar__tier" src="{{ app_icon_progress_starlight }}" width="59" height="66" alt="">
+        <img class="tier-points-progress-bar__tier" src="{{ app_icon_progress_galaxy }}" width="67" height="67" alt="">
+        <img class="tier-points-progress-bar__tier" src="{{ app_icon_progress_ultra_galaxy }}" width="51" height="51" alt="">
+      </div>
+    </div>
+    <div class="tier-points-progress-bar__controls">
+      <label class="tier-points-progress-bar__control">
+        <span>Points</span>
+        <input data-tier-points-input type="number" min="0" max="1000" step="1" inputmode="numeric">
+      </label>
+      <label class="tier-points-progress-bar__control">
+        <span>Progress</span>
+        <span class="tier-points-progress-bar__input-wrap">
+          <input data-tier-percentage-input type="number" min="0" max="100" step="0.01" inputmode="decimal">
+          <span>%</span>
+        </span>
+      </label>
+    </div>
+  </tier-points-progress-bar>
+</div>
+{% schema %}
+{
+  "name": "Tier Points Progress",
+  "settings": [
+    {
+      "type": "range",
+      "id": "progress_percentage",
+      "label": "Progress",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 75
+    },
+    {
+      "type": "color_background",
+      "id": "block_background",
+      "label": "Background",
+      "default": "#fff"
+    },
+    {
+      "type": "number",
+      "id": "block_min_height",
+      "label": "Min Height",
+      "default": 150
+    },
+    {
+      "type": "range",
+      "id": "block_border_width",
+      "label": "Border Width",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 2
+    },
+    {
+      "type": "color",
+      "id": "block_border_color",
+      "label": "Border Color",
+      "default": "#000"
+    },
+    {
+      "type": "range",
+      "id": "block_border_radius",
+      "label": "Border Radius",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "block_padding_inline",
+      "label": "Padding Inline",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "block_padding_block",
+      "label": "Padding Block",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tier Points Progress Bar",
+      "category": "Theme Blocks"
+    }
+  ]
+}
+{% endschema %}

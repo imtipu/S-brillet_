@@ -1,0 +1,160 @@
+.tier-points-progress-bar {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding-block: 34px;
+
+    .tier-points-progress-bar__track {
+        position: relative;
+        width: 100%;
+        height: 14px;
+        overflow: visible;
+        isolation: isolate;
+        border-radius: 999px;
+        background: #efe8e4;
+        box-shadow: inset 0 1px 2px rgb(46 37 58 / 14%);
+    }
+
+    .tier-points-progress-bar__bar-bg,
+    .tier-points-progress-bar__fill {
+        position: absolute;
+        inset-block: 0;
+        left: 0;
+        width: var(--tier-progress);
+        min-width: 0;
+        overflow: hidden;
+        border-radius: inherit;
+        transition: width 220ms ease;
+    }
+
+    .tier-points-progress-bar__bar-bg {
+        z-index: 3;
+        background-repeat: repeat-x;
+        background-position: center;
+        background-size: 200px auto;
+        mix-blend-mode: screen;
+        opacity: 1;
+    }
+
+    .tier-points-progress-bar__fill {
+        z-index: 1;
+        background: linear-gradient(
+            90deg,
+            rgb(233 221 212 / 68%) 0%,
+            rgb(199 175 159 / 68%) 33%,
+            rgb(183 154 137 / 68%) 66%,
+            rgb(46 37 58 / 68%) 100%
+        );
+    }
+
+    .tier-points-progress-bar__marker {
+        position: absolute;
+        top: 50%;
+        left: var(--tier-progress);
+        z-index: 5;
+        display: block;
+        width: 36px;
+        height: 36px;
+        transform: translate(-50%, -50%);
+        filter: drop-shadow(0 2px 4px rgb(46 37 58 / 20%));
+
+        &[hidden] {
+            display: none;
+        }
+    }
+
+    .tier-points-progress-bar__tiers {
+        position: absolute;
+        top: 50%;
+        right: 0;
+        left: 0;
+        z-index: 4;
+        height: 0;
+        pointer-events: none;
+    }
+
+    .tier-points-progress-bar__tier {
+        position: absolute;
+        top: 50%;
+        display: block;
+        width: clamp(44px, 7vw, 62px);
+        height: auto;
+        transform: translate(-50%, -50%);
+        filter: drop-shadow(0 2px 4px rgb(46 37 58 / 16%));
+
+        &:nth-child(1) {
+            left: 0;
+        }
+
+        &:nth-child(2) {
+            left: 33.33%;
+        }
+
+        &:nth-child(3) {
+            left: 66.66%;
+        }
+
+        &:nth-child(4) {
+            left: 100%;
+        }
+    }
+
+    .tier-points-progress-bar__controls {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 32px;
+    }
+
+    .tier-points-progress-bar__control {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #2e253a;
+        font-size: 13px;
+        font-weight: 600;
+
+        input {
+            width: 88px;
+            min-height: 36px;
+            padding: 6px 9px;
+            border: 1px solid #c7af9f;
+            border-radius: 8px;
+            color: #2e253a;
+            background: #fff;
+            font: inherit;
+        }
+    }
+
+    .tier-points-progress-bar__input-wrap {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+
+        input {
+            width: 76px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        padding-block: 27px;
+
+        .tier-points-progress-bar__track {
+            height: 10px;
+        }
+
+        .tier-points-progress-bar__marker {
+            width: 30px;
+            height: 30px;
+        }
+
+        .tier-points-progress-bar__tier {
+            width: 42px;
+        }
+
+        .tier-points-progress-bar__controls {
+            margin-top: 26px;
+        }
+    }
+}

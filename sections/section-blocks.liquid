@@ -1,0 +1,86 @@
+<style>
+  .section-{{ section.id }} {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      align-items: center;
+          padding-inline: 10px;
+        padding-block: 10px;
+      .section-content {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+        max-width: {{ section.settings.section_content_max_width }}px;
+        padding-inline: {{ section.settings.block_padding_inline }}px;
+        padding-block: {{ section.settings.block_padding_block }}px;
+      }
+      .section-blocks {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+        .shopify-block {
+             width: 100%;
+        }
+      }
+  }
+</style>
+
+<div class="section-{{ section.id }}">
+  <div class="section-content">
+    <div class="section-blocks">
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Section Blocks",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Width & Height"
+    },
+    {
+      "type": "number",
+      "id": "section_content_max_width",
+      "label": "Max Width",
+      "default": 1300
+    },
+    {
+      "type": "range",
+      "id": "section_padding_inline",
+      "label": "Padding Inline",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "section_padding_block",
+      "label": "Padding Block",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@theme"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Section Blocks",
+      "category": "Sections"
+    }
+  ]
+}
+{% endschema %}
